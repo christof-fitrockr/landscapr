@@ -1,0 +1,14 @@
+{
+  "properties": [
+    {
+      "name": "jwt.header",
+      "type": "java.lang.String",
+      "sourceType": "de.landscapr.server.security.JwtAuthenticationTokenFilter"
+    },
+    {
+      "name": "jwt.secret",
+      "type": "java.lang.String",
+      "sourceType": "de.landscapr.server.security.JwtAuthenticationTokenFilter"
+    }
+  ]
+}
