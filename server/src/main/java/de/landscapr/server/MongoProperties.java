@@ -7,10 +7,12 @@ import org.springframework.core.env.Environment;
 import org.springframework.data.mongodb.MongoDatabaseFactory;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.SimpleMongoClientDatabaseFactory;
+import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 
 import java.util.Objects;
 
 @Configuration
+@EnableMongoRepositories(basePackages = {"de.landscapr.server"})
 public class MongoProperties {
 
     private final Environment environment;

@@ -47,7 +47,7 @@ public class JwtTokenService {
     }
 
     public Account getCurrentAccount(){
-        Optional<Account> dbAccount = accountRepository.findOneByUsername(getCurrentUsername());
+        Optional<Account> dbAccount = accountRepository.findOneByEmail(getCurrentUsername());
         return dbAccount.get();
     }
 

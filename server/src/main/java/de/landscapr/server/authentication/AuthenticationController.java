@@ -7,7 +7,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping
@@ -22,12 +21,12 @@ public class AuthenticationController {
 
     @PostMapping("/api/authenticate")
     public ResponseEntity<AuthenticationResponse> createCustomer(@RequestBody AuthenticationRequest request) {
-        return new ResponseEntity<>(authenticationService.generateJWTToken(request.getUsername(), request.getPassword()), HttpStatus.OK);
+        return new ResponseEntity<>(authenticationService.generateJWTToken(request.getEmail(), request.getPassword()), HttpStatus.OK);
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/api/secured/accounts/list")
-    public ResponseEntity<List<AccountForUI>> all() {
-        return ResponseEntity.ok(authenticationService.allAccounts().stream().map(AccountForUI::of).collect(Collectors.toList()));
+    public ResponseEntity<List<Account>> all() {
+        return ResponseEntity.ok(authenticationService.allAccounts());
     }
 
     @ExceptionHandler(EntityNotFoundException.class)

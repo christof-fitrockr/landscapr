@@ -9,13 +9,11 @@ public class Account {
     @Id
     private String id;
 
-    private String username;
-    private String password;
     private String email;
+    private String password;
 
     private String firstname;
     private String lastname;
-    private boolean receiveTaskSummary = true;
 
     public String getId() {
         return id;
@@ -23,14 +21,6 @@ public class Account {
 
     public void setId(String id) {
         this.id = id;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
     }
 
     public String getPassword() {
@@ -66,11 +56,4 @@ public class Account {
         return this;
     }
 
-    public boolean isReceiveTaskSummary() {
-        return receiveTaskSummary;
-    }
-
-    public void setReceiveTaskSummary(boolean receiveTaskSummary) {
-        this.receiveTaskSummary = receiveTaskSummary;
-    }
 }

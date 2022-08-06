@@ -23,11 +23,11 @@ public class AuthenticationService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    public AuthenticationResponse generateJWTToken(String username, String password) {
-        Optional<Account> dbAccount = accountRepository.findOneByUsername(username);
+    public AuthenticationResponse generateJWTToken(String email, String password) {
+        Optional<Account> dbAccount = accountRepository.findOneByEmail(email);
         return dbAccount
                 .filter(account ->  passwordEncoder.matches(password, account.getPassword()))
-                .map(account -> new AuthenticationResponse(jwtTokenService.generateToken(username)))
+                .map(account -> new AuthenticationResponse(jwtTokenService.generateToken(email)))
                 .orElseThrow(() ->  new EntityNotFoundException("Account not found"));
     }
 
