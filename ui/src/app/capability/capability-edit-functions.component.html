@@ -1,0 +1,34 @@
+
+<div class="container-xl">
+  <div class="card shadow mb-4">
+
+    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+
+
+      <div class="btn-toolbar justify-content-lg-start" role="toolbar" aria-label="Toolbar with button groups">
+        <div class="btn-group mr-2" role="group" aria-label="First group">
+          <a class="btn btn-secondary" title="List" routerLink="/capability"><i class="fas fa-list"></i></a>
+        </div>
+      </div>
+
+      <div class="btn-group justify-content-lg-end" role="group">
+        <div class="m-0 font-weight-bold text-uppercase text-gray-400 text-right">
+          <p class="p-0 m-0">{{capability?.name}}</p>
+          <p class="small p-0 m-0">Assigned Functions</p>
+        </div>
+
+      </div>
+
+    </div>
+
+    <div class="card-body">
+
+      <div class="mt-1" *ngFor="let item of usedBy">
+        <app-function-overview [apiCall]="item" [readOnly]="true"></app-function-overview>
+      </div>
+
+
+    </div>
+  </div>
+</div>
+

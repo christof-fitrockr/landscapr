@@ -1,0 +1,104 @@
+/* You can add global styles to this file, and also import other style files */
+
+@import "~@ng-select/ng-select/themes/default.theme.css";
+//@import "assets/css/vwag/vwag.min.css";
+
+html {
+  background-color: #ffffff;
+}
+
+$gray-100: #f8f9fc !default;
+$gray-200: #eaecf4 !default;
+$gray-300: #dddfeb !default;
+$gray-400: #d1d3e2 !default;
+$gray-500: #b7b9cc !default;
+$gray-600: #858796 !default;
+$gray-700: #6e707e !default;
+$gray-800: #5a5c69 !default;
+$gray-900: #3a3b45 !default;
+
+
+.text-xs {
+  font-size: .7rem;
+}
+
+.text-lg {
+  font-size: 1.2rem;
+}
+
+.text-gray-100 {
+  color: $gray-100 !important;
+}
+
+.text-gray-200 {
+  color: $gray-200 !important;
+}
+
+.text-gray-300 {
+  color: $gray-300 !important;
+}
+
+.text-gray-400 {
+  color: $gray-400 !important;
+}
+
+.text-gray-500 {
+  color: $gray-500 !important;
+}
+
+.text-gray-600 {
+  color: $gray-600 !important;
+}
+
+.text-gray-700 {
+  color: $gray-700 !important;
+}
+
+.text-gray-800 {
+  color: $gray-800 !important;
+}
+
+.text-gray-900 {
+  color: $gray-900 !important;
+}
+
+.bg-gray-100 {
+  background-color: $gray-100 !important;
+}
+
+.bg-gray-200 {
+  background-color: $gray-200 !important;
+}
+
+.bg-gray-300 {
+  background-color: $gray-300 !important;
+}
+
+.bg-gray-400 {
+  background-color: $gray-400 !important;
+}
+
+.bg-gray-500 {
+  background-color: $gray-500 !important;
+}
+
+.bg-gray-600 {
+  background-color: $gray-600 !important;
+}
+
+.bg-gray-700 {
+  background-color: $gray-700 !important;
+}
+
+.bg-gray-800 {
+  background-color: $gray-800 !important;
+}
+
+.bg-gray-900 {
+  background-color: $gray-900 !important;
+}
+
+a.active, a.active:hover, a.active:active, a.active:visited { color: white !important;text-decoration: underline !important; }
+a.white, a.white:hover, a.white:active, a.white:visited { color: white; }
+a.gray, a.gray:hover, a.gray:active, a.gray:visited { color: $gray-500; }
+a.black, a.black:hover, a.black:active, a.black:visited { color: black; }

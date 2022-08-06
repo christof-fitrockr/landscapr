@@ -1,0 +1,49 @@
+<div class="container-xl">
+  <div class="card shadow mb-4">
+
+    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+
+      <div class="btn-toolbar justify-content-lg-start" role="toolbar" aria-label="Toolbar with button groups">
+        <div class="btn-group mr-2" role="group" aria-label="First group">
+          <a type="button" class="btn btn-primary" title="Create" routerLink="../create"><i class="fas fa-plus"></i></a>
+
+          <a class="btn btn-secondary" title="Capability Map" routerLink="/capability/view"><i class="fas fa-map"></i></a>
+        </div>
+      </div>
+
+      <div class="btn-group justify-content-lg-end" role="group">
+        <h3 class="m-0 font-weight-bold text-uppercase text-gray-400">Capabilities</h3>
+      </div>
+
+    </div>
+
+    <div class="card-body">
+
+
+      <div class="fa-3x text-center p-5" *ngIf="!capabilities">
+        <i class="fas fa-spinner fa-pulse"></i>
+      </div>
+
+
+      <input *ngIf="capabilities && capabilities?.length > 0" type="text" class="input-group form-control" placeholder="Search.." [(ngModel)]="searchText" [ngModelOptions]="{standalone: true}">
+
+      <div *ngIf="capabilities && capabilities?.length === 0" class="small font-italic">No capabilities available. Please <a routerLink="../create">create</a> a new one.</div>
+
+      <table class="table" *ngIf="capabilities && capabilities?.length > 0">
+        <thead>
+        <tr>
+          <th scope="col"></th>
+          <th scope="col" class="w-100">Name</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let capability of capabilities | capabilityFilter: searchText">
+          <td><a routerLink="/capability/edit/{{capability?.capabilityId}}" class="btn btn-secondary btn-sm"><i class="fas fa-edit"></i></a></td>
+          <td>{{capability.name}}</td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+</div>

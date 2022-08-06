@@ -1,0 +1,20 @@
+<div class="card">
+  <div class="card-body">
+    <table>
+      <tr>
+        <td rowspan="2" class="m-1">
+          <button class="btn btn-sm btn-secondary mr-1" (click)="moveUp()"><i class="fas fa-chevron-up"></i></button>
+          <button class="btn btn-sm btn-secondary mr-1" (click)="moveDown()"><i class="fas fa-chevron-down"></i></button>
+          <button class="btn btn-sm btn-secondary" (click)="delete()"><i class="fas fa-trash"></i></button>
+        </td>
+        <td class="pl-2"><a href="/#/function/edit/{{apiCall?.apiCallId}}">{{apiCall?.name}}</a></td>
+      </tr>
+      <tr>
+        <td class="pl-2 small text-gray-700">{{apiCall?.description}}</td>
+      </tr>
+    </table>
+
+
+  </div>
+
+</div>

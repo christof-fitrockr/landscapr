@@ -1,0 +1,31 @@
+
+<div class="container-xl">
+  <div class="card shadow mb-4">
+
+    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+
+
+      <div class="btn-toolbar justify-content-lg-start" role="toolbar" aria-label="Toolbar with button groups">
+        <div class="btn-group mr-2" role="group" aria-label="First group">
+          <a class="btn btn-secondary" title="List" routerLink="/capability"><i class="fas fa-list"></i></a>
+        </div>
+      </div>
+
+      <div class="btn-group justify-content-lg-end" role="group">
+        <div class="m-0 font-weight-bold text-uppercase text-gray-400 text-right">
+          <p class="p-0 m-0">{{process?.name}}</p>
+          <p class="small p-0 m-0">Used by Process</p>
+        </div>
+
+      </div>
+
+    </div>
+
+    <div class="card-body">
+
+      <app-process-table [processes]="parentProcesses"></app-process-table>
+
+    </div>
+  </div>
+</div>
+

@@ -1,0 +1,101 @@
+<form #informationSystemServiceForm="ngForm" (ngSubmit)="onSubmit(informationSystemServiceForm)">
+  <input type="hidden" name="$key" #$key="ngModel" [(ngModel)]="service.$key">
+
+  <div class="row">
+    <div class="card col">
+      <div class="card__content">
+        <h1 class="h5">{{service?.id}} - {{service?.name}}</h1>
+
+
+        <div *ngIf="!editMode" class="row">
+          <div class="col lg-6 md-12">
+            <p><b><i class="icon i-tools"></i> Status</b><br>{{service?.implementationStatus}}</p>
+            <p><b><i class="icon i-library"></i> Description</b><br>{{service?.description}}</p>
+
+
+            <p><b><i class="icon i-link"></i> Further Documentation</b><br><a [href]="service?.docLinkUrl">{{service?.docLinkUrl}}</a></p>
+
+
+            <p><b><i class="icon i-enter"></i> Request</b><br><pre>{{service?.requestStructure}}</pre></p>
+            <p><b><i class="icon i-leave"></i> Response</b><br><pre>{{service?.responseStructure}}</pre></p>
+
+
+            <div><b><i class="icon i-enter"></i> Example Request</b><br><pre>{{service?.exampleRequest}}</pre></div>
+            <p><b><i class="icon i-leave"></i> Example Response</b><br><pre>{{service?.exampleResponse}}</pre></p>
+
+          </div>
+        </div>
+
+
+
+        <div *ngIf="editMode">
+          <div class="form-group">
+            <label>Id</label>
+            <input class="form-control" name="id" #name="ngModel" [(ngModel)]="service.id" placeholder="ID" required>
+          </div>
+          <div class="form-group">
+            <label>Name</label>
+            <input class="form-control" name="name" #name="ngModel" [(ngModel)]="service.name" placeholder="Name" required>
+          </div>
+          <div class="form-group">
+            <label>Implementation Status</label>
+            <input class="form-control" name="implementationStatus" #name="ngModel" [(ngModel)]="service.implementationStatus" placeholder="Implementation Status" required>
+          </div>
+          <div class="form-group">
+            <label>Link to Documentation</label>
+            <input class="form-control" name="docLinkUrl" #name="ngModel" [(ngModel)]="service.docLinkUrl" placeholder="Link to API Documentation">
+          </div>
+          <div class="form-group">
+            <label>Description</label>
+            <textarea class="form-control" name="description" #position="ngModel" [(ngModel)]="service.description" placeholder="Description"></textarea>
+          </div>
+
+          <div class="form-group">
+            <label>Request Structure</label>
+            <textarea class="form-control" name="requestStructure" #position="ngModel" [(ngModel)]="service.requestStructure" placeholder="Request Structure"></textarea>
+          </div>
+
+          <div class="form-group">
+            <label>Response Structure</label>
+            <textarea class="form-control" name="responseStructure" #position="ngModel" [(ngModel)]="service.responseStructure" placeholder="Response Structure"></textarea>
+          </div>
+
+          <div class="form-group">
+            <label>Example Request</label>
+            <textarea class="form-control" name="exampleRequest" #position="ngModel" [(ngModel)]="service.description" placeholder="Example Request"></textarea>
+          </div>
+
+          <div class="form-group">
+            <label>Example Response</label>
+            <textarea class="form-control" name="exampleResponse" #position="ngModel" [(ngModel)]="service.description" placeholder="Example Response"></textarea>
+          </div>
+
+
+          <div class="form-group">
+            <button class="btn btn-default" type="submit" [disabled]="!informationSystemServiceForm.valid">
+              <i class="fa fa-floppy-o"></i>
+              Submit</button>
+            <button class="btn btn-default" type="button" (click)="resetForm(informationSystemServiceForm)">
+              <i class="fa fa-repeat"></i>
+              Reset</button>
+          </div>
+        </div>
+
+
+
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" *ngIf="showModal">
+    <div class="modal__wrapper">
+      <h1 class="modal__title">Title</h1>
+      <div class="modal__close" (click)="hideModal()"></div>
+      <div class="modal__content">
+
+        <app-business-function [businessFunction]="functionToShow"></app-business-function>
+
+      </div>
+    </div>
+  </div>
+</form>

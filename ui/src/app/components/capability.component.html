@@ -1,0 +1,10 @@
+<div class="card">
+  <div class="card-header">{{capability?.name}}</div>
+  <div class="card-body">
+    <ul>
+      <li *ngFor="let fct of apiCalls"><a routerLink="/function/edit/{{fct?.apiCallId}}">{{fct?.name}}</a> </li>
+    </ul>
+  </div>
+</div>
+
+

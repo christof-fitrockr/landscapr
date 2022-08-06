@@ -1,0 +1,31 @@
+  <div class="card">
+    <div class="card__content">
+      <h1 class="h5">{{cluster.name}}</h1>
+
+
+      <div class="table is-elevate">
+        <table class="table__body">
+          <tbody>
+          <tr (click)="showFunction(function)" *ngFor="let function of cluster.functions">
+            <td>{{function.id}}</td>
+            <td>{{function.name}}</td>
+            <td>{{function.progress}}%</td>
+          </tr>
+        </table>
+      </div>
+
+    </div>
+  </div>
+
+
+  <div class="modal" *ngIf="showModal">
+    <div class="modal__wrapper">
+      <h1 class="modal__title">Title</h1>
+      <div class="modal__close" (click)="hideModal()"></div>
+      <div class="modal__content">
+
+        <app-business-function [businessFunction]="functionToShow"></app-business-function>
+
+      </div>
+    </div>
+  </div>

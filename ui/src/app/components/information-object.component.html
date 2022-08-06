@@ -1,0 +1,47 @@
+<form #informationObjectForm="ngForm" (ngSubmit)="onSubmit(informationObjectForm)">
+  <input type="hidden" name="$key" #$key="ngModel" [(ngModel)]="informationObject.$key">
+
+  <div class="row">
+    <div class="card col">
+      <div class="card__content">
+
+        <h1 class="h5">{{informationObject?.id}} - {{informationObject?.name}}</h1>
+
+        <div *ngIf="!editMode">
+          <div class="row">
+            <div class="col lg-6 md-12">
+              <p><b><i class="icon i-library"></i> Description</b><br><pre>{{informationObject?.description}}</pre></p>
+            </div>
+          </div>
+        </div>
+
+
+        <div *ngIf="editMode">
+          <div class="form-group">
+            <label>Id</label>
+            <input class="form-control" name="id" #name="ngModel" [(ngModel)]="informationObject.id" placeholder="ID" required>
+          </div>
+          <div class="form-group">
+            <label>Name</label>
+            <input class="form-control" name="name" #name="ngModel" [(ngModel)]="informationObject.name" placeholder="Name" required>
+          </div>
+          <div class="form-group">
+            <label>Description</label>
+            <textarea class="form-control" name="description" #position="ngModel" [(ngModel)]="informationObject.description" placeholder="Description"></textarea>
+          </div>
+          <div class="form-group">
+            <button class="btn btn-default" type="submit" [disabled]="!informationObjectForm.valid">
+              <i class="fa fa-floppy-o"></i>
+              Submit</button>
+            <button class="btn btn-default" type="button" (click)="resetForm(informationObjectForm)">
+              <i class="fa fa-repeat"></i>
+              Reset</button>
+          </div>
+        </div>
+
+
+      </div>
+    </div>
+  </div>
+
+</form>

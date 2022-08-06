@@ -1,0 +1,84 @@
+<form #businessServiceForm="ngForm" (ngSubmit)="onSubmit(businessServiceForm)">
+  <input type="hidden" name="$key" #$key="ngModel" [(ngModel)]="service.$key">
+
+  <div class="row">
+    <div class="card col">
+      <div class="card__content">
+        <h1 class="h5">{{service?.id}} - {{service?.name}}</h1>
+
+
+          <div *ngIf="!editMode" class="row">
+            <div class="col lg-6 md-12">
+              <p><b><i class="icon i-user"></i> Persona</b><br>{{service?.actor}}</p>
+              <p><b><i class="icon i-library"></i> Description</b><br>{{service?.description}}</p>
+              <div class><p><b><i class="icon i-map"></i> Related Functions</b></p>
+
+                <div class="table is-elevate">
+                  <table class="table__body">
+                    <tbody>
+                    <tr (click)="showFunction(function)" *ngFor="let function of functions">
+                      <td>{{function.id}}</td>
+                      <td>{{function.name}}</td>
+                      <td>{{function.progress}}%</td>
+                    </tr>
+                  </table>
+                </div>
+
+
+              </div>
+            </div>
+            <div class="col lg-6 md-12">
+              <p><b><i class="icon camera"></i> Usage</b><br><img [src]="service?.screenshotUrl"/></p>
+            </div>
+          </div>
+
+
+        <div *ngIf="editMode">
+
+          <div class="row sm-12">
+            <label for="id" class="mar-bottom-erase">ID</label>
+            <input id="id" name="id" #name="ngModel" [(ngModel)]="service.id" placeholder="ID" required type="text">
+          </div>
+          <div class="row sm-12">
+            <label for="name" class="mar-bottom-erase">Name</label>
+            <input class="form-control" id="name" name="name" #name="ngModel" [(ngModel)]="service.name" placeholder="Name" required type="text">
+          </div>
+          <div class="row sm-12">
+            <label for="actor" class="mar-bottom-erase">Actor</label>
+            <input class="form-control" id="actor" name="actor" #name="ngModel" [(ngModel)]="service.actor" placeholder="Actor" required type="text">
+          </div>
+          <div class="row sm-12">
+            <label for="screenshotUrl" class="mar-bottom-erase">Screenshot Url</label>
+            <input class="form-control" id="screenshotUrl" name="screenshotUrl" #name="ngModel" [(ngModel)]="service.screenshotUrl" placeholder="Screenshot Url" type="text">
+          </div>
+          <div class="row sm-12">
+            <label for="description" class="mar-bottom-erase">Description</label>
+            <textarea class="form-control" id="description" name="description" #position="ngModel" [(ngModel)]="service.description" placeholder="Description"></textarea>
+          </div>
+
+          <div class="row horizontal-margins-medium">
+            <button class="btn btn--primary" type="submit" [disabled]="!businessServiceForm.valid"><i class="icon i-check"></i>Submit</button>
+            <button class="btn btn--secondary" type="button" (click)="resetForm(businessServiceForm)"><i class="icon i-close"></i>Reset</button>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+</form>
+
+
+
+<div class="modal" *ngIf="showModal">
+  <div class="modal__wrapper">
+    <h1 class="modal__title">Title</h1>
+    <div class="modal__close" (click)="hideModal()"></div>
+    <div class="modal__content">
+
+      <app-business-function [businessFunction]="functionToShow"></app-business-function>
+
+    </div>
+  </div>
+</div>

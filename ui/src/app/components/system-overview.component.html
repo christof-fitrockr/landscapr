@@ -1,0 +1,36 @@
+<div class="card">
+  <div class="card-body p-0 p-0">
+    <table class="w-100">
+      <tr>
+        <td *ngIf="!readOnly" rowspan="3" class="m-1 text-nowrap border-right">
+          <i class="text-gray-700 fas fa-grip-lines ml-4 mr-4"></i>
+        </td>
+        <td class="p-2 w-100 bg-light"><a href="/#/system/edit/{{system?.systemId}}">{{system?.name}}</a></td>
+        <td class="bg-light text-center pl-1 pr-1">
+          <div *ngIf="!readOnly" class="dropdown">
+            <button class="btn btn-sm btn-link" type="button" data-toggle="dropdown" aria-expanded="false">
+              <i class="fas fa-ellipsis-h"></i>
+            </button>
+            <ul class="dropdown-menu">
+              <li><button class="dropdown-item" (click)="delete()">Delete</button></li>
+            </ul>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td class="pl-2 small text-gray-700">
+          <span>{{system?.description}}</span>
+          <span *ngIf="!system?.description" class="font-italic small">No description available</span>
+        </td>
+        <td rowspan="2" class="text-nowrap">
+          <i *ngIf="system?.status === 0" class="text-warning fas fa-exclamation-triangle mr-1"></i>
+          <i *ngIf="system?.status === 1" class="text-success fas fa-check-circle mr-1"></i>
+        </td>
+      </tr>
+    </table>
+
+
+
+  </div>
+
+</div>

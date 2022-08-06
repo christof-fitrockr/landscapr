@@ -1,0 +1,41 @@
+<div class="card">
+  <div class="card__content">
+    <div class="row">
+      <h1 class="col h5">{{businessFunction.id}} - {{businessFunction.name}} {{businessFunction.progress}}%</h1>
+    </div>
+
+    <div class="row">
+      <p class="col">{{businessFunction.description}}</p>
+    </div>
+
+    <div class="row">
+
+      <div class="col xs-6">
+        <div class="table is-elevate">
+          <table class="table__body">
+            <tbody>
+            <tr *ngFor="let service of businessServices">
+              <td><a routerLink="/businessServiceDetails/{{service.id}}">{{service.id}}</a></td>
+              <td>{{service.name}}</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+
+      <div class="col xs-6">
+
+        <div class="table is-elevate">
+          <table class="table__body">
+            <tbody>
+            <tr *ngFor="let service of informationSystemServices">
+              <td><a routerLink="/informationSystemServiceDetails/{{service.id}}">{{service.id}}</a></td>
+              <td>{{service.name}}</td>
+            </tr>
+          </table>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div>

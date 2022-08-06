@@ -1,0 +1,9 @@
+<label for="SearchField">
+  <input placeholder="Search..." id="SearchField" type="text" [(ngModel)]="searchText">
+</label>
+
+<div class="row">
+  <div *ngFor="let item of functionalCluster  | clusterFilter: searchText" class="col sm-12 md-6 lg-6 xl-4 xxl-3">
+    <app-cluster [cluster]="item"></app-cluster>
+  </div>
+</div>

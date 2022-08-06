@@ -1,0 +1,65 @@
+<div id="login-main" class="m-0 p-0 container-fluid vh-100">
+  <div class="row m-0 p-0 h-100 justify-content-center align-items-center w-100">
+
+    <div id="image-div" class="col-8 m-0 p-0 h-100">
+    </div>
+    <div class="col-4">
+
+      <form *ngIf="!loading" class="h-100 justify-content-center" [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+
+          <div class="col-12 text-center">
+            <img class="mb-4" src="/assets/img.png" >
+            <h5>Login</h5>
+            <p *ngIf="errorMessage" class="text-danger">{{errorMessage}}</p>
+          </div>
+
+          <div class="col-12">
+
+            <div class="form-group">
+              <label for="username">Username</label>
+              <input id="username" type="text" formControlName="username" class="form-control" [ngClass]="{ 'is-invalid': submitted && f.username.errors }" />
+              <div *ngIf="submitted && f.username.errors" class="invalid-feedback">
+                <div *ngIf="f.username.errors.required">Username is required</div>
+              </div>
+            </div>
+
+          </div>
+
+          <div class="col-12">
+
+            <div class="form-group">
+              <label for="password">Password</label>
+              <input id="password" type="password" formControlName="password" class="form-control" [ngClass]="{ 'is-invalid': submitted && f.password.errors }" />
+              <div *ngIf="submitted && f.password.errors" class="invalid-feedback">
+                <div *ngIf="f.password.errors.required">Password is required</div>
+              </div>
+            </div>
+
+          </div>
+
+
+          <div class="col-12">
+
+            <div class="form-group">
+              <button [disabled]="loading" class="btn btn-primary w-100 mt-4">Login</button>
+            </div>
+
+          </div>
+
+
+      </form>
+
+      <div class="fa-3x text-center p-5" *ngIf="loading">
+        <i class="fas fa-spinner fa-pulse"></i>
+      </div>
+    </div>
+
+
+
+
+  </div>
+</div>
+
+
+
+

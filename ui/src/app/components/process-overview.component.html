@@ -1,0 +1,58 @@
+<div class="card">
+  <div class="card-body p-0 p-0">
+    <table class="w-100">
+      <tr>
+        <td rowspan="3" class="m-1 text-nowrap border-right">
+          <i class="text-gray-700 fas fa-grip-lines ml-4 mr-4"></i>
+        </td>
+        <td class="p-2 w-100 bg-light"><a href="/#/process/edit/{{processWithStep.process?.processId}}">{{processWithStep.process?.name}}</a></td>
+        <td class="bg-light text-center pl-1 pr-1">
+          <div class="dropdown">
+            <button class="btn btn-sm btn-link" type="button" data-toggle="dropdown" aria-expanded="false">
+              <i class="fas fa-ellipsis-h"></i>
+            </button>
+            <ul class="dropdown-menu">
+              <li><button class="dropdown-item" (click)="delete()">Delete</button></li>
+              <li><button class="dropdown-item" (click)="addSuccessor()">Add Successor</button></li>
+            </ul>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td class="pl-2 small text-gray-700">
+          <span>{{processWithStep.process?.description}}</span>
+          <span *ngIf="!processWithStep?.process?.description" class="font-italic small">No description available</span>
+        </td>
+        <td rowspan="2" class="text-nowrap">
+          <i *ngIf="processWithStep?.process?.apiCallsIds?.length > 0" class="fas fa-wave-square mr-1" title="{{processWithStep?.process?.apiCallsIds?.length}} API Call(s)"></i>
+          <i *ngIf="processWithStep?.process?.steps?.length > 0" class="fas fa-sitemap mr-1" title="{{processWithStep?.process?.steps?.length}} Process Step(s)"></i>
+
+          <i *ngIf="processWithStep.process?.status === 0" class="text-warning fas fa-exclamation-triangle mr-1"></i>
+          <i *ngIf="processWithStep.process?.status === 1" class="text-success fas fa-check-circle mr-1"></i>
+        </td>
+      </tr>
+      <tr>
+
+        <table class="w-100">
+          <tr *ngFor="let step of processWithStep.stepDetails.successor; index as idx">
+            <td class="pl-2 w-50">
+              <ng-select id="implementationType" [(ngModel)]="step.processReference" [ngModelOptions]="{updateOn: 'blur', standalone: true}" (ngModelChange)="onUpdate()" [items]="processes" bindLabel="name" bindValue="processId">
+              </ng-select>
+            </td>
+            <td class="pl-2 w-50">
+              <input class="form-control" type="text" [(ngModel)]="step.edgeTitle" [ngModelOptions]="{updateOn: 'blur', standalone: true}" (ngModelChange)="onUpdate()" placeholder="Description.."/>
+            </td>
+            <td class="m-1 text-nowrap">
+              <button class="btn btn-link" (click)="deleteSuccessor(idx)"><i class="fas fa-trash"></i></button>
+            </td>
+          </tr>
+        </table>
+
+      </tr>
+    </table>
+
+
+
+  </div>
+
+</div>

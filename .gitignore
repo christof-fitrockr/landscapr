@@ -1,0 +1,9 @@
+.idea
+.angular
+server/src/main/resources/web
+server/.build
+server/.gradle
+server/.idea
+server/build
+ui/.gradle
+fitrockr.log
