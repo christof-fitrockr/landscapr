@@ -1,0 +1,40 @@
+package de.landscapr.server.capability;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+
+@RestController
+public class CapabilityController {
+
+    private final CapabilityRepository capabilityRepository;
+
+    public CapabilityController(CapabilityRepository capabilityRepository) {
+        this.capabilityRepository = capabilityRepository;
+    }
+
+    @RequestMapping(method = RequestMethod.GET, value = "/api/secured/capability/all")
+    public ResponseEntity<List<Capability>> all() {
+        return ResponseEntity.ok(capabilityRepository.findAll());
+    }
+
+    @RequestMapping(method = RequestMethod.GET, value = "/api/secured/capability/byId/{capabilityId}")
+    public ResponseEntity<Capability> get(@PathVariable String capabilityId) {
+        return capabilityRepository.findById(capabilityId).map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @RequestMapping(method = RequestMethod.GET, value = "/api/secured/capability/delete/{capabilityId}")
+    public ResponseEntity<Void> delete(@PathVariable String capabilityId) {
+        capabilityRepository.findById(capabilityId).ifPresent(capabilityRepository::delete);
+        return ResponseEntity.ok().build();
+    }
+
+    @RequestMapping(method = RequestMethod.POST, value = "/api/secured/capability/update", produces = APPLICATION_JSON_VALUE, consumes = APPLICATION_JSON_VALUE)
+    public ResponseEntity<Capability> update(@RequestBody Capability capability) {
+        Capability savedCapability = capabilityRepository.save(capability);
+        return ResponseEntity.ok(savedCapability);
+    }
+}
