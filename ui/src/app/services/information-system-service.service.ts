@@ -1,8 +1,6 @@
-import {Injectable, OnInit} from '@angular/core';
-import {Observable} from "rxjs";
-import {InformationObject} from "../models/information-object";
+import {Injectable} from '@angular/core';
 import {InformationSystemService} from '../models/information-system-service';
-import {AngularFireDatabase, AngularFireList} from '@angular/fire/compat/database';
+import {AngularFireList} from '@angular/fire/compat/database';
 
 
 @Injectable({
@@ -13,10 +11,10 @@ export class InformationSystemServiceService {
   private dbPath = '/mvp/information-system-services';
   informationSystemServices$: AngularFireList<any> = null;
 
-  constructor(private db: AngularFireDatabase) {
-    this.informationSystemServices$ = db.list(this.dbPath);
-  }
-
+  // constructor(private db: AngularFireDatabase) {
+    //this.informationSystemServices$; // = db.list(this.dbPath);
+  // }
+O
   create(informationSystemService: InformationSystemService): void {
 
     this.informationSystemServices$.push({

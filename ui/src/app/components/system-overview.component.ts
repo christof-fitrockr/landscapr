@@ -15,6 +15,6 @@ export class SystemOverviewComponent  {
   constructor() { }
 
   delete() {
-    this.deleteEmitter.emit(this.system.systemId);
+    this.deleteEmitter.emit(this.system.id);
   }
 }

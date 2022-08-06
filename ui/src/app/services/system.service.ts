@@ -1,8 +1,9 @@
 import {Injectable} from '@angular/core';
 import {Observable} from 'rxjs';
-import {AngularFirestore, DocumentReference} from '@angular/fire/compat/firestore';
-import * as firebase from 'firebase/firestore';
 import {System} from '../models/system';
+import {HttpClient} from '@angular/common/http';
+
+import {environment} from '../../environments/environment';
 
 
 @Injectable({
@@ -10,53 +11,34 @@ import {System} from '../models/system';
 })
 export class SystemService {
 
-  constructor(private db: AngularFirestore) {
+  constructor(private http: HttpClient) {
   }
 
   allSystems(): Observable<System[]> {
-    return this.db.collection<System>('system', ref => ref.orderBy('name')).valueChanges({ idField: 'systemId' });
+    return this.http.get<System[]>(`${environment.apiUrl}/secured/system/list`);
   }
 
   getSystemById(id: string): Observable<System> {
-    return this.db.collection<System>('system').doc(id).valueChanges({ idField: 'systemId' });
+    return this.http.get<System>(`${environment.apiUrl}/secured/system/byId/` + id);
   }
-
 
   getSystemByIds(ids: string[]): Observable<System[]> {
-    return this.db.collection<System>('system', ref => {
-      return ref.where( firebase.documentId(), 'in', ids)}
-      ).valueChanges({ idField: 'systemId' });
-
+    return this.http.post<System[]>(`${environment.apiUrl}/secured/system/byIds`, ids);
   }
-
 
   getSystemByName(name: string): Observable<System[]> {
-
-    return this.db.collection<System>('system', ref => {
-      return ref
-        .orderBy("name")
-        .where('name', '>=', name.toUpperCase())
-        .where('name', '<=', name.toLowerCase() + '\uf8ff')
-        .limit(10);}
-        ).valueChanges({ idField: 'systemId' });
+    return this.http.get<System[]>(`${environment.apiUrl}/secured/system/byName/` + name);
   }
 
-  createSystem(system: System): Promise<DocumentReference<System>> {
-    return this.db.collection<System>("system").add(JSON.parse(JSON.stringify(system)));
+  createSystem(system: System): Observable<System> {
+    return this.http.post<System>(`${environment.apiUrl}/secured/system/update`, system);
   }
 
-  updateSystem(id: string, system:  System): Promise<void> {
-    return this.db.collection("system").doc(id).update(JSON.parse( JSON.stringify(system ) )).catch(error => this.handleError(error));
+  updateSystem(id: string, system:  System): Observable<System> {
+    return this.http.post<System>(`${environment.apiUrl}/secured/system/update`, system);
   }
 
-  deleteSystem(systemId: string): Promise<void> {
-    return this.db.collection("system").doc(systemId).delete();
+  deleteSystem(systemId: string): Observable<void> {
+    return this.http.get<void>(`${environment.apiUrl}/secured/system/delete/` + systemId);
   }
-
-
-
-  private handleError(error) {
-    console.log(error);
-  }
-
 }

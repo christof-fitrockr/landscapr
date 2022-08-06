@@ -4,14 +4,15 @@
 
 export const environment = {
   production: false,
-  firebase: {
-    apiKey: "AIzaSyBINh2GlZjgB0ptX98mu51tkMfjumxdZQc",
-    authDomain: "das-zielbild.firebaseapp.com",
-    databaseURL: "https://das-zielbild.firebaseio.com",
-    projectId: "das-zielbild",
-    storageBucket: "das-zielbild.appspot.com",
-    messagingSenderId: "310614124624"
-  }
+  apiUrl: 'http://localhost:8080/api',
+  // firebase: {
+  //   apiKey: "AIzaSyBINh2GlZjgB0ptX98mu51tkMfjumxdZQc",
+  //   authDomain: "das-zielbild.firebaseapp.com",
+  //   databaseURL: "https://das-zielbild.firebaseio.com",
+  //   projectId: "das-zielbild",
+  //   storageBucket: "das-zielbild.appspot.com",
+  //   messagingSenderId: "310614124624"
+  // }
 };
 
 

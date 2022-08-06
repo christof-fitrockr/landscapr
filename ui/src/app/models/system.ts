@@ -1,4 +1,5 @@
 export class System {
+  id: string;
   name: string;
   description: string;
   contact: string;
@@ -6,7 +7,6 @@ export class System {
   systemCluster: string;
   tags: string[];
   status: DataStatus
-  systemId?: string;
 
 }
 

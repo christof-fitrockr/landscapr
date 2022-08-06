@@ -90,8 +90,8 @@ export class CapabilityEditImplementedByComponent implements OnInit {
     if (this.systemForm.valid) {
       let system = new System();
       system = Object.assign(system, this.systemForm.value);
-      this.systemService.createSystem(system).then(docRef => {
-        this.addImplementedBySystem(docRef.id);
+      this.systemService.createSystem(system).pipe(first()).subscribe(system => {
+        this.addImplementedBySystem(system.id);
       });
     }
   }

@@ -50,7 +50,7 @@ export class SwimlaneViewComponent implements OnInit, AfterViewInit {
             this.apiCallMap.set(apiCall.apiCallId, apiCall);
           }
           for (let system of systems) {
-            this.systemMap.set(system.systemId, system);
+            this.systemMap.set(system.id, system);
           }
 
           this.createGraph(cx, this.processId, 50, 0);

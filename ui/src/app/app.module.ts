@@ -160,8 +160,8 @@ import {CapabilityFilterPipe} from './pipes/capability-filter.pipe';
   ],
   imports: [
     BrowserModule,
-    AngularFireModule.initializeApp(environment.firebase),
-    AngularFireDatabaseModule,
+    // AngularFireModule.initializeApp(environment.firebase),
+    // AngularFireDatabaseModule,
     NgxGraphModule,
     NgSelectModule,
     BrowserAnimationsModule,

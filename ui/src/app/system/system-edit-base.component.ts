@@ -54,14 +54,14 @@ export class SystemEditBaseComponent implements OnInit {
     if (this.systemForm.valid) {
       this.system = Object.assign(this.system, this.systemForm.value);
       if(!this.systemId) {
-        this.systemService.createSystem(this.system).then(docRef => {
-          this.router.navigateByUrl('/system/edit/' + docRef.id).then(() => {
+        this.systemService.createSystem(this.system).pipe(first()).subscribe(system => {
+          this.router.navigateByUrl('/system/edit/' + system.id).then(() => {
             this.toastr.info('System created successfully');
             this.refresh()
           });
         });
       } else {
-        this.systemService.updateSystem(this.systemId, this.system).then(() => {
+        this.systemService.updateSystem(this.systemId, this.system).pipe(first()).subscribe(() => {
           this.toastr.info('System updated successfully');
           this.refresh();
         });
@@ -70,7 +70,7 @@ export class SystemEditBaseComponent implements OnInit {
   }
 
   delete() {
-    this.systemService.deleteSystem(this.systemId).then(() => {
+    this.systemService.deleteSystem(this.systemId).pipe(first()).subscribe(() => {
       this.router.navigate(['/system']).then(() => {
         this.toastr.info('System deleted successfully');
       });
