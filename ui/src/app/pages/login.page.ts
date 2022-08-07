@@ -35,7 +35,7 @@ export class LoginPage implements OnInit {
 
   ngOnInit() {
     this.loginForm = this.formBuilder.group({
-      username: ['', Validators.required],
+      email: ['', Validators.required],
       password: ['', Validators.required]
     });
 
@@ -57,7 +57,7 @@ export class LoginPage implements OnInit {
 
     this.errorMessage = undefined;
     this.loading = true;
-    this.authenticationService.login(this.f.username.value, this.f.password.value)
+    this.authenticationService.login(this.f.email.value, this.f.password.value)
       .pipe(first())
       .subscribe(
         data => {
@@ -65,18 +65,7 @@ export class LoginPage implements OnInit {
 
         },
         error => {
-          switch (error.code) {
-            case 'auth/user-not-found':
-            case 'auth/wrong-password':
-              this.errorMessage = "Invalid user or password.";
-              break
-            case 'auth/too-many-requests':
-              this.errorMessage = "Account has been temporarily disabled.";
-              break
-            default:
-              this.errorMessage = "Unknown error. Please try later."
-              break;
-          }
+          this.errorMessage = error;
           this.loading = false;
           this.alertService.error(error);
         });
