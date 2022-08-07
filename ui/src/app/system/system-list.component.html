@@ -6,7 +6,7 @@
       <div class="btn-toolbar justify-content-lg-start" role="toolbar" aria-label="Toolbar with button groups">
         <div class="btn-group mr-2" role="group" aria-label="First group">
           <a type="button" class="btn btn-primary" title="Create" routerLink="../create"><i class="fas fa-plus"></i></a>
-          <button type="button" class="btn btn-primary" title="Create" (click)="refresh()"><i class="fas fa-sync"></i></button>
+          <button type="button" class="btn btn-secondary" title="Refresh" (click)="refresh()"><i class="fas fa-sync"></i></button>
         </div>
       </div>
 
@@ -39,7 +39,7 @@
         </thead>
         <tbody>
         <tr *ngFor="let system of systems | systemFilter: searchText">
-          <td><a routerLink="/system/edit/{{system?.systemId}}" class="btn btn-secondary btn-sm"><i class="fas fa-edit"></i></a></td>
+          <td><a routerLink="/system/edit/{{system?.id}}" class="btn btn-secondary btn-sm"><i class="fas fa-edit"></i></a></td>
           <td>{{system.systemCluster}}</td>
           <td>{{system.name}}</td>
 
