@@ -6,7 +6,7 @@ plugins {
 	id 'com.palantir.docker' version '0.22.1'
 }
 
-group = 'com.fitrockr'
+group = 'de.landscapr'
 version = '0.0.1-SNAPSHOT'
 sourceCompatibility = "1.9"
 
