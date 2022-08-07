@@ -61,8 +61,6 @@ test {
 
 docker {
 	name "${project.group}/${bootJar.baseName}"
-
-	tag 'gitlabRegistry', ' registry.gitlab.com/fitrockr/landscapr:latest'
 	files bootJar.archivePath
 	buildArgs(['JAR_FILE': "${bootJar.archiveName}"])
 }

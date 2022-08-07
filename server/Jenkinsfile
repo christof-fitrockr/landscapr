@@ -1,0 +1,98 @@
+pipeline {
+  agent any
+  tools {
+    jdk "jdk-oracle"
+    gradle "gradle-6.5"
+    nodejs "NodeJS 16.15.1"
+  }
+
+  environment {
+      VERSION = "${env.BUILD_NUMBER}"
+  }
+
+  stages {
+
+    stage('Fetch dependencies') {
+      steps {
+        dir("ui") {
+            sh "npm install"
+            sh "npm update"
+            sh "npm run buildToSpring"
+        }
+
+        stash includes: 'dist/', name: 'dist'
+      }
+    }
+
+    stage('Test') {
+      steps {
+        sh 'gradle test'
+
+          // publish html
+                publishHTML target: [
+                    allowMissing: false,
+                    alwaysLinkToLastBuild: false,
+                    keepAll: true,
+                    reportDir: 'build/reports/tests/test',
+                    reportFiles: 'index.html',
+                    reportName: 'Test Report'
+                  ]
+      }
+    }
+    stage('Api Doc') {
+      steps {
+        sh 'gradle asciidoctor'
+      }
+    }
+    stage('Build') {
+      steps {
+        sh 'gradle build docker'
+      }
+    }
+    stage('Build and Push Docker Image') {
+      steps {
+        sh 'docker service update --force --update-parallelism 1 landscapr_server'
+      }
+    }
+  stage('Upload Docker Image to gitlab') {
+        steps {
+          dir("backend") {
+            sh 'docker tag api-gateway:latest registry.gitlab.com/fitrockr/landscapr:latest'
+            sh 'docker tag api-gateway:latest registry.gitlab.com/fitrockr/landscapr:${VERSION}'
+            sh 'docker login -p -8RuAcjzTYa3QLVQUcnR -u steffen.bornemann registry.gitlab.com'
+            sh 'docker push --all-tags registry.gitlab.com/fitrockr/server'
+            sh 'docker logout registry.gitlab.com'
+          }
+        }
+      }
+  }
+
+
+    stage('Build and Push Docker Image') {
+      steps {
+        unstash 'dist'
+        sh 'docker build . -t player-ui:latest -t registry.gitlab.com/fitrockr/player-ui:latest'
+      }
+    }
+
+
+
+    stage('Update Docker Image') {
+      steps {
+        dir("backend") {
+          sh 'docker service update --force --update-parallelism 1 microservice_player-ui'
+        }
+      }
+    }
+    stage('Upload Docker Image to gitlab') {
+      steps {
+        dir("backend") {
+          sh 'docker login -p -8RuAcjzTYa3QLVQUcnR -u steffen.bornemann registry.gitlab.com'
+          sh 'docker tag registry.gitlab.com/fitrockr/player-ui:latest registry.gitlab.com/fitrockr/player-ui:${VERSION}'
+          sh 'docker push --all-tags registry.gitlab.com/fitrockr/player-ui'
+          sh 'docker logout registry.gitlab.com'
+        }
+      }
+    }
+  }
+}
