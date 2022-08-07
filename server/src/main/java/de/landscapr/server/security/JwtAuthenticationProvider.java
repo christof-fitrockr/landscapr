@@ -1,5 +1,7 @@
 package de.landscapr.server.security;
 
+import de.landscapr.server.authentication.Account;
+import de.landscapr.server.authentication.AccountRepository;
 import io.jsonwebtoken.JwtException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,6 +11,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.stereotype.Component;
 
+import java.util.Optional;
+
 @Component
 public class JwtAuthenticationProvider implements AuthenticationProvider {
 
@@ -16,10 +20,7 @@ public class JwtAuthenticationProvider implements AuthenticationProvider {
 
     private final JwtTokenService jwtService;
 
-    @SuppressWarnings("unused")
-    public JwtAuthenticationProvider() {
-        this(null);
-    }
+
 
     @Autowired
     public JwtAuthenticationProvider(JwtTokenService jwtService) {
@@ -31,11 +32,14 @@ public class JwtAuthenticationProvider implements AuthenticationProvider {
 
         try {
             String token = (String) authentication.getCredentials();
-            String username = jwtService.getUsernameFromToken(token);
+            Optional<Account> account = jwtService.getAccountFromToken(token);
 
-            return jwtService.validateToken(token)
-                    .map(aBoolean -> new JwtAuthenticatedProfile(username))
-                    .orElseThrow(() -> new JwtAuthenticationException("JWT Token validation failed"));
+            if(account.isPresent()) {
+                return jwtService.validateToken(token)
+                        .map(aBoolean -> new JwtAuthenticatedProfile(account.get()))
+                        .orElseThrow(() -> new JwtAuthenticationException("JWT Token validation failed"));
+            }
+            throw new JwtAuthenticationException("User not found.");
 
         } catch (JwtException ex) {
             log.error(String.format("Invalid JWT Token: %s", ex.getMessage()));

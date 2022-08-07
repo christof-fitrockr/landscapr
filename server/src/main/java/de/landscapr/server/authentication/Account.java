@@ -3,6 +3,9 @@ package de.landscapr.server.authentication;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.HashSet;
+import java.util.Set;
+
 @Document
 public class Account {
 
@@ -14,6 +17,8 @@ public class Account {
 
     private String firstname;
     private String lastname;
+
+    private Set<Role> roles = new HashSet<>();
 
     public String getId() {
         return id;
@@ -56,4 +61,12 @@ public class Account {
         return this;
     }
 
+    public Set<Role> getRoles() {
+        return roles;
+    }
+
+    public Account setRoles(Set<Role> roles) {
+        this.roles = roles;
+        return this;
+    }
 }

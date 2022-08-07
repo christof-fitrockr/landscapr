@@ -15,7 +15,7 @@ export class SystemService {
   }
 
   allSystems(): Observable<System[]> {
-    return this.http.get<System[]>(`${environment.apiUrl}/secured/system/list`);
+    return this.http.get<System[]>(`${environment.apiUrl}/secured/system/all`);
   }
 
   getSystemById(id: string): Observable<System> {

@@ -13,7 +13,12 @@ export class SystemListComponent implements OnInit {
   searchText: string;
 
   ngOnInit() {
+    this.refresh();
+  }
+
+  refresh() {
     this.systemService.allSystems().pipe(first()).subscribe(systems => {
+      console.log('Query');
       this.systems = systems;
     });
   }

@@ -32,6 +32,11 @@ public class JwtTokenService {
         return getClaimFromToken(token, Claims::getSubject);
     }
 
+    Optional<Account> getAccountFromToken(String token) {
+        String email = getUsernameFromToken(token);
+        return accountRepository.findByEmail(email);
+    }
+
     private Date getExpirationDateFromToken(String token) {
         return getClaimFromToken(token, Claims::getExpiration);
     }

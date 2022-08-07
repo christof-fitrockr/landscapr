@@ -1,23 +1,27 @@
 package de.landscapr.server.security;
 
+import de.landscapr.server.authentication.Account;
+import de.landscapr.server.authentication.Role;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class JwtAuthenticatedProfile implements Authentication {
 
-    private final String username;
+    private final Account account;
 
-    JwtAuthenticatedProfile(String username) {
-         this.username = username;
+    JwtAuthenticatedProfile(Account account) {
+         this.account = account;
     }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Collections.singletonList((GrantedAuthority) () -> "ROLE_USER");
+        return new ArrayList<GrantedAuthority>(account.getRoles());
     }
 
     @Override
@@ -32,7 +36,7 @@ public class JwtAuthenticatedProfile implements Authentication {
 
     @Override
     public Object getPrincipal() {
-        return username;
+        return account;
     }
 
     @Override
@@ -47,6 +51,6 @@ public class JwtAuthenticatedProfile implements Authentication {
 
     @Override
     public String getName() {
-        return username;
+        return account.getEmail();
     }
 }
