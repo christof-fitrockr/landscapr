@@ -6,6 +6,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.regex.Pattern;
 
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
@@ -33,5 +34,11 @@ public class ApplicationRepository {
 
     public Application save(Application application) {
         return mongoTemplate.save(application);
+    }
+
+
+    public List<Application> findByName(String repoId, String name) {
+        return mongoTemplate.find(Query.query(where("repoId").is(repoId)
+                .and("name").regex(Pattern.compile(".*" + name + ".*", Pattern.CASE_INSENSITIVE))), Application.class);
     }
 }

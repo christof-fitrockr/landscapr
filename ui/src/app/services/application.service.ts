@@ -26,8 +26,8 @@ export class ApplicationService {
     return this.http.post<Application[]>(`${environment.apiUrl}/application/byIds`, ids);
   }
 
-  byName(name: string): Observable<Application[]> {
-    return this.http.get<Application[]>(`${environment.apiUrl}/application/byName/` + name);
+  byName(repoId: string, name: string): Observable<Application[]> {
+    return this.http.get<Application[]>(`${environment.apiUrl}/application/byName/` + repoId + '/' + name);
   }
 
   create(system: Application): Observable<Application> {

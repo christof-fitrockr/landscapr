@@ -16,9 +16,9 @@ public class ApiCallController {
         this.apiCallRepository = apiCallRepository;
     }
 
-    @RequestMapping(method = RequestMethod.GET, value = "/api/apiCall/all")
-    public ResponseEntity<List<ApiCall>> all() {
-        return ResponseEntity.ok(apiCallRepository.findAll());
+    @RequestMapping(method = RequestMethod.GET, value = "/api/apiCall/all/{repoId}")
+    public ResponseEntity<List<ApiCall>> all(@PathVariable String repoId) {
+        return ResponseEntity.ok(apiCallRepository.findAll(repoId));
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/api/apiCall/byId/{apiCallId}")

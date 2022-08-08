@@ -21,6 +21,7 @@ export class ProcessEditApiCallsComponent implements OnInit {
 
   apiCallForm: FormGroup;
   apiCalls: ApiCall[];
+  repoId: string;
 
 
   constructor(private processService: ProcessService, private apiCallService: ApiCallService, private formBuilder: FormBuilder,
@@ -38,12 +39,16 @@ export class ProcessEditApiCallsComponent implements OnInit {
       description: [''],
     });
 
+    this.route.parent.paramMap.subscribe(obs => {
+      this.repoId = obs.get('repoId');
+    });
+
     this.refresh();
 
     this.suggestions$ = new Observable((observer: Observer<string | undefined>) => observer.next(this.search)).pipe(
       switchMap((query: string) => {
         if (query) {
-          return this.apiCallService.byName(query).pipe(
+          return this.apiCallService.byName(this.repoId, query).pipe(
             map((data: ApiCall[]) => data || []),
             tap(() => noop, err => this.toastr.error(err && err.message || 'Something went wrong'))
           );

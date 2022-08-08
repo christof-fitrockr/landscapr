@@ -1,6 +1,7 @@
 package de.landscapr.server.application;
 
 import de.landscapr.server.authentication.Role;
+import de.landscapr.server.process.Process;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
@@ -29,6 +30,12 @@ public class ApplicationController {
     @RequestMapping(method = RequestMethod.GET, value = "/api/application/byId/{systemId}")
     public ResponseEntity<Application> get(@PathVariable String systemId) {
         return applicationRepository.findById(systemId).map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @RolesAllowed({Role.Code.ADMIN, Role.Code.EDITOR, Role.Code.READER })
+    @RequestMapping(method = RequestMethod.GET, value = "/api/application/byName/{repoId}/{name}")
+    public ResponseEntity<List<Application>> findByName(@PathVariable String repoId, @PathVariable String name) {
+        return ResponseEntity.ok(applicationRepository.findByName(repoId, name));
     }
 
     @RolesAllowed({Role.Code.ADMIN, Role.Code.EDITOR })

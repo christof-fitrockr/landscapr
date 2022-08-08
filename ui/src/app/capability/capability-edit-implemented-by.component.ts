@@ -21,6 +21,7 @@ export class CapabilityEditImplementedByComponent implements OnInit {
 
   systemForm: FormGroup;
   systems: Application[];
+  private repoId: string;
 
 
   constructor(private capabilityService: CapabilityService, private systemService: ApplicationService, private formBuilder: FormBuilder,
@@ -28,7 +29,7 @@ export class CapabilityEditImplementedByComponent implements OnInit {
   }
 
   typeaheadOnSelect(e: TypeaheadMatch): void {
-    this.addImplementedBySystem(e.item.systemId);
+    this.addImplementedBySystem(e.item.id);
   }
 
   ngOnInit() {
@@ -38,12 +39,16 @@ export class CapabilityEditImplementedByComponent implements OnInit {
       description: [''],
     });
 
+    this.route.parent.paramMap.subscribe(obs => {
+      this.repoId = obs.get('repoId');
+    });
+
     this.refresh();
 
     this.suggestions$ = new Observable((observer: Observer<string | undefined>) => observer.next(this.search)).pipe(
       switchMap((query: string) => {
         if (query) {
-          return this.systemService.byName(query).pipe(
+          return this.systemService.byName(this.repoId, query).pipe(
             map((data: Application[]) => data || []),
             tap(() => noop, err => this.toastr.error(err && err.message || 'Something went wrong'))
           );
@@ -55,7 +60,7 @@ export class CapabilityEditImplementedByComponent implements OnInit {
 
   private refresh() {
     this.capabilityId = this.route.parent.snapshot.paramMap.get('id');
-    if (this.capabilityId != null) {
+    if (this.capabilityId) {
       this.capabilityService.byId(this.capabilityId).pipe(first()).subscribe(capability => {
         this.capability = capability;
 
@@ -63,9 +68,11 @@ export class CapabilityEditImplementedByComponent implements OnInit {
         if(this.capability.implementedBy) {
           this.systems = [];
           this.capability.implementedBy.forEach(item => {
-            this.systemService.byId(item).pipe(first()).subscribe(result => {
-              this.systems.push(result);
-            })
+            if(item) {
+              this.systemService.byId(item).pipe(first()).subscribe(result => {
+                this.systems.push(result);
+              })
+            }
           });
         }
 

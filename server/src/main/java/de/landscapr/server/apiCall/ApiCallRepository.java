@@ -1,10 +1,13 @@
 package de.landscapr.server.apiCall;
 
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
+
+import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 
 @Repository()
@@ -16,8 +19,8 @@ public class ApiCallRepository {
         this.mongoTemplate = mongoTemplate;
     }
 
-    public List<ApiCall> findAll() {
-        return mongoTemplate.findAll(ApiCall.class);
+    public List<ApiCall> findAll(String repoId) {
+        return mongoTemplate.find(Query.query(where("repoId").is(repoId)), ApiCall.class);
     }
 
     public Optional<ApiCall> findById(String id) {

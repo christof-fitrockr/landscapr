@@ -13,8 +13,8 @@ export class ApiCallService {
   constructor(private http: HttpClient) {
   }
 
-  all(): Observable<ApiCall[]> {
-    return this.http.get<ApiCall[]>(`${environment.apiUrl}/apiCall/all`);
+  all(repoId: string): Observable<ApiCall[]> {
+    return this.http.get<ApiCall[]>(`${environment.apiUrl}/apiCall/all/` + repoId);
   }
 
   byId(id: string): Observable<ApiCall> {
@@ -25,8 +25,8 @@ export class ApiCallService {
     return this.http.post<ApiCall[]>(`${environment.apiUrl}/apiCall/byIds`, ids);
   }
 
-  byName(name: string): Observable<ApiCall[]> {
-    return this.http.get<ApiCall[]>(`${environment.apiUrl}/apiCall/byName/` + name);
+  byName(repoId: string, name: string): Observable<ApiCall[]> {
+    return this.http.post<ApiCall[]>(`${environment.apiUrl}/apiCall/byName/` + repoId, name);
   }
 
   byCapability(capabilityId: string): Observable<ApiCall[]> {
