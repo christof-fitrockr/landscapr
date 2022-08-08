@@ -5,9 +5,9 @@ import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {ActivatedRoute, Router} from '@angular/router';
 import {first} from 'rxjs/operators';
 import {ToastrService} from 'ngx-toastr';
-import {SystemService} from '../services/system.service';
+import {ApplicationService} from '../services/application.service';
 import {Observable} from 'rxjs';
-import {System} from '../models/system';
+import {Application} from '../models/application';
 
 @Component({selector: 'app-process-edit', templateUrl: './process-edit-base.component.html'})
 export class ProcessEditBaseComponent implements OnInit {
@@ -15,10 +15,10 @@ export class ProcessEditBaseComponent implements OnInit {
   processForm: FormGroup;
   process: Process;
   private processId: string;
-  systems$: Observable<System[]>;
+  systems$: Observable<Application[]>;
 
 
-  constructor(private processService: ProcessService, private systemService: SystemService,
+  constructor(private processService: ProcessService, private systemService: ApplicationService,
               private formBuilder: FormBuilder, private route: ActivatedRoute, private router: Router, private toastr: ToastrService) {
   }
 

@@ -3,7 +3,7 @@ import {FunctionalCluster} from "../models/functional-cluster";
 import {ApiCall} from '../models/api-call';
 import {Process} from '../models/process';
 import {Capability} from '../models/capability';
-import {System} from '../models/system';
+import {Application} from '../models/application';
 import {Account} from '../models/account';
 @Pipe({
   name: 'accountFilter'

@@ -8,8 +8,8 @@ import {ApiCall} from '../models/api-call';
 import {Observable} from 'rxjs';
 import {Capability} from '../models/capability';
 import {CapabilityService} from '../services/capability.service';
-import {System} from '../models/system';
-import {SystemService} from '../services/system.service';
+import {Application} from '../models/application';
+import {ApplicationService} from '../services/application.service';
 
 @Component({selector: 'app-function-edit', templateUrl: './api-call-edit-base.component.html'})
 export class ApiCallEditBaseComponent implements OnInit {
@@ -18,10 +18,10 @@ export class ApiCallEditBaseComponent implements OnInit {
   apiCall: ApiCall;
   private apiCallId: string;
   capabilities$: Observable<Capability[]>;
-  systems$: Observable<System[]>;
+  systems$: Observable<Application[]>;
 
 
-  constructor(private apiCallService: ApiCallService, private capabilityService: CapabilityService, private systemService: SystemService,
+  constructor(private apiCallService: ApiCallService, private capabilityService: CapabilityService, private systemService: ApplicationService,
               private formBuilder: FormBuilder, private route: ActivatedRoute, private router: Router, private toastr: ToastrService) {
   }
 

@@ -6,7 +6,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import java.util.List;
 
 @Document
-public class System {
+public class Application {
 
     @Id
     private String id;
@@ -23,7 +23,7 @@ public class System {
         return id;
     }
 
-    public System setId(String id) {
+    public Application setId(String id) {
         this.id = id;
         return this;
     }
@@ -32,7 +32,7 @@ public class System {
         return name;
     }
 
-    public System setName(String name) {
+    public Application setName(String name) {
         this.name = name;
         return this;
     }
@@ -41,7 +41,7 @@ public class System {
         return description;
     }
 
-    public System setDescription(String description) {
+    public Application setDescription(String description) {
         this.description = description;
         return this;
     }
@@ -50,7 +50,7 @@ public class System {
         return contact;
     }
 
-    public System setContact(String contact) {
+    public Application setContact(String contact) {
         this.contact = contact;
         return this;
     }
@@ -59,7 +59,7 @@ public class System {
         return url;
     }
 
-    public System setUrl(String url) {
+    public Application setUrl(String url) {
         this.url = url;
         return this;
     }
@@ -68,7 +68,7 @@ public class System {
         return systemCluster;
     }
 
-    public System setSystemCluster(String systemCluster) {
+    public Application setSystemCluster(String systemCluster) {
         this.systemCluster = systemCluster;
         return this;
     }
@@ -77,7 +77,7 @@ public class System {
         return tags;
     }
 
-    public System setTags(List<String> tags) {
+    public Application setTags(List<String> tags) {
         this.tags = tags;
         return this;
     }
@@ -86,7 +86,7 @@ public class System {
         return status;
     }
 
-    public System setStatus(Integer status) {
+    public Application setStatus(Integer status) {
         this.status = status;
         return this;
     }

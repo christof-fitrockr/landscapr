@@ -3,12 +3,12 @@ import {FunctionalCluster} from "../models/functional-cluster";
 import {ApiCall} from '../models/api-call';
 import {Process} from '../models/process';
 import {Capability} from '../models/capability';
-import {System} from '../models/system';
+import {Application} from '../models/application';
 @Pipe({
   name: 'systemFilter'
 })
 export class SystemFilterPipe implements PipeTransform {
-  transform(items: System[], searchText: string): any[] {
+  transform(items: Application[], searchText: string): any[] {
     if(!items) {
       return [];
     }

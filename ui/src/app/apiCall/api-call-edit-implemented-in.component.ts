@@ -4,10 +4,10 @@ import {ActivatedRoute} from '@angular/router';
 import {first} from 'rxjs/operators';
 import {ApiCall} from '../models/api-call';
 import {ApiCallService} from '../services/api-call.service';
-import {SystemService} from '../services/system.service';
+import {ApplicationService} from '../services/application.service';
 import {CapabilityService} from '../services/capability.service';
 import {Capability} from '../models/capability';
-import {System} from '../models/system';
+import {Application} from '../models/application';
 
 @Component({templateUrl: './api-call-edit-implemented-in.component.html'})
 export class ApiCallEditImplementedInComponent implements OnInit {
@@ -15,10 +15,10 @@ export class ApiCallEditImplementedInComponent implements OnInit {
   apiCallId: string;
   apiCall: ApiCall;
   capability: Capability;
-  implementedIn: System[];
+  implementedIn: Application[];
 
   constructor(private apiCallService: ApiCallService, private capabilityService: CapabilityService,
-              private systemService: SystemService, private formBuilder: FormBuilder, private route: ActivatedRoute) {
+              private systemService: ApplicationService, private formBuilder: FormBuilder, private route: ActivatedRoute) {
   }
 
   ngOnInit() {

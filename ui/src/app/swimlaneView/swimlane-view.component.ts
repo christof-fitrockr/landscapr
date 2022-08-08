@@ -6,8 +6,8 @@ import {Process} from '../models/process';
 import {CanvasService} from '../services/canvas.service';
 import {ApiCallService} from '../services/api-call.service';
 import {ApiCall} from '../models/api-call';
-import {System} from '../models/system';
-import {SystemService} from '../services/system.service';
+import {Application} from '../models/application';
+import {ApplicationService} from '../services/application.service';
 
 
 @Component({selector: 'app-swimlane-view', templateUrl: './swimlane-view.component.html'})
@@ -19,7 +19,7 @@ export class SwimlaneViewComponent implements OnInit, AfterViewInit {
 
   private processMap = new Map<string, Process>();
   private apiCallMap = new Map<string, ApiCall>();
-  private systemMap = new Map<string, System>();
+  private systemMap = new Map<string, Application>();
   processOrder: ProcessBox[] = [];
   functionOrder: ProcessBox[] = [];
   processBoxMap = new Map<number, ProcessBox>();
@@ -29,7 +29,7 @@ export class SwimlaneViewComponent implements OnInit, AfterViewInit {
   width: number;
   height: number;
 
-  constructor(private activatedRoute: ActivatedRoute,private processService: ProcessService, private systemService: SystemService,
+  constructor(private activatedRoute: ActivatedRoute,private processService: ProcessService, private systemService: ApplicationService,
               private canvasService: CanvasService, private apiCallService: ApiCallService) {
   }
 

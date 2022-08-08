@@ -1,4 +1,4 @@
-export class System {
+export class Application {
   id: string;
   name: string;
   description: string;

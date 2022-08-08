@@ -1,5 +1,5 @@
 import {Component, EventEmitter, Input, Output} from '@angular/core';
-import {System} from '../models/system';
+import {Application} from '../models/application';
 
 
 @Component({
@@ -8,7 +8,7 @@ import {System} from '../models/system';
 })
 export class SystemOverviewComponent  {
 
-  @Input() system: System;
+  @Input() system: Application;
   @Input() readOnly: boolean;
   @Output() deleteEmitter = new EventEmitter<string>();
 

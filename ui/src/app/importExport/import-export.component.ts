@@ -2,10 +2,10 @@ import {Component, OnInit} from '@angular/core';
 import {first} from 'rxjs/operators';
 import {AccountService} from '../services/account.service';
 import {Account} from '../models/account';
-import {SystemService} from '../services/system.service';
+import {ApplicationService} from '../services/application.service';
 import {CapabilityService} from '../services/capability.service';
 import {Capability} from '../models/capability';
-import {System} from '../models/system';
+import {Application} from '../models/application';
 import {ApiCallService} from '../services/api-call.service';
 import {ApiCall} from '../models/api-call';
 import {ProcessService} from '../services/process.service';
@@ -13,13 +13,13 @@ import {Step, StepSuccessor} from '../models/process';
 
 @Component({selector: 'app-account-list', templateUrl: './import-export.component.html'})
 export class ImportExportComponent implements OnInit {
-  systemMap = new Map<string, System>();
+  systemMap = new Map<string, Application>();
   capMap = new Map<string, Capability>();
   callMap = new Map<string, ApiCall>();
   idMap = new Map<string, string>();
 
   constructor(private accountService: AccountService,
-              private systemService: SystemService,
+              private systemService: ApplicationService,
               private capabilityService: CapabilityService,
               private apiCallService: ApiCallService,
               private processService: ProcessService) {

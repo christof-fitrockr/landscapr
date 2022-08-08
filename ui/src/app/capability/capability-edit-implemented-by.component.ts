@@ -7,8 +7,8 @@ import {first, map, switchMap, tap} from 'rxjs/operators';
 import {ToastrService} from 'ngx-toastr';
 import {noop, Observable, Observer, of} from 'rxjs';
 import {TypeaheadMatch} from 'ngx-bootstrap/typeahead';
-import {SystemService} from '../services/system.service';
-import {System} from '../models/system';
+import {ApplicationService} from '../services/application.service';
+import {Application} from '../models/application';
 
 @Component({templateUrl: './capability-edit-implemented-by.component.html'})
 export class CapabilityEditImplementedByComponent implements OnInit {
@@ -17,13 +17,13 @@ export class CapabilityEditImplementedByComponent implements OnInit {
   capability: Capability;
 
   search?: string;
-  suggestions$?: Observable<System[]>;
+  suggestions$?: Observable<Application[]>;
 
   systemForm: FormGroup;
-  systems: System[];
+  systems: Application[];
 
 
-  constructor(private capabilityService: CapabilityService, private systemService: SystemService, private formBuilder: FormBuilder,
+  constructor(private capabilityService: CapabilityService, private systemService: ApplicationService, private formBuilder: FormBuilder,
               private route: ActivatedRoute, private router: Router, private toastr: ToastrService) {
   }
 
@@ -44,7 +44,7 @@ export class CapabilityEditImplementedByComponent implements OnInit {
       switchMap((query: string) => {
         if (query) {
           return this.systemService.byName(query).pipe(
-            map((data: System[]) => data || []),
+            map((data: Application[]) => data || []),
             tap(() => noop, err => this.toastr.error(err && err.message || 'Something went wrong'))
           );
         }
@@ -87,7 +87,7 @@ export class CapabilityEditImplementedByComponent implements OnInit {
     });
 
     if (this.systemForm.valid) {
-      let system = new System();
+      let system = new Application();
       system = Object.assign(system, this.systemForm.value);
       this.systemService.create(system).pipe(first()).subscribe(system => {
         this.addImplementedBySystem(system.id);

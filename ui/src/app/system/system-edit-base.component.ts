@@ -3,18 +3,18 @@ import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {ActivatedRoute, Router} from '@angular/router';
 import {first} from 'rxjs/operators';
 import {ToastrService} from 'ngx-toastr';
-import {SystemService} from '../services/system.service';
-import {System} from '../models/system';
+import {ApplicationService} from '../services/application.service';
+import {Application} from '../models/application';
 
 @Component({selector: 'app-system-edit', templateUrl: './system-edit-base.component.html'})
 export class SystemEditBaseComponent implements OnInit {
 
   systemForm: FormGroup;
-  system: System;
+  system: Application;
   private systemId: string;
 
 
-  constructor(private systemService: SystemService, private formBuilder: FormBuilder,
+  constructor(private systemService: ApplicationService, private formBuilder: FormBuilder,
               private route: ActivatedRoute, private router: Router, private toastr: ToastrService) {
   }
 
@@ -41,7 +41,7 @@ export class SystemEditBaseComponent implements OnInit {
         this.systemForm.patchValue(this.system);
       });
     } else {
-      this.system = new System();
+      this.system = new Application();
     }
   }
 

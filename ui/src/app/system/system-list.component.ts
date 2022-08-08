@@ -1,15 +1,15 @@
 import {Component, OnInit} from '@angular/core';
 import {first} from 'rxjs/operators';
-import {SystemService} from '../services/system.service';
-import {System} from '../models/system';
+import {ApplicationService} from '../services/application.service';
+import {Application} from '../models/application';
 
 @Component({selector: 'app-system-list', templateUrl: './system-list.component.html'})
 export class SystemListComponent implements OnInit {
 
-  constructor(private systemService: SystemService) {
+  constructor(private systemService: ApplicationService) {
   }
 
-  systems: System[];
+  systems: Application[];
   searchText: string;
 
   ngOnInit() {

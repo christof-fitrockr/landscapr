@@ -1,8 +1,8 @@
 import {Component, OnInit} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {first} from 'rxjs/operators';
-import {SystemService} from '../services/system.service';
-import {System} from '../models/system';
+import {ApplicationService} from '../services/application.service';
+import {Application} from '../models/application';
 import {Capability} from '../models/capability';
 import {CapabilityService} from '../services/capability.service';
 
@@ -10,10 +10,10 @@ import {CapabilityService} from '../services/capability.service';
 export class SystemEditImplementsComponent implements OnInit {
 
   systemId: string;
-  system: System;
+  system: Application;
   implements: Capability[];
 
-  constructor(private systemService: SystemService, private capabilityService: CapabilityService, private route: ActivatedRoute) {
+  constructor(private systemService: ApplicationService, private capabilityService: CapabilityService, private route: ActivatedRoute) {
   }
 
   ngOnInit() {
