@@ -19,8 +19,8 @@ public class CapabilityRepository {
         this.mongoTemplate = mongoTemplate;
     }
 
-    public List<Capability> findAll() {
-        return mongoTemplate.findAll(Capability.class);
+    public List<Capability> findAll(String repoId) {
+        return mongoTemplate.find(Query.query(where("repoId").is(repoId)), Capability.class);
     }
 
     public Optional<Capability> findById(String id) {

@@ -7,7 +7,7 @@
       <div class="btn-toolbar justify-content-lg-start" role="toolbar" aria-label="Toolbar with button groups">
         <div class="btn-group mr-2" role="group" aria-label="First group">
           <button type="button" class="btn btn-primary" title="Save" (click)="onUpdate()"><i class="fas fa-save"></i></button>
-          <a class="btn btn-secondary" title="List" routerLink="/capability"><i class="fas fa-list"></i></a>
+          <a class="btn btn-secondary" title="List" routerLink="/r/{{repoId}}/capability"><i class="fas fa-list"></i></a>
           <button type="button" class="btn btn-secondary" title="Remove" data-toggle="modal" data-target="#confirmDelete"><i class="fas fa-trash"></i></button>
         </div>
       </div>
@@ -44,6 +44,18 @@
 
 
         <div class="form-group row">
+          <label for="tags" class="col-sm-2 col-form-label">Tags</label>
+          <div class="col-sm-10">
+            <ng-select id="tags" [items]="[]"
+                       [addTag]="true"
+                       [multiple]="true"
+                       [selectOnTab]="true"
+                       [isOpen]="false"  formControlName="tags">
+            </ng-select>
+          </div>
+        </div>
+
+        <div class="form-group row">
           <label for="status" class="col-sm-2 col-form-label">Status</label>
           <div class="col-sm-10">
             <ng-select id="status" formControlName="status">
@@ -53,14 +65,6 @@
           </div>
         </div>
 
-
-        <div class="form-group row">
-          <label for="tags" class="col-sm-2 col-form-label">Tags</label>
-          <div class="col-sm-10">
-            <ng-select id="tags" [multiple]="true" [addTag]="true" formControlName="tags">
-            </ng-select>
-          </div>
-        </div>
 
 
         <div class="form-group row">

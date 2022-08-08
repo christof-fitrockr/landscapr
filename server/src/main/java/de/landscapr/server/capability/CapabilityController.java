@@ -16,9 +16,9 @@ public class CapabilityController {
         this.capabilityRepository = capabilityRepository;
     }
 
-    @RequestMapping(method = RequestMethod.GET, value = "/api/capability/all")
-    public ResponseEntity<List<Capability>> all() {
-        return ResponseEntity.ok(capabilityRepository.findAll());
+    @RequestMapping(method = RequestMethod.GET, value = "/api/capability/all/{repoId}")
+    public ResponseEntity<List<Capability>> all(@PathVariable String repoId) {
+        return ResponseEntity.ok(capabilityRepository.findAll(repoId));
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/api/capability/byId/{capabilityId}")

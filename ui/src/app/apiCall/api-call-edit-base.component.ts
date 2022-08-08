@@ -45,10 +45,10 @@ export class ApiCallEditBaseComponent implements OnInit {
     this.route.parent.paramMap.subscribe(obs => {
       this.repoId = obs.get('repoId');
       this.systems$ = this.systemService.all(this.repoId);
+      this.capabilities$ = this.capabilityService.all(this.repoId);
     });
 
 
-    this.capabilities$ = this.capabilityService.all();
     this.refresh();
   }
 

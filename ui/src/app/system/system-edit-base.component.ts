@@ -46,7 +46,6 @@ export class SystemEditBaseComponent implements OnInit, OnDestroy {
     });
 
 
-    this.refresh();
   }
 
   ngOnDestroy() {

@@ -1,6 +1,7 @@
 
 export class Capability {
   id: string;
+  repoId: string;
   name: string;
   description: string;
   implementedBy: string[];
