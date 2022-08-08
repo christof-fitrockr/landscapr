@@ -26,28 +26,26 @@ public class ProcessController {
         return ResponseEntity.ok(processRepository.findAllFavorites());
     }
 
-//    @RequestMapping(method = RequestMethod.POST, value = "/api/process/byIds/{processId}")
-//    public ResponseEntity<List<Process>> byIds(@RequestBody List<String> processIds) {
-//        return ResponseEntity.ok(processRepository.byIds(processIds));
-//    }
-//
-//    @RequestMapping(method = RequestMethod.GET, value = "/api/process/allParent/{processId}")
-//    public ResponseEntity<List<Process>> allParent(@PathVariable String processId) {
-//        return ResponseEntity.ok(processRepository.findAllParents(processId)));
-//    }
-//
-//
-//    byIds(ids: string[]): Observable<Process[]> {
-//        return this.http.post<Process[]>(`${environment.apiUrl}/process/byIds`, ids);
-//    }
-//
-//    byName(name: string): Observable<Process[]> {
-//        return this.http.get<Process[]>(`${environment.apiUrl}/process/byName/` + name);
-//    }
-//
-//    byApiCall(apiCallId: string) {
-//        return this.http.get<Process[]>(`${environment.apiUrl}/process/byApiCall/` + apiCallId);
-//    }
+    @RequestMapping(method = RequestMethod.POST, value = "/api/process/byIds/{processId}")
+    public ResponseEntity<List<Process>> byIds(@RequestBody List<String> processIds) {
+        return ResponseEntity.ok(processRepository.byIds(processIds));
+    }
+
+    @RequestMapping(method = RequestMethod.GET, value = "/api/process/allParent/{processId}")
+    public ResponseEntity<List<Process>> allParent(@PathVariable String processId) {
+        return ResponseEntity.ok(processRepository.findAllParents(processId));
+    }
+
+
+    @RequestMapping(method = RequestMethod.GET, value = "/api/process/byName/{name}")
+    public ResponseEntity<List<Process>> findByName(@PathVariable String name) {
+        return ResponseEntity.ok(processRepository.findByName(name));
+    }
+
+    @RequestMapping(method = RequestMethod.GET, value = "/api/process/byApiCall/{name}")
+    public ResponseEntity<List<Process>> findByApiCall(@PathVariable String name) {
+        return ResponseEntity.ok(processRepository.findByApiCall(name));
+    }
 
 
     @RequestMapping(method = RequestMethod.GET, value = "/api/process/byId/{processId}")

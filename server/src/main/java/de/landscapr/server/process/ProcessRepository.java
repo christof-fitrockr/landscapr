@@ -6,6 +6,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.regex.Pattern;
 
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
@@ -39,7 +40,19 @@ public class ProcessRepository {
         return mongoTemplate.save(process);
     }
 
-    public Object byIds(List<String> processIds) {
-        return null;
+    public List<Process> byIds(List<String> processIds) {
+        return mongoTemplate.find(Query.query(where("id").in(processIds)), Process.class);
+    }
+
+    public List<Process> findAllParents(String processId) {
+        return mongoTemplate.find(Query.query(where("steps.processReference").in(processId)), Process.class);
+    }
+
+    public List<Process> findByName(String name) {
+        return mongoTemplate.find(Query.query(where("name").regex(Pattern.compile(".*" + name + ".*", Pattern.CASE_INSENSITIVE))), Process.class);
+    }
+
+    public List<Process> findByApiCall(String apiCallId) {
+        return mongoTemplate.find(Query.query(where("apiCallIds").in(apiCallId)), Process.class);
     }
 }
