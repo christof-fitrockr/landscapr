@@ -1,10 +1,13 @@
-package de.landscapr.server.system;
+package de.landscapr.server.application;
 
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
+
+import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 
 @Repository()
@@ -16,8 +19,8 @@ public class ApplicationRepository {
         this.mongoTemplate = mongoTemplate;
     }
 
-    public List<Application> findAll() {
-        return mongoTemplate.findAll(Application.class);
+    public List<Application> findAll(String repoId) {
+        return mongoTemplate.find(Query.query(where("repoId").is(repoId)), Application.class);
     }
 
     public Optional<Application> findById(String id) {

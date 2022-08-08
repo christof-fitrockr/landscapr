@@ -16,6 +16,7 @@ export class ProcessEditBaseComponent implements OnInit {
   process: Process;
   private processId: string;
   systems$: Observable<Application[]>;
+  private repoId: string;
 
 
   constructor(private processService: ProcessService, private systemService: ApplicationService,
@@ -35,7 +36,13 @@ export class ProcessEditBaseComponent implements OnInit {
       implementedBy: [],
     });
 
-    this.systems$ = this.systemService.all()
+
+
+    this.route.parent.paramMap.subscribe(obs => {
+      this.repoId = obs.get('repoId');
+      this.systems$ = this.systemService.all(this.repoId);
+    });
+
     this.refresh();
   }
 

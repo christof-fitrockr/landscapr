@@ -36,7 +36,7 @@
         </thead>
         <tbody>
         <tr *ngFor="let repo of repos | repoFilter: searchText">
-          <td><a routerLink="/repo/edit/{{repo?.id}}" class="btn btn-secondary btn-sm"><i class="fas fa-edit"></i></a></td>
+          <td><a routerLink="/repository/edit/{{repo?.id}}" class="btn btn-secondary btn-sm"><i class="fas fa-edit"></i></a></td>
           <td>{{repo.name}}</td>
         </tr>
         </tbody>

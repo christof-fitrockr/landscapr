@@ -10,6 +10,7 @@ public class Capability {
 
     @Id
     private String id;
+    private String repoId;
     private String name;
     private String description;
     private List<String> implementedBy;
@@ -22,6 +23,15 @@ public class Capability {
 
     public Capability setId(String id) {
         this.id = id;
+        return this;
+    }
+
+    public String getRepoId() {
+        return repoId;
+    }
+
+    public Capability setRepoId(String repoId) {
+        this.repoId = repoId;
         return this;
     }
 

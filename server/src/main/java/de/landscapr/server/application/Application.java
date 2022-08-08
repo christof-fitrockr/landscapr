@@ -1,4 +1,4 @@
-package de.landscapr.server.system;
+package de.landscapr.server.application;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -10,7 +10,7 @@ public class Application {
 
     @Id
     private String id;
-
+    private String repoId;
     private String name;
     private String description;
     private String contact;
@@ -25,6 +25,15 @@ public class Application {
 
     public Application setId(String id) {
         this.id = id;
+        return this;
+    }
+
+    public String getRepoId() {
+        return repoId;
+    }
+
+    public Application setRepoId(String repoId) {
+        this.repoId = repoId;
         return this;
     }
 

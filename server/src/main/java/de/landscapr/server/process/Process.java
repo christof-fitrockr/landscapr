@@ -10,6 +10,7 @@ public class Process {
 
     @Id
     private String id;
+    private String repoId;
     private String name;
     private String description;
     private Integer status;
@@ -29,6 +30,15 @@ public class Process {
 
     public Process setId(String id) {
         this.id = id;
+        return this;
+    }
+
+    public String getRepoId() {
+        return repoId;
+    }
+
+    public Process setRepoId(String repoId) {
+        this.repoId = repoId;
         return this;
     }
 

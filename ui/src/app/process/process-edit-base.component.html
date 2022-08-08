@@ -81,7 +81,7 @@
         <div class="form-group row">
           <label for="implementedBy" class="col-sm-2 col-form-label">Implemented by</label>
           <div class="col-sm-10">
-            <ng-select id="implementedBy" [multiple]="true" formControlName="implementedBy" [items]="systems$ | async" bindLabel="name" bindValue="systemId">
+            <ng-select id="implementedBy" [multiple]="true" formControlName="implementedBy" [items]="systems$ | async" bindLabel="name" bindValue="id">
             </ng-select>
           </div>
         </div>

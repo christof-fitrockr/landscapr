@@ -1,17 +1,21 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {ActivatedRoute, Router} from '@angular/router';
 import {first} from 'rxjs/operators';
 import {ToastrService} from 'ngx-toastr';
 import {ApplicationService} from '../services/application.service';
 import {Application} from '../models/application';
+import {Subscription} from 'rxjs';
 
 @Component({selector: 'app-system-edit', templateUrl: './system-edit-base.component.html'})
-export class SystemEditBaseComponent implements OnInit {
+export class SystemEditBaseComponent implements OnInit, OnDestroy {
 
   systemForm: FormGroup;
   system: Application;
   private systemId: string;
+  repoId: string;
+  private subscription: Subscription;
+
 
 
   constructor(private systemService: ApplicationService, private formBuilder: FormBuilder,
@@ -30,7 +34,23 @@ export class SystemEditBaseComponent implements OnInit {
       systemCluster: ['']
     });
 
+
+    this.subscription = this.route.parent.paramMap.subscribe(obs => {
+        if(this.repoId && this.repoId !== obs.get('repoId')) {
+          this.router.navigateByUrl('/r/' + obs.get('repoId') + '/system').then(() => {
+          });
+        } else {
+          this.repoId = obs.get('repoId');
+          this.refresh();
+        }
+    });
+
+
     this.refresh();
+  }
+
+  ngOnDestroy() {
+    this.subscription.unsubscribe();
   }
 
   private refresh() {
@@ -51,18 +71,26 @@ export class SystemEditBaseComponent implements OnInit {
       control.markAsTouched({ onlySelf: true });
     });
 
+    if(!this.repoId) {
+      this.toastr.info('No repository activated.');
+      return;
+    }
+
     if (this.systemForm.valid) {
       this.system = Object.assign(this.system, this.systemForm.value);
+      this.system.repoId = this.repoId;
       if(!this.systemId) {
         this.systemService.create(this.system).pipe(first()).subscribe(system => {
-          this.router.navigateByUrl('/system/edit/' + system.id).then(() => {
+          this.router.navigateByUrl('/r/' + this.repoId + '/system/edit/' + system.id).then(() => {
             this.toastr.info('System created successfully');
             this.refresh()
           });
         });
       } else {
         this.systemService.update(this.systemId, this.system).pipe(first()).subscribe(() => {
-          this.toastr.info('System updated successfully');
+          this.router.navigateByUrl('/r/' + this.repoId + '/system').then(() => {
+            this.toastr.info('System updated successfully');
+          });
           this.refresh();
         });
       }
@@ -71,7 +99,7 @@ export class SystemEditBaseComponent implements OnInit {
 
   delete() {
     this.systemService.delete(this.systemId).pipe(first()).subscribe(() => {
-      this.router.navigate(['/system']).then(() => {
+      this.router.navigateByUrl('/r/' + this.repoId + '/system').then(() => {
         this.toastr.info('System deleted successfully');
       });
     })

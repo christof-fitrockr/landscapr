@@ -36,7 +36,7 @@
         <table class="w-100">
           <tr *ngFor="let step of processWithStep.stepDetails.successor; index as idx">
             <td class="pl-2 w-50">
-              <ng-select id="implementationType" [(ngModel)]="step.processReference" [ngModelOptions]="{updateOn: 'blur', standalone: true}" (ngModelChange)="onUpdate()" [items]="processes" bindLabel="name" bindValue="processId">
+              <ng-select id="implementationType" [(ngModel)]="step.processReference" [ngModelOptions]="{updateOn: 'blur', standalone: true}" (ngModelChange)="onUpdate()" [items]="processes" bindLabel="name" bindValue="id">
               </ng-select>
             </td>
             <td class="pl-2 w-50">

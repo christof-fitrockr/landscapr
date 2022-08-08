@@ -19,6 +19,7 @@ export class ApiCallEditBaseComponent implements OnInit {
   private apiCallId: string;
   capabilities$: Observable<Capability[]>;
   systems$: Observable<Application[]>;
+  private repoId: string;
 
 
   constructor(private apiCallService: ApiCallService, private capabilityService: CapabilityService, private systemService: ApplicationService,
@@ -40,7 +41,13 @@ export class ApiCallEditBaseComponent implements OnInit {
       output: [''],
     });
 
-    this.systems$ = this.systemService.all()
+
+    this.route.parent.paramMap.subscribe(obs => {
+      this.repoId = obs.get('repoId');
+      this.systems$ = this.systemService.all(this.repoId);
+    });
+
+
     this.capabilities$ = this.capabilityService.all();
     this.refresh();
   }

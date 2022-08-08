@@ -28,6 +28,7 @@ export class SwimlaneViewComponent implements OnInit, AfterViewInit {
   private zoomFactor = 0.6;
   width: number;
   height: number;
+  repoId: string;
 
   constructor(private activatedRoute: ActivatedRoute,private processService: ProcessService, private systemService: ApplicationService,
               private canvasService: CanvasService, private apiCallService: ApiCallService) {
@@ -35,6 +36,10 @@ export class SwimlaneViewComponent implements OnInit, AfterViewInit {
 
   ngOnInit() {
     this.processId = this.activatedRoute.snapshot.paramMap.get('id');
+
+    this.activatedRoute.parent.paramMap.subscribe(obs => {
+      this.repoId = obs.get('repoId');
+    });
   }
 
   ngAfterViewInit() {
@@ -42,7 +47,7 @@ export class SwimlaneViewComponent implements OnInit, AfterViewInit {
 
     this.processService.all().pipe(first()).subscribe((processes) => {
       this.apiCallService.all().pipe(first()).subscribe(apiCalls => {
-        this.systemService.all().pipe(first()).subscribe(systems => {
+        this.systemService.all(this.repoId).pipe(first()).subscribe(systems => {
           for (let process of processes) {
             this.processMap.set(process.id, process);
           }

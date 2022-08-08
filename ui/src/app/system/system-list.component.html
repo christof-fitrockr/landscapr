@@ -39,7 +39,7 @@
         </thead>
         <tbody>
         <tr *ngFor="let system of systems | systemFilter: searchText">
-          <td><a routerLink="/system/edit/{{system?.id}}" class="btn btn-secondary btn-sm"><i class="fas fa-edit"></i></a></td>
+          <td><a routerLink="/r/{{repoId}}/system/edit/{{system?.id}}" class="btn btn-secondary btn-sm"><i class="fas fa-edit"></i></a></td>
           <td>{{system.systemCluster}}</td>
           <td>{{system.name}}</td>
 

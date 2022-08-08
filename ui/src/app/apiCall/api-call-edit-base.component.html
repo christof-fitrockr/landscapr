@@ -46,7 +46,7 @@
         <div class="form-group row">
           <label for="capabilityId" class="col-sm-2 col-form-label">Capability</label>
           <div class="col-sm-10">
-            <ng-select id="capabilityId" formControlName="capabilityId" [items]="capabilities$ | async" bindValue="capabilityId" bindLabel="name">
+            <ng-select id="capabilityId" formControlName="capabilityId" [items]="capabilities$ | async" bindValue="id" bindLabel="name">
             </ng-select>
           </div>
         </div>
@@ -74,7 +74,7 @@
         <div class="form-group row">
           <label for="implementedBy" class="col-sm-2 col-form-label">Implemented by</label>
           <div class="col-sm-10">
-            <ng-select id="implementedBy" [multiple]="true" formControlName="implementedBy" [items]="systems$ | async" bindLabel="name" bindValue="systemId">
+            <ng-select id="implementedBy" [multiple]="true" formControlName="implementedBy" [items]="systems$ | async" bindLabel="name" bindValue="id">
             </ng-select>
           </div>
         </div>

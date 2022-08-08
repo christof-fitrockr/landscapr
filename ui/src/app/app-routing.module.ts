@@ -49,8 +49,7 @@ import {RepoEditComponent} from './repo/repo-edit.component';
 import {RepoEditBaseComponent} from './repo/repo-edit-base.component';
 
 const routes: Routes = [
-  { path: 'dashboard', component: DashboardComponent, canActivate: [AuthGuard] },
-  { path: 'swimlane/view/:id', component: SwimlaneViewComponent, canActivate: [AuthGuard] },
+  { path: 'dashboard', component: RepoListComponent, canActivate: [AuthGuard] },
   { path: 'account', canActivate: [AuthGuard], children: [
       { path: '', redirectTo: 'list', pathMatch: 'full' },
       { path: 'list', component: AccountListComponent, canActivate: [AuthGuard] },
@@ -73,8 +72,13 @@ const routes: Routes = [
     ] },
 
   { path: 'importExport', component: ImportExportComponent, canActivate: [AuthGuard] },
+  { path: 'r/:repoId', canActivate: [AuthGuard], children: [
+      { path: '', redirectTo: 'select', pathMatch: 'full' },
 
-  { path: 'process', canActivate: [AuthGuard], children: [
+      { path: 'dashboard', component: DashboardComponent, canActivate: [AuthGuard] },
+      { path: 'swimlane/view/:id', component: SwimlaneViewComponent, canActivate: [AuthGuard] },
+
+      { path: 'process', canActivate: [AuthGuard], children: [
       { path: '', redirectTo: 'list', pathMatch: 'full' },
       { path: 'list', component: ProcessListComponent, canActivate: [AuthGuard] },
       { path: 'view/:id', component: ProcessViewComponent, canActivate: [AuthGuard] },
@@ -126,7 +130,7 @@ const routes: Routes = [
         ] },
       { path: 'create', component: SystemEditBaseComponent, canActivate: [AuthGuard] },
     ] },
-  { path: 'system', component: ProcessComponent, canActivate: [AuthGuard] },
+  ]},
   { path: 'targetPicture', component: TargetPicturePage, canActivate: [AuthGuard] },
   { path: 'businessServices', component: BusinessServicePage, canActivate: [AuthGuard]},
   { path: 'businessServiceDetails/:id', component: BusinessServiceDetailsPage, canActivate: [AuthGuard]},

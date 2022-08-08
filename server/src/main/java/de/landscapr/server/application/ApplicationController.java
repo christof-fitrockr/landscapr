@@ -1,4 +1,4 @@
-package de.landscapr.server.system;
+package de.landscapr.server.application;
 
 import de.landscapr.server.authentication.Role;
 import org.springframework.http.ResponseEntity;
@@ -20,9 +20,9 @@ public class ApplicationController {
     }
 
     @Secured({Role.Code.ADMIN, Role.Code.EDITOR, Role.Code.READER })
-    @RequestMapping(method = RequestMethod.GET, value = "/api/application/all")
-    public ResponseEntity<List<Application>> all() {
-        return ResponseEntity.ok(applicationRepository.findAll());
+    @RequestMapping(method = RequestMethod.GET, value = "/api/application/all/{repoId}")
+    public ResponseEntity<List<Application>> all(@PathVariable String repoId) {
+        return ResponseEntity.ok(applicationRepository.findAll(repoId));
     }
 
     @RolesAllowed({Role.Code.ADMIN, Role.Code.EDITOR, Role.Code.READER })

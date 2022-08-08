@@ -14,8 +14,8 @@ export class ApplicationService {
   constructor(private http: HttpClient) {
   }
 
-  all(): Observable<Application[]> {
-    return this.http.get<Application[]>(`${environment.apiUrl}/application/all`);
+  all(repoId: string): Observable<Application[]> {
+    return this.http.get<Application[]>(`${environment.apiUrl}/application/all/` + repoId);
   }
 
   byId(id: string): Observable<Application> {

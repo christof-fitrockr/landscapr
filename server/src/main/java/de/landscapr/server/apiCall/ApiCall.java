@@ -10,6 +10,7 @@ public class ApiCall {
 
     @Id
     private String id;
+    private String repoId;
     private String name;
     private String description;
     private String implementationStatus;
@@ -30,6 +31,15 @@ public class ApiCall {
 
     public ApiCall setId(String id) {
         this.id = id;
+        return this;
+    }
+
+    public String getRepoId() {
+        return repoId;
+    }
+
+    public ApiCall setRepoId(String repoId) {
+        this.repoId = repoId;
         return this;
     }
 
