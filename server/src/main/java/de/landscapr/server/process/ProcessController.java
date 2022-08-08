@@ -16,23 +16,23 @@ public class ProcessController {
         this.processRepository = processRepository;
     }
 
-    @RequestMapping(method = RequestMethod.GET, value = "/api/secured/process/all")
+    @RequestMapping(method = RequestMethod.GET, value = "/api/process/all")
     public ResponseEntity<List<Process>> all() {
         return ResponseEntity.ok(processRepository.findAll());
     }
 
-    @RequestMapping(method = RequestMethod.GET, value = "/api/secured/process/byId/{processId}")
+    @RequestMapping(method = RequestMethod.GET, value = "/api/process/byId/{processId}")
     public ResponseEntity<Process> get(@PathVariable String processId) {
         return processRepository.findById(processId).map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @RequestMapping(method = RequestMethod.GET, value = "/api/secured/process/delete/{processId}")
+    @RequestMapping(method = RequestMethod.GET, value = "/api/process/delete/{processId}")
     public ResponseEntity<Void> delete(@PathVariable String processId) {
         processRepository.findById(processId).ifPresent(processRepository::delete);
         return ResponseEntity.ok().build();
     }
 
-    @RequestMapping(method = RequestMethod.POST, value = "/api/process/system/update", produces = APPLICATION_JSON_VALUE, consumes = APPLICATION_JSON_VALUE)
+    @RequestMapping(method = RequestMethod.POST, value = "/api/process/update", produces = APPLICATION_JSON_VALUE, consumes = APPLICATION_JSON_VALUE)
     public ResponseEntity<Process> update(@RequestBody Process process) {
         Process savedProcess = processRepository.save(process);
         return ResponseEntity.ok(savedProcess);
