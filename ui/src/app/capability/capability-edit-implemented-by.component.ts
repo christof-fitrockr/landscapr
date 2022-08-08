@@ -15,14 +15,11 @@ export class CapabilityEditImplementedByComponent implements OnInit {
 
   private capabilityId: string;
   capability: Capability;
-
   search?: string;
   suggestions$?: Observable<Application[]>;
-
   systemForm: FormGroup;
   systems: Application[];
   private repoId: string;
-
 
   constructor(private capabilityService: CapabilityService, private systemService: ApplicationService, private formBuilder: FormBuilder,
               private route: ActivatedRoute, private router: Router, private toastr: ToastrService) {
