@@ -1,5 +1,6 @@
 export class ApiCall {
   id: string;
+  repoId: string;
   name: string;
   implementationStatus: ApiImplementationStatus;
   description: string;

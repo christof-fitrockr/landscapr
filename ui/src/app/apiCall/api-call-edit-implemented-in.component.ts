@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import {FormBuilder} from '@angular/forms';
 import {ActivatedRoute} from '@angular/router';
 import {first} from 'rxjs/operators';
@@ -8,14 +8,17 @@ import {ApplicationService} from '../services/application.service';
 import {CapabilityService} from '../services/capability.service';
 import {Capability} from '../models/capability';
 import {Application} from '../models/application';
+import {Subscription} from 'rxjs';
 
 @Component({templateUrl: './api-call-edit-implemented-in.component.html'})
-export class ApiCallEditImplementedInComponent implements OnInit {
+export class ApiCallEditImplementedInComponent implements OnInit, OnDestroy {
 
   apiCallId: string;
   apiCall: ApiCall;
   capability: Capability;
   implementedIn: Application[];
+  private subscription: Subscription;
+  repoId: string;
 
   constructor(private apiCallService: ApiCallService, private capabilityService: CapabilityService,
               private systemService: ApplicationService, private formBuilder: FormBuilder, private route: ActivatedRoute) {
@@ -41,5 +44,13 @@ export class ApiCallEditImplementedInComponent implements OnInit {
         }
       });
     });
+
+    this.subscription = this.route.parent.paramMap.subscribe(obs => {
+      this.repoId = obs.get('repoId');
+    });
+  }
+
+  ngOnDestroy() {
+    this.subscription.unsubscribe();
   }
 }

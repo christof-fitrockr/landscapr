@@ -30,13 +30,20 @@
         <thead>
         <tr>
           <th scope="col"></th>
-          <th scope="col" class="w-100">Name</th>
+          <th scope="col" class="w-50">Name</th>
+          <th scope="col" class="w-50">Tags</th>
+          <th scope="col"></th>
         </tr>
         </thead>
         <tbody>
         <tr *ngFor="let apiCall of apiCalls | apiCallFilter: searchText">
           <td><a class="black" routerLink="/r/{{repoId}}/apiCall/edit/{{apiCall?.id}}"><i class="fas fa-edit"></i></a></td>
           <td><a class="black" routerLink="/r/{{repoId}}/apiCall/edit/{{apiCall?.id}}">{{apiCall.name}}</a></td>
+          <td>{{apiCall?.tags}}</td>
+          <td class="text-nowrap">
+            <i *ngIf="apiCall?.status === 0" class="text-warning fas fa-exclamation-triangle mr-1"></i>
+            <i *ngIf="apiCall?.status === 1" class="text-success fas fa-check-circle mr-1"></i>
+          </td>
         </tr>
         </tbody>
       </table>

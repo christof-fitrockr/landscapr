@@ -75,9 +75,8 @@ export class CapabilityEditBaseComponent implements OnInit, OnDestroy {
         });
       } else {
         this.capabilityService.update(this.capabilityId, this.capability).pipe(first()).subscribe(() => {
-          this.router.navigateByUrl('/r/' + this.repoId + '/capability').then(() => {
-            this.toastr.info('Capability updated successfully');
-          });
+          this.toastr.info('Capability updated successfully');
+          this.refresh();
         });
       }
     }

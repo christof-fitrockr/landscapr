@@ -87,9 +87,7 @@ export class SystemEditBaseComponent implements OnInit, OnDestroy {
         });
       } else {
         this.systemService.update(this.systemId, this.system).pipe(first()).subscribe(() => {
-          this.router.navigateByUrl('/r/' + this.repoId + '/system').then(() => {
-            this.toastr.info('System updated successfully');
-          });
+          this.toastr.info('System updated successfully');
           this.refresh();
         });
       }

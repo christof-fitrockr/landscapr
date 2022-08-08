@@ -6,6 +6,7 @@ import {ApiCall} from '../models/api-call';
 import {ApiCallService} from '../services/api-call.service';
 import {Process} from '../models/process';
 import {ProcessService} from '../services/process.service';
+import {Subscription} from 'rxjs';
 
 @Component({templateUrl: './api-call-edit-usage.component.html'})
 export class ApiCallEditUsageComponent implements OnInit {
@@ -13,6 +14,8 @@ export class ApiCallEditUsageComponent implements OnInit {
   apiCallId: string;
   apiCall: ApiCall;
   usedBy: Process[];
+  private subscription: Subscription;
+  repoId: string;
 
   constructor(private apiCallService: ApiCallService, private processService: ProcessService,
               private formBuilder: FormBuilder, private route: ActivatedRoute) {
@@ -26,6 +29,14 @@ export class ApiCallEditUsageComponent implements OnInit {
     this.processService.byApiCall(this.apiCallId).pipe(first()).subscribe(usedBy => {
       this.usedBy = usedBy;
     });
+
+    this.subscription = this.route.parent.paramMap.subscribe(obs => {
+      this.repoId = obs.get('repoId');
+    });
+  }
+
+  ngOnDestroy() {
+    this.subscription.unsubscribe();
   }
 
 }

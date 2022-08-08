@@ -1,5 +1,6 @@
 package de.landscapr.server.application;
 
+import de.landscapr.server.process.Process;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Repository;
@@ -26,6 +27,10 @@ public class ApplicationRepository {
 
     public Optional<Application> findById(String id) {
         return Optional.ofNullable(mongoTemplate.findById(id, Application.class));
+    }
+
+    public List<Application> byIds(List<String> ids) {
+        return mongoTemplate.find(Query.query(where("id").in(ids)), Application.class);
     }
 
     public boolean delete(Application application) {
