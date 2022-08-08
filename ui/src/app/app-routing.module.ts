@@ -44,6 +44,9 @@ import {AccountListComponent} from './account/account-list.component';
 import {AccountEditComponent} from './account/account-edit.component';
 import {AccountEditBaseComponent} from './account/account-edit-base.component';
 import {ImportExportComponent} from './importExport/import-export.component';
+import {RepoListComponent} from './repo/repo-list.component';
+import {RepoEditComponent} from './repo/repo-edit.component';
+import {RepoEditBaseComponent} from './repo/repo-edit-base.component';
 
 const routes: Routes = [
   { path: 'dashboard', component: DashboardComponent, canActivate: [AuthGuard] },
@@ -57,6 +60,16 @@ const routes: Routes = [
 
         ] },
       { path: 'create', component: AccountEditBaseComponent, canActivate: [AuthGuard] },
+    ] },
+  { path: 'repository', canActivate: [AuthGuard], children: [
+      { path: '', redirectTo: 'list', pathMatch: 'full' },
+      { path: 'list', component: RepoListComponent, canActivate: [AuthGuard] },
+      { path: 'edit/:id', component: RepoEditComponent, canActivate: [AuthGuard], children: [
+          { path: '', redirectTo: 'base', pathMatch: 'full' },
+          { path: 'base', component: RepoEditBaseComponent, canActivate: [AuthGuard] },
+
+        ] },
+      { path: 'create', component: RepoEditBaseComponent, canActivate: [AuthGuard] },
     ] },
 
   { path: 'importExport', component: ImportExportComponent, canActivate: [AuthGuard] },

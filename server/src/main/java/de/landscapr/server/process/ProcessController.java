@@ -26,7 +26,7 @@ public class ProcessController {
         return ResponseEntity.ok(processRepository.findAllFavorites());
     }
 
-    @RequestMapping(method = RequestMethod.POST, value = "/api/process/byIds/{processId}")
+    @RequestMapping(method = RequestMethod.POST, value = "/api/process/byIds")
     public ResponseEntity<List<Process>> byIds(@RequestBody List<String> processIds) {
         return ResponseEntity.ok(processRepository.byIds(processIds));
     }

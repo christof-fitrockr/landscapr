@@ -1,0 +1,47 @@
+<div class="container-xl">
+  <div class="card shadow mb-4">
+
+    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+
+      <div class="btn-toolbar justify-content-lg-start" role="toolbar" aria-label="Toolbar with button groups">
+        <div class="btn-group mr-2" role="group" aria-label="First group">
+          <a type="button" class="btn btn-primary" title="Create" routerLink="../create"><i class="fas fa-plus"></i></a>
+          <button type="button" class="btn btn-secondary" title="Refresh" (click)="refresh()"><i class="fas fa-sync"></i></button>
+        </div>
+      </div>
+
+      <div class="btn-group justify-content-lg-end" role="group">
+        <h3 class="m-0 font-weight-bold text-uppercase text-gray-400">Repositories</h3>
+      </div>
+
+    </div>
+
+    <div class="card-body">
+
+
+      <div class="fa-3x text-center p-5" *ngIf="!repos">
+        <i class="fas fa-spinner fa-pulse"></i>
+      </div>
+
+      <input *ngIf="repos && repos?.length > 0" type="text" class="input-group form-control" placeholder="Search name.." [(ngModel)]="searchText" [ngModelOptions]="{standalone: true}">
+
+      <div *ngIf="repos && repos?.length === 0" class="small font-italic">No repos available. Please <a routerLink="../create">create</a> a new one.</div>
+
+      <table class="table" *ngIf="repos && repos?.length > 0">
+        <thead>
+        <tr>
+          <th scope="col"></th>
+          <th scope="col" class="w-100">Name</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let repo of repos | repoFilter: searchText">
+          <td><a routerLink="/repo/edit/{{repo?.id}}" class="btn btn-secondary btn-sm"><i class="fas fa-edit"></i></a></td>
+          <td>{{repo.name}}</td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+</div>

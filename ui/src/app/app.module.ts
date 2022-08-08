@@ -82,6 +82,10 @@ import {AccountEditComponent} from './account/account-edit.component';
 import {AccountEditBaseComponent} from './account/account-edit-base.component';
 import {AccountFilterPipe} from './pipes/account-filter.pipe';
 import {ImportExportComponent} from './importExport/import-export.component';
+import {RepoFilterPipe} from './pipes/repo-filter.pipe';
+import {RepoListComponent} from './repo/repo-list.component';
+import {RepoEditBaseComponent} from './repo/repo-edit-base.component';
+import {RepoEditComponent} from './repo/repo-edit.component';
 
 
 @NgModule({
@@ -111,6 +115,11 @@ import {ImportExportComponent} from './importExport/import-export.component';
     AccountFilterPipe,
 
     ImportExportComponent,
+
+    RepoFilterPipe,
+    RepoListComponent,
+    RepoEditComponent,
+    RepoEditBaseComponent,
 
     SwimlaneViewComponent,
 

@@ -53,8 +53,6 @@ export class SwimlaneViewComponent implements OnInit, AfterViewInit {
             this.systemMap.set(system.id, system);
           }
 
-          console.log('Sizes: ' + this.processMap.size + ', ' + this.apiCallMap.size + ', ' + this.systemMap.size);
-
           this.createGraph(cx, this.processId, 50, 0);
 
           this.resize();
@@ -69,6 +67,8 @@ export class SwimlaneViewComponent implements OnInit, AfterViewInit {
   private createGraph(cx: CanvasRenderingContext2D, id: string, x = 0, layer = 0): ProcessBox {
     const mainProcess = new ProcessWithChildren();
     const process = this.processMap.get(id)
+
+
     mainProcess.process = process;
     mainProcess.children = [];
 
@@ -85,7 +85,8 @@ export class SwimlaneViewComponent implements OnInit, AfterViewInit {
       }
       processBox.w = this.canvasService.calcFunctionWidth(cx, 0, process.name, '');
 
-      console.log(process.name + ' (' + process.role + ') -> ')
+
+      console.log('Box: ' + processBox.title + ', ' + processBox.roleLayer);
     }
 
     if(process.steps && process.steps.length > 0) {
@@ -93,10 +94,12 @@ export class SwimlaneViewComponent implements OnInit, AfterViewInit {
 
       const childBoxes = new Map<string, ProcessBox>();
       for (let step of process.steps) {
-        const childBox = this.createGraph(cx, step.processReference, x + processBox.w, layer + 1);
-        childBoxes.set(step.processReference, childBox);
-        processBox.w += childBox.w;
-        processBox.w += 60; // Gap
+        if(step.processReference) {
+          const childBox = this.createGraph(cx, step.processReference, x + processBox.w, layer + 1);
+          childBoxes.set(step.processReference, childBox);
+          processBox.w += childBox.w;
+          processBox.w += 60; // Gap
+        }
       }
 
       for (let step of process.steps) {
