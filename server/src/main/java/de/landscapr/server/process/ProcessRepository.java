@@ -38,4 +38,8 @@ public class ProcessRepository {
     public Process save(Process process) {
         return mongoTemplate.save(process);
     }
+
+    public Object byIds(List<String> processIds) {
+        return null;
+    }
 }
