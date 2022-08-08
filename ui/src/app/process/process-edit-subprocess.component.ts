@@ -41,7 +41,7 @@ export class ProcessEditSubprocessComponent implements OnInit {
     this.suggestions$ = new Observable((observer: Observer<string | undefined>) => observer.next(this.search)).pipe(
       switchMap((query: string) => {
         if (query) {
-          return this.processService.getProcessByName(query).pipe(
+          return this.processService.byName(query).pipe(
             map((data: Process[]) => data || []),
             tap(() => noop, err => this.toastr.error(err && err.message || 'Something goes wrong'))
           );
@@ -54,7 +54,7 @@ export class ProcessEditSubprocessComponent implements OnInit {
   private refresh() {
     this.processId = this.route.parent.snapshot.paramMap.get('id');
     if (this.processId != null) {
-      this.processService.getProcessById(this.processId).pipe(first()).subscribe(process => {
+      this.processService.byId(this.processId).pipe(first()).subscribe(process => {
         this.process = process;
 
         const processIdMap = new Map<string, Process>();
@@ -68,10 +68,10 @@ export class ProcessEditSubprocessComponent implements OnInit {
           for (let i = 0; i < ids.length; i += chunkSize) {
             const idChunk = ids.slice(i, i + chunkSize);
             // do whatever
-            this.processService.getProcessByIds(idChunk).pipe(first()).subscribe(results => {
+            this.processService.byIds(idChunk).pipe(first()).subscribe(results => {
               this.availableSubProcesses = results;
               for (let process of results) {
-                processIdMap.set(process.processId, process);
+                processIdMap.set(process.id, process);
               }
 
               this.subProcesses = [];
@@ -95,7 +95,7 @@ export class ProcessEditSubprocessComponent implements OnInit {
   }
 
   onUpdate() {
-    this.processService.updateProcess(this.processId, this.process).then(() => {
+    this.processService.update(this.processId, this.process).pipe(first()).subscribe(() => {
       this.toastr.info('Process updated successfully');
       this.refresh();
     });
@@ -110,7 +110,7 @@ export class ProcessEditSubprocessComponent implements OnInit {
     if (this.subProcessForm.valid) {
       let subProcess = new Process();
       subProcess = Object.assign(subProcess, this.subProcessForm.value);
-      this.processService.createProcess(subProcess).then(docRef => {
+      this.processService.create(subProcess).pipe(first()).subscribe(docRef => {
         this.addSubProcess(docRef.id);
       });
     }

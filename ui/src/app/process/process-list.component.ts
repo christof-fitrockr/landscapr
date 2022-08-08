@@ -13,7 +13,7 @@ export class ProcessListComponent implements OnInit {
 
 
   ngOnInit() {
-    this.processService.allProcesses().pipe(first()).subscribe(items => {
+    this.processService.all().pipe(first()).subscribe(items => {
       this.processes = items;
     });
   }

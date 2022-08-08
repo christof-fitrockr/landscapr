@@ -1,7 +1,6 @@
 import {Component, OnInit} from '@angular/core';
 import {FormBuilder} from '@angular/forms';
-import {ActivatedRoute, Router} from '@angular/router';
-import {ToastrService} from 'ngx-toastr';
+import {ActivatedRoute} from '@angular/router';
 import {first} from 'rxjs/operators';
 import {ApiCall} from '../models/api-call';
 import {ApiCallService} from '../services/api-call.service';
@@ -15,8 +14,8 @@ export class ApiCallEditUsageComponent implements OnInit {
   apiCall: ApiCall;
   usedBy: Process[];
 
-  constructor(private apiCallService: ApiCallService, private processService: ProcessService, private formBuilder: FormBuilder,
-              private route: ActivatedRoute, private router: Router, private toastr: ToastrService) {
+  constructor(private apiCallService: ApiCallService, private processService: ProcessService,
+              private formBuilder: FormBuilder, private route: ActivatedRoute) {
   }
 
   ngOnInit() {
@@ -24,7 +23,7 @@ export class ApiCallEditUsageComponent implements OnInit {
     this.apiCallService.byId(this.apiCallId).pipe(first()).subscribe(apiCall => {
       this.apiCall = apiCall;
     });
-    this.processService.getProcessesByApiCall(this.apiCallId).pipe(first()).subscribe(usedBy => {
+    this.processService.byApiCall(this.apiCallId).pipe(first()).subscribe(usedBy => {
       this.usedBy = usedBy;
     });
   }

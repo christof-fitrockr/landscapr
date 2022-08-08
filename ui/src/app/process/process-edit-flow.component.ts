@@ -17,7 +17,7 @@ export class ProcessEditFlowComponent implements OnInit {
 
   ngOnInit() {
     this.processId = this.route.parent.snapshot.paramMap.get('id');
-    this.processService.getProcessById(this.processId).pipe(first()).subscribe(process => {
+    this.processService.byId(this.processId).pipe(first()).subscribe(process => {
       this.process = process;
     });
   }

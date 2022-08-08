@@ -1,4 +1,5 @@
 export class Process {
+  id: string;
   name: string;
   description: string;
   status: Status;
@@ -8,7 +9,6 @@ export class Process {
   role: number;
   steps: Step[]
   apiCallsIds: string[];
-  processId?: string;
   favorite: boolean;
   implementedBy: string[];
 }

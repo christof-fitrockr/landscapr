@@ -42,7 +42,7 @@ export class ProcessEditBaseComponent implements OnInit {
   private refresh() {
     this.processId = this.route.parent.snapshot.paramMap.get('id');
     if (this.processId != null) {
-      this.processService.getProcessById(this.processId).pipe(first()).subscribe(process => {
+      this.processService.byId(this.processId).pipe(first()).subscribe(process => {
         this.process = process;
         this.processForm.patchValue(this.process);
       });
@@ -60,14 +60,14 @@ export class ProcessEditBaseComponent implements OnInit {
     if (this.processForm.valid) {
       this.process = Object.assign(this.process, this.processForm.value);
       if(!this.processId) {
-        this.processService.createProcess(this.process).then(docRef => {
+        this.processService.create(this.process).pipe(first()).subscribe(docRef => {
           this.router.navigateByUrl('/process/edit/' + docRef.id).then(() => {
             this.toastr.info('Process created successfully');
             this.refresh()
           });
         });
       } else {
-        this.processService.updateProcess(this.processId, this.process).then(() => {
+        this.processService.update(this.processId, this.process).pipe(first()).subscribe(() => {
           this.toastr.info('Process updated successfully');
           this.refresh();
         });
@@ -76,7 +76,7 @@ export class ProcessEditBaseComponent implements OnInit {
   }
 
   delete() {
-    this.processService.deleteProcess(this.processId).then(() => {
+    this.processService.delete(this.processId).pipe(first()).subscribe(() => {
       this.router.navigate(['/process']).then(() => {
         this.toastr.info('Process deleted successfully');
       });

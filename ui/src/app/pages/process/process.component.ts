@@ -35,8 +35,8 @@ export class ProcessComponent implements AfterViewInit {
     }
 
     save() {
-        this.processService.deleteAll();
-        this.processService.create(this.modelledProcess);
+        // this.processService.deleteAll();
+        // this.processService.create(this.modelledProcess);
     }
 
     refresh() {

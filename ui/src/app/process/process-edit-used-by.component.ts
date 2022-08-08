@@ -17,12 +17,12 @@ export class ProcessEditUsedByComponent implements OnInit {
 
   ngOnInit() {
     this.processId = this.route.parent.snapshot.paramMap.get('id');
-    this.processService.getProcessById(this.processId).pipe(first()).subscribe(process => {
+    this.processService.byId(this.processId).pipe(first()).subscribe(process => {
       this.process = process;
 
     });
 
-    this.processService.getParentProcesses(this.processId).pipe(first()).subscribe(parentProcesses => {
+    this.processService.allParents(this.processId).pipe(first()).subscribe(parentProcesses => {
       this.parentProcesses = parentProcesses;
     });
 

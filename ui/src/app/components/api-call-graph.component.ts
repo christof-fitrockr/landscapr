@@ -47,7 +47,7 @@ export class ApiCallGraphComponent implements OnInit, AfterViewInit, AfterViewCh
   }
 
   refresh() {
-    this.processService.getProcessById(this.processId).pipe(first()).subscribe(process => {
+    this.processService.byId(this.processId).pipe(first()).subscribe(process => {
       this.process = process;
 
 
@@ -64,7 +64,7 @@ export class ApiCallGraphComponent implements OnInit, AfterViewInit, AfterViewCh
       this.modelledProcess.process.swimlanes = [processSwimlane, functionSwimlane ];
 
       const processStep = new ProcessStep();
-      processStep.id = process.processId;
+      processStep.id = process.id;
       processStep.name = process.name;
       processStep.calls = [];
 
@@ -124,8 +124,8 @@ export class ApiCallGraphComponent implements OnInit, AfterViewInit, AfterViewCh
   }
 
   save() {
-    this.processService.deleteAll();
-    this.processService.create(this.modelledProcess);
+    // this.processService.deleteAll();
+    // this.processService.create(this.modelledProcess);
   }
 
   //refresh() {

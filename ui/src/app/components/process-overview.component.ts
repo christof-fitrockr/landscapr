@@ -19,7 +19,7 @@ export class ProcessOverviewComponent  {
 
 
   delete() {
-    this.deleteEmitter.emit(this.processWithStep.process.processId);
+    this.deleteEmitter.emit(this.processWithStep.process.id);
   }
 
   addSuccessor() {

@@ -31,7 +31,7 @@ export class ProcessViewComponent implements OnInit {
   private refresh() {
     this.loading = true;
     this.processId = this.route.snapshot.paramMap.get('id');
-    this.processService.getProcessById(this.processId).pipe(first()).subscribe(
+    this.processService.byId(this.processId).pipe(first()).subscribe(
       process => {
         this.process = process;
         this.loadProcessDetails(process);
@@ -42,13 +42,13 @@ export class ProcessViewComponent implements OnInit {
         this.toastr.error("Error loading process.")
       });
 
-    this.processService.getParentProcesses(this.processId).pipe(first()).subscribe( result => {
+    this.processService.allParents(this.processId).pipe(first()).subscribe( result => {
       this.parents = result
     });
   }
 
   processNodeClicked(processId: string) {
-    this.processService.getProcessById(processId).pipe(first()).subscribe( result => {
+    this.processService.byId(processId).pipe(first()).subscribe( result => {
       this.loadProcessDetails(result);
     });
 
@@ -66,7 +66,7 @@ export class ProcessViewComponent implements OnInit {
 
       for (let i = 0; i < ids.length; i += chunkSize) {
         const idChunk = ids.slice(i, i + chunkSize);
-        this.processService.getProcessByIds(idChunk).pipe(first()).subscribe(results => {
+        this.processService.byIds(idChunk).pipe(first()).subscribe(results => {
           for (let item of results) {
             this.selectedSubprocesses.push(item);
           }

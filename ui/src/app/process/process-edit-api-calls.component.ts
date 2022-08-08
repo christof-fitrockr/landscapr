@@ -56,7 +56,7 @@ export class ProcessEditApiCallsComponent implements OnInit {
   private refresh() {
     this.processId = this.route.parent.snapshot.paramMap.get('id');
     if (this.processId != null) {
-      this.processService.getProcessById(this.processId).pipe(first()).subscribe(process => {
+      this.processService.byId(this.processId).pipe(first()).subscribe(process => {
         this.process = process;
 
         // todo seqquential
@@ -74,7 +74,7 @@ export class ProcessEditApiCallsComponent implements OnInit {
   }
 
   onUpdate() {
-    this.processService.updateProcess(this.processId, this.process).then(() => {
+    this.processService.update(this.processId, this.process).pipe(first()).subscribe(() => {
       this.toastr.info('Process updated successfully');
       this.refresh();
     });

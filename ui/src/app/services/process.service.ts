@@ -1,128 +1,56 @@
 import {Injectable} from '@angular/core';
-import {ModelledProcess, Process} from '../models/process';
+import {Process} from '../models/process';
 import {Observable} from 'rxjs';
+import {environment} from '../../environments/environment';
+import {HttpClient} from '@angular/common/http';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ProcessService {
 
-  // private dbPath = '/landscapr/process';
-
-  // modelledProcesses$: AngularFireList<ModelledProcess> = null;
-
-
-  // constructor(private db: AngularFirestore) {
-  // }
-
-  allProcesses(): Observable<Process[]> {
-    // return this.db.collection<Process>('process', ref => ref.orderBy('name')).valueChanges({ idField: 'processId' });
-    return null;
+  constructor(private http: HttpClient) {
   }
 
-
-  getProcessById(id: string): Observable<Process> {
-    // return this.db.collection<Process>('process').doc(id).valueChanges({ idField: 'processId' });
-    return null;
+  all(): Observable<Process[]> {
+    return this.http.get<Process[]>(`${environment.apiUrl}/process/all`);
   }
-
 
   allFavorites() {
-    // return this.db.collection<Process>('process', ref => {
-    //   return ref.where( 'favorite', '==', true)}
-    // ).valueChanges({ idField: 'processId' });
-    return null;
+    return this.http.get<Process[]>(`${environment.apiUrl}/process/allFavorites`);
   }
 
-  getProcessByIds(ids: string[]): Observable<Process[]> {
-    // return this.db.collection<Process>('process', ref => {
-    //   return ref.where( firebase.documentId(), 'in', ids)}
-    //   ).valueChanges({ idField: 'processId' });
-
-    return null;
-  }
-
-  getProcessesByApiCall(apiCallId: string) {
-    // return this.db.collection<Process>('process', ref => {
-    //   return ref.where( 'apiCallsIds', 'array-contains', apiCallId)}
-    // ).valueChanges({ idField: 'processId' });
-    return null;
-  }
-
-  getParentProcesses(processId: string) {
-    // return new Observable<Process[]>(obs => {
-    //   const result = [];
-    //   this.allProcesses().pipe(first()).subscribe(processes => {
-    //     for(let item of processes) {
-    //       if(item.steps) {
-    //         for(let step of item.steps) {
-    //           if(step.processReference === processId) {
-    //             result.push(item);
-    //           }
-    //         }
-    //       }
-    //     }
-    //     obs.next(result);
-    //   })
-    //
-    // });
-    return null;
-  }
-
-  getProcessByName(name: string): Observable<Process[]> {
-
-    // return this.db.collection<Process>('process', ref => {
-    //   return ref
-    //     .orderBy("name")
-    //     .where('name', '>=', name.toUpperCase())
-    //     .where('name', '<=', name.toLowerCase() + '\uf8ff')
-    //     .limit(10);}
-    //     ).valueChanges({ idField: 'processId' });
-    return null;
+  allParents(processId: string) {
+    return this.http.get<Process[]>(`${environment.apiUrl}/process/allParent/` + processId);
   }
 
 
-
-  createProcess(process: Process)/*: Promise<DocumentReference<Process>>*/ {
-    // return this.db.collection<Process>("process").add(JSON.parse(JSON.stringify(process)));
-    return null;
+  byId(id: string): Observable<Process> {
+    return this.http.get<Process>(`${environment.apiUrl}/process/byId/` + id);
   }
 
-  updateProcess(id: string, process:  Process): Promise<void> {
-    // return this.db.collection("process").doc(id).update(JSON.parse( JSON.stringify(process ) )).catch(error => this.handleError(error));
-    return null;
+  byIds(ids: string[]): Observable<Process[]> {
+    return this.http.post<Process[]>(`${environment.apiUrl}/process/byIds`, ids);
   }
 
-  deleteProcess(processId: string): Promise<void> {
-    // return this.db.collection("process").doc(processId).delete();
-    return null;
+  byName(name: string): Observable<Process[]> {
+    return this.http.get<Process[]>(`${environment.apiUrl}/process/byName/` + name);
+  }
+
+  byApiCall(apiCallId: string) {
+    return this.http.get<Process[]>(`${environment.apiUrl}/process/byApiCall/` + apiCallId);
   }
 
 
-
-  create(modelledProcess: ModelledProcess): void {
-    // this.modelledProcesses$.push(JSON.parse( JSON.stringify(modelledProcess ) ));
+  create(process: Process): Observable<Process> {
+    return this.http.post<Process>(`${environment.apiUrl}/process/update`, process);
   }
 
-  update(modelledProcess: ModelledProcess): void {
-    // this.modelledProcesses$.update(modelledProcess.$key, modelledProcess).catch(error => this.handleError(error));
+  update(id: string, process:  Process): Observable<Process> {
+    return this.http.post<Process>(`${environment.apiUrl}/process/update`, process);
   }
 
-  delete(id: string): void {
-    // this.modelledProcesses$.remove(id).catch(error => this.handleError(error));
+  delete(processId: string): Observable<void> {
+    return this.http.get<void>(`${environment.apiUrl}/process/delete/` + processId);
   }
-
-  list()/*: AngularFireList<ModelledProcess>*/ {
-    // return this.modelledProcesses$;
-    return null;
-  }
-
-  deleteAll(): void {
-    // this.modelledProcesses$.remove().catch(error => this.handleError(error));
-  }
-
-  private handleError(error) {
-    // console.log(error);
-  }
-
 }

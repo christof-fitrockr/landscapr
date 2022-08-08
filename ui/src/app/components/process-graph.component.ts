@@ -38,7 +38,7 @@ export class ProcessGraphComponent implements OnInit, AfterViewChecked {
   }
 
   private refresh() {
-    this.processService.getProcessById(this.processId).pipe(first()).subscribe(process => {
+    this.processService.byId(this.processId).pipe(first()).subscribe(process => {
       this.process = process;
 
       const ids = [];
@@ -46,7 +46,7 @@ export class ProcessGraphComponent implements OnInit, AfterViewChecked {
         for (let item of this.process.steps) {
           ids.push(item.processReference);
         }
-        this.processService.getProcessByIds(ids).pipe(first()).subscribe(results => {
+        this.processService.byIds(ids).pipe(first()).subscribe(results => {
           this.subProcesses = results;
           this.showGraph();
         });
@@ -57,7 +57,7 @@ export class ProcessGraphComponent implements OnInit, AfterViewChecked {
   showGraph() {
     this.hierarchicalGraph.nodes = [];
     for(let subprocess of this.subProcesses) {
-      this.hierarchicalGraph.nodes.push({id: subprocess.processId, label: subprocess.name})
+      this.hierarchicalGraph.nodes.push({id: subprocess.id, label: subprocess.name})
     }
 
     if(this.process.steps) {
