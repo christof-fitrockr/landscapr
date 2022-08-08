@@ -10,23 +10,23 @@ import java.util.List;
 
 @RestController
 @RequestMapping
-public class AuthenticationController {
+public class AccountController {
 
-    private final AuthenticationService authenticationService;
+    private final AccountService accountService;
 
     @Autowired
-    public AuthenticationController(AuthenticationService authenticationService) {
-        this.authenticationService = authenticationService;
+    public AccountController(AccountService accountService) {
+        this.accountService = accountService;
     }
 
     @PostMapping("/api/authenticate")
-    public ResponseEntity<AuthenticationResponse> createCustomer(@RequestBody AuthenticationRequest request) {
-        return new ResponseEntity<>(authenticationService.generateJWTToken(request.getEmail(), request.getPassword()), HttpStatus.OK);
+    public ResponseEntity<AuthenticationResponse> authenticate(@RequestBody AuthenticationRequest request) {
+        return new ResponseEntity<>(accountService.generateJWTToken(request.getEmail(), request.getPassword()), HttpStatus.OK);
     }
 
-    @RequestMapping(method = RequestMethod.GET, value = "/api/secured/accounts/list")
+    @RequestMapping(method = RequestMethod.GET, value = "/api/accounts/list")
     public ResponseEntity<List<Account>> all() {
-        return ResponseEntity.ok(authenticationService.allAccounts());
+        return ResponseEntity.ok(accountService.allAccounts());
     }
 
     @ExceptionHandler(EntityNotFoundException.class)
