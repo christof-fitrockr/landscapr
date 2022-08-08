@@ -1,5 +1,6 @@
 
 export class Capability {
+  id: string;
   name: string;
   description: string;
   implementedBy: string[];

@@ -43,6 +43,7 @@ import {SwimlaneViewComponent} from './swimlaneView/swimlane-view.component';
 import {AccountListComponent} from './account/account-list.component';
 import {AccountEditComponent} from './account/account-edit.component';
 import {AccountEditBaseComponent} from './account/account-edit-base.component';
+import {ImportExportComponent} from './importExport/import-export.component';
 
 const routes: Routes = [
   { path: 'dashboard', component: DashboardComponent, canActivate: [AuthGuard] },
@@ -57,6 +58,9 @@ const routes: Routes = [
         ] },
       { path: 'create', component: AccountEditBaseComponent, canActivate: [AuthGuard] },
     ] },
+
+  { path: 'importExport', component: ImportExportComponent, canActivate: [AuthGuard] },
+
   { path: 'process', canActivate: [AuthGuard], children: [
       { path: '', redirectTo: 'list', pathMatch: 'full' },
       { path: 'list', component: ProcessListComponent, canActivate: [AuthGuard] },

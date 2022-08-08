@@ -8,7 +8,7 @@ export class Process {
   tags: string[];
   role: number;
   steps: Step[]
-  apiCallsIds: string[];
+  apiCallIds: string[];
   favorite: boolean;
   implementedBy: string[];
 }

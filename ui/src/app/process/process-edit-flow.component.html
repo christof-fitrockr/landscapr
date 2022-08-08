@@ -21,7 +21,7 @@
 
     <div class="card-body">
       <app-process-graph *ngIf="process?.steps && process?.steps?.length > 0" [processId]="processId" (processClicked)="processNodeClicked($event)"></app-process-graph>
-      <app-api-call-graph *ngIf="process?.apiCallsIds && process?.apiCallsIds?.length > 0" [processId]="processId" (processClicked)="processNodeClicked($event)"></app-api-call-graph>
+      <app-api-call-graph *ngIf="process?.apiCallIds && process?.apiCallIds?.length > 0" [processId]="processId" (processClicked)="processNodeClicked($event)"></app-api-call-graph>
     </div>
   </div>
 

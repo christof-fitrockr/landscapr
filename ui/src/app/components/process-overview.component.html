@@ -24,7 +24,7 @@
           <span *ngIf="!processWithStep?.process?.description" class="font-italic small">No description available</span>
         </td>
         <td rowspan="2" class="text-nowrap">
-          <i *ngIf="processWithStep?.process?.apiCallsIds?.length > 0" class="fas fa-wave-square mr-1" title="{{processWithStep?.process?.apiCallsIds?.length}} API Call(s)"></i>
+          <i *ngIf="processWithStep?.process?.apiCallIds?.length > 0" class="fas fa-wave-square mr-1" title="{{processWithStep?.process?.apiCallIds?.length}} API Call(s)"></i>
           <i *ngIf="processWithStep?.process?.steps?.length > 0" class="fas fa-sitemap mr-1" title="{{processWithStep?.process?.steps?.length}} Process Step(s)"></i>
 
           <i *ngIf="processWithStep.process?.status === 0" class="text-warning fas fa-exclamation-triangle mr-1"></i>

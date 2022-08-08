@@ -60,9 +60,9 @@ export class ProcessEditApiCallsComponent implements OnInit {
         this.process = process;
 
         // todo seqquential
-        if(this.process.apiCallsIds) {
+        if(this.process.apiCallIds) {
           this.apiCalls = [];
-          this.process.apiCallsIds.forEach(item => {
+          this.process.apiCallIds.forEach(item => {
             this.apiCallService.byId(item).pipe(first()).subscribe(result => {
               this.apiCalls.push(result);
             })
@@ -96,38 +96,38 @@ export class ProcessEditApiCallsComponent implements OnInit {
   }
 
   private addApiCall(id: string) {
-    if(!this.process.apiCallsIds) {
-      this.process.apiCallsIds = [];
+    if(!this.process.apiCallIds) {
+      this.process.apiCallIds = [];
     }
-    this.process.apiCallsIds.push( id);
+    this.process.apiCallIds.push( id);
     this.onUpdate();
   }
 
   moveUp(processId: string) {
-    if (this.process.apiCallsIds !== null) {
-      const index = this.process.apiCallsIds.findIndex(item => item === processId);
+    if (this.process.apiCallIds !== null) {
+      const index = this.process.apiCallIds.findIndex(item => item === processId);
       if (index >= 1) {
-        this.process.apiCallsIds.splice(index - 1, 0, this.process.apiCallsIds.splice(index, 1)[0]);
+        this.process.apiCallIds.splice(index - 1, 0, this.process.apiCallIds.splice(index, 1)[0]);
         this.onUpdate();
       }
     }
   }
 
   moveDown(processId: string) {
-    if (this.process.apiCallsIds !== null) {
-      const index = this.process.apiCallsIds.findIndex(item => item === processId);
-      if (index >= 0 && index < this.process.apiCallsIds.length - 1) {
-        this.process.apiCallsIds.splice(index + 1, 0, this.process.apiCallsIds.splice(index, 1)[0]);
+    if (this.process.apiCallIds !== null) {
+      const index = this.process.apiCallIds.findIndex(item => item === processId);
+      if (index >= 0 && index < this.process.apiCallIds.length - 1) {
+        this.process.apiCallIds.splice(index + 1, 0, this.process.apiCallIds.splice(index, 1)[0]);
         this.onUpdate();
       }
     }
   }
 
   delete(processId: string) {
-    if (this.process.apiCallsIds !== null) {
-      const index = this.process.apiCallsIds.findIndex(item => item === processId);
+    if (this.process.apiCallIds !== null) {
+      const index = this.process.apiCallIds.findIndex(item => item === processId);
       if (index >= 0) {
-        this.process.apiCallsIds.splice(index, 1);
+        this.process.apiCallIds.splice(index, 1);
         this.onUpdate();
       }
     }

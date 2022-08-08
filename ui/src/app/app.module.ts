@@ -81,6 +81,7 @@ import {AccountListComponent} from './account/account-list.component';
 import {AccountEditComponent} from './account/account-edit.component';
 import {AccountEditBaseComponent} from './account/account-edit-base.component';
 import {AccountFilterPipe} from './pipes/account-filter.pipe';
+import {ImportExportComponent} from './importExport/import-export.component';
 
 
 @NgModule({
@@ -108,6 +109,8 @@ import {AccountFilterPipe} from './pipes/account-filter.pipe';
     AccountEditComponent,
     AccountEditBaseComponent,
     AccountFilterPipe,
+
+    ImportExportComponent,
 
     SwimlaneViewComponent,
 

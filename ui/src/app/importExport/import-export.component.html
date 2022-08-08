@@ -1,0 +1,62 @@
+<div class="container-xl">
+  <div class="card shadow mb-4">
+
+    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+
+      <div class="btn-toolbar justify-content-lg-start" role="toolbar" aria-label="Toolbar with button groups">
+        <div class="btn-group mr-2" role="group" aria-label="First group">
+          <a type="button" class="btn btn-primary" title="Create" routerLink="../create"><i class="fas fa-plus"></i></a>
+          <button type="button" class="btn btn-secondary" title="Refresh" (click)="refresh()"><i class="fas fa-sync"></i></button>
+          <button type="button" class="btn btn-secondary" title="Refresh" (click)="saveSystems()"><i class="fas fa-save"></i></button>
+          <button type="button" class="btn btn-secondary" title="Refresh" (click)="saveCapabilities()"><i class="fas fa-save"></i></button>
+          <button type="button" class="btn btn-secondary" title="Refresh" (click)="saveApiCalls()"><i class="fas fa-save"></i></button>
+          <button type="button" class="btn btn-secondary" title="Refresh" (click)="saveProcesses()"><i class="fas fa-save"></i></button>
+          <button type="button" class="btn btn-secondary" title="Refresh" (click)="processProcesses()"><i class="fas fa-save"></i></button>
+        </div>
+      </div>
+
+
+      <div class="btn-group justify-content-lg-end" role="group">
+        <h3 class="m-0 font-weight-bold text-uppercase text-gray-400">Accounts</h3>
+      </div>
+
+    </div>
+
+    <div class="card-body">
+
+
+      <div class="col-sm-2">
+        <h5>Systems ({{systemMap?.size}})</h5>
+      </div>
+      <div class="col-sm-10">
+        <textarea rows="5" type="text" class="form-control" [(ngModel)]="systems" [ngModelOptions]="{standalone: true}"></textarea>
+      </div>
+
+
+      <div class="col-sm-2">
+        <h5>Capabilities ({{capMap?.size}})</h5>
+      </div>
+      <div class="col-sm-10">
+        <textarea rows="5" type="text" class="form-control" [(ngModel)]="capabilities" [ngModelOptions]="{standalone: true}"></textarea>
+      </div>
+
+
+      <div class="col-sm-2">
+        <h5>Api Calls ({{callMap?.size}})</h5>
+      </div>
+      <div class="col-sm-10">
+        <textarea rows="5" type="text" class="form-control" [(ngModel)]="apiCalls" [ngModelOptions]="{standalone: true}"></textarea>
+      </div>
+
+      <div class="col-sm-2">
+        <h5>Processes ({{callMap?.size}})</h5>
+      </div>
+      <div class="col-sm-10">
+        <textarea rows="5" type="text" class="form-control" [(ngModel)]="processes" [ngModelOptions]="{standalone: true}"></textarea>
+      </div>
+
+
+    </div>
+
+  </div>
+</div>

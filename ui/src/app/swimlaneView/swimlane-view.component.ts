@@ -115,10 +115,10 @@ export class SwimlaneViewComponent implements OnInit, AfterViewInit {
     processBox.id = this.processOrder.length;
 
     let functionW = 0;
-    if(process.apiCallsIds && !process.steps) {
+    if(process.apiCallIds && !process.steps) {
 
 
-      for(let apiCallId of process.apiCallsIds) {
+      for(let apiCallId of process.apiCallIds) {
         let apiCall = this.apiCallMap.get(apiCallId)
 
 
@@ -130,7 +130,7 @@ export class SwimlaneViewComponent implements OnInit, AfterViewInit {
       if((functionW + processBox.w) > processBox.w) {
         processBox.w = functionW + processBox.w;
         let currentX = x;
-        for(let apiCallId of process.apiCallsIds) {
+        for(let apiCallId of process.apiCallIds) {
           let apiCall = this.apiCallMap.get(apiCallId)
           const subTitle = this.getSubTitle(apiCall);
           const w = this.canvasService.calcFunctionWidth(cx, 0, apiCall.name, subTitle)
@@ -154,7 +154,7 @@ export class SwimlaneViewComponent implements OnInit, AfterViewInit {
         }
       } else {
         let startX = (processBox.w - functionW) / 2
-        for(let apiCallId of process.apiCallsIds) {
+        for(let apiCallId of process.apiCallIds) {
           this.createFunctionGraph(cx, this.apiCallMap.get(apiCallId), startX + functionW, layer + 1);
         }
       }
