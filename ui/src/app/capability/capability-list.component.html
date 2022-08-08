@@ -38,7 +38,7 @@
         </thead>
         <tbody>
         <tr *ngFor="let capability of capabilities | capabilityFilter: searchText">
-          <td><a routerLink="/capability/edit/{{capability?.capabilityId}}" class="btn btn-secondary btn-sm"><i class="fas fa-edit"></i></a></td>
+          <td><a routerLink="/capability/edit/{{capability?.id}}" class="btn btn-secondary btn-sm"><i class="fas fa-edit"></i></a></td>
           <td>{{capability.name}}</td>
         </tr>
         </tbody>

@@ -1,7 +1,8 @@
 import {Injectable} from '@angular/core';
 import {Observable} from 'rxjs';
-// import {DocumentReference} from '@angular/fire/compat/firestore';
 import {Capability} from '../models/capability';
+import {HttpClient} from '@angular/common/http';
+import {environment} from '../../environments/environment';
 
 
 @Injectable({
@@ -9,65 +10,97 @@ import {Capability} from '../models/capability';
 })
 export class CapabilityService {
 
-  // constructor(private db: AngularFirestore) {
-  // }
-
-  allCapabilities(): Observable<Capability[]> {
-    // return this.db.collection<Capability>('capability', ref => ref.orderBy('name')).valueChanges({ idField: 'capabilityId' });
-    return null;
+  constructor(private http: HttpClient) {
   }
 
-  getCapabilityById(id: string): Observable<Capability> {
-    return null;
-    // return this.db.collection<Capability>('capability').doc(id).valueChanges({ idField: 'capabilityId' });
+  all(): Observable<Capability[]> {
+    return this.http.get<Capability[]>(`${environment.apiUrl}/capability/all`);
   }
 
-
-  getCapabilityByIds(ids: string[]): Observable<Capability[]> {
-    // return this.db.collection<Capability>('capability', ref => {
-    //   return ref.where( firebase.documentId(), 'in', ids)}
-    //   ).valueChanges({ idField: 'capabilityId' });
-    return null;
+  byId(id: string): Observable<Capability> {
+    return this.http.get<Capability>(`${environment.apiUrl}/capability/byId/` + id);
   }
 
-
-  getByImplementingSystem(systemId: string) {
-    // return this.db.collection<Capability>('capability', ref => {
-    //   return ref.where( 'implementedBy', 'array-contains', systemId)}
-    // ).valueChanges({ idField: 'capabilityId' });
-    return null;
+  byIds(ids: string[]): Observable<Capability[]> {
+    return this.http.post<Capability[]>(`${environment.apiUrl}/capability/byIds`, ids);
   }
 
-  getCapabilityByName(name: string): Observable<Capability[]> {
-
-    // return this.db.collection<Capability>('capability', ref => {
-    //   return ref
-    //     .orderBy("name")
-    //     .where('name', '>=', name.toUpperCase())
-    //     .where('name', '<=', name.toLowerCase() + '\uf8ff')
-    //     .limit(10);}
-    //     ).valueChanges({ idField: 'capabilityId' });
-    return null;
+  byName(name: string): Observable<Capability[]> {
+    return this.http.get<Capability[]>(`${environment.apiUrl}/capability/byName/` + name);
   }
 
-  createCapability(capability: Capability)/*: Promise<DocumentReference<Capability>>*/ {
-    return null;
-// /    return this.db.collection<Capability>("capability").add(JSON.parse(JSON.stringify(capability)));
+  byImplementation(systemId: string): Observable<Capability[]> {
+    return this.http.get<Capability[]>(`${environment.apiUrl}/cabability/byImplementation/` + systemId);
   }
 
-  updateCapability(id: string, capability:  Capability): Promise<void> {
-    // return this.db.collection("capability").doc(id).update(JSON.parse( JSON.stringify(capability ) )).catch(error => this.handleError(error));
-    return null;
+  create(capability: Capability): Observable<Capability> {
+    return this.http.post<Capability>(`${environment.apiUrl}/capability/update`, capability);
   }
 
-  deleteCapability(capabilityId: string): Promise<void> {
-    // return this.db.collection("capability").doc(capabilityId).delete();
-    return null;
+  update(id: string, capability:  Capability): Observable<Capability> {
+    return this.http.post<Capability>(`${environment.apiUrl}/capability/update`, capability);
   }
 
-
-
-  private handleError(error) {
-    console.log(error);
+  delete(capabilityId: string): Observable<void> {
+    return this.http.get<void>(`${environment.apiUrl}/capability/delete/` + capabilityId);
   }
+
+//   allCapabilities(): Observable<Capability[]> {
+//     // return this.db.collection<Capability>('capability', ref => ref.orderBy('name')).valueChanges({ idField: 'capabilityId' });
+//     return null;
+//   }
+//
+//   getCapabilityById(id: string): Observable<Capability> {
+//     return null;
+//     // return this.db.collection<Capability>('capability').doc(id).valueChanges({ idField: 'capabilityId' });
+//   }
+//
+//
+//   getCapabilityByIds(ids: string[]): Observable<Capability[]> {
+//     // return this.db.collection<Capability>('capability', ref => {
+//     //   return ref.where( firebase.documentId(), 'in', ids)}
+//     //   ).valueChanges({ idField: 'capabilityId' });
+//     return null;
+//   }
+//
+//
+//   getByImplementingCapability(id: string) {
+//     // return this.db.collection<Capability>('capability', ref => {
+//     //   return ref.where( 'implementedBy', 'array-contains', capabilityId)}
+//     // ).valueChanges({ idField: 'capabilityId' });
+//
+//   }
+//
+//   getCapabilityByName(name: string): Observable<Capability[]> {
+//
+//     // return this.db.collection<Capability>('capability', ref => {
+//     //   return ref
+//     //     .orderBy("name")
+//     //     .where('name', '>=', name.toUpperCase())
+//     //     .where('name', '<=', name.toLowerCase() + '\uf8ff')
+//     //     .limit(10);}
+//     //     ).valueChanges({ idField: 'capabilityId' });
+//     return null;
+//   }
+//
+//   createCapability(capability: Capability)/*: Promise<DocumentReference<Capability>>*/ {
+//     return null;
+// // /    return this.db.collection<Capability>("capability").add(JSON.parse(JSON.stringify(capability)));
+//   }
+//
+//   updateCapability(id: string, capability:  Capability): Promise<void> {
+//     // return this.db.collection("capability").doc(id).update(JSON.parse( JSON.stringify(capability ) )).catch(error => this.handleError(error));
+//     return null;
+//   }
+//
+//   deleteCapability(capabilityId: string): Promise<void> {
+//     // return this.db.collection("capability").doc(capabilityId).delete();
+//     return null;
+//   }
+//
+//
+//
+//   private handleError(error) {
+//     console.log(error);
+//   }
 }

@@ -15,30 +15,30 @@ export class SystemService {
   }
 
   allSystems(): Observable<System[]> {
-    return this.http.get<System[]>(`${environment.apiUrl}/secured/system/all`);
+    return this.http.get<System[]>(`${environment.apiUrl}/system/all`);
   }
 
   getSystemById(id: string): Observable<System> {
-    return this.http.get<System>(`${environment.apiUrl}/secured/system/byId/` + id);
+    return this.http.get<System>(`${environment.apiUrl}/system/byId/` + id);
   }
 
   getSystemByIds(ids: string[]): Observable<System[]> {
-    return this.http.post<System[]>(`${environment.apiUrl}/secured/system/byIds`, ids);
+    return this.http.post<System[]>(`${environment.apiUrl}/system/byIds`, ids);
   }
 
   getSystemByName(name: string): Observable<System[]> {
-    return this.http.get<System[]>(`${environment.apiUrl}/secured/system/byName/` + name);
+    return this.http.get<System[]>(`${environment.apiUrl}/system/byName/` + name);
   }
 
   createSystem(system: System): Observable<System> {
-    return this.http.post<System>(`${environment.apiUrl}/secured/system/update`, system);
+    return this.http.post<System>(`${environment.apiUrl}/system/update`, system);
   }
 
   updateSystem(id: string, system:  System): Observable<System> {
-    return this.http.post<System>(`${environment.apiUrl}/secured/system/update`, system);
+    return this.http.post<System>(`${environment.apiUrl}/system/update`, system);
   }
 
   deleteSystem(systemId: string): Observable<void> {
-    return this.http.get<void>(`${environment.apiUrl}/secured/system/delete/` + systemId);
+    return this.http.get<void>(`${environment.apiUrl}/system/delete/` + systemId);
   }
 }

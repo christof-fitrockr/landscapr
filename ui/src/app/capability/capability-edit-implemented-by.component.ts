@@ -7,7 +7,6 @@ import {first, map, switchMap, tap} from 'rxjs/operators';
 import {ToastrService} from 'ngx-toastr';
 import {noop, Observable, Observer, of} from 'rxjs';
 import {TypeaheadMatch} from 'ngx-bootstrap/typeahead';
-import {ApiCall} from '../models/api-call';
 import {SystemService} from '../services/system.service';
 import {System} from '../models/system';
 
@@ -57,7 +56,7 @@ export class CapabilityEditImplementedByComponent implements OnInit {
   private refresh() {
     this.capabilityId = this.route.parent.snapshot.paramMap.get('id');
     if (this.capabilityId != null) {
-      this.capabilityService.getCapabilityById(this.capabilityId).pipe(first()).subscribe(capability => {
+      this.capabilityService.byId(this.capabilityId).pipe(first()).subscribe(capability => {
         this.capability = capability;
 
         // todo seqquential
@@ -75,7 +74,7 @@ export class CapabilityEditImplementedByComponent implements OnInit {
   }
 
   onUpdate() {
-    this.capabilityService.updateCapability(this.capabilityId, this.capability).then(() => {
+    this.capabilityService.update(this.capabilityId, this.capability).pipe(first()).subscribe(() => {
       this.toastr.info('Capability updated successfully');
       this.refresh();
     });

@@ -1,6 +1,5 @@
 import {Component, OnInit} from '@angular/core';
 import {CapabilityService} from '../services/capability.service';
-import {ApiCallService} from '../services/api-call.service';
 import {first} from 'rxjs/operators';
 import {Capability} from '../models/capability';
 
@@ -14,7 +13,7 @@ export class CapabilityViewComponent implements OnInit {
 
   ngOnInit() {
 
-    this.capabilityService.allCapabilities().pipe(first()).subscribe(caps => {
+    this.capabilityService.all().pipe(first()).subscribe(caps => {
       this.caps = caps;
     });
 

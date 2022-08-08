@@ -21,7 +21,7 @@ export class SystemEditImplementsComponent implements OnInit {
     this.systemService.getSystemById(this.systemId).pipe(first()).subscribe(system => {
       this.system = system;
     });
-    this.capabilityService.getByImplementingSystem(this.systemId).pipe(first()).subscribe(capabilities => {
+    this.capabilityService.byImplementation(this.systemId).pipe(first()).subscribe(capabilities => {
       this.implements = capabilities;
     });
   }

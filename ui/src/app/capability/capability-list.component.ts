@@ -13,7 +13,7 @@ export class CapabilityListComponent implements OnInit {
   searchText: string;
 
   ngOnInit() {
-    this.capabilityService.allCapabilities().pipe(first()).subscribe(capabilities => {
+    this.capabilityService.all().pipe(first()).subscribe(capabilities => {
       this.capabilities = capabilities;
     });
   }

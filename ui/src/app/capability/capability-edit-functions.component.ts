@@ -18,7 +18,7 @@ export class CapabilityEditFunctionsComponent implements OnInit {
 
   ngOnInit() {
     this.capabilityId = this.route.parent.snapshot.paramMap.get('id');
-    this.capabilityService.getCapabilityById(this.capabilityId).pipe(first()).subscribe(capability => {
+    this.capabilityService.byId(this.capabilityId).pipe(first()).subscribe(capability => {
       this.capability = capability;
     });
 

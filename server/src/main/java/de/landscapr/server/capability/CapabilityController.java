@@ -16,25 +16,29 @@ public class CapabilityController {
         this.capabilityRepository = capabilityRepository;
     }
 
-    @RequestMapping(method = RequestMethod.GET, value = "/api/secured/capability/all")
+    @RequestMapping(method = RequestMethod.GET, value = "/api/capability/all")
     public ResponseEntity<List<Capability>> all() {
         return ResponseEntity.ok(capabilityRepository.findAll());
     }
 
-    @RequestMapping(method = RequestMethod.GET, value = "/api/secured/capability/byId/{capabilityId}")
-    public ResponseEntity<Capability> get(@PathVariable String capabilityId) {
+    @RequestMapping(method = RequestMethod.GET, value = "/api/capability/byId/{capabilityId}")
+    public ResponseEntity<Capability> findById(@PathVariable String capabilityId) {
         return capabilityRepository.findById(capabilityId).map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @RequestMapping(method = RequestMethod.GET, value = "/api/secured/capability/delete/{capabilityId}")
+    @RequestMapping(method = RequestMethod.GET, value = "/api/capability/byImplementation/{systemId}")
+    public ResponseEntity<List<Capability>> findByImplementingSystem(@PathVariable String systemId) {
+        return ResponseEntity.ok(capabilityRepository.findByImplementingSystem(systemId));
+    }
+
+    @RequestMapping(method = RequestMethod.GET, value = "/api/capability/delete/{capabilityId}")
     public ResponseEntity<Void> delete(@PathVariable String capabilityId) {
         capabilityRepository.findById(capabilityId).ifPresent(capabilityRepository::delete);
         return ResponseEntity.ok().build();
     }
 
-    @RequestMapping(method = RequestMethod.POST, value = "/api/secured/capability/update", produces = APPLICATION_JSON_VALUE, consumes = APPLICATION_JSON_VALUE)
+    @RequestMapping(method = RequestMethod.POST, value = "/api/capability/update", produces = APPLICATION_JSON_VALUE, consumes = APPLICATION_JSON_VALUE)
     public ResponseEntity<Capability> update(@RequestBody Capability capability) {
-        Capability savedCapability = capabilityRepository.save(capability);
-        return ResponseEntity.ok(savedCapability);
+        return ResponseEntity.ok(capabilityRepository.save(capability));
     }
 }

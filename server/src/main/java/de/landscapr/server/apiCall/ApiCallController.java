@@ -16,25 +16,24 @@ public class ApiCallController {
         this.apiCallRepository = apiCallRepository;
     }
 
-    @RequestMapping(method = RequestMethod.GET, value = "/api/secured/apiCall/all")
+    @RequestMapping(method = RequestMethod.GET, value = "/api/apiCall/all")
     public ResponseEntity<List<ApiCall>> all() {
         return ResponseEntity.ok(apiCallRepository.findAll());
     }
 
-    @RequestMapping(method = RequestMethod.GET, value = "/api/secured/apiCall/byId/{apiCallId}")
+    @RequestMapping(method = RequestMethod.GET, value = "/api/apiCall/byId/{apiCallId}")
     public ResponseEntity<ApiCall> get(@PathVariable String apiCallId) {
         return apiCallRepository.findById(apiCallId).map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @RequestMapping(method = RequestMethod.GET, value = "/api/secured/apiCall/delete/{apiCallId}")
+    @RequestMapping(method = RequestMethod.GET, value = "/api/apiCall/delete/{apiCallId}")
     public ResponseEntity<Void> delete(@PathVariable String apiCallId) {
         apiCallRepository.findById(apiCallId).ifPresent(apiCallRepository::delete);
         return ResponseEntity.ok().build();
     }
 
-    @RequestMapping(method = RequestMethod.POST, value = "/api/secured/apiCall/update", produces = APPLICATION_JSON_VALUE, consumes = APPLICATION_JSON_VALUE)
+    @RequestMapping(method = RequestMethod.POST, value = "/api/apiCall/update", produces = APPLICATION_JSON_VALUE, consumes = APPLICATION_JSON_VALUE)
     public ResponseEntity<ApiCall> update(@RequestBody ApiCall apiCall) {
-        ApiCall savedApiCall = apiCallRepository.save(apiCall);
-        return ResponseEntity.ok(savedApiCall);
+        return ResponseEntity.ok(apiCallRepository.save(apiCall));
     }
 }

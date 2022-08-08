@@ -43,7 +43,7 @@ export class FunctionEditBaseComponent implements OnInit {
     });
 
     this.systems$ = this.systemService.allSystems()
-    this.capabilities$ = this.capabilityService.allCapabilities();
+    this.capabilities$ = this.capabilityService.all();
     this.refresh();
   }
 

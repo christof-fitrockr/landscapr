@@ -28,7 +28,7 @@ export class FunctionEditImplementedInComponent implements OnInit {
     this.apiCallId = this.route.parent.snapshot.paramMap.get('id');
     this.apiCallService.getApiCallById(this.apiCallId).pipe(first()).subscribe(apiCall => {
       this.apiCall = apiCall;
-      this.capabilityService.getCapabilityById(this.apiCall.capabilityId).pipe(first()).subscribe(capability => {
+      this.capabilityService.byId(this.apiCall.capabilityId).pipe(first()).subscribe(capability => {
         this.capability = capability;
         const systemIds = this.capability.implementedBy;
 

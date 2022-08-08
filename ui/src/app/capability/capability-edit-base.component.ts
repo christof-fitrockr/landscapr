@@ -24,7 +24,7 @@ export class CapabilityEditBaseComponent implements OnInit {
       name: ['', Validators.required],
       status: [0],
       description: [''],
-      tags: ['']
+      tags: []
     });
 
     this.refresh();
@@ -33,7 +33,7 @@ export class CapabilityEditBaseComponent implements OnInit {
   private refresh() {
     this.capabilityId = this.route.parent.snapshot.paramMap.get('id');
     if (this.capabilityId != null) {
-      this.capabilityService.getCapabilityById(this.capabilityId).pipe(first()).subscribe(capability => {
+      this.capabilityService.byId(this.capabilityId).pipe(first()).subscribe(capability => {
         this.capability = capability;
         this.capabilityForm.patchValue(this.capability);
       });
@@ -51,14 +51,14 @@ export class CapabilityEditBaseComponent implements OnInit {
     if (this.capabilityForm.valid) {
       this.capability = Object.assign(this.capability, this.capabilityForm.value);
       if(!this.capabilityId) {
-        this.capabilityService.createCapability(this.capability).then(docRef => {
-          this.router.navigateByUrl('/capability/edit/' + docRef.id).then(() => {
+        this.capabilityService.create(this.capability).pipe(first()).subscribe(res => doc => {
+          this.router.navigateByUrl('/capability/edit/' + doc.id).then(() => {
             this.toastr.info('Capability created successfully');
             this.refresh()
           });
         });
       } else {
-        this.capabilityService.updateCapability(this.capabilityId, this.capability).then(() => {
+        this.capabilityService.update(this.capabilityId, this.capability).pipe(first()).subscribe(() => {
           this.toastr.info('Capability updated successfully');
           this.refresh();
         });
@@ -67,7 +67,7 @@ export class CapabilityEditBaseComponent implements OnInit {
   }
 
   delete() {
-    this.capabilityService.deleteCapability(this.capabilityId).then(() => {
+    this.capabilityService.delete(this.capabilityId).pipe(first()).subscribe(() => {
       this.router.navigate(['/capability']).then(() => {
         this.toastr.info('Capability deleted successfully');
       });
