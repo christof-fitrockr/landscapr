@@ -40,10 +40,23 @@ import {CapabilityEditImplementedByComponent} from './capability/capability-edit
 import {ApiCallEditImplementedInComponent} from './apiCall/api-call-edit-implemented-in.component';
 import {ProcessEditUsedByComponent} from './process/process-edit-used-by.component';
 import {SwimlaneViewComponent} from './swimlaneView/swimlane-view.component';
+import {AccountListComponent} from './account/account-list.component';
+import {AccountEditComponent} from './account/account-edit.component';
+import {AccountEditBaseComponent} from './account/account-edit-base.component';
 
 const routes: Routes = [
   { path: 'dashboard', component: DashboardComponent, canActivate: [AuthGuard] },
   { path: 'swimlane/view/:id', component: SwimlaneViewComponent, canActivate: [AuthGuard] },
+  { path: 'account', canActivate: [AuthGuard], children: [
+      { path: '', redirectTo: 'list', pathMatch: 'full' },
+      { path: 'list', component: AccountListComponent, canActivate: [AuthGuard] },
+      { path: 'edit/:id', component: AccountEditComponent, canActivate: [AuthGuard], children: [
+          { path: '', redirectTo: 'base', pathMatch: 'full' },
+          { path: 'base', component: AccountEditBaseComponent, canActivate: [AuthGuard] },
+
+        ] },
+      { path: 'create', component: AccountEditBaseComponent, canActivate: [AuthGuard] },
+    ] },
   { path: 'process', canActivate: [AuthGuard], children: [
       { path: '', redirectTo: 'list', pathMatch: 'full' },
       { path: 'list', component: ProcessListComponent, canActivate: [AuthGuard] },

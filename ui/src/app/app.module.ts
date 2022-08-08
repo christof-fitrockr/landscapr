@@ -77,6 +77,10 @@ import {ApiCallFilterPipe} from './pipes/api-call-filter.pipe';
 import {ProcessFilterPipe} from './pipes/process-filter.pipe';
 import {SystemFilterPipe} from './pipes/system-filter.pipe';
 import {CapabilityFilterPipe} from './pipes/capability-filter.pipe';
+import {AccountListComponent} from './account/account-list.component';
+import {AccountEditComponent} from './account/account-edit.component';
+import {AccountEditBaseComponent} from './account/account-edit-base.component';
+import {AccountFilterPipe} from './pipes/account-filter.pipe';
 
 
 @NgModule({
@@ -99,6 +103,11 @@ import {CapabilityFilterPipe} from './pipes/capability-filter.pipe';
     ApiCallCapabilityFilterPipe,
     SystemFilterPipe,
     CapabilityFilterPipe,
+
+    AccountListComponent,
+    AccountEditComponent,
+    AccountEditBaseComponent,
+    AccountFilterPipe,
 
     SwimlaneViewComponent,
 

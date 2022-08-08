@@ -4,4 +4,6 @@ export class User {
     password?: string;
     displayName: string;
     token?: string;
+  admin: boolean;
+  editor: boolean;
 }

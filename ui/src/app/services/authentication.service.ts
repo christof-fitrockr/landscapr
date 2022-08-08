@@ -26,6 +26,7 @@ export class AuthenticationService {
       return this.http.post<any>(`${environment.apiUrl}/authenticate`, { email, password })
         .pipe(map(authResponse => {
           // login successful if there's a jwt token in the response
+          console.log(JSON.stringify(authResponse));
           if (authResponse && authResponse.token) {
             // store authResponse details and jwt token in local storage to keep authResponse logged in between page refreshes
             localStorage.setItem('currentUser', JSON.stringify(authResponse));
@@ -47,5 +48,17 @@ export class AuthenticationService {
 
   isAuthorized(): boolean {
     return this.getCurrentUserValue() !== undefined && this.getCurrentUserValue() !== null;
+  }
+
+  getUser(): User {
+      return JSON.parse(localStorage.getItem('currentUser'));
+  }
+
+  isAdmin() {
+    return this.getUser().admin
+  }
+
+  isEditor() {
+    return this.getUser().editor
   }
 }

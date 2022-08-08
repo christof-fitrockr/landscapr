@@ -5,11 +5,15 @@ public class AuthenticationResponse {
     private boolean success;
     private String code;
     private String token;
+    private boolean admin;
+    private boolean editor;
 
-    public static AuthenticationResponse ok(String token) {
+    public static AuthenticationResponse ok(String token, boolean admin, boolean editor) {
         AuthenticationResponse response = new AuthenticationResponse();
         response.setToken(token);
         response.setSuccess(true);
+        response.setAdmin(admin);
+        response.setEditor(editor);
         response.setCode("success");
         return response;
     }
@@ -17,6 +21,7 @@ public class AuthenticationResponse {
     public static AuthenticationResponse accountNotFound() {
         AuthenticationResponse response = new AuthenticationResponse();
         response.setSuccess(false);
+        response.setAdmin(false);
         response.setCode("login-failed");
         return response;
     }
@@ -44,6 +49,24 @@ public class AuthenticationResponse {
 
     public AuthenticationResponse setCode(String code) {
         this.code = code;
+        return this;
+    }
+
+    public boolean isAdmin() {
+        return admin;
+    }
+
+    public AuthenticationResponse setAdmin(boolean admin) {
+        this.admin = admin;
+        return this;
+    }
+
+    public boolean isEditor() {
+        return editor;
+    }
+
+    public AuthenticationResponse setEditor(boolean editor) {
+        this.editor = editor;
         return this;
     }
 }

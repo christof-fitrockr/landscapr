@@ -21,6 +21,11 @@ public class ProcessController {
         return ResponseEntity.ok(processRepository.findAll());
     }
 
+    @RequestMapping(method = RequestMethod.GET, value = "/api/process/allFavorites")
+    public ResponseEntity<List<Process>> allFavorites() {
+        return ResponseEntity.ok(processRepository.findAllFavorites());
+    }
+
     @RequestMapping(method = RequestMethod.GET, value = "/api/process/byId/{processId}")
     public ResponseEntity<Process> get(@PathVariable String processId) {
         return processRepository.findById(processId).map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
