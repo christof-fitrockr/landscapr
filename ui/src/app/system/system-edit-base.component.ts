@@ -36,7 +36,7 @@ export class SystemEditBaseComponent implements OnInit {
   private refresh() {
     this.systemId = this.route.parent.snapshot.paramMap.get('id');
     if (this.systemId != null) {
-      this.systemService.getSystemById(this.systemId).pipe(first()).subscribe(system => {
+      this.systemService.byId(this.systemId).pipe(first()).subscribe(system => {
         this.system = system;
         this.systemForm.patchValue(this.system);
       });

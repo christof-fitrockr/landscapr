@@ -35,7 +35,7 @@ export class ProcessEditBaseComponent implements OnInit {
       implementedBy: [''],
     });
 
-    this.systems$ = this.systemService.allSystems()
+    this.systems$ = this.systemService.all()
     this.refresh();
   }
 

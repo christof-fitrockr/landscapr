@@ -18,11 +18,11 @@ import {ProcessEditBaseComponent} from './process/process-edit-base.component';
 import {DashboardComponent} from './dashboard/dashboard,component';
 import {ProcessEditFlowComponent} from './process/process-edit-flow.component';
 import {ProcessEditApiCallsComponent} from './process/process-edit-api-calls.component';
-import {FunctionListComponent} from './function/function-list.component';
-import {FunctionViewComponent} from './function/function-view.component';
-import {FunctionEditComponent} from './function/function-edit.component';
-import {FunctionEditBaseComponent} from './function/function-edit-base.component';
-import {FunctionEditUsageComponent} from './function/function-edit-usage.component';
+import {ApiCallListComponent} from './apiCall/api-call-list.component';
+import {ApiCallViewComponent} from './apiCall/api-call-view.component';
+import {ApiCallEditComponent} from './apiCall/api-call-edit.component';
+import {ApiCallEditBaseComponent} from './apiCall/api-call-edit-base.component';
+import {ApiCallEditUsageComponent} from './apiCall/api-call-edit-usage.component';
 import {ImprintComponent} from './imprint/imprint.component';
 import {DisclaimerComponent} from './disclaimer/disclaimer.component';
 import {PrivacyPolicyComponent} from './privacyPolicy/privacy-policy.component';
@@ -30,14 +30,14 @@ import {CapabilityListComponent} from './capability/capability-list.component';
 import {CapabilityViewComponent} from './capability/capability-view.component';
 import {CapabilityEditComponent} from './capability/capability-edit.component';
 import {CapabilityEditBaseComponent} from './capability/capability-edit-base.component';
-import {CapabilityEditFunctionsComponent} from './capability/capability-edit-functions.component';
+import {CapabilityEditApiCallComponent} from './capability/capability-edit-api-call.component';
 import {SystemListComponent} from './system/system-list.component';
 import {SystemViewComponent} from './system/system-view.component';
 import {SystemEditComponent} from './system/system-edit.component';
 import {SystemEditBaseComponent} from './system/system-edit-base.component';
 import {SystemEditImplementsComponent} from './system/system-edit-implements.component';
 import {CapabilityEditImplementedByComponent} from './capability/capability-edit-implemented-by.component';
-import {FunctionEditImplementedInComponent} from './function/function-edit-implemented-in.component';
+import {ApiCallEditImplementedInComponent} from './apiCall/api-call-edit-implemented-in.component';
 import {ProcessEditUsedByComponent} from './process/process-edit-used-by.component';
 import {SwimlaneViewComponent} from './swimlaneView/swimlane-view.component';
 
@@ -59,17 +59,17 @@ const routes: Routes = [
         ] },
       { path: 'create', component: ProcessEditBaseComponent, canActivate: [AuthGuard] },
     ] },
-  { path: 'function', canActivate: [AuthGuard], children: [
+  { path: 'apiCall', canActivate: [AuthGuard], children: [
       { path: '', redirectTo: 'list', pathMatch: 'full' },
-      { path: 'list', component: FunctionListComponent, canActivate: [AuthGuard] },
-      { path: 'view/:id', component: FunctionViewComponent, canActivate: [AuthGuard] },
-      { path: 'edit/:id', component: FunctionEditComponent, canActivate: [AuthGuard], children: [
+      { path: 'list', component: ApiCallListComponent, canActivate: [AuthGuard] },
+      { path: 'view/:id', component: ApiCallViewComponent, canActivate: [AuthGuard] },
+      { path: 'edit/:id', component: ApiCallEditComponent, canActivate: [AuthGuard], children: [
           { path: '', redirectTo: 'base', pathMatch: 'full' },
-          { path: 'base', component: FunctionEditBaseComponent, canActivate: [AuthGuard] },
-          { path: 'usage', component: FunctionEditUsageComponent, canActivate: [AuthGuard] },
-          { path: 'implementedIn', component: FunctionEditImplementedInComponent, canActivate: [AuthGuard] },
+          { path: 'base', component: ApiCallEditBaseComponent, canActivate: [AuthGuard] },
+          { path: 'usage', component: ApiCallEditUsageComponent, canActivate: [AuthGuard] },
+          { path: 'implementedIn', component: ApiCallEditImplementedInComponent, canActivate: [AuthGuard] },
         ] },
-      { path: 'create', component: FunctionEditBaseComponent, canActivate: [AuthGuard] },
+      { path: 'create', component: ApiCallEditBaseComponent, canActivate: [AuthGuard] },
     ] },
   { path: 'capability', canActivate: [AuthGuard], children: [
       { path: '', redirectTo: 'list', pathMatch: 'full' },
@@ -79,7 +79,7 @@ const routes: Routes = [
           { path: '', redirectTo: 'base', pathMatch: 'full' },
           { path: 'base', component: CapabilityEditBaseComponent, canActivate: [AuthGuard] },
           { path: 'implementedBy', component: CapabilityEditImplementedByComponent, canActivate: [AuthGuard] },
-          { path: 'usage', component: CapabilityEditFunctionsComponent, canActivate: [AuthGuard] },
+          { path: 'usage', component: CapabilityEditApiCallComponent, canActivate: [AuthGuard] },
 
         ] },
       { path: 'create', component: CapabilityEditBaseComponent, canActivate: [AuthGuard] },

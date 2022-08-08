@@ -30,7 +30,7 @@ export class CapabilityComponent implements OnInit {
 
   ngOnInit() {
 
-    this.apiCallService.getApiCallByCapability(this.capability.capabilityId).pipe(first()).subscribe(apiCalls => {
+    this.apiCallService.byCapability(this.capability.capabilityId).pipe(first()).subscribe(apiCalls => {
       this.apiCalls = apiCalls;
     });
   }

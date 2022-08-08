@@ -35,7 +35,7 @@
         </thead>
         <tbody>
         <tr *ngFor="let apiCall of apiCalls | apiCallFilter: searchText">
-          <td><a routerLink="/function/edit/{{apiCall?.apiCallId}}" class="btn btn-secondary btn-sm"><i class="fas fa-edit"></i></a></td>
+          <td><a routerLink="/apiCall/edit/{{apiCall?.id}}" class="btn btn-secondary btn-sm"><i class="fas fa-edit"></i></a></td>
           <td>{{apiCall.name}}</td>
         </tr>
         </tbody>

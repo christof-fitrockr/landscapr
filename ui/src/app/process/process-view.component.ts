@@ -78,7 +78,7 @@ export class ProcessViewComponent implements OnInit {
     if (process.apiCallsIds) {
       for (let i = 0; i < process.apiCallsIds.length; i += chunkSize) {
         const idChunk = process.apiCallsIds.slice(i, i + chunkSize);
-        this.apiCallService.getApiCallByIds(idChunk).pipe(first()).subscribe(results => {
+        this.apiCallService.byIds(idChunk).pipe(first()).subscribe(results => {
           for (let item of results) {
             this.selectedFunctions.push(item);
           }

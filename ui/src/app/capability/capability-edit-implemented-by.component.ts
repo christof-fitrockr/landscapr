@@ -43,7 +43,7 @@ export class CapabilityEditImplementedByComponent implements OnInit {
     this.suggestions$ = new Observable((observer: Observer<string | undefined>) => observer.next(this.search)).pipe(
       switchMap((query: string) => {
         if (query) {
-          return this.systemService.getSystemByName(query).pipe(
+          return this.systemService.byName(query).pipe(
             map((data: System[]) => data || []),
             tap(() => noop, err => this.toastr.error(err && err.message || 'Something went wrong'))
           );
@@ -63,7 +63,7 @@ export class CapabilityEditImplementedByComponent implements OnInit {
         if(this.capability.implementedBy) {
           this.systems = [];
           this.capability.implementedBy.forEach(item => {
-            this.systemService.getSystemById(item).pipe(first()).subscribe(result => {
+            this.systemService.byId(item).pipe(first()).subscribe(result => {
               this.systems.push(result);
             })
           });

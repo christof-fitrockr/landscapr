@@ -1,4 +1,5 @@
 export class ApiCall {
+  id: string;
   name: string;
   implementationStatus: ApiImplementationStatus;
   description: string;
@@ -10,7 +11,6 @@ export class ApiCall {
   input: string;
   output: string;
 
-  apiCallId?: string;
   tags: string[];
   implementationType: ApiImplementationType
   status: DataStatus;

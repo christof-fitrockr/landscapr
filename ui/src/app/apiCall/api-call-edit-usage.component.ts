@@ -8,8 +8,8 @@ import {ApiCallService} from '../services/api-call.service';
 import {Process} from '../models/process';
 import {ProcessService} from '../services/process.service';
 
-@Component({templateUrl: './function-edit-usage.component.html'})
-export class FunctionEditUsageComponent implements OnInit {
+@Component({templateUrl: './api-call-edit-usage.component.html'})
+export class ApiCallEditUsageComponent implements OnInit {
 
   apiCallId: string;
   apiCall: ApiCall;
@@ -21,7 +21,7 @@ export class FunctionEditUsageComponent implements OnInit {
 
   ngOnInit() {
     this.apiCallId = this.route.parent.snapshot.paramMap.get('id');
-    this.apiCallService.getApiCallById(this.apiCallId).pipe(first()).subscribe(apiCall => {
+    this.apiCallService.byId(this.apiCallId).pipe(first()).subscribe(apiCall => {
       this.apiCall = apiCall;
     });
     this.processService.getProcessesByApiCall(this.apiCallId).pipe(first()).subscribe(usedBy => {

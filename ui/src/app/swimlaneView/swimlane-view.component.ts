@@ -41,13 +41,13 @@ export class SwimlaneViewComponent implements OnInit, AfterViewInit {
     const cx = this.canvas.nativeElement.getContext('2d');
 
     this.processService.allProcesses().pipe(first()).subscribe((processes) => {
-      this.apiCallService.allApiCalls().pipe(first()).subscribe(apiCalls => {
-        this.systemService.allSystems().pipe(first()).subscribe(systems => {
+      this.apiCallService.all().pipe(first()).subscribe(apiCalls => {
+        this.systemService.all().pipe(first()).subscribe(systems => {
           for (let process of processes) {
             this.processMap.set(process.processId, process);
           }
           for (let apiCall of apiCalls) {
-            this.apiCallMap.set(apiCall.apiCallId, apiCall);
+            this.apiCallMap.set(apiCall.id, apiCall);
           }
           for (let system of systems) {
             this.systemMap.set(system.id, system);

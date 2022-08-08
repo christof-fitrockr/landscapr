@@ -3,8 +3,8 @@ import {first} from 'rxjs/operators';
 import {ApiCallService} from '../services/api-call.service';
 import {ApiCall} from '../models/api-call';
 
-@Component({selector: 'app-function-list', templateUrl: './function-list.component.html'})
-export class FunctionListComponent implements OnInit {
+@Component({selector: 'app-api-call-list', templateUrl: './api-call-list.component.html'})
+export class ApiCallListComponent implements OnInit {
 
   constructor(private apiCallService: ApiCallService) {
   }
@@ -13,7 +13,7 @@ export class FunctionListComponent implements OnInit {
   searchText: string;
 
   ngOnInit() {
-    this.apiCallService.allApiCalls().pipe(first()).subscribe(apiCalls => {
+    this.apiCallService.all().pipe(first()).subscribe(apiCalls => {
       this.apiCalls = apiCalls;
     });
   }

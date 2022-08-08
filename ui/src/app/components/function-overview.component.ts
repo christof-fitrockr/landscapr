@@ -15,6 +15,6 @@ export class ApiCallOverviewComponent  {
   constructor() { }
 
   delete() {
-    this.deleteEmitter.emit(this.apiCall.apiCallId);
+    this.deleteEmitter.emit(this.apiCall.id);
   }
 }

@@ -5,7 +5,7 @@
         <td rowspan="3" class="m-1 text-nowrap border-right" *ngIf="readOnly === false">
           <i class="text-gray-700 fas fa-grip-lines ml-4 mr-4"></i>
         </td>
-        <td class="p-2 w-100 bg-light"><a href="/#/function/edit/{{apiCall?.apiCallId}}">{{apiCall?.name}}</a></td>
+        <td class="p-2 w-100 bg-light"><a href="/#/apiCall/edit/{{apiCall?.id}}">{{apiCall?.name}}</a></td>
         <td class="bg-light text-center pl-1 pr-1">
           <div class="dropdown" *ngIf="readOnly === false">
             <button class="btn btn-sm btn-link" type="button" data-toggle="dropdown" aria-expanded="false">

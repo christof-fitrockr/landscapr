@@ -43,7 +43,7 @@ export class ProcessEditApiCallsComponent implements OnInit {
     this.suggestions$ = new Observable((observer: Observer<string | undefined>) => observer.next(this.search)).pipe(
       switchMap((query: string) => {
         if (query) {
-          return this.apiCallService.getApiCallByName(query).pipe(
+          return this.apiCallService.byName(query).pipe(
             map((data: ApiCall[]) => data || []),
             tap(() => noop, err => this.toastr.error(err && err.message || 'Something went wrong'))
           );
@@ -63,7 +63,7 @@ export class ProcessEditApiCallsComponent implements OnInit {
         if(this.process.apiCallsIds) {
           this.apiCalls = [];
           this.process.apiCallsIds.forEach(item => {
-            this.apiCallService.getApiCallById(item).pipe(first()).subscribe(result => {
+            this.apiCallService.byId(item).pipe(first()).subscribe(result => {
               this.apiCalls.push(result);
             })
           });
@@ -89,7 +89,7 @@ export class ProcessEditApiCallsComponent implements OnInit {
     if (this.apiCallForm.valid) {
       let apiCall = new ApiCall();
       apiCall = Object.assign(apiCall, this.apiCallForm.value);
-      this.apiCallService.createApiCall(apiCall).then(docRef => {
+      this.apiCallService.create(apiCall).pipe(first()).subscribe(docRef => {
         this.addApiCall(docRef.id);
       });
     }

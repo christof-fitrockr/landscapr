@@ -38,7 +38,7 @@
           <div *ngIf="selectedFunctions && selectedFunctions.length > 0">
             <p class="m-0">Functions</p>
             <ul>
-              <li *ngFor="let function of selectedFunctions"><a routerLink="/function/view/{{function.apiCallId}}" class="white">{{function.name}}</a></li>
+              <li *ngFor="let function of selectedFunctions"><a routerLink="/apiCall/view/{{function.apiCallId}}" class="white">{{function.name}}</a></li>
             </ul>
           </div>
 

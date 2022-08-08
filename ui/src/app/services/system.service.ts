@@ -14,19 +14,19 @@ export class SystemService {
   constructor(private http: HttpClient) {
   }
 
-  allSystems(): Observable<System[]> {
+  all(): Observable<System[]> {
     return this.http.get<System[]>(`${environment.apiUrl}/system/all`);
   }
 
-  getSystemById(id: string): Observable<System> {
+  byId(id: string): Observable<System> {
     return this.http.get<System>(`${environment.apiUrl}/system/byId/` + id);
   }
 
-  getSystemByIds(ids: string[]): Observable<System[]> {
+  byIds(ids: string[]): Observable<System[]> {
     return this.http.post<System[]>(`${environment.apiUrl}/system/byIds`, ids);
   }
 
-  getSystemByName(name: string): Observable<System[]> {
+  byName(name: string): Observable<System[]> {
     return this.http.get<System[]>(`${environment.apiUrl}/system/byName/` + name);
   }
 

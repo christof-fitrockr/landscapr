@@ -74,7 +74,7 @@ export class ApiCallGraphComponent implements OnInit, AfterViewInit, AfterViewCh
       const chunkSize = 10;
       for (let i = 0; i < this.process.apiCallsIds.length; i += chunkSize) {
         const idChunk = this.process.apiCallsIds.slice(i, i + chunkSize);
-        this.apiCallService.getApiCallByIds(idChunk).pipe(first()).subscribe(result => {
+        this.apiCallService.byIds(idChunk).pipe(first()).subscribe(result => {
           for(let item of result) {
 
             const call = new FunctionCall();

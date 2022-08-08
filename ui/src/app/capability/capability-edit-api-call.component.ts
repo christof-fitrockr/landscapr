@@ -6,8 +6,8 @@ import {Capability} from '../models/capability';
 import {ApiCall} from '../models/api-call';
 import {ApiCallService} from '../services/api-call.service';
 
-@Component({templateUrl: './capability-edit-functions.component.html'})
-export class CapabilityEditFunctionsComponent implements OnInit {
+@Component({templateUrl: './capability-edit-api-call.component.html'})
+export class CapabilityEditApiCallComponent implements OnInit {
 
   capabilityId: string;
   capability: Capability;
@@ -22,8 +22,8 @@ export class CapabilityEditFunctionsComponent implements OnInit {
       this.capability = capability;
     });
 
-    this.apiCallService.getApiCallByCapability(this.capabilityId).pipe(first()).subscribe(capability => {
-      this.usedBy = capability;
+    this.apiCallService.byCapability(this.capabilityId).pipe(first()).subscribe(usedBy => {
+      this.usedBy = usedBy;
     });
   }
 }

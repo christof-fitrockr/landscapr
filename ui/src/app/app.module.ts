@@ -25,12 +25,8 @@ import {InformationObjectFilterPipe} from './pipes/information-object-filter.pip
 import {InformationSystemServiceDetailsPage} from './pages/information-system-service-details.page';
 import {InformationObjectDetailsPage} from './pages/information-object-details-page';
 import {InformationObjectComponent} from './components/information-object.component';
-import { AngularFireDatabaseModule } from '@angular/fire/compat/database';
-
-import {environment} from '../environments/environment';
 import {ProcessComponent} from './pages/process/process.component';
 import {AngularFireAuthModule} from '@angular/fire/compat/auth';
-import {AngularFireModule} from '@angular/fire/compat';
 import {ProcessListComponent} from './process/process-list.component';
 import {ProcessEditComponent} from './process/process-edit.component';
 import {ProcessViewComponent} from './process/process-view.component';
@@ -47,32 +43,31 @@ import {DashboardComponent} from './dashboard/dashboard,component';
 import {ProcessEditFlowComponent} from './process/process-edit-flow.component';
 import {ProcessGraphComponent} from './components/process-graph.component';
 import {ProcessEditApiCallsComponent} from './process/process-edit-api-calls.component';
-import {ProcessApiCallOverviewComponent} from './components/api-call-overview.component';
-import {FunctionEditComponent} from './function/function-edit.component';
-import {FunctionEditBaseComponent} from './function/function-edit-base.component';
-import {FunctionEditUsageComponent} from './function/function-edit-usage.component';
-import {FunctionListComponent} from './function/function-list.component';
-import {FunctionViewComponent} from './function/function-view.component';
+import {ApiCallEditComponent} from './apiCall/api-call-edit.component';
+import {ApiCallEditBaseComponent} from './apiCall/api-call-edit-base.component';
+import {ApiCallEditUsageComponent} from './apiCall/api-call-edit-usage.component';
+import {ApiCallListComponent} from './apiCall/api-call-list.component';
+import {ApiCallViewComponent} from './apiCall/api-call-view.component';
 import {ImprintComponent} from './imprint/imprint.component';
 import {DisclaimerComponent} from './disclaimer/disclaimer.component';
 import {HashLocationStrategy, LocationStrategy} from '@angular/common';
 import {ProcessTableComponent} from './components/process-table.component';
-import { CapabilityViewComponent } from './capability/capability-view.component';
-import {CapabilityEditFunctionsComponent} from './capability/capability-edit-functions.component';
+import {CapabilityViewComponent} from './capability/capability-view.component';
+import {CapabilityEditApiCallComponent} from './capability/capability-edit-api-call.component';
 import {CapabilityListComponent} from './capability/capability-list.component';
 import {CapabilityEditComponent} from './capability/capability-edit.component';
 import {CapabilityEditBaseComponent} from './capability/capability-edit-base.component';
 import {SystemEditComponent} from './system/system-edit.component';
-import { SystemEditImplementsComponent } from './system/system-edit-implements.component';
-import { SystemListComponent } from './system/system-list.component';
-import { SystemViewComponent } from './system/system-view.component';
-import { SystemEditBaseComponent } from './system/system-edit-base.component';
+import {SystemEditImplementsComponent} from './system/system-edit-implements.component';
+import {SystemListComponent} from './system/system-list.component';
+import {SystemViewComponent} from './system/system-view.component';
+import {SystemEditBaseComponent} from './system/system-edit-base.component';
 import {DragDropModule} from '@angular/cdk/drag-drop';
 import {CapabilityEditImplementedByComponent} from './capability/capability-edit-implemented-by.component';
 import {ApiCallOverviewComponent} from './components/function-overview.component';
 import {CapabilityOverviewComponent} from './components/capability-overview.component';
 import {SystemOverviewComponent} from './components/system-overview.component';
-import {FunctionEditImplementedInComponent} from './function/function-edit-implemented-in.component';
+import {ApiCallEditImplementedInComponent} from './apiCall/api-call-edit-implemented-in.component';
 import {CapabilityComponent} from './components/capability.component';
 import {ApiCallGraphComponent} from './components/api-call-graph.component';
 import {ProcessEditUsedByComponent} from './process/process-edit-used-by.component';
@@ -87,7 +82,6 @@ import {CapabilityFilterPipe} from './pipes/capability-filter.pipe';
 @NgModule({
   declarations: [
     ProcessOverviewComponent,
-    ProcessApiCallOverviewComponent,
     ProcessGraphComponent,
     ProcessListComponent,
     ProcessViewComponent,
@@ -111,18 +105,18 @@ import {CapabilityFilterPipe} from './pipes/capability-filter.pipe';
     ImprintComponent,
     DisclaimerComponent,
 
-    FunctionEditComponent,
-    FunctionEditBaseComponent,
-    FunctionEditUsageComponent,
-    FunctionEditImplementedInComponent,
-    FunctionListComponent,
-    FunctionViewComponent,
+    ApiCallEditComponent,
+    ApiCallEditBaseComponent,
+    ApiCallEditUsageComponent,
+    ApiCallEditImplementedInComponent,
+    ApiCallListComponent,
+    ApiCallViewComponent,
     ApiCallOverviewComponent,
     ApiCallGraphComponent,
 
     CapabilityEditComponent,
     CapabilityEditBaseComponent,
-    CapabilityEditFunctionsComponent,
+    CapabilityEditApiCallComponent,
     CapabilityEditImplementedByComponent,
     CapabilityListComponent,
     CapabilityViewComponent,

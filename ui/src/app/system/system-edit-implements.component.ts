@@ -18,7 +18,7 @@ export class SystemEditImplementsComponent implements OnInit {
 
   ngOnInit() {
     this.systemId = this.route.parent.snapshot.paramMap.get('id');
-    this.systemService.getSystemById(this.systemId).pipe(first()).subscribe(system => {
+    this.systemService.byId(this.systemId).pipe(first()).subscribe(system => {
       this.system = system;
     });
     this.capabilityService.byImplementation(this.systemId).pipe(first()).subscribe(capabilities => {

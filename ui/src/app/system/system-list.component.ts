@@ -17,7 +17,7 @@ export class SystemListComponent implements OnInit {
   }
 
   refresh() {
-    this.systemService.allSystems().pipe(first()).subscribe(systems => {
+    this.systemService.all().pipe(first()).subscribe(systems => {
       console.log('Query');
       this.systems = systems;
     });

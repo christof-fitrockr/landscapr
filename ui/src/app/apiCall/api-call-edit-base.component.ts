@@ -1,6 +1,4 @@
 import {Component, OnInit} from '@angular/core';
-import {ProcessService} from '../services/process.service';
-import {Process} from '../models/process';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {ActivatedRoute, Router} from '@angular/router';
 import {first} from 'rxjs/operators';
@@ -13,8 +11,8 @@ import {CapabilityService} from '../services/capability.service';
 import {System} from '../models/system';
 import {SystemService} from '../services/system.service';
 
-@Component({selector: 'app-function-edit', templateUrl: './function-edit-base.component.html'})
-export class FunctionEditBaseComponent implements OnInit {
+@Component({selector: 'app-function-edit', templateUrl: './api-call-edit-base.component.html'})
+export class ApiCallEditBaseComponent implements OnInit {
 
   apiCallForm: FormGroup;
   apiCall: ApiCall;
@@ -36,13 +34,13 @@ export class FunctionEditBaseComponent implements OnInit {
       implementationType: [''],
       dataStatus: [0],
       capabilityId: [''],
-      implementedBy: [''],
-      tags: [''],
+      implementedBy: [],
+      tags: [],
       input: [''],
       output: [''],
     });
 
-    this.systems$ = this.systemService.allSystems()
+    this.systems$ = this.systemService.all()
     this.capabilities$ = this.capabilityService.all();
     this.refresh();
   }
@@ -50,7 +48,7 @@ export class FunctionEditBaseComponent implements OnInit {
   private refresh() {
     this.apiCallId = this.route.parent.snapshot.paramMap.get('id');
     if (this.apiCallId != null) {
-      this.apiCallService.getApiCallById(this.apiCallId).pipe(first()).subscribe(apiCall => {
+      this.apiCallService.byId(this.apiCallId).pipe(first()).subscribe(apiCall => {
         this.apiCall = apiCall;
         this.apiCallForm.patchValue(this.apiCall);
       });
@@ -68,14 +66,14 @@ export class FunctionEditBaseComponent implements OnInit {
     if (this.apiCallForm.valid) {
       this.apiCall = Object.assign(this.apiCall, this.apiCallForm.value);
       if(!this.apiCallId) {
-        this.apiCallService.createApiCall(this.apiCall).then(docRef => {
-          this.router.navigateByUrl('/function/edit/' + docRef.id).then(() => {
+        this.apiCallService.create(this.apiCall).pipe(first()).subscribe(docRef => {
+          this.router.navigateByUrl('/apiCall/edit/' + docRef.id).then(() => {
             this.toastr.info('ApiCall created successfully');
             this.refresh()
           });
         });
       } else {
-        this.apiCallService.updateApiCall(this.apiCallId, this.apiCall).then(() => {
+        this.apiCallService.update(this.apiCallId, this.apiCall).pipe(first()).subscribe(() => {
           this.toastr.info('ApiCall updated successfully');
           this.refresh();
         });
@@ -84,7 +82,7 @@ export class FunctionEditBaseComponent implements OnInit {
   }
 
   delete() {
-    this.apiCallService.deleteApiCall(this.apiCallId).then(() => {
+    this.apiCallService.delete(this.apiCallId).pipe(first()).subscribe(() => {
       this.router.navigate(['/function']).then(() => {
         this.toastr.info('ApiCall deleted successfully');
       });
