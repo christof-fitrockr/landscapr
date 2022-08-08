@@ -21,10 +21,9 @@ export class RepoEditBaseComponent implements OnInit {
 
   ngOnInit() {
     this.repoForm = this.formBuilder.group({
-      email: ['', Validators.required],
-      firstname: ['', Validators.required],
-      lastname: ['', Validators.required],
-      roles: ['Viewer']
+      name: ['', Validators.required],
+      description: [''],
+      status: [0],
     });
 
     this.refresh();
@@ -52,7 +51,7 @@ export class RepoEditBaseComponent implements OnInit {
       this.repo = Object.assign(this.repo, this.repoForm.value);
       if(!this.repoId) {
         this.repoService.update(null, this.repo).pipe(first()).subscribe(repo => {
-          this.router.navigateByUrl('/repo/edit/' + repo.id).then(() => {
+          this.router.navigateByUrl('/repository/edit/' + repo.id).then(() => {
             this.toastr.info('Repo created successfully');
             this.refresh()
           });
@@ -68,7 +67,7 @@ export class RepoEditBaseComponent implements OnInit {
 
   delete() {
     this.repoService.delete(this.repoId).pipe(first()).subscribe(() => {
-      this.router.navigate(['/repo']).then(() => {
+      this.router.navigate(['/repository']).then(() => {
         this.toastr.info('Repo deleted successfully');
       });
     })
