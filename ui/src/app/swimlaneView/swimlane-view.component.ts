@@ -53,6 +53,8 @@ export class SwimlaneViewComponent implements OnInit, AfterViewInit {
             this.systemMap.set(system.id, system);
           }
 
+          console.log('Sizes: ' + this.processMap.size + ', ' + this.apiCallMap.size + ', ' + this.systemMap.size);
+
           this.createGraph(cx, this.processId, 50, 0);
 
           this.resize();
@@ -75,16 +77,18 @@ export class SwimlaneViewComponent implements OnInit, AfterViewInit {
     processBox.x = x;
     processBox.depth = layer;
     processBox.roleLayer = -1;
-    if(!process.steps) {
+    if(!process.steps || process.steps.length === 0) {
       processBox.roleLayer = 0;
       if(process.role) {
         processBox.roleLayer = process.role;
         processBox.roleLayer++;
       }
       processBox.w = this.canvasService.calcFunctionWidth(cx, 0, process.name, '');
+
+      console.log(process.name + ' (' + process.role + ') -> ')
     }
 
-    if(process.steps) {
+    if(process.steps && process.steps.length > 0) {
       processBox.w = 0;
 
       const childBoxes = new Map<string, ProcessBox>();
@@ -115,7 +119,8 @@ export class SwimlaneViewComponent implements OnInit, AfterViewInit {
     processBox.id = this.processOrder.length;
 
     let functionW = 0;
-    if(process.apiCallIds && !process.steps) {
+    if(process.apiCallIds && (!process.steps || process.steps.length === 0)) {
+
 
 
       for(let apiCallId of process.apiCallIds) {

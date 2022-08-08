@@ -985,6 +985,7 @@ export class ImportExportComponent implements OnInit {
       prc.steps = [];
       prc.apiCallIds = [];
       prc.tags = [];
+      prc.role = Number(prc.role);
 
       this.processService.create(prc).pipe(first()).subscribe((item) => {
         this.idMap.set(prc.processId, item.id);

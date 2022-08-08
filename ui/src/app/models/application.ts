@@ -7,7 +7,6 @@ export class Application {
   systemCluster: string;
   tags: string[];
   status: DataStatus
-
 }
 
 export enum DataStatus {

@@ -17,6 +17,7 @@ public class Process {
     private String output;
     private List<String> tags;
     private Integer number;
+    private Integer role;
     private List<Step> steps;
     private List<String> apiCallIds;
     private boolean favorite;
@@ -127,6 +128,15 @@ public class Process {
 
     public Process setImplementedBy(List<String> implementedBy) {
         this.implementedBy = implementedBy;
+        return this;
+    }
+
+    public Integer getRole() {
+        return role;
+    }
+
+    public Process setRole(Integer role) {
+        this.role = role;
         return this;
     }
 }
