@@ -33,7 +33,8 @@
         <tr>
           <th scope="col"></th>
           <th scope="col">Cluster</th>
-          <th scope="col" class="w-100">Name</th>
+          <th scope="col" class="w-50">Name</th>
+          <th scope="col" class="w-50">Tags</th>
           <th scope="col"></th>
         </tr>
         </thead>
@@ -42,6 +43,7 @@
           <td><a routerLink="/r/{{repoId}}/system/edit/{{system?.id}}" class="btn btn-secondary btn-sm"><i class="fas fa-edit"></i></a></td>
           <td>{{system.systemCluster}}</td>
           <td>{{system.name}}</td>
+          <td>{{system.tags}}</td>
 
           <td class="text-nowrap">
             <i *ngIf="system?.status === 0" class="text-warning fas fa-exclamation-triangle mr-1"></i>
