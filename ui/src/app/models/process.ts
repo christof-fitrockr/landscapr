@@ -1,5 +1,6 @@
 export class Process {
   id: string;
+  repoId: string;
   name: string;
   description: string;
   status: Status;

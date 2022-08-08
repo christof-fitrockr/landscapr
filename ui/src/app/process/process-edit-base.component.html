@@ -57,7 +57,11 @@
         <div class="form-group row">
           <label for="tags" class="col-sm-2 col-form-label">Tags</label>
           <div class="col-sm-10">
-            <ng-select id="tags" [multiple]="true" [addTag]="true" formControlName="tags">
+            <ng-select id="tags" [items]="[]"
+                       [addTag]="true"
+                       [multiple]="true"
+                       [selectOnTab]="true"
+                       [isOpen]="false"  formControlName="tags">
             </ng-select>
           </div>
         </div>

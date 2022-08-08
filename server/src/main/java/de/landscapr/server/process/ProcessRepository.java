@@ -20,12 +20,12 @@ public class ProcessRepository {
         this.mongoTemplate = mongoTemplate;
     }
 
-    public List<Process> findAll() {
-        return mongoTemplate.findAll(Process.class);
+    public List<Process> findAll(String repoId) {
+        return mongoTemplate.find(Query.query(where("repoId").is(repoId)), Process.class);
     }
 
-    public List<Process> findAllFavorites() {
-        return mongoTemplate.find(Query.query(where("favorite").is(true)), Process.class);
+    public List<Process> findAllFavorites(String repoId) {
+        return mongoTemplate.find(Query.query(where("repoId").is(repoId).and("favorite").is(true)), Process.class);
     }
 
     public Optional<Process> findById(String id) {
@@ -44,12 +44,12 @@ public class ProcessRepository {
         return mongoTemplate.find(Query.query(where("id").in(processIds)), Process.class);
     }
 
-    public List<Process> findAllParents(String processId) {
-        return mongoTemplate.find(Query.query(where("steps.processReference").in(processId)), Process.class);
+    public List<Process> findAllParents(String repoId, String processId) {
+        return mongoTemplate.find(Query.query(where("repoId").is(repoId).and("steps.processReference").in(processId)), Process.class);
     }
 
-    public List<Process> findByName(String name) {
-        return mongoTemplate.find(Query.query(where("name").regex(Pattern.compile(".*" + name + ".*", Pattern.CASE_INSENSITIVE))), Process.class);
+    public List<Process> findByName(String repoId, String name) {
+        return mongoTemplate.find(Query.query(where("repoId").is(repoId).and("name").regex(Pattern.compile(".*" + name + ".*", Pattern.CASE_INSENSITIVE))), Process.class);
     }
 
     public List<Process> findByApiCall(String apiCallId) {

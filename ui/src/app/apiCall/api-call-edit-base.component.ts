@@ -48,7 +48,7 @@ export class ApiCallEditBaseComponent implements OnInit, OnDestroy {
       this.capabilities$ = this.capabilityService.all(this.repoId);
 
       if(this.repoId && this.repoId !== obs.get('repoId')) {
-        this.router.navigateByUrl('/r/' + obs.get('repoId') + '/system').then(() => {
+        this.router.navigateByUrl('/r/' + obs.get('repoId') + '/apiCall').then(() => {
         });
       } else {
         this.repoId = obs.get('repoId');

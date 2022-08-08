@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, ElementRef, OnInit, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, ElementRef, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {ProcessService} from '../services/process.service';
 import {ActivatedRoute} from '@angular/router';
 import {first} from 'rxjs/operators';
@@ -8,10 +8,11 @@ import {ApiCallService} from '../services/api-call.service';
 import {ApiCall} from '../models/api-call';
 import {Application} from '../models/application';
 import {ApplicationService} from '../services/application.service';
+import {Subscription} from 'rxjs';
 
 
 @Component({selector: 'app-swimlane-view', templateUrl: './swimlane-view.component.html'})
-export class SwimlaneViewComponent implements OnInit, AfterViewInit {
+export class SwimlaneViewComponent implements OnInit, AfterViewInit, OnDestroy {
 
   @ViewChild('canvas') public canvas: ElementRef;
 
@@ -29,6 +30,7 @@ export class SwimlaneViewComponent implements OnInit, AfterViewInit {
   width: number;
   height: number;
   repoId: string;
+  private subscription: Subscription;
 
   constructor(private activatedRoute: ActivatedRoute,private processService: ProcessService, private systemService: ApplicationService,
               private canvasService: CanvasService, private apiCallService: ApiCallService) {
@@ -37,15 +39,20 @@ export class SwimlaneViewComponent implements OnInit, AfterViewInit {
   ngOnInit() {
     this.processId = this.activatedRoute.snapshot.paramMap.get('id');
 
-    this.activatedRoute.parent.paramMap.subscribe(obs => {
+    this.subscription = this.activatedRoute.parent.paramMap.subscribe(obs => {
       this.repoId = obs.get('repoId');
     });
   }
 
+  ngOnDestroy() {
+    this.subscription.unsubscribe();
+  }
+
+
   ngAfterViewInit() {
     const cx = this.canvas.nativeElement.getContext('2d');
 
-    this.processService.all().pipe(first()).subscribe((processes) => {
+    this.processService.all(this.repoId).pipe(first()).subscribe((processes) => {
       this.apiCallService.all(this.repoId).pipe(first()).subscribe(apiCalls => {
         this.systemService.all(this.repoId).pipe(first()).subscribe(systems => {
           for (let process of processes) {

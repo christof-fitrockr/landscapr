@@ -1,16 +1,19 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import {ProcessService} from '../services/process.service';
 import {Process, ProcessWithStep, Step, StepSuccessor} from '../models/process';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {ActivatedRoute, Router} from '@angular/router';
 import {first, map, switchMap, tap} from 'rxjs/operators';
 import {ToastrService} from 'ngx-toastr';
-import {noop, Observable, Observer, of} from 'rxjs';
+import {noop, Observable, Observer, of, Subscription} from 'rxjs';
 import {TypeaheadMatch} from 'ngx-bootstrap/typeahead';
 import {CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop';
 
 @Component({templateUrl: './process-edit-subprocess.component.html', styleUrls: ['./process-edit-subprocess.component.scss']})
-export class ProcessEditSubprocessComponent implements OnInit {
+export class ProcessEditSubprocessComponent implements OnInit, OnDestroy {
+  private repoId: string;
+
+
 
   search?: string;
   suggestions$?: Observable<Process[]>;
@@ -20,13 +23,14 @@ export class ProcessEditSubprocessComponent implements OnInit {
   private processId: string;
   subProcesses: ProcessWithStep[];
   availableSubProcesses: Process[];
+  private subscription: Subscription;
 
 
   constructor(private processService: ProcessService, private formBuilder: FormBuilder, private route: ActivatedRoute, private router: Router, private toastr: ToastrService) {
   }
 
   typeaheadOnSelect(e: TypeaheadMatch): void {
-    this.addSubProcess(e.item.processId);
+    this.addSubProcess(e.item.id);
   }
 
   ngOnInit() {
@@ -41,7 +45,7 @@ export class ProcessEditSubprocessComponent implements OnInit {
     this.suggestions$ = new Observable((observer: Observer<string | undefined>) => observer.next(this.search)).pipe(
       switchMap((query: string) => {
         if (query) {
-          return this.processService.byName(query).pipe(
+          return this.processService.byName(this.repoId, query).pipe(
             map((data: Process[]) => data || []),
             tap(() => noop, err => this.toastr.error(err && err.message || 'Something goes wrong'))
           );
@@ -49,11 +53,21 @@ export class ProcessEditSubprocessComponent implements OnInit {
         return of([]);
       })
     );
+
+
+    this.subscription = this.route.parent.paramMap.subscribe(obs => {
+      this.repoId = obs.get('repoId');
+      this.refresh()
+    });
+  }
+
+  ngOnDestroy() {
+    this.subscription.unsubscribe();
   }
 
   private refresh() {
     this.processId = this.route.parent.snapshot.paramMap.get('id');
-    if (this.processId != null) {
+    if (this.processId) {
       this.processService.byId(this.processId).pipe(first()).subscribe(process => {
         this.process = process;
 

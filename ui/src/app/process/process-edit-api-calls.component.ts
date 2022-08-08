@@ -29,7 +29,7 @@ export class ProcessEditApiCallsComponent implements OnInit {
   }
 
   typeaheadOnSelect(e: TypeaheadMatch): void {
-    this.addApiCall(e.item.apiCallId);
+    this.addApiCall(e.item.id);
   }
 
   ngOnInit() {

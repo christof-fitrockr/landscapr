@@ -12,16 +12,16 @@ export class ProcessService {
   constructor(private http: HttpClient) {
   }
 
-  all(): Observable<Process[]> {
-    return this.http.get<Process[]>(`${environment.apiUrl}/process/all`);
+  all(repoId: string): Observable<Process[]> {
+    return this.http.get<Process[]>(`${environment.apiUrl}/process/all/` + repoId);
   }
 
-  allFavorites() {
-    return this.http.get<Process[]>(`${environment.apiUrl}/process/allFavorites`);
+  allFavorites(repoId: string) {
+    return this.http.get<Process[]>(`${environment.apiUrl}/process/allFavorites/` + repoId);
   }
 
-  allParents(processId: string) {
-    return this.http.get<Process[]>(`${environment.apiUrl}/process/allParent/` + processId);
+  allParents(repoId: string, processId: string) {
+    return this.http.get<Process[]>(`${environment.apiUrl}/process/allParent/` + repoId + '/' + processId);
   }
 
 
@@ -33,8 +33,8 @@ export class ProcessService {
     return this.http.post<Process[]>(`${environment.apiUrl}/process/byIds`, ids);
   }
 
-  byName(name: string): Observable<Process[]> {
-    return this.http.get<Process[]>(`${environment.apiUrl}/process/byName/` + name);
+  byName(repoId: string, name: string): Observable<Process[]> {
+    return this.http.get<Process[]>(`${environment.apiUrl}/process/byName/` + repoId + '/' + name);
   }
 
   byApiCall(apiCallId: string) {

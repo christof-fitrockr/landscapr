@@ -8,6 +8,7 @@ import {Location} from '@angular/common';
 import {first} from 'rxjs/operators';
 import {ApiCall} from '../models/api-call';
 import {ApiCallService} from '../services/api-call.service';
+import {Subscription} from 'rxjs';
 
 @Component({selector: 'app-process-view', styleUrls: ['./process-view.component.scss'], templateUrl: './process-view.component.html'})
 export class ProcessViewComponent implements OnInit {
@@ -19,13 +20,23 @@ export class ProcessViewComponent implements OnInit {
   selectedProcess: Process;
   selectedSubprocesses: Process[];
   selectedFunctions: ApiCall[];
+  private subscription: Subscription;
+  private repoId: string;
 
   constructor(private processService: ProcessService, private apiCallService: ApiCallService, private formBuilder: FormBuilder, private location: Location,
               private route: ActivatedRoute, private router: Router, private toastr: ToastrService) {
   }
 
   ngOnInit() {
-    this.refresh();
+
+    this.subscription = this.route.parent.paramMap.subscribe(obs => {
+      this.repoId = obs.get('repoId');
+      this.refresh();
+    });
+  }
+
+  ngOnDestroy() {
+    this.subscription.unsubscribe();
   }
 
   private refresh() {
@@ -42,7 +53,7 @@ export class ProcessViewComponent implements OnInit {
         this.toastr.error("Error loading process.")
       });
 
-    this.processService.allParents(this.processId).pipe(first()).subscribe( result => {
+    this.processService.allParents(this.repoId, this.processId).pipe(first()).subscribe( result => {
       this.parents = result
     });
   }

@@ -1,11 +1,12 @@
 
 <input  *ngIf="processes && processes?.length > 0" type="text" class="input-group form-control" placeholder="Search.." [(ngModel)]="filter" [ngModelOptions]="{standalone: true}">
 
-<table class="table" *ngIf="processes && processes?.length > 0">
+<table class="mt-3 table table-sm table-striped" *ngIf="processes && processes?.length > 0">
   <thead>
   <tr>
     <th scope="col"></th>
-    <th scope="col" class="w-100">Name</th>
+    <th scope="col" class="w-50">Name</th>
+    <th scope="col" class="w-50">Tags</th>
     <th scope="col"></th>
     <th scope="col"></th>
   </tr>
@@ -13,12 +14,13 @@
   <tbody>
   <tr *ngFor="let process of processes | processFilter : filter">
     <td class="text-nowrap">
-      <a routerLink="/process/view/{{process?.id}}" class="btn btn-secondary btn-sm mr-1"><i class="fas fa-project-diagram" title="View Process"></i></a>
-      <a routerLink="/swimlane/view/{{process?.id}}" class="btn btn-secondary btn-sm mr-1"><i class="fas fa-layer-group" title="Swimlane View"></i></a>
-      <a routerLink="/process/edit/{{process?.id}}" class="btn btn-secondary btn-sm"><i class="fas fa-edit" title="Edit Process"></i></a>
+      <a class="black mr-2" routerLink="/r/{{repoId}}/process/view/{{process?.id}}"><i class="fas fa-project-diagram" title="View Process"></i></a>
+      <a class="black mr-2" routerLink="/r/{{repoId}}/swimlane/view/{{process?.id}}"><i class="fas fa-layer-group" title="Swimlane View"></i></a>
+      <a class="black mr-2" routerLink="/r/{{repoId}}/process/edit/{{process?.id}}"><i class="fas fa-edit" title="Edit Process"></i></a>
 
     </td>
-    <td>{{process.name}}</td>
+    <td><a class="black" routerLink="/r/{{repoId}}/process/edit/{{process?.id}}">{{process.name}}</a></td>
+    <td>{{process?.tags}}</td>
     <td class="text-nowrap pl-1 pr-1">
       <i *ngIf="process?.apiCallsIds?.length > 0" class="fas fa-wave-square" title="{{process?.apiCallsIds?.length}} API Call(s)"></i>
       <i *ngIf="process?.steps?.length > 0" class="fas fa-sitemap" title="{{process?.steps?.length}} Process Step(s)"></i>

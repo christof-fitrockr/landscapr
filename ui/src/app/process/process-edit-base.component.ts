@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import {ProcessService} from '../services/process.service';
 import {Process} from '../models/process';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
@@ -6,17 +6,18 @@ import {ActivatedRoute, Router} from '@angular/router';
 import {first} from 'rxjs/operators';
 import {ToastrService} from 'ngx-toastr';
 import {ApplicationService} from '../services/application.service';
-import {Observable} from 'rxjs';
+import {Observable, Subscription} from 'rxjs';
 import {Application} from '../models/application';
 
 @Component({selector: 'app-process-edit', templateUrl: './process-edit-base.component.html'})
-export class ProcessEditBaseComponent implements OnInit {
+export class ProcessEditBaseComponent implements OnInit, OnDestroy {
 
   processForm: FormGroup;
   process: Process;
   private processId: string;
   systems$: Observable<Application[]>;
   private repoId: string;
+  private subscription: Subscription;
 
 
   constructor(private processService: ProcessService, private systemService: ApplicationService,
@@ -37,13 +38,22 @@ export class ProcessEditBaseComponent implements OnInit {
     });
 
 
-
-    this.route.parent.paramMap.subscribe(obs => {
-      this.repoId = obs.get('repoId');
+    this.subscription = this.route.parent.paramMap.subscribe(obs => {
+      if(this.repoId && this.repoId !== obs.get('repoId')) {
+        this.router.navigateByUrl('/r/' + obs.get('repoId') + '/process').then(() => {
+        });
+      } else {
+        this.repoId = obs.get('repoId');
+        this.refresh();
+      }
       this.systems$ = this.systemService.all(this.repoId);
     });
 
+
     this.refresh();
+  }
+  ngOnDestroy() {
+    this.subscription.unsubscribe();
   }
 
   private refresh() {
@@ -66,9 +76,10 @@ export class ProcessEditBaseComponent implements OnInit {
 
     if (this.processForm.valid) {
       this.process = Object.assign(this.process, this.processForm.value);
+      this.process.repoId = this.repoId;
       if(!this.processId) {
         this.processService.create(this.process).pipe(first()).subscribe(docRef => {
-          this.router.navigateByUrl('/process/edit/' + docRef.id).then(() => {
+          this.router.navigateByUrl('/r/' + this.repoId + '/process/edit/' + docRef.id).then(() => {
             this.toastr.info('Process created successfully');
             this.refresh()
           });
@@ -84,7 +95,7 @@ export class ProcessEditBaseComponent implements OnInit {
 
   delete() {
     this.processService.delete(this.processId).pipe(first()).subscribe(() => {
-      this.router.navigate(['/process']).then(() => {
+      this.router.navigateByUrl('/r/' + this.repoId + '/process').then(() => {
         this.toastr.info('Process deleted successfully');
       });
     })
