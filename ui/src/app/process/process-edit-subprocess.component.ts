@@ -80,12 +80,13 @@ export class ProcessEditSubprocessComponent implements OnInit, OnDestroy {
           }
 
           const chunkSize = 10;
+          this.availableSubProcesses = [];
           for (let i = 0; i < ids.length; i += chunkSize) {
             const idChunk = ids.slice(i, i + chunkSize);
             // do whatever
             this.processService.byIds(idChunk).pipe(first()).subscribe(results => {
-              this.availableSubProcesses = results;
               for (let process of results) {
+                this.availableSubProcesses.push(process);
                 processIdMap.set(process.id, process);
               }
 
