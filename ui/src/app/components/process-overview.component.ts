@@ -23,15 +23,15 @@ export class ProcessOverviewComponent  {
   }
 
   addSuccessor() {
-    if(!this.processWithStep.stepDetails.successor) {
-      this.processWithStep.stepDetails.successor = [];
+    if(!this.processWithStep.stepDetails.successors) {
+      this.processWithStep.stepDetails.successors = [];
     }
-    this.processWithStep.stepDetails.successor.push(new StepSuccessor());
+    this.processWithStep.stepDetails.successors.push(new StepSuccessor());
     this.updateEmitter.emit(this.processWithStep);
   }
 
   deleteSuccessor(idx: number) {
-    this.processWithStep.stepDetails.successor.splice(idx, 1);
+    this.processWithStep.stepDetails.successors.splice(idx, 1);
     this.updateEmitter.emit(this.processWithStep);
   }
 

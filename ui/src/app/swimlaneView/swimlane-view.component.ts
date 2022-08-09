@@ -115,8 +115,8 @@ export class SwimlaneViewComponent implements OnInit, AfterViewInit, OnDestroy {
       }
 
       for (let step of process.steps) {
-        if (step.successor) {
-          for (let successor of step.successor) {
+        if (step.successors) {
+          for (let successor of step.successors) {
             const edge = new Edge();
             edge.startId = childBoxes.get(step.processReference).id;
             const successorBox = childBoxes.get(successor.processReference)

@@ -35,7 +35,7 @@ export enum Status {
 
 export class Step {
   processReference: string;
-  successor: StepSuccessor[];
+  successors: StepSuccessor[];
 }
 
 export class StepSuccessor {

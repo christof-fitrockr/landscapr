@@ -71,6 +71,7 @@ export class ProcessEditSubprocessComponent implements OnInit, OnDestroy {
       this.processService.byId(this.processId).pipe(first()).subscribe(process => {
         this.process = process;
 
+        console.log(JSON.stringify(process));
         const processIdMap = new Map<string, Process>();
         const ids = [];
         if(this.process.steps) {
@@ -109,6 +110,7 @@ export class ProcessEditSubprocessComponent implements OnInit, OnDestroy {
   }
 
   onUpdate() {
+    console.log(JSON.stringify(this.process));
     this.processService.update(this.processId, this.process).pipe(first()).subscribe(() => {
       this.toastr.info('Process updated successfully');
       this.refresh();
@@ -174,9 +176,10 @@ export class ProcessEditSubprocessComponent implements OnInit, OnDestroy {
   }
 
   updateProcessStep(processWithStep: ProcessWithStep) {
+
     for(let step of this.process.steps) {
       if(step.processReference === processWithStep.stepDetails.processReference) {
-        step.successor = processWithStep.stepDetails.successor;
+        step.successors = processWithStep.stepDetails.successors;
         break;
       }
     }

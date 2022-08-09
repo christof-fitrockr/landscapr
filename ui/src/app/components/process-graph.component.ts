@@ -62,8 +62,8 @@ export class ProcessGraphComponent implements OnInit, AfterViewChecked {
 
     if(this.process.steps) {
       for (let step of this.process.steps) {
-        if (step.successor) {
-          for (let reference of step.successor) {
+        if (step.successors) {
+          for (let reference of step.successors) {
             this.hierarchicalGraph.links.push({
               source: step.processReference,
               target: reference.processReference,

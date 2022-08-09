@@ -1047,13 +1047,13 @@ export class ImportExportComponent implements OnInit {
 
             let newStep = new Step();
             newStep.processReference = this.idMap.get(step.processReference);
-            newStep.successor = [];
+            newStep.successors = [];
             if(step.successor) {
               for (let succ of step.successor) {
                 let s = new StepSuccessor();
                 s.processReference = this.idMap.get(succ.processReference);
                 s.edgeTitle = succ.edgeTitle;
-                newStep.successor.push(s);
+                newStep.successors.push(s);
               }
             }
             stepArr.push(newStep);
