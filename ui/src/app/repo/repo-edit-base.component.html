@@ -29,7 +29,7 @@
 
 
         <div class="form-group row">
-          <label for="email" class="col-sm-2 col-form-label">Email</label>
+          <label for="email" class="col-sm-2 col-form-label">Name</label>
           <div class="col-sm-10">
             <input type="text" formControlName="name" class="form-control" id="email">
             <div *ngIf="repoForm && repoForm?.get('name').invalid && (repoForm?.get('name').dirty || repoForm?.get('name').touched)" class="is-invalid text-xs text-danger mt-1">Name is required</div>
