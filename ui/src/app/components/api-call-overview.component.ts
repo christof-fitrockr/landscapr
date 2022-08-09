@@ -3,8 +3,8 @@ import {ApiCall} from '../models/api-call';
 
 
 @Component({
-  selector: 'app-function-overview',
-  templateUrl: './function-overview.component.html'
+  selector: 'app-api-call-overview',
+  templateUrl: './api-call-overview.component.html'
 })
 export class ApiCallOverviewComponent  {
 

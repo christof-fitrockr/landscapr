@@ -64,7 +64,7 @@ import {SystemViewComponent} from './system/system-view.component';
 import {SystemEditBaseComponent} from './system/system-edit-base.component';
 import {DragDropModule} from '@angular/cdk/drag-drop';
 import {CapabilityEditImplementedByComponent} from './capability/capability-edit-implemented-by.component';
-import {ApiCallOverviewComponent} from './components/function-overview.component';
+import {ApiCallOverviewComponent} from './components/api-call-overview.component';
 import {CapabilityOverviewComponent} from './components/capability-overview.component';
 import {SystemOverviewComponent} from './components/system-overview.component';
 import {ApiCallEditImplementedInComponent} from './apiCall/api-call-edit-implemented-in.component';

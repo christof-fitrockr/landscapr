@@ -1,11 +1,13 @@
 package de.landscapr.server.apiCall;
 
+import de.landscapr.server.application.Application;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.regex.Pattern;
 
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
@@ -34,5 +36,10 @@ public class ApiCallRepository {
     public ApiCall save(ApiCall apiCall) {
         return mongoTemplate.save(apiCall);
     }
-    
+
+
+    public List<ApiCall> findByName(String repoId, String name) {
+        return mongoTemplate.find(Query.query(where("repoId").is(repoId)
+                .and("name").regex(Pattern.compile(".*" + name + ".*", Pattern.CASE_INSENSITIVE))), ApiCall.class);
+    }
 }
