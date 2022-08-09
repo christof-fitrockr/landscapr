@@ -10,6 +10,9 @@ import {ApiCallService} from '../services/api-call.service';
 import {ApiCall} from '../models/api-call';
 import {ProcessService} from '../services/process.service';
 import {Step, StepSuccessor} from '../models/process';
+import {Observable} from 'rxjs';
+import {Repo} from '../models/repo';
+import {RepoService} from '../services/repo.service';
 
 @Component({selector: 'app-account-list', templateUrl: './import-export.component.html'})
 export class ImportExportComponent implements OnInit {
@@ -18,11 +21,14 @@ export class ImportExportComponent implements OnInit {
   callMap = new Map<string, ApiCall>();
   idMap = new Map<string, string>();
 
+  repos$: Observable<Repo[]>;
+
   constructor(private accountService: AccountService,
               private systemService: ApplicationService,
               private capabilityService: CapabilityService,
               private apiCallService: ApiCallService,
-              private processService: ProcessService) {
+              private processService: ProcessService,
+              private repoService: RepoService) {
   }
 
   accounts: Account[];
@@ -893,8 +899,10 @@ export class ImportExportComponent implements OnInit {
     "]"
 
   processes = "";
+  selectedRepoId: string;
 
   ngOnInit() {
+    this.repos$ = this.repoService.all();
     this.refresh();
   }
 
@@ -911,6 +919,8 @@ export class ImportExportComponent implements OnInit {
       if("" === system.tags) {
         system.tags = [];
       }
+
+      system.repoId = this.selectedRepoId;
       this.systemService.create(system).pipe(first()).subscribe((item) => {
         this.systemMap.set(system.systemId, item);
       });
@@ -934,7 +944,7 @@ export class ImportExportComponent implements OnInit {
         cap.tags = [];
       }
       cap.implementedBy = implArr;
-
+      cap.repoId = this.selectedRepoId;
       this.capabilityService.create(cap).pipe(first()).subscribe((item) => {
         this.capMap.set(cap.capabilityId, item);
       });
@@ -966,6 +976,7 @@ export class ImportExportComponent implements OnInit {
       }
       call.implementedBy = implArr;
 
+      call.repoId = this.selectedRepoId;
       this.apiCallService.create(call).pipe(first()).subscribe((item) => {
         this.callMap.set(call.apiCallId, item);
       });
@@ -987,6 +998,7 @@ export class ImportExportComponent implements OnInit {
       prc.tags = [];
       prc.role = Number(prc.role);
 
+      prc.repoId = this.selectedRepoId;
       this.processService.create(prc).pipe(first()).subscribe((item) => {
         this.idMap.set(prc.processId, item.id);
       });

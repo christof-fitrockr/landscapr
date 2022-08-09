@@ -24,7 +24,9 @@
 
     <div class="card-body">
 
-
+      <ng-select class="mt-1 mr-4" placeholder="Select Dataset" [items]="repos$ | async"
+                 [(ngModel)]="selectedRepoId" [ngModelOptions]="{standalone: true}"
+                  bindLabel="name" bindValue="id"></ng-select>
       <div class="col-sm-2">
         <h5>Systems ({{systemMap?.size}})</h5>
       </div>
