@@ -25,7 +25,7 @@
       <div *ngIf="processes && processes?.length === 0" class="small font-italic">No favorite processes available.</div>
 
 
-      <app-process-table [processes]="processes"  *ngIf="processes && processes?.length > 0"></app-process-table>
+      <app-process-table [repoId]="repoId" [processes]="processes"  *ngIf="processes && processes?.length > 0"></app-process-table>
     </div>
 
   </div>
