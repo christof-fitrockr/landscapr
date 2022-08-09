@@ -98,6 +98,9 @@ export class SwimlaneViewComponent implements OnInit, AfterViewInit, OnChanges {
     const mainProcess = new ProcessWithChildren();
     const process = this.processMap.get(id)
 
+    if(!process) {
+      console.error('Process with id ' + id + ' not found.');
+    }
 
     mainProcess.process = process;
     mainProcess.children = [];
