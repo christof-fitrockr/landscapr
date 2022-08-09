@@ -20,6 +20,7 @@ export class CapabilityComponent implements OnInit {
 
 
 
+  @Input() repoId: string;
   @Input() capability: Capability;
   apiCalls: ApiCall[]
 
@@ -30,7 +31,7 @@ export class CapabilityComponent implements OnInit {
 
   ngOnInit() {
 
-    this.apiCallService.byCapability(this.capability.capabilityId).pipe(first()).subscribe(apiCalls => {
+    this.apiCallService.byCapability(this.repoId, this.capability.capabilityId).pipe(first()).subscribe(apiCalls => {
       this.apiCalls = apiCalls;
     });
   }

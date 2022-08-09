@@ -42,4 +42,8 @@ public class ApiCallRepository {
         return mongoTemplate.find(Query.query(where("repoId").is(repoId)
                 .and("name").regex(Pattern.compile(".*" + name + ".*", Pattern.CASE_INSENSITIVE))), ApiCall.class);
     }
+
+    public List<ApiCall> findByCapability(String repoId, String capabilityId) {
+        return mongoTemplate.find(Query.query(where("repoId").is(repoId).and("capabilityId").is(capabilityId)), ApiCall.class);
+    }
 }

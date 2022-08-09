@@ -2,6 +2,7 @@ package de.landscapr.server.apiCall;
 
 import de.landscapr.server.application.Application;
 import de.landscapr.server.authentication.Role;
+import de.landscapr.server.capability.Capability;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -36,6 +37,13 @@ public class ApiCallController {
     public ResponseEntity<List<ApiCall>> findByName(@PathVariable String repoId, @RequestBody String name) {
         return ResponseEntity.ok(apiCallRepository.findByName(repoId, name));
     }
+
+
+    @RequestMapping(method = RequestMethod.GET, value = "/api/apiCall/byCapability/{repoId}/{capabilityId}")
+    public ResponseEntity<List<ApiCall>> findByCapability(@PathVariable String repoId, @PathVariable String capabilityId) {
+        return ResponseEntity.ok(apiCallRepository.findByCapability(repoId, capabilityId));
+    }
+
 
     @RolesAllowed({Role.Code.ADMIN, Role.Code.EDITOR })
     @RequestMapping(method = RequestMethod.GET, value = "/api/apiCall/delete/{apiCallId}")

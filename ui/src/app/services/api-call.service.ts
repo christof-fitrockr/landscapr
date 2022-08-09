@@ -29,8 +29,8 @@ export class ApiCallService {
     return this.http.post<ApiCall[]>(`${environment.apiUrl}/apiCall/byName/` + repoId, name);
   }
 
-  byCapability(capabilityId: string): Observable<ApiCall[]> {
-    return this.http.get<ApiCall[]>(`${environment.apiUrl}/apiCall/byName` + capabilityId);
+  byCapability(repoId: string, capabilityId: string): Observable<ApiCall[]> {
+    return this.http.get<ApiCall[]>(`${environment.apiUrl}/apiCall/byCapability/` + repoId + '/' + capabilityId);
   }
 
   create(apiCall: ApiCall): Observable<ApiCall> {

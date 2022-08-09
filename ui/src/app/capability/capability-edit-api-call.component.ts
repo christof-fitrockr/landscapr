@@ -12,17 +12,19 @@ export class CapabilityEditApiCallComponent implements OnInit {
   capabilityId: string;
   capability: Capability;
   usedBy: ApiCall[];
+  private repoId: string;
 
   constructor(private capabilityService: CapabilityService, private apiCallService: ApiCallService, private route: ActivatedRoute) {
   }
 
   ngOnInit() {
     this.capabilityId = this.route.parent.snapshot.paramMap.get('id');
+    this.repoId = this.route.parent.snapshot.paramMap.get('repoId');
     this.capabilityService.byId(this.capabilityId).pipe(first()).subscribe(capability => {
       this.capability = capability;
     });
 
-    this.apiCallService.byCapability(this.capabilityId).pipe(first()).subscribe(usedBy => {
+    this.apiCallService.byCapability(this.repoId, this.capabilityId).pipe(first()).subscribe(usedBy => {
       this.usedBy = usedBy;
     });
   }
