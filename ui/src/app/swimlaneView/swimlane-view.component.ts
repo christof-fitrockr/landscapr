@@ -105,7 +105,7 @@ export class SwimlaneViewComponent implements OnInit, AfterViewInit, OnChanges {
       processBox.x = x;
       processBox.depth = layer;
       processBox.roleLayer = -1;
-      processBox.w = this.canvasService.calcFunctionWidth(cx, 0, process.name, '');
+      processBox.w = this.canvasService.calcFunctionWidth(cx, 0, processBox.title, '');
 
       return processBox;
     }
