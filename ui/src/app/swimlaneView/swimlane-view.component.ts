@@ -90,15 +90,8 @@ export class SwimlaneViewComponent implements OnInit, AfterViewInit, OnDestroy {
     processBox.depth = layer;
     processBox.roleLayer = -1;
     if(!process.steps || process.steps.length === 0) {
-      processBox.roleLayer = 0;
-      if(process.role) {
-        processBox.roleLayer = process.role;
-        processBox.roleLayer++;
-      }
+      processBox.roleLayer = process.role;
       processBox.w = this.canvasService.calcFunctionWidth(cx, 0, process.name, '');
-
-
-      console.log('Box: ' + processBox.title + ', ' + processBox.roleLayer);
     }
 
     if(process.steps && process.steps.length > 0) {
@@ -119,8 +112,6 @@ export class SwimlaneViewComponent implements OnInit, AfterViewInit, OnDestroy {
           for (let successor of step.successors) {
             const edge = new Edge();
             edge.startId = childBoxes.get(step.processReference).id;
-            const successorBox = childBoxes.get(successor.processReference)
-
             if(childBoxes.has(successor.processReference)) {
               edge.endId = childBoxes.get(successor.processReference).id;
               edge.title = successor.edgeTitle;
@@ -234,7 +225,6 @@ export class SwimlaneViewComponent implements OnInit, AfterViewInit, OnDestroy {
         idx++;
       }
 
-      this.canvasService.drawSwimlane(cx, 0, (idx++)*100, width, 90, 'Undefined' )
       this.canvasService.drawSwimlane(cx, 0, (idx++)*100, width, 90, 'Customer' )
       this.canvasService.drawSwimlane(cx, 0, (idx++)*100, width, 90, 'Vehicle' )
       this.canvasService.drawSwimlane(cx, 0, (idx++)*100, width, 90, 'Service w/ customer' );
