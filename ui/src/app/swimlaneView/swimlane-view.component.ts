@@ -121,9 +121,13 @@ export class SwimlaneViewComponent implements OnInit, AfterViewInit, OnDestroy {
             edge.startId = childBoxes.get(step.processReference).id;
             const successorBox = childBoxes.get(successor.processReference)
 
-            edge.endId = childBoxes.get(successor.processReference).id;
-            edge.title = successor.edgeTitle;
-            this.edges.push(edge)
+            if(childBoxes.has(successor.processReference)) {
+              edge.endId = childBoxes.get(successor.processReference).id;
+              edge.title = successor.edgeTitle;
+              this.edges.push(edge)
+            } else {
+              console.error('Step "' + process.name + '": Could not found reference to "' + successor.processReference + '"');
+            }
           }
         }
       }
