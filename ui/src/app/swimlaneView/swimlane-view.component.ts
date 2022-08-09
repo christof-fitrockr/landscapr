@@ -100,6 +100,14 @@ export class SwimlaneViewComponent implements OnInit, AfterViewInit, OnChanges {
 
     if(!process) {
       console.error('Process with id ' + id + ' not found.');
+      let processBox = new ProcessBox();
+      processBox.title = '!! MISSING !!';
+      processBox.x = x;
+      processBox.depth = layer;
+      processBox.roleLayer = -1;
+      processBox.w = this.canvasService.calcFunctionWidth(cx, 0, process.name, '');
+
+      return processBox;
     }
 
     mainProcess.process = process;
