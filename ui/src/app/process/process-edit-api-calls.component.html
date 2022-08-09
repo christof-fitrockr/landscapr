@@ -29,9 +29,8 @@
 
         <div class="mt-1" *ngFor="let item of apiCalls">
           <app-api-call-overview
+                  [repoId]="repoId"
                    [apiCall]="item"
-                   (moveUpEmitter)="moveUp($event)"
-                   (moveDownEmitter)="moveDown($event)"
                    (deleteEmitter)="delete($event)"></app-api-call-overview>
         </div>
 

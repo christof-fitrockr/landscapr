@@ -8,6 +8,7 @@ import {ApiCall} from '../models/api-call';
 })
 export class ApiCallOverviewComponent  {
 
+  @Input() repoId: string;
   @Input() apiCall: ApiCall;
   @Input() readOnly : boolean;
   @Output() deleteEmitter = new EventEmitter<string>();
