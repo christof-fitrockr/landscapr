@@ -1,4 +1,14 @@
-import {AfterViewInit, Component, ElementRef, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  Input,
+  OnChanges,
+  OnDestroy,
+  OnInit,
+  SimpleChanges,
+  ViewChild
+} from '@angular/core';
 import {ProcessService} from '../services/process.service';
 import {ActivatedRoute} from '@angular/router';
 import {first} from 'rxjs/operators';
@@ -12,11 +22,12 @@ import {Subscription} from 'rxjs';
 
 
 @Component({selector: 'app-swimlane-view', templateUrl: './swimlane-view.component.html'})
-export class SwimlaneViewComponent implements OnInit, AfterViewInit, OnDestroy {
+export class SwimlaneViewComponent implements OnInit, AfterViewInit, OnChanges {
 
   @ViewChild('canvas') public canvas: ElementRef;
 
-  private processId: string;
+  @Input() repoId: string;
+  @Input() processId: string;
 
   private processMap = new Map<string, Process>();
   private apiCallMap = new Map<string, ApiCall>();
@@ -26,27 +37,34 @@ export class SwimlaneViewComponent implements OnInit, AfterViewInit, OnDestroy {
   processBoxMap = new Map<number, ProcessBox>();
   functionBoxMap = new Map<number, ProcessBox>();
   edges: Edge[] = [];
-  private zoomFactor = 0.6;
+  @Input() zoomFactor = 0.6;
   width: number;
   height: number;
-  repoId: string;
   private subscription: Subscription;
 
   constructor(private activatedRoute: ActivatedRoute,private processService: ProcessService, private systemService: ApplicationService,
               private canvasService: CanvasService, private apiCallService: ApiCallService) {
   }
 
+  ngOnChanges(changes: SimpleChanges) {
+    if(this.canvas) {
+      this.resize();
+      this.drawGraph(this.canvas.nativeElement.getContext('2d'));
+    }
+  }
+
   ngOnInit() {
-    this.processId = this.activatedRoute.snapshot.paramMap.get('id');
+    console.log("Repo: " + this.repoId);
+    // this.processId = this.activatedRoute.snapshot.paramMap.get('id');
 
-    this.subscription = this.activatedRoute.parent.paramMap.subscribe(obs => {
-      this.repoId = obs.get('repoId');
-    });
+    // this.subscription = this.activatedRoute.parent.paramMap.subscribe(obs => {
+    //   this.repoId = obs.get('repoId');
+    // });
   }
 
-  ngOnDestroy() {
-    this.subscription.unsubscribe();
-  }
+  // ngOnDestroy() {
+  //   this.subscription.unsubscribe();
+  // }
 
 
   ngAfterViewInit() {
@@ -301,18 +319,6 @@ export class SwimlaneViewComponent implements OnInit, AfterViewInit, OnDestroy {
       }
 
       cx.restore();
-  }
-
-  zoomIn() {
-    this.zoomFactor += 0.1;
-    this.resize();
-    this.drawGraph(this.canvas.nativeElement.getContext('2d'));
-  }
-  zoomOut() {
-    this.zoomFactor -= 0.1;
-    this.resize();
-    this.drawGraph(this.canvas.nativeElement.getContext('2d'));
-
   }
 
   private static getYForBox(box: ProcessBox, maxDepth: number) {

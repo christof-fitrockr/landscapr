@@ -5,7 +5,11 @@
       <div class=" py-3 d-flex flex-row align-items-center justify-content-between container-xl">
       <div class="btn-toolbar justify-content-lg-start" role="toolbar" aria-label="Toolbar with button groups">
         <div class="btn-group mr-2" role="group" aria-label="First group">
-          <a class="btn btn-secondary" title="List" routerLink="/process"><i class="fas fa-list"></i></a>
+
+          <button type="button" class="btn btn-secondary" title="Save" (click)="zoomIn()"><i class="fas fa-search-plus"></i></button>
+          <button type="button" class="btn btn-secondary" title="Save" (click)="zoomOut()"><i class="fas fa-search-minus"></i></button>
+
+          <a class="btn btn-secondary" title="List" routerLink="/r/{{repoId}}/process"><i class="fas fa-list"></i></a>
         </div>
       </div>
 
@@ -20,8 +24,11 @@
     </div>
 
     <div class="card-body">
-      <app-process-graph *ngIf="process?.steps && process?.steps?.length > 0" [processId]="processId" (processClicked)="processNodeClicked($event)"></app-process-graph>
-      <app-api-call-graph *ngIf="process?.apiCallIds && process?.apiCallIds?.length > 0" [processId]="processId" (processClicked)="processNodeClicked($event)"></app-api-call-graph>
+
+      <app-swimlane-view *ngIf="repoId" [zoomFactor]="zoomFactor" [repoId]="repoId" [processId]="processId"></app-swimlane-view>
+
+<!--      <app-process-graph *ngIf="process?.steps && process?.steps?.length > 0" [processId]="processId" (processClicked)="processNodeClicked($event)"></app-process-graph>-->
+<!--      <app-api-call-graph *ngIf="process?.apiCallIds && process?.apiCallIds?.length > 0" [processId]="processId" (processClicked)="processNodeClicked($event)"></app-api-call-graph>-->
     </div>
   </div>
 

@@ -21,11 +21,22 @@ export class ProcessViewComponent implements OnInit {
   selectedSubprocesses: Process[];
   selectedFunctions: ApiCall[];
   private subscription: Subscription;
-  private repoId: string;
+  repoId: string;
+  zoomFactor = 0.6;
 
   constructor(private processService: ProcessService, private apiCallService: ApiCallService, private formBuilder: FormBuilder, private location: Location,
               private route: ActivatedRoute, private router: Router, private toastr: ToastrService) {
   }
+
+
+  zoomIn() {
+    this.zoomFactor += 0.1;
+  }
+  zoomOut() {
+    this.zoomFactor -= 0.1;
+  }
+
+
 
   ngOnInit() {
 

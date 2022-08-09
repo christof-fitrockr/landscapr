@@ -14,8 +14,8 @@
   <tbody>
   <tr *ngFor="let process of processes | processFilter : filter">
     <td class="text-nowrap">
-      <a class="black mr-2" routerLink="/r/{{repoId}}/process/view/{{process?.id}}"><i class="fas fa-project-diagram" title="View Process"></i></a>
-      <a class="black mr-2" routerLink="/r/{{repoId}}/swimlane/view/{{process?.id}}"><i class="fas fa-layer-group" title="Swimlane View"></i></a>
+      <a class="black mr-2" routerLink="/r/{{repoId}}/process/view/{{process?.id}}"><i class="fas fa-layer-group" title="View Process"></i></a>
+<!--      <a class="black mr-2" routerLink="/r/{{repoId}}/swimlane/view/{{process?.id}}"><i class="fas fa-layer-group" title="Swimlane View"></i></a>-->
       <a class="black mr-2" routerLink="/r/{{repoId}}/process/edit/{{process?.id}}"><i class="fas fa-edit" title="Edit Process"></i></a>
 
     </td>
