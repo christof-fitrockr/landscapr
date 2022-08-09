@@ -129,6 +129,7 @@ export class SwimlaneViewComponent implements OnInit, AfterViewInit, OnChanges {
       const childBoxes = new Map<string, ProcessBox>();
       for (let step of process.steps) {
         if(step.processReference) {
+          console.debug('Childs of id ' + id + ' with name ' + process.name + ' not found.');
           const childBox = this.createGraph(cx, step.processReference, x + processBox.w, layer + 1);
           childBoxes.set(step.processReference, childBox);
           processBox.w += childBox.w;
