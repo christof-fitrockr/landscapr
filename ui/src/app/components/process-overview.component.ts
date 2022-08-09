@@ -13,6 +13,7 @@ export class ProcessOverviewComponent  {
   @Input() processes: Process[];
   @Output() updateEmitter = new EventEmitter<ProcessWithStep>();
   @Output() deleteEmitter = new EventEmitter<string>();
+  @Input() repoId: string;
 
 
   constructor() { }

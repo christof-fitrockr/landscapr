@@ -33,6 +33,7 @@
                    [processWithStep]="item"
                    [processes]="availableSubProcesses"
                    (updateEmitter)="updateProcessStep($event)"
+                   [repoId]="repoId"
                    (deleteEmitter)="delete($event)"></app-process-overview>
         </div>
       </div>
