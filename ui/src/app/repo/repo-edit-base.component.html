@@ -13,7 +13,7 @@
         </div>
         <div class="btn-group mr-2" role="group" aria-label="Second group">
           <button type="button" class="btn btn-secondary" title="Download" (click)="downloadAsJson()"><i class="fas fa-download"></i></button>
-<!--          <button type="button" class="btn btn-secondary" title="Upload" data-toggle="modal" data-target="#uploadModal"><i class="fas fa-upload"></i></button>-->
+          <button type="button" class="btn btn-secondary" title="Upload" (click)="resetUpload()" data-toggle="modal" data-target="#uploadModal"><i class="fas fa-upload"></i></button>
         </div>
       </div>
 
@@ -116,3 +116,49 @@
     </div>
   </div>
 </div>
+
+
+<div class="modal fade" id="uploadModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header border-bottom-0">
+        <h5 class="modal-title">Import Data</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+
+        <form>
+          <div class="dnd-container pb-3 pt-3 m-0 mt-4 mb-4" appDnd (fileDropped)="uploadDocument($event)">
+            <input type="file" id="fileDropRef" class="dnd-input" (change)="uploadDocument($event.target.files)" >
+            <i class="huge-icon fas fa-upload"></i>
+            <h3 class="mt-3">Drop Json file here</h3>
+            <p>or</p>
+            <label for="fileDropRef">Browse for file</label>
+          </div>
+        </form>
+
+        <div class="col-12" *ngIf="upload$ | async as upload">
+          <div *ngIf="upload.state !== 'DONE'" class="text-center">Uploading file {{upload.progress | number : '0.0-0'}} %</div>
+          <progress *ngIf="upload.state !== 'DONE'" class="progress-bar" [value]="upload.progress" [max]="100">
+            <div>
+              <span>{{upload.state}} {{upload.progress | number : '0.0-0'}} %</span>
+            </div>
+          </progress>
+
+          <div *ngIf="upload.state === 'DONE'" class="col-12 text-center mt-4">
+            <h5 class="text-success">Upload completed</h5>
+
+          </div>
+        </div>
+
+      </div>
+      <div class="modal-footer border-top-0 d-flex justify-content-center">
+        <button class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+

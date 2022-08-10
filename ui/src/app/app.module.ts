@@ -86,6 +86,7 @@ import {RepoFilterPipe} from './pipes/repo-filter.pipe';
 import {RepoListComponent} from './repo/repo-list.component';
 import {RepoEditBaseComponent} from './repo/repo-edit-base.component';
 import {RepoEditComponent} from './repo/repo-edit.component';
+import {DndDirective} from './helpers/dnd.directive';
 
 
 @NgModule({
@@ -120,6 +121,9 @@ import {RepoEditComponent} from './repo/repo-edit.component';
     RepoListComponent,
     RepoEditComponent,
     RepoEditBaseComponent,
+
+
+    DndDirective,
 
     SwimlaneViewComponent,
 

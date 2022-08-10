@@ -1,5 +1,9 @@
 package de.landscapr.server.repository;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import de.landscapr.server.apiCall.ApiCall;
 import de.landscapr.server.apiCall.ApiCallRepository;
 import de.landscapr.server.application.Application;
@@ -10,15 +14,21 @@ import de.landscapr.server.capability.CapabilityRepository;
 import de.landscapr.server.process.Process;
 import de.landscapr.server.process.ProcessRepository;
 import io.micrometer.core.annotation.Timed;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartRequest;
 
 import javax.annotation.security.RolesAllowed;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
@@ -59,7 +69,6 @@ public class RepoController {
         return ResponseEntity.ok().build();
     }
 
-
     @RolesAllowed({Role.Code.ADMIN})
     @RequestMapping(method = RequestMethod.POST, value = "/api/repo/update", produces = APPLICATION_JSON_VALUE, consumes = APPLICATION_JSON_VALUE)
     public ResponseEntity<Repo> update(@RequestBody Repo repo) {
@@ -71,5 +80,16 @@ public class RepoController {
     @RequestMapping(value="/api/repo/download/{repoId}.json", produces = "application/json")
     public void downloadJson(@PathVariable String repoId, HttpServletResponse response) throws IOException {
         repoService.downloadJson(repoId, response);
+    }
+
+    @RolesAllowed({Role.Code.ADMIN})
+    @RequestMapping(value = "/api/repo/upload/{repoId}", method = RequestMethod.POST)
+    @ResponseStatus(HttpStatus.OK)
+    public void upload(@PathVariable String repoId, MultipartRequest request) throws IOException {
+        for (MultipartFile multipartFile : request.getFileMap().values()) {
+            JsonObject importData = JsonParser.parseReader(new InputStreamReader(multipartFile.getInputStream())).getAsJsonObject();
+            repoService.importFromJson(repoId, importData);
+        }
+
     }
 }

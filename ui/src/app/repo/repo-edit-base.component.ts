@@ -6,14 +6,17 @@ import {ToastrService} from 'ngx-toastr';
 import {RepoService} from '../services/repo.service';
 import {Repo} from '../models/repo';
 import {FileSaverService} from 'ngx-filesaver';
+import {EMPTY, Observable} from 'rxjs';
+import {Upload} from '../helpers/upload';
 
-@Component({selector: 'app-repo-edit', templateUrl: './repo-edit-base.component.html'})
+@Component({selector: 'app-repo-edit', styleUrls: ['./repo-edit-base.component.scss'], templateUrl: './repo-edit-base.component.html'})
 export class RepoEditBaseComponent implements OnInit {
 
   repoForm: FormGroup;
   repo: Repo;
   private repoId: string;
   nameOfCopy: string;
+  upload$: Observable<Upload> = EMPTY;
 
   constructor(private repoService: RepoService, private formBuilder: FormBuilder,
               private route: ActivatedRoute, private router: Router, private toastr: ToastrService,
@@ -88,5 +91,14 @@ export class RepoEditBaseComponent implements OnInit {
     this.repoService.downloadAsJson(this.repoId).pipe(first()).subscribe(blob => {
       this.fileSaverService.save(blob, this.repo.name + '.json');
     });
+  }
+
+  resetUpload() {
+    this.upload$ = EMPTY;
+  }
+
+  uploadDocument(files: any) {
+    const file = files[0];
+    this.upload$ = this.repoService.uploadJson(this.repoId, file);
   }
 }

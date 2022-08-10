@@ -4,6 +4,7 @@ import {HttpClient} from '@angular/common/http';
 
 import {environment} from '../../environments/environment';
 import {Repo} from '../models/repo';
+import {upload, Upload} from '../helpers/upload';
 
 
 @Injectable({
@@ -37,5 +38,14 @@ export class RepoService {
   downloadAsJson(repoId: string): Observable<Blob> {
     // @ts-ignore
     return this.http.get<Blob>(`${environment.apiUrl}/repo/download/` + repoId + `.json`,  { responseType: 'blob' });
+  }
+
+  uploadJson(repoId, document: File): Observable<Upload> {
+      const formData: FormData = new FormData();
+      formData.append('Document', document, document.name);
+      return this.http.post(`${environment.apiUrl}/repo/upload/${repoId}`, formData, {
+      reportProgress: true,
+      observe: 'events',
+    }).pipe(upload());
   }
 }
