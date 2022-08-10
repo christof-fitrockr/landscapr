@@ -281,7 +281,7 @@ public class RepoService {
             }
             generator.writeEndArray();
             if(item.getImplementationType() != null) {
-                generator.writeNumberField("implementationType", item.getImplementationType());
+                generator.writeNumberField("implementationType", item.getImplementationType() );
             }
             generator.writeNumberField("status", item.getStatus() == null ? 0 : item.getStatus());
             generator.writeEndObject();
@@ -331,7 +331,9 @@ public class RepoService {
                 generator.writeString(tag);
             }
             generator.writeEndArray();
-            generator.writeNumberField("role", item.getRole());
+            if(item.getRole() != null) {
+                generator.writeNumberField("role", item.getRole());
+            }
             generator.writeFieldName("steps");
             generator.writeStartArray();
             for (Step step : ListUtils.emptyIfNull(item.getSteps())) {
