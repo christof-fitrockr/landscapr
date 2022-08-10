@@ -342,8 +342,10 @@ public class RepoService {
                 generator.writeFieldName("successors");
                 generator.writeStartArray();
                 for (StepSuccessor successor : ListUtils.emptyIfNull(step.getSuccessors())) {
+                    generator.writeStartObject();
                     generator.writeStringField("processReference", successor.getProcessReference());
                     generator.writeStringField("edgeTitle", successor.getEdgeTitle());
+                    generator.writeEndObject();
                 }
                 generator.writeEndArray();
                 generator.writeEndObject();
