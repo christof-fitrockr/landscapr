@@ -12,6 +12,7 @@ export class RepoEditBaseComponent implements OnInit {
   repoForm: FormGroup;
   repo: Repo;
   private repoId: string;
+  nameOfCopy: string;
 
 
   constructor(private repoService: RepoService, private formBuilder: FormBuilder,
@@ -71,5 +72,16 @@ export class RepoEditBaseComponent implements OnInit {
         this.toastr.info('Repo deleted successfully');
       });
     })
+  }
+
+  copy() {
+    console.log(this.nameOfCopy)
+    this.repoService.copy(this.repoId, this.nameOfCopy).pipe(first()).subscribe(repo => {
+      this.router.navigateByUrl('/repository/edit/' + repo.id).then(() => {
+        this.toastr.info('Repo copied successfully');
+        this.refresh()
+      });
+    });
+
   }
 }

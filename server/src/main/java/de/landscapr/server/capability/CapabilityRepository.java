@@ -1,5 +1,6 @@
 package de.landscapr.server.capability;
 
+import de.landscapr.server.apiCall.ApiCall;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Repository;
@@ -37,5 +38,9 @@ public class CapabilityRepository {
 
     public Capability save(Capability capability) {
         return mongoTemplate.save(capability);
+    }
+
+    public boolean deleteByRepoId(String repoId) {
+        return mongoTemplate.remove(Query.query(where("repoId").is(repoId)), Capability.class).wasAcknowledged();
     }
 }

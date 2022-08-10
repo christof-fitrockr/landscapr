@@ -1,6 +1,7 @@
 package de.landscapr.server.apiCall;
 
 import de.landscapr.server.application.Application;
+import de.landscapr.server.process.Process;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Repository;
@@ -45,5 +46,9 @@ public class ApiCallRepository {
 
     public List<ApiCall> findByCapability(String repoId, String capabilityId) {
         return mongoTemplate.find(Query.query(where("repoId").is(repoId).and("capabilityId").is(capabilityId)), ApiCall.class);
+    }
+
+    public boolean deleteByRepoId(String repoId) {
+        return mongoTemplate.remove(Query.query(where("repoId").is(repoId)), ApiCall.class).wasAcknowledged();
     }
 }

@@ -1,5 +1,6 @@
 package de.landscapr.server.process;
 
+import de.landscapr.server.application.Application;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Repository;
@@ -54,5 +55,9 @@ public class ProcessRepository {
 
     public List<Process> findByApiCall(String apiCallId) {
         return mongoTemplate.find(Query.query(where("apiCallIds").in(apiCallId)), Process.class);
+    }
+
+    public boolean deleteByRepoId(String repoId) {
+        return mongoTemplate.remove(Query.query(where("repoId").is(repoId)), Process.class).wasAcknowledged();
     }
 }

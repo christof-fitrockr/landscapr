@@ -10,6 +10,7 @@ public class Application {
 
     @Id
     private String id;
+    private String logicalId;
     private String repoId;
     private String name;
     private String description;
@@ -25,6 +26,15 @@ public class Application {
 
     public Application setId(String id) {
         this.id = id;
+        return this;
+    }
+
+    public String getLogicalId() {
+        return logicalId;
+    }
+
+    public Application setLogicalId(String logicalId) {
+        this.logicalId = logicalId;
         return this;
     }
 

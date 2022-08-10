@@ -29,4 +29,8 @@ export class RepoService {
   delete(repoId: string): Observable<void> {
     return this.http.get<void>(`${environment.apiUrl}/repo/delete/` + repoId);
   }
+
+  copy(repoId: string, nameOfCopy: string): Observable<Repo> {
+    return this.http.post<Repo>(`${environment.apiUrl}/repo/copy/` + repoId, nameOfCopy);
+  }
 }

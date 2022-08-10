@@ -1,6 +1,5 @@
 package de.landscapr.server.application;
 
-import de.landscapr.server.process.Process;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Repository;
@@ -45,5 +44,9 @@ public class ApplicationRepository {
     public List<Application> findByName(String repoId, String name) {
         return mongoTemplate.find(Query.query(where("repoId").is(repoId)
                 .and("name").regex(Pattern.compile(".*" + name + ".*", Pattern.CASE_INSENSITIVE))), Application.class);
+    }
+
+    public boolean deleteByRepoId(String repoId) {
+        return mongoTemplate.remove(Query.query(where("repoId").is(repoId)), Application.class).wasAcknowledged();
     }
 }
