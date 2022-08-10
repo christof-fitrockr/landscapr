@@ -10,6 +10,7 @@ public class ApiCall {
 
     @Id
     private String id;
+    private String logicalId;
     private String repoId;
     private String name;
     private String description;
@@ -19,7 +20,6 @@ public class ApiCall {
     private List<String> implementedBy;
     private String input;
     private String output;
-    private String apiCallId;
     private List<String> tags;
     private Integer implementationType;
     private Integer status;
@@ -31,6 +31,15 @@ public class ApiCall {
 
     public ApiCall setId(String id) {
         this.id = id;
+        return this;
+    }
+
+    public String getLogicalId() {
+        return logicalId;
+    }
+
+    public ApiCall setLogicalId(String logicalId) {
+        this.logicalId = logicalId;
         return this;
     }
 
@@ -112,15 +121,6 @@ public class ApiCall {
 
     public ApiCall setOutput(String output) {
         this.output = output;
-        return this;
-    }
-
-    public String getApiCallId() {
-        return apiCallId;
-    }
-
-    public ApiCall setApiCallId(String apiCallId) {
-        this.apiCallId = apiCallId;
         return this;
     }
 

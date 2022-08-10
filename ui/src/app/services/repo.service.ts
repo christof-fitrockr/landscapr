@@ -33,4 +33,9 @@ export class RepoService {
   copy(repoId: string, nameOfCopy: string): Observable<Repo> {
     return this.http.post<Repo>(`${environment.apiUrl}/repo/copy/` + repoId, nameOfCopy);
   }
+
+  downloadAsJson(repoId: string): Observable<Blob> {
+    // @ts-ignore
+    return this.http.get<Blob>(`${environment.apiUrl}/repo/download/` + repoId + `.json`,  { responseType: 'blob' });
+  }
 }

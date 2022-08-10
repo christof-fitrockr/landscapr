@@ -10,6 +10,7 @@ public class Capability {
 
     @Id
     private String id;
+    private String logicalId;
     private String repoId;
     private String name;
     private String description;
@@ -23,6 +24,15 @@ public class Capability {
 
     public Capability setId(String id) {
         this.id = id;
+        return this;
+    }
+
+    public String getLogicalId() {
+        return logicalId;
+    }
+
+    public Capability setLogicalId(String logicalId) {
+        this.logicalId = logicalId;
         return this;
     }
 

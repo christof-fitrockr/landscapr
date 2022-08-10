@@ -9,10 +9,14 @@ import de.landscapr.server.capability.Capability;
 import de.landscapr.server.capability.CapabilityRepository;
 import de.landscapr.server.process.Process;
 import de.landscapr.server.process.ProcessRepository;
+import io.micrometer.core.annotation.Timed;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.security.RolesAllowed;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
@@ -61,5 +65,11 @@ public class RepoController {
     public ResponseEntity<Repo> update(@RequestBody Repo repo) {
         Repo savedRepo = repoRepository.save(repo);
         return ResponseEntity.ok(savedRepo);
+    }
+
+    @RolesAllowed({Role.Code.ADMIN})
+    @RequestMapping(value="/api/repo/download/{repoId}.json", produces = "application/json")
+    public void downloadJson(@PathVariable String repoId, HttpServletResponse response) throws IOException {
+        repoService.downloadJson(repoId, response);
     }
 }

@@ -10,6 +10,7 @@ public class Process {
 
     @Id
     private String id;
+    private String logicalId;
     private String repoId;
     private String name;
     private String description;
@@ -17,7 +18,6 @@ public class Process {
     private String input;
     private String output;
     private List<String> tags;
-    private Integer number;
     private Integer role;
     private List<Step> steps;
     private List<String> apiCallIds;
@@ -30,6 +30,15 @@ public class Process {
 
     public Process setId(String id) {
         this.id = id;
+        return this;
+    }
+
+    public String getLogicalId() {
+        return logicalId;
+    }
+
+    public Process setLogicalId(String logicalId) {
+        this.logicalId = logicalId;
         return this;
     }
 
@@ -93,15 +102,6 @@ public class Process {
 
     public Process setTags(List<String> tags) {
         this.tags = tags;
-        return this;
-    }
-
-    public Integer getNumber() {
-        return number;
-    }
-
-    public Process setNumber(Integer number) {
-        this.number = number;
         return this;
     }
 

@@ -5,6 +5,7 @@ import {first} from 'rxjs/operators';
 import {ToastrService} from 'ngx-toastr';
 import {RepoService} from '../services/repo.service';
 import {Repo} from '../models/repo';
+import {FileSaverService} from 'ngx-filesaver';
 
 @Component({selector: 'app-repo-edit', templateUrl: './repo-edit-base.component.html'})
 export class RepoEditBaseComponent implements OnInit {
@@ -14,11 +15,10 @@ export class RepoEditBaseComponent implements OnInit {
   private repoId: string;
   nameOfCopy: string;
 
-
   constructor(private repoService: RepoService, private formBuilder: FormBuilder,
-              private route: ActivatedRoute, private router: Router, private toastr: ToastrService) {
+              private route: ActivatedRoute, private router: Router, private toastr: ToastrService,
+              private fileSaverService: FileSaverService) {
   }
-
 
   ngOnInit() {
     this.repoForm = this.formBuilder.group({
@@ -82,6 +82,11 @@ export class RepoEditBaseComponent implements OnInit {
         this.refresh()
       });
     });
+  }
 
+  downloadAsJson() {
+    this.repoService.downloadAsJson(this.repoId).pipe(first()).subscribe(blob => {
+      this.fileSaverService.save(blob, this.repo.name + '.json');
+    });
   }
 }
