@@ -280,7 +280,7 @@ public class RepoService {
                 generator.writeString(tag);
             }
             generator.writeEndArray();
-            generator.writeNumberField("implementationType", item.getImplementationType());
+            generator.writeNumberField("implementationType", item.getImplementationType() == null ? 0 : item.getImplementationType());
             generator.writeNumberField("status", item.getStatus() == null ? 0 : item.getStatus());
             generator.writeEndObject();
         }
