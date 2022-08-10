@@ -89,7 +89,7 @@ export class RepoEditBaseComponent implements OnInit {
 
   downloadAsJson() {
     this.repoService.downloadAsJson(this.repoId).pipe(first()).subscribe(blob => {
-      this.fileSaverService.save(blob, this.repo.name + '.json');
+      this.fileSaverService.save(blob, this.repo.name.toLowerCase().replace(' ', '_') + '.json');
     });
   }
 
