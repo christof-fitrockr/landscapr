@@ -1,5 +1,5 @@
 import {Injectable} from '@angular/core';
-import {Observable} from 'rxjs';
+import {observable, Observable} from 'rxjs';
 import {Upload} from '../helpers/upload';
 import {CapabilityService} from './capability.service';
 import {ProcessService} from './process.service';
@@ -32,22 +32,19 @@ export class RepoService {
     });
   }
 
-  uploadJson(document: File): Observable<Upload> {
+  uploadJson(document: File): Observable<void> {
+    return new Observable(obs => {
+      let fileReader = new FileReader();
+      fileReader.onload = (e) => {
+        let parsedData = JSON.parse(fileReader.result as string);
+        localStorage.setItem(ApplicationService.STORAGE_KEY, JSON.stringify(parsedData.applications))
+        localStorage.setItem(CapabilityService.STORAGE_KEY, JSON.stringify(parsedData.capabilities))
+        localStorage.setItem(ApiCallService.STORAGE_KEY, JSON.stringify(parsedData.apiCalls))
+        localStorage.setItem(ProcessService.STORAGE_KEY, JSON.stringify(parsedData.processes))
+        obs.next();
+      }
+      fileReader.readAsText(document);
+    });
 
-    let fileReader = new FileReader();
-    fileReader.onload = (e) => {
-      let parsedData = JSON.parse(fileReader.result as string);
-      localStorage.setItem(CapabilityService.STORAGE_KEY, JSON.stringify(parsedData.capabilities))
-    }
-    fileReader.readAsText(document);
-
-    // TODO
-    return null;
-    //   const formData: FormData = new FormData();
-    //   formData.append('Document', document, document.name);
-    //   return this.http.post(`${environment.apiUrl}/repo/upload/${repoId}`, formData, {
-    //   reportProgress: true,
-    //   observe: 'events',
-    // }).pipe(upload());
   }
 }

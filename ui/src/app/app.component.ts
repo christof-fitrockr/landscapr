@@ -32,6 +32,8 @@ export class AppComponent implements OnInit {
 
   uploadDocument(files: any) {
     const file = files[0];
-    this.upload$ = this.repoService.uploadJson(file);
+    this.repoService.uploadJson(file).pipe(first()).subscribe(() => {
+      location.reload();
+    });
   }
 }
