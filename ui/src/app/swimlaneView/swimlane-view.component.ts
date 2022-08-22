@@ -83,6 +83,7 @@ export class SwimlaneViewComponent implements OnInit, AfterViewInit, OnChanges {
             this.systemMap.set(system.id, system);
           }
 
+
           this.createGraph(cx, this.processId, 50, 0);
 
           this.resize();

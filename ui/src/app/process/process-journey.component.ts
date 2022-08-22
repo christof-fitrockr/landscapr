@@ -57,7 +57,7 @@ export class ProcessJourneyComponent implements OnInit {
         this.toastr.error("Error loading process.")
       });
 
-    this.processService.allParents(this.repoId, this.processId).pipe(first()).subscribe( result => {
+    this.processService.allParents(this.processId).pipe(first()).subscribe( result => {
       this.parents = result
     });
   }

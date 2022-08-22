@@ -20,8 +20,6 @@ export class ProcessViewComponent implements OnInit {
   selectedProcess: Process;
   selectedSubprocesses: Process[];
   selectedFunctions: ApiCall[];
-  private subscription: Subscription;
-  repoId: string;
   zoomFactor = 0.6;
 
   constructor(private processService: ProcessService, private apiCallService: ApiCallService, private formBuilder: FormBuilder, private location: Location,
@@ -36,18 +34,8 @@ export class ProcessViewComponent implements OnInit {
     this.zoomFactor -= 0.1;
   }
 
-
-
   ngOnInit() {
-
-    this.subscription = this.route.parent.paramMap.subscribe(obs => {
-      this.repoId = obs.get('repoId');
       this.refresh();
-    });
-  }
-
-  ngOnDestroy() {
-    this.subscription.unsubscribe();
   }
 
   private refresh() {
@@ -64,7 +52,7 @@ export class ProcessViewComponent implements OnInit {
         this.toastr.error("Error loading process.")
       });
 
-    this.processService.allParents(this.repoId, this.processId).pipe(first()).subscribe( result => {
+    this.processService.allParents(this.processId).pipe(first()).subscribe( result => {
       this.parents = result
     });
   }

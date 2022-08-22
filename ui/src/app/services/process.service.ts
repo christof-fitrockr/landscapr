@@ -43,7 +43,7 @@ export class ProcessService {
     });
   }
 
-  allParents(repoId: string, processId: string) {
+  allParents(processId: string) {
     return new Observable<Process[]>(obs => {
       const apps = ProcessService.load();
       const result: Process[] = [];
