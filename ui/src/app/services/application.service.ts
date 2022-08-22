@@ -2,6 +2,7 @@ import {Injectable} from '@angular/core';
 import {Observable} from 'rxjs';
 import {Application} from '../models/application';
 import {v4 as uuidv4} from 'uuid';
+import {ApiCall} from '../models/api-call';
 
 
 @Injectable({
@@ -9,22 +10,25 @@ import {v4 as uuidv4} from 'uuid';
 })
 export class ApplicationService {
 
-  constructor() {
-  }
+
+  public static STORAGE_KEY = 'ls_app';
 
   private static load(): Application[] {
-    return JSON.parse(localStorage.getItem('ls_app')) as Application[];
+    const item = JSON.parse(localStorage.getItem(ApplicationService.STORAGE_KEY)) as Application[];
+    if(!item) {
+      return [];
+    }
+    return item;
   }
 
   private static store(apps: Application[]): void {
-    localStorage.setItem('ls_app', JSON.stringify(apps));
+    localStorage.setItem(ApplicationService.STORAGE_KEY, JSON.stringify(apps));
   }
 
   all(repoId: string): Observable<Application[]> {
     return new Observable<Application[]>(obs => {
       obs.next(ApplicationService.load());
     });
-    //return this.http.get<Application[]>(`${environment.apiUrl}/application/all/` + repoId);
   }
 
   byId(id: string): Observable<Application> {
@@ -37,7 +41,6 @@ export class ApplicationService {
       }
       obs.error();
     });
-    //return this.http.get<Application>(`${environment.apiUrl}/application/byId/` + id);
   }
 
   byIds(ids: string[]): Observable<Application[]> {
@@ -51,7 +54,6 @@ export class ApplicationService {
       }
       obs.next(result);
     });
-    //return this.http.post<Application[]>(`${environment.apiUrl}/application/byIds`, ids);
   }
 
   byName(repoId: string, name: string): Observable<Application[]> {
@@ -65,7 +67,6 @@ export class ApplicationService {
       }
       obs.next(result);
     });
-    //return this.http.get<Application[]>(`${environment.apiUrl}/application/byName/` + repoId + '/' + name);
   }
 
   create(system: Application): Observable<Application> {
@@ -76,7 +77,6 @@ export class ApplicationService {
       ApplicationService.store(apps);
       obs.next(system);
     });
-    //return this.http.post<Application>(`${environment.apiUrl}/application/update`, system);
   }
 
   update(id: string, system:  Application): Observable<Application> {
@@ -85,14 +85,13 @@ export class ApplicationService {
       for (let i = 0; i < apps.length; i++){
         const app = apps[i];
         if(app.id === id) {
-          app[i] = system;
+          apps[i] = system;
           ApplicationService.store(apps);
           obs.next(system);
         }
       }
       obs.error();
     });
-    //return this.http.post<Application>(`${environment.apiUrl}/application/update`, system);
   }
 
   delete(id: string): Observable<void> {
@@ -101,13 +100,12 @@ export class ApplicationService {
       for (let i = 0; i < apps.length; i++){
         const app = apps[i];
         if(app.id === id) {
-          apps = apps.splice(i, 1);
+          apps.splice(i, 1);
           ApplicationService.store(apps);
           obs.next();
         }
       }
       obs.error();
     });
-    //return this.http.get<void>(`${environment.apiUrl}/application/delete/` + systemId);
   }
 }

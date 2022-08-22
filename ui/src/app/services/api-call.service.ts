@@ -2,6 +2,7 @@ import {Injectable} from '@angular/core';
 import {Observable} from 'rxjs';
 import {ApiCall} from '../models/api-call';
 import {v4 as uuidv4} from 'uuid';
+import {Capability} from '../models/capability';
 
 @Injectable({
   providedIn: 'root',
@@ -9,12 +10,18 @@ import {v4 as uuidv4} from 'uuid';
 export class ApiCallService {
 
 
+  public static STORAGE_KEY = 'ls_api';
+
   private static load(): ApiCall[] {
-    return JSON.parse(localStorage.getItem('ls_api')) as ApiCall[];
+    const item = JSON.parse(localStorage.getItem(ApiCallService.STORAGE_KEY)) as ApiCall[];
+    if(!item) {
+      return [];
+    }
+    return item;
   }
 
   private static store(apps: ApiCall[]): void {
-    localStorage.setItem('ls_api', JSON.stringify(apps));
+    localStorage.setItem(ApiCallService.STORAGE_KEY, JSON.stringify(apps));
   }
 
   all(repoId: string): Observable<ApiCall[]> {
@@ -87,10 +94,15 @@ export class ApiCallService {
   update(id: string, apiCall:  ApiCall): Observable<ApiCall> {
     return new Observable<ApiCall>(obs => {
       const apps = ApiCallService.load();
-      apiCall.id = uuidv4();
-      apps.push(apiCall)
-      ApiCallService.store(apps);
-      obs.next(apiCall);
+      for (let i = 0; i < apps.length; i++){
+        const app = apps[i];
+        if(app.id === id) {
+          apps[i] = apiCall;
+          ApiCallService.store(apps);
+          obs.next(apiCall);
+        }
+      }
+      obs.error();
     });
   }
 
@@ -100,7 +112,7 @@ export class ApiCallService {
       for (let i = 0; i < apps.length; i++){
         const app = apps[i];
         if(app.id === id) {
-          apps = apps.splice(i, 1);
+          apps.splice(i, 1);
           ApiCallService.store(apps);
           obs.next();
         }

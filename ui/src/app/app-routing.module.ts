@@ -32,46 +32,14 @@ import {CapabilityEditImplementedByComponent} from './capability/capability-edit
 import {ApiCallEditImplementedInComponent} from './apiCall/api-call-edit-implemented-in.component';
 import {ProcessEditUsedByComponent} from './process/process-edit-used-by.component';
 import {SwimlaneViewComponent} from './swimlaneView/swimlane-view.component';
-import {AccountListComponent} from './account/account-list.component';
-import {AccountEditComponent} from './account/account-edit.component';
-import {AccountEditBaseComponent} from './account/account-edit-base.component';
-import {ImportExportComponent} from './importExport/import-export.component';
-import {RepoListComponent} from './repo/repo-list.component';
-import {RepoEditComponent} from './repo/repo-edit.component';
-import {RepoEditBaseComponent} from './repo/repo-edit-base.component';
 import {ProcessJourneyComponent} from './process/process-journey.component';
 
 const routes: Routes = [
-  { path: 'dashboard', component: RepoListComponent, canActivate: [AuthGuard] },
-  { path: 'account', canActivate: [AuthGuard], children: [
-      { path: '', redirectTo: 'list', pathMatch: 'full' },
-      { path: 'list', component: AccountListComponent, canActivate: [AuthGuard] },
-      { path: 'edit/:id', component: AccountEditComponent, canActivate: [AuthGuard], children: [
-          { path: '', redirectTo: 'base', pathMatch: 'full' },
-          { path: 'base', component: AccountEditBaseComponent, canActivate: [AuthGuard] },
 
-        ] },
-      { path: 'create', component: AccountEditBaseComponent, canActivate: [AuthGuard] },
-    ] },
-  { path: 'repository', canActivate: [AuthGuard], children: [
-      { path: '', redirectTo: 'list', pathMatch: 'full' },
-      { path: 'list', component: RepoListComponent, canActivate: [AuthGuard] },
-      { path: 'edit/:id', component: RepoEditComponent, canActivate: [AuthGuard], children: [
-          { path: '', redirectTo: 'base', pathMatch: 'full' },
-          { path: 'base', component: RepoEditBaseComponent, canActivate: [AuthGuard] },
+  { path: 'dashboard', component: DashboardComponent, canActivate: [AuthGuard] },
+  { path: 'swimlane/view/:id', component: SwimlaneViewComponent, canActivate: [AuthGuard] },
 
-        ] },
-      { path: 'create', component: RepoEditBaseComponent, canActivate: [AuthGuard] },
-    ] },
-
-  { path: 'importExport', component: ImportExportComponent, canActivate: [AuthGuard] },
-  { path: 'r/:repoId', canActivate: [AuthGuard], children: [
-      { path: '', redirectTo: 'select', pathMatch: 'full' },
-
-      { path: 'dashboard', component: DashboardComponent, canActivate: [AuthGuard] },
-      { path: 'swimlane/view/:id', component: SwimlaneViewComponent, canActivate: [AuthGuard] },
-
-      { path: 'process', canActivate: [AuthGuard], children: [
+  { path: 'process', canActivate: [AuthGuard], children: [
       { path: '', redirectTo: 'list', pathMatch: 'full' },
       { path: 'list', component: ProcessListComponent, canActivate: [AuthGuard] },
       { path: 'view/:id', component: ProcessViewComponent, canActivate: [AuthGuard] },
@@ -123,8 +91,7 @@ const routes: Routes = [
 
         ] },
       { path: 'create', component: SystemEditBaseComponent, canActivate: [AuthGuard] },
-    ] },
-  ]},
+  ] },
   { path: 'privacyPolicy', component: PrivacyPolicyComponent},
   { path: 'disclaimer', component: DisclaimerComponent},
   { path: 'imprint', component: ImprintComponent},

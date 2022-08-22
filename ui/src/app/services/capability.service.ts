@@ -5,6 +5,8 @@ import {HttpClient} from '@angular/common/http';
 import {environment} from '../../environments/environment';
 import {Application} from '../models/application';
 import {v4 as uuidv4} from 'uuid';
+import {Process} from '../models/process';
+
 
 
 
@@ -12,16 +14,23 @@ import {v4 as uuidv4} from 'uuid';
   providedIn: 'root',
 })
 export class CapabilityService {
+  public static STORAGE_KEY = 'ls_capability';
 
   constructor() {
   }
 
+
   private static load(): Capability[] {
-    return JSON.parse(localStorage.getItem('ls_capability')) as Capability[];
+    const item = JSON.parse(localStorage.getItem(CapabilityService.STORAGE_KEY)) as Capability[]
+    if(!item) {
+      return [];
+    }
+    return item;
   }
 
+
   private static store(apps: Capability[]): void {
-    localStorage.setItem('ls_capability', JSON.stringify(apps));
+    localStorage.setItem(CapabilityService.STORAGE_KEY, JSON.stringify(apps));
   }
 
   all(repoId: string): Observable<Capability[]> {
@@ -103,7 +112,7 @@ export class CapabilityService {
       for (let i = 0; i < apps.length; i++){
         const app = apps[i];
         if(app.id === id) {
-          app[i] = capability;
+          apps[i] = capability;
           CapabilityService.store(apps);
           obs.next(capability);
         }
@@ -119,7 +128,7 @@ export class CapabilityService {
       for (let i = 0; i < apps.length; i++){
         const app = apps[i];
         if(app.id === id) {
-          apps = apps.splice(i, 1);
+          apps.splice(i, 1);
           CapabilityService.store(apps);
           obs.next();
         }

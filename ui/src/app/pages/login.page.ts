@@ -1,13 +1,10 @@
-import { Component, OnInit } from '@angular/core';
-import { Router, ActivatedRoute } from '@angular/router';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { first } from 'rxjs/operators';
+import {Component, OnInit} from '@angular/core';
+import {ActivatedRoute, Router} from '@angular/router';
+import {FormBuilder, FormGroup, Validators} from '@angular/forms';
+import {first} from 'rxjs/operators';
+import {AuthenticationService} from '../services/authentication.service';
+import {AlertService} from '../services/alert.service';
 
-
-
-import {AppService} from "../services/app.service";
-import {AuthenticationService} from "../services/authentication.service";
-import {AlertService} from "../services/alert.service";
 @Component({
   selector: 'app-login',
   templateUrl: './login.page.html',

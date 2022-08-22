@@ -11,12 +11,17 @@ import {v4 as uuidv4} from 'uuid';
 })
 export class ProcessService {
 
+  public static STORAGE_KEY = 'ls_api';
   private static load(): Process[] {
-    return JSON.parse(localStorage.getItem('ls_app')) as Process[];
+    const item = JSON.parse(localStorage.getItem(ProcessService.STORAGE_KEY)) as Process[]
+    if(!item) {
+      return [];
+    }
+    return item;
   }
 
   private static store(apps: Process[]): void {
-    localStorage.setItem('ls_app', JSON.stringify(apps));
+    localStorage.setItem(ProcessService.STORAGE_KEY, JSON.stringify(apps));
   }
   all(repoId: string): Observable<Process[]> {
     return new Observable<Process[]>(obs => {
@@ -28,6 +33,7 @@ export class ProcessService {
     return new Observable<Process[]>(obs => {
       const apps = ProcessService.load();
       const result: Process[] = [];
+
       for (const app of apps) {
         if(app.favorite) {
           result.push(app);
@@ -123,7 +129,7 @@ export class ProcessService {
       for (let i = 0; i < apps.length; i++){
         const app = apps[i];
         if(app.id === id) {
-          app[i] = process;
+          apps[i] = process;
           ProcessService.store(apps);
           obs.next(process);
         }
@@ -138,7 +144,7 @@ export class ProcessService {
       for (let i = 0; i < apps.length; i++){
         const app = apps[i];
         if(app.id === id) {
-          apps = apps.splice(i, 1);
+          apps.splice(i, 1);
           ProcessService.store(apps);
           obs.next();
         }
