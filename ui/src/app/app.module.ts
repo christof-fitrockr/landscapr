@@ -3,17 +3,9 @@ import {CUSTOM_ELEMENTS_SCHEMA, NgModule} from '@angular/core';
 
 import {AppComponent} from './app.component';
 import {ClusterComponent} from './components/cluster.component';
-import {BusinessFunctionComponent} from './components/business-function.component';
-import {BusinessServiceComponent} from './components/business-service.component';
-import {InformationObjectsPage} from './pages/information-objects-list.page';
-import {BusinessServicePage} from './pages/business-service.page';
-import {InformationSystemServicePage} from './pages/information-system-service.page';
-import {TargetPicturePage} from './pages/target-picture.page';
 import {AppRoutingModule} from './app-routing.module';
-import {InformationSystemServiceComponent} from './components/information-system-service.component';
 import {FunctionalClusterFilterPipe} from './pipes/functional-cluster-filter.pipe';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
-import {BusinessServiceDetailsPage} from './pages/business-service-details.page';
 import {BusinessServiceFilterPipe} from './pipes/business-service.pipe';
 import {LoginPage} from './pages/login.page';
 import {fakeBackendProvider} from './helpers/fake.backend';
@@ -22,9 +14,6 @@ import {ErrorInterceptor} from './helpers/error.interceptor';
 import {JwtInterceptor} from './helpers/jwt.interceptor';
 import {InformationSystemServiceFilterPipe} from './pipes/information-system-service.pipe';
 import {InformationObjectFilterPipe} from './pipes/information-object-filter.pipe';
-import {InformationSystemServiceDetailsPage} from './pages/information-system-service-details.page';
-import {InformationObjectDetailsPage} from './pages/information-object-details-page';
-import {InformationObjectComponent} from './components/information-object.component';
 import {ProcessComponent} from './pages/process/process.component';
 import {AngularFireAuthModule} from '@angular/fire/compat/auth';
 import {ProcessListComponent} from './process/process-list.component';
@@ -88,6 +77,7 @@ import {RepoEditBaseComponent} from './repo/repo-edit-base.component';
 import {RepoEditComponent} from './repo/repo-edit.component';
 import {DndDirective} from './helpers/dnd.directive';
 import {ProcessJourneyComponent} from './process/process-journey.component';
+import {PrivacyPolicyComponent} from './privacyPolicy/privacy-policy.component';
 
 
 @NgModule({
@@ -157,26 +147,15 @@ import {ProcessJourneyComponent} from './process/process-journey.component';
     SystemViewComponent,
     SystemOverviewComponent,
 
-
+    PrivacyPolicyComponent,
     AppComponent,
     ClusterComponent,
     ProcessComponent,
-    BusinessFunctionComponent,
-    BusinessServiceComponent,
-    InformationSystemServiceComponent,
-    InformationObjectsPage,
-    BusinessServicePage,
-    InformationSystemServicePage,
-    BusinessServiceDetailsPage,
-    TargetPicturePage,
     FunctionalClusterFilterPipe,
     BusinessServiceFilterPipe,
     LoginPage,
     InformationSystemServiceFilterPipe,
     InformationObjectFilterPipe,
-    InformationSystemServiceDetailsPage,
-    InformationObjectDetailsPage,
-    InformationObjectComponent,
     ProcessOverviewComponent,
     CapabilityComponent,
   ],

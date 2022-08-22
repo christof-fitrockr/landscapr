@@ -1,15 +1,7 @@
 import {NgModule} from '@angular/core';
 import {RouterModule, Routes} from '@angular/router';
-import {TargetPicturePage} from './pages/target-picture.page';
-import {BusinessServicePage} from './pages/business-service.page';
-import {InformationSystemServicePage} from './pages/information-system-service.page';
-import {InformationObjectsPage} from './pages/information-objects-list.page';
-import {BusinessServiceDetailsPage} from './pages/business-service-details.page';
 import {AuthGuard} from './helpers/auth.guard';
 import {LoginPage} from './pages/login.page';
-import {InformationSystemServiceDetailsPage} from './pages/information-system-service-details.page';
-import {InformationObjectDetailsPage} from './pages/information-object-details-page';
-import {ProcessComponent} from './pages/process/process.component';
 import {ProcessListComponent} from './process/process-list.component';
 import {ProcessViewComponent} from './process/process-view.component';
 import {ProcessEditComponent} from './process/process-edit.component';
@@ -133,14 +125,6 @@ const routes: Routes = [
       { path: 'create', component: SystemEditBaseComponent, canActivate: [AuthGuard] },
     ] },
   ]},
-  { path: 'targetPicture', component: TargetPicturePage, canActivate: [AuthGuard] },
-  { path: 'businessServices', component: BusinessServicePage, canActivate: [AuthGuard]},
-  { path: 'businessServiceDetails/:id', component: BusinessServiceDetailsPage, canActivate: [AuthGuard]},
-  { path: 'informationSystemServices', component: InformationSystemServicePage, canActivate: [AuthGuard]},
-  { path: 'informationSystemServiceDetails/:id', component: InformationSystemServiceDetailsPage, canActivate: [AuthGuard]},
-  { path: 'informationObjects', component: InformationObjectsPage },
-  { path: 'informationObjectDetails/:id', component: InformationObjectDetailsPage, canActivate: [AuthGuard]},
-
   { path: 'privacyPolicy', component: PrivacyPolicyComponent},
   { path: 'disclaimer', component: DisclaimerComponent},
   { path: 'imprint', component: ImprintComponent},
