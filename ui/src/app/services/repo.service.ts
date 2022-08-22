@@ -1,6 +1,5 @@
 import {Injectable} from '@angular/core';
-import {observable, Observable} from 'rxjs';
-import {Upload} from '../helpers/upload';
+import {Observable} from 'rxjs';
 import {CapabilityService} from './capability.service';
 import {ProcessService} from './process.service';
 import {ApiCallService} from './api-call.service';
