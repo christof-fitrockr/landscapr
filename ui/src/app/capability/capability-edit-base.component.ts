@@ -68,7 +68,7 @@ export class CapabilityEditBaseComponent implements OnInit, OnDestroy {
       this.capability.repoId = this.repoId;
       if(!this.capabilityId) {
         this.capabilityService.create(this.capability).pipe(first()).subscribe(doc => {
-          this.router.navigateByUrl('/r/' + this.repoId + '/capability/edit/' + doc.id).then(() => {
+          this.router.navigateByUrl('/capability/edit/' + doc.id).then(() => {
             this.toastr.info('Capability created successfully');
             this.refresh()
           });

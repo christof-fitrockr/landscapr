@@ -14,12 +14,12 @@
   <tbody>
   <tr *ngFor="let process of processes | processFilter : filter">
     <td class="text-nowrap">
-      <a class="black mr-2" routerLink="/r/{{repoId}}/process/journey/{{process?.id}}"><i class="fas fa-play-circle" title="Journey"></i></a>
-      <a class="black mr-2" routerLink="/r/{{repoId}}/process/view/{{process?.id}}"><i class="fas fa-layer-group" title="View Process"></i></a>
-      <a class="black mr-2" routerLink="/r/{{repoId}}/process/edit/{{process?.id}}"><i class="fas fa-edit" title="Edit Process"></i></a>
+      <a class="black mr-2" routerLink="/process/journey/{{process?.id}}"><i class="fas fa-play-circle" title="Journey"></i></a>
+      <a class="black mr-2" routerLink="/process/view/{{process?.id}}"><i class="fas fa-layer-group" title="View Process"></i></a>
+      <a class="black mr-2" routerLink="/process/edit/{{process?.id}}"><i class="fas fa-edit" title="Edit Process"></i></a>
 
     </td>
-    <td><a class="black" routerLink="/r/{{repoId}}/process/edit/{{process?.id}}">{{process.name}}</a></td>
+    <td><a class="black" routerLink="/process/edit/{{process?.id}}">{{process.name}}</a></td>
     <td>{{process?.tags}}</td>
     <td class="text-nowrap pl-1 pr-1">
       <i *ngIf="process?.apiCallsIds?.length > 0" class="fas fa-wave-square" title="{{process?.apiCallsIds?.length}} API Call(s)"></i>

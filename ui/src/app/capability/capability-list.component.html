@@ -5,8 +5,8 @@
 
       <div class="btn-toolbar justify-content-lg-start" role="toolbar" aria-label="Toolbar with button groups">
         <div class="btn-group mr-2" role="group" aria-label="First group">
-          <a class="btn btn-primary" title="Create" routerLink="/r/{{repoId}}/capability/create"><i class="fas fa-plus"></i></a>
-          <a class="btn btn-secondary" title="Capability Map" routerLink="/r/{{repoId}}/capability/view"><i class="fas fa-map"></i></a>
+          <a class="btn btn-primary" title="Create" routerLink="/capability/create"><i class="fas fa-plus"></i></a>
+          <a class="btn btn-secondary" title="Capability Map" routerLink="/capability/view"><i class="fas fa-map"></i></a>
         </div>
       </div>
 
@@ -39,8 +39,8 @@
         </thead>
         <tbody>
         <tr *ngFor="let capability of capabilities | capabilityFilter: searchText">
-          <td><a class="black" routerLink="/r/{{repoId}}/capability/edit/{{capability?.id}}"><i class="fas fa-edit"></i></a></td>
-          <td><a class="black" routerLink="/r/{{repoId}}/capability/edit/{{capability?.id}}">{{capability.name}}</a></td>
+          <td><a class="black" routerLink="/capability/edit/{{capability?.id}}"><i class="fas fa-edit"></i></a></td>
+          <td><a class="black" routerLink="/capability/edit/{{capability?.id}}">{{capability.name}}</a></td>
           <td>{{capability.tags}}</td>
           <td class="text-nowrap">
             <i *ngIf="capability?.status === 0" class="text-warning fas fa-exclamation-triangle mr-1"></i>

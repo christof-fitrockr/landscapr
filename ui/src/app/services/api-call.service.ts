@@ -2,7 +2,6 @@ import {Injectable} from '@angular/core';
 import {Observable} from 'rxjs';
 import {ApiCall} from '../models/api-call';
 import {v4 as uuidv4} from 'uuid';
-import {Capability} from '../models/capability';
 
 @Injectable({
   providedIn: 'root',

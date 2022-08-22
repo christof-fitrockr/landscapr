@@ -40,8 +40,8 @@
         </thead>
         <tbody>
         <tr *ngFor="let system of systems | systemFilter: searchText">
-          <td><a class="black" routerLink="/r/{{repoId}}/system/edit/{{system?.id}}"><i class="fas fa-edit"></i></a></td>
-          <td><a class="black" routerLink="/r/{{repoId}}/system/edit/{{system?.id}}">{{system.name}}</a></td>
+          <td><a class="black" routerLink="/system/edit/{{system?.id}}"><i class="fas fa-edit"></i></a></td>
+          <td><a class="black" routerLink="/system/edit/{{system?.id}}">{{system.name}}</a></td>
           <td>{{system.systemCluster}}</td>
           <td>{{system.tags}}</td>
 

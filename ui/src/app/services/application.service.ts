@@ -35,6 +35,7 @@ export class ApplicationService {
     return new Observable<Application>(obs => {
       const apps = ApplicationService.load();
       for (const app of apps) {
+
         if(app.id === id) {
           obs.next(app);
         }

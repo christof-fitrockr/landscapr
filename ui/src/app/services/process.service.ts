@@ -11,7 +11,7 @@ import {v4 as uuidv4} from 'uuid';
 })
 export class ProcessService {
 
-  public static STORAGE_KEY = 'ls_api';
+  public static STORAGE_KEY = 'ls_process';
   private static load(): Process[] {
     const item = JSON.parse(localStorage.getItem(ProcessService.STORAGE_KEY)) as Process[]
     if(!item) {
@@ -48,10 +48,14 @@ export class ProcessService {
       const apps = ProcessService.load();
       const result: Process[] = [];
       for (const app of apps) {
-        for (const step of app.steps) {
-          for (const succ of step.successors) {
-            if(succ.processReference === processId) {
-              result.push(app);
+        if(app.steps) {
+          for (const step of app.steps) {
+            if (step.successors) {
+              for (const succ of step.successors) {
+                if (succ.processReference === processId) {
+                  result.push(app);
+                }
+              }
             }
           }
         }

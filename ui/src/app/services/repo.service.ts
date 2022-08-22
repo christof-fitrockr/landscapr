@@ -2,6 +2,9 @@ import {Injectable} from '@angular/core';
 import {Observable} from 'rxjs';
 import {Upload} from '../helpers/upload';
 import {CapabilityService} from './capability.service';
+import {ProcessService} from './process.service';
+import {ApiCallService} from './api-call.service';
+import {ApplicationService} from './application.service';
 
 
 @Injectable({
@@ -10,14 +13,19 @@ import {CapabilityService} from './capability.service';
 export class RepoService {
 
   dataAvailable(): boolean {
-    return localStorage.getItem(CapabilityService.STORAGE_KEY) != undefined;
+    return localStorage.getItem(ProcessService.STORAGE_KEY) != null
+      || localStorage.getItem(ApiCallService.STORAGE_KEY) != null
+      || localStorage.getItem(CapabilityService.STORAGE_KEY) != null
+      || localStorage.getItem(ApplicationService.STORAGE_KEY) != null;
   }
 
   downloadAsJson(): Observable<Blob> {
-
     return new Observable<Blob>(obs => {
       let res = '{'
-      res += '"capabilities": ' + localStorage.getItem(CapabilityService.STORAGE_KEY);
+      res += '"processes": ' + localStorage.getItem(ProcessService.STORAGE_KEY);
+      res += '", apiCalls": ' + localStorage.getItem(ApiCallService.STORAGE_KEY);
+      res += '", capabilities": ' + localStorage.getItem(CapabilityService.STORAGE_KEY);
+      res += '", applications": ' + localStorage.getItem(ApplicationService.STORAGE_KEY);
       res += '}';
       const blob = new Blob([res], {type: 'application/json'});
       obs.next(blob);

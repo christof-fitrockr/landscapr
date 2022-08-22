@@ -96,6 +96,6 @@ export class ProcessJourneyComponent implements OnInit {
   }
 
   showProcess(processId: string) {
-    this.router.navigateByUrl('/r/' + this.repoId + '/process/journey/' + processId).then(() => location.reload());
+    this.router.navigateByUrl('/process/journey/' + processId).then(() => location.reload());
   }
 }

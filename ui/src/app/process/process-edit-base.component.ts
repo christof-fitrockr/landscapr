@@ -79,7 +79,7 @@ export class ProcessEditBaseComponent implements OnInit, OnDestroy {
       this.process.repoId = this.repoId;
       if(!this.processId) {
         this.processService.create(this.process).pipe(first()).subscribe(docRef => {
-          this.router.navigateByUrl('/r/' + this.repoId + '/process/edit/' + docRef.id).then(() => {
+          this.router.navigateByUrl('/process/edit/' + docRef.id).then(() => {
             this.toastr.info('Process created successfully');
             this.refresh()
           });
@@ -95,7 +95,7 @@ export class ProcessEditBaseComponent implements OnInit, OnDestroy {
 
   delete() {
     this.processService.delete(this.processId).pipe(first()).subscribe(() => {
-      this.router.navigateByUrl('/r/' + this.repoId + '/process').then(() => {
+      this.router.navigateByUrl('/process').then(() => {
         this.toastr.info('Process deleted successfully');
       });
     })

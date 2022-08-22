@@ -84,7 +84,7 @@ export class ApiCallEditBaseComponent implements OnInit, OnDestroy {
       this.apiCall.repoId = this.repoId;
       if(!this.apiCallId) {
         this.apiCallService.create(this.apiCall).pipe(first()).subscribe(docRef => {
-          this.router.navigateByUrl('/r/' + this.repoId + '/apiCall/edit/' + docRef.id).then(() => {
+          this.router.navigateByUrl('/apiCall/edit/' + docRef.id).then(() => {
             this.toastr.info('ApiCall created successfully');
             this.refresh()
           });
@@ -100,7 +100,7 @@ export class ApiCallEditBaseComponent implements OnInit, OnDestroy {
 
   delete() {
     this.apiCallService.delete(this.apiCallId).pipe(first()).subscribe(() => {
-      this.router.navigateByUrl('/r/' + this.repoId + '/apiCall').then(() => {
+      this.router.navigateByUrl('/apiCall').then(() => {
         this.toastr.info('ApiCall deleted successfully');
       });
     })

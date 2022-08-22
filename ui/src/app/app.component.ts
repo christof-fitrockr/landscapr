@@ -1,6 +1,10 @@
 import {Component, OnInit} from '@angular/core';
 import {AuthenticationService} from './services/authentication.service';
 import {RepoService} from './services/repo.service';
+import {FileSaverService} from 'ngx-filesaver';
+import {first} from 'rxjs/operators';
+import {EMPTY, Observable} from 'rxjs';
+import {Upload} from './helpers/upload';
 
 @Component({
   selector: 'app-root',
@@ -10,18 +14,24 @@ import {RepoService} from './services/repo.service';
 export class AppComponent implements OnInit {
   dataAvailable: boolean;
 
+  upload$: Observable<Upload> = EMPTY;
+
   constructor(private authenticationService: AuthenticationService,
-              private repoService: RepoService) { }
+              private repoService: RepoService, private fileSaverService: FileSaverService) { }
 
   ngOnInit() {
     this.dataAvailable = this.repoService.dataAvailable();
   }
 
   download() {
-    this.repoService.downloadAsJson()
+    this.repoService.downloadAsJson().pipe(first()).subscribe(blob => {
+      this.fileSaverService.save(blob, 'landscapr.json');
+    });
   }
 
-  upload() {
 
+  uploadDocument(files: any) {
+    const file = files[0];
+    this.upload$ = this.repoService.uploadJson(file);
   }
 }
