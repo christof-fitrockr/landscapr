@@ -25,7 +25,7 @@
 
     <div class="card-body">
 
-      <app-swimlane-view *ngIf="repoId" [zoomFactor]="zoomFactor" [repoId]="repoId" [processId]="processId"></app-swimlane-view>
+      <app-swimlane-view [zoomFactor]="zoomFactor" [processId]="processId"></app-swimlane-view>
 
 <!--      <app-process-graph *ngIf="process?.steps && process?.steps?.length > 0" [processId]="processId" (processClicked)="processNodeClicked($event)"></app-process-graph>-->
 <!--      <app-api-call-graph *ngIf="process?.apiCallIds && process?.apiCallIds?.length > 0" [processId]="processId" (processClicked)="processNodeClicked($event)"></app-api-call-graph>-->

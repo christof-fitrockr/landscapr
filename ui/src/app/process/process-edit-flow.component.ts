@@ -8,12 +8,11 @@ import {Process} from '../models/process';
 import {Subscription} from 'rxjs';
 
 @Component({templateUrl: './process-edit-flow.component.html'})
-export class ProcessEditFlowComponent implements OnInit, OnDestroy {
+export class ProcessEditFlowComponent implements OnInit {
 
   processId: string;
   process: Process;
   repoId: string;
-  subscription: Subscription;
 
   zoomFactor = 0.6;
 
@@ -34,20 +33,12 @@ export class ProcessEditFlowComponent implements OnInit, OnDestroy {
     this.refresh();
   }
 
-  ngOnDestroy() {
-    if(this.subscription) {
-      this.subscription.unsubscribe();
-    }
-  }
 
   private refresh() {
-
-    console.log("REfresh: " + this.repoId);
     this.processService.byId(this.processId).pipe(first()).subscribe(process => {
       this.process = process;
       this.repoId = process.repoId;
 
-      console.log("Repo1: " + this.repoId);
     });
   }
 
