@@ -3,54 +3,147 @@ import {Process} from '../models/process';
 import {Observable} from 'rxjs';
 import {environment} from '../../environments/environment';
 import {HttpClient} from '@angular/common/http';
+import {Application} from '../models/application';
+import {v4 as uuidv4} from 'uuid';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ProcessService {
 
-  constructor(private http: HttpClient) {
+  private static load(): Process[] {
+    return JSON.parse(localStorage.getItem('ls_app')) as Process[];
   }
 
+  private static store(apps: Process[]): void {
+    localStorage.setItem('ls_app', JSON.stringify(apps));
+  }
   all(repoId: string): Observable<Process[]> {
-    return this.http.get<Process[]>(`${environment.apiUrl}/process/all/` + repoId);
+    return new Observable<Process[]>(obs => {
+      obs.next(ProcessService.load());
+    });
   }
 
   allFavorites(repoId: string) {
-    return this.http.get<Process[]>(`${environment.apiUrl}/process/allFavorites/` + repoId);
+    return new Observable<Process[]>(obs => {
+      const apps = ProcessService.load();
+      const result: Process[] = [];
+      for (const app of apps) {
+        if(app.favorite) {
+          result.push(app);
+        }
+      }
+      obs.next(result);
+    });
   }
 
   allParents(repoId: string, processId: string) {
-    return this.http.get<Process[]>(`${environment.apiUrl}/process/allParent/` + repoId + '/' + processId);
+    return new Observable<Process[]>(obs => {
+      const apps = ProcessService.load();
+      const result: Process[] = [];
+      for (const app of apps) {
+        for (const step of app.steps) {
+          for (const succ of step.successors) {
+            if(succ.processReference === processId) {
+              result.push(app);
+            }
+          }
+        }
+      }
+      obs.next(result);
+    });
   }
 
 
   byId(id: string): Observable<Process> {
-    return this.http.get<Process>(`${environment.apiUrl}/process/byId/` + id);
+    return new Observable<Process>(obs => {
+      const apps = ProcessService.load();
+      for (const app of apps) {
+        if(app.id === id) {
+          obs.next(app);
+        }
+      }
+      obs.error();
+    });
   }
 
   byIds(ids: string[]): Observable<Process[]> {
-    return this.http.post<Process[]>(`${environment.apiUrl}/process/byIds`, ids);
+    return new Observable<Process[]>(obs => {
+      const apps = ProcessService.load();
+      const result: Process[] = [];
+      for (const app of apps) {
+        if(ids.indexOf(app.id) >= 0) {
+          result.push(app);
+        }
+      }
+      obs.next(result);
+    });
   }
 
   byName(repoId: string, name: string): Observable<Process[]> {
-    return this.http.get<Process[]>(`${environment.apiUrl}/process/byName/` + repoId + '/' + name);
+    return new Observable<Process[]>(obs => {
+      const apps = ProcessService.load();
+      const result: Process[] = [];
+      for (const app of apps) {
+        if(name === app.name) {
+          result.push(app);
+        }
+      }
+      obs.next(result);
+    });
   }
 
   byApiCall(apiCallId: string) {
-    return this.http.get<Process[]>(`${environment.apiUrl}/process/byApiCall/` + apiCallId);
+    return new Observable<Process[]>(obs => {
+      const apps = ProcessService.load();
+      const result: Process[] = [];
+      for (const app of apps) {
+        if(app.apiCallIds.indexOf(apiCallId) >= 0) {
+          result.push(app);
+        }
+      }
+      obs.next(result);
+    });
   }
 
 
   create(process: Process): Observable<Process> {
-    return this.http.post<Process>(`${environment.apiUrl}/process/update`, process);
+    return new Observable<Process>(obs => {
+      const apps = ProcessService.load();
+      process.id = uuidv4();
+      apps.push(process)
+      ProcessService.store(apps);
+      obs.next(process);
+    });
   }
 
   update(id: string, process:  Process): Observable<Process> {
-    return this.http.post<Process>(`${environment.apiUrl}/process/update`, process);
+    return new Observable<Process>(obs => {
+      const apps = ProcessService.load();
+      for (let i = 0; i < apps.length; i++){
+        const app = apps[i];
+        if(app.id === id) {
+          app[i] = process;
+          ProcessService.store(apps);
+          obs.next(process);
+        }
+      }
+      obs.error();
+    });
   }
 
-  delete(processId: string): Observable<void> {
-    return this.http.get<void>(`${environment.apiUrl}/process/delete/` + processId);
+  delete(id: string): Observable<void> {
+    return new Observable<void>(obs => {
+      let apps = ProcessService.load();
+      for (let i = 0; i < apps.length; i++){
+        const app = apps[i];
+        if(app.id === id) {
+          apps = apps.splice(i, 1);
+          ProcessService.store(apps);
+          obs.next();
+        }
+      }
+      obs.error();
+    });
   }
 }
