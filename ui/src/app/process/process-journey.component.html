@@ -1,0 +1,112 @@
+
+
+
+
+<div class="container-xl">
+  <div class="card shadow mb-4">
+
+    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+
+      <div class="btn-toolbar justify-content-lg-start" role="toolbar" aria-label="Toolbar with button groups">
+        <div class="btn-group mr-2" role="group" aria-label="First group">
+
+<!--          <button type="button" class="btn btn-secondary" title="Save" (click)="zoomIn()"><i class="fas fa-search-plus"></i></button>-->
+<!--          <button type="button" class="btn btn-secondary" title="Save" (click)="zoomOut()"><i class="fas fa-search-minus"></i></button>-->
+<!--          <a class="btn btn-secondary" title="Edit {{process?.name}}" routerLink="/process/edit/{{process?.id}}"><i class="fas fa-edit"></i></a>-->
+
+        </div>
+      </div>
+
+      <div class="btn-group justify-content-lg-end" role="group">
+        <h3 class="m-0 font-weight-bold text-uppercase text-gray-400">Process Journey</h3>
+      </div>
+
+    </div>
+
+    <div class="card-body p-0 m-0">
+
+      <div class="row">
+        <div class="col-3"></div>
+        <div class="col-6 bg-dark text-white pl-2 pr-2">
+            <div *ngIf="!loading && selectedProcess" class="">
+              <p class="border-bottom">
+                <span class="h5">{{selectedProcess?.name}}</span>
+                <button class="btn btn-lg btn-link p-0 m-0 pb-2 pl-2 white" (click)="showProcess(selectedProcess?.id)"><i class="fas fa-project-diagram"></i></button>
+              </p>
+              <p>{{selectedProcess?.description}}</p>
+
+              <div *ngIf="selectedSubprocesses && selectedSubprocesses.length > 0">
+                <p class="m-0">Steps</p>
+                <ul>
+                  <li *ngFor="let process of selectedSubprocesses"><a href="javascript:void(0)" class="white" (click)="showProcess(process.id)">{{process.name}}</a></li>
+                </ul>
+              </div>
+
+              <div *ngIf="selectedFunctions && selectedFunctions.length > 0">
+                <p class="m-0">Functions</p>
+                <ul>
+                  <li *ngFor="let function of selectedFunctions"><a routerLink="/apiCall/view/{{function.id}}" class="white">{{function.name}}</a></li>
+                </ul>
+              </div>
+
+            </div>
+        </div>
+        <div class="col-3">
+
+
+
+        </div>
+      </div>
+
+
+<!--      <div class="d-flex">-->
+
+<!--        <div *ngIf="!loading && selectedProcess" class="col-3 bg-dark text-white pl-2 pr-2">-->
+<!--          <p class="border-bottom">-->
+<!--            <span class="h5">{{selectedProcess?.name}}</span>-->
+<!--            <button class="btn btn-lg btn-link p-0 m-0 pb-2 pl-2 white" (click)="showProcess(selectedProcess?.id)"><i class="fas fa-project-diagram"></i></button>-->
+<!--          </p>-->
+<!--          <p>{{selectedProcess?.description}}</p>-->
+
+<!--          <div *ngIf="selectedSubprocesses && selectedSubprocesses.length > 0">-->
+<!--            <p class="m-0">Steps</p>-->
+<!--            <ul>-->
+<!--              <li *ngFor="let process of selectedSubprocesses"><a href="javascript:void(0)" class="white" (click)="showProcess(process.id)">{{process.name}}</a></li>-->
+<!--            </ul>-->
+<!--          </div>-->
+
+<!--          <div *ngIf="selectedFunctions && selectedFunctions.length > 0">-->
+<!--            <p class="m-0">Functions</p>-->
+<!--            <ul>-->
+<!--              <li *ngFor="let function of selectedFunctions"><a routerLink="/apiCall/view/{{function.id}}" class="white">{{function.name}}</a></li>-->
+<!--            </ul>-->
+<!--          </div>-->
+
+<!--        </div>-->
+
+<!--        <div class="p-2 flex-grow-1">-->
+
+<!--          <div class="fa-3x text-center p-5" *ngIf="loading">-->
+<!--            <i class="fas fa-spinner fa-pulse"></i>-->
+<!--          </div>-->
+
+<!--          <div *ngIf="!loading" class="text-center">-->
+<!--            <p class="font-weight-bold" *ngIf="parents && parents?.length > 0">Parent Processes</p>-->
+<!--            <ul class="list-group list-group-horizontal justify-content-center">-->
+<!--              <li class="list-group-item" *ngFor="let parent of parents"><button type="button" class="btn btn-link p-0" (click)="showProcess(parent.id)">{{parent.name}}</button></li>-->
+<!--            </ul>-->
+<!--          </div>-->
+
+<!--&lt;!&ndash;          <app-process-graph *ngIf="!loading" [processId]="processId" (processClicked)="processNodeClicked($event)"></app-process-graph>&ndash;&gt;-->
+
+<!--          <app-swimlane-view [repoId]="repoId" [processId]="processId"></app-swimlane-view>-->
+
+<!--        </div>-->
+<!--      </div>-->
+
+
+    </div>
+
+  </div>
+</div>
+

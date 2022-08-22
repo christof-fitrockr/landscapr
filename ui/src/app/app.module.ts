@@ -87,6 +87,7 @@ import {RepoListComponent} from './repo/repo-list.component';
 import {RepoEditBaseComponent} from './repo/repo-edit-base.component';
 import {RepoEditComponent} from './repo/repo-edit.component';
 import {DndDirective} from './helpers/dnd.directive';
+import {ProcessJourneyComponent} from './process/process-journey.component';
 
 
 @NgModule({
@@ -103,6 +104,8 @@ import {DndDirective} from './helpers/dnd.directive';
     ProcessOverviewComponent,
     ProcessTableComponent,
     ProcessEditUsedByComponent,
+    ProcessJourneyComponent,
+
     DashboardComponent,
     ApiCallFilterPipe,
     ProcessFilterPipe,
