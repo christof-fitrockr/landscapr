@@ -6,4 +6,11 @@ export class User {
     token?: string;
   admin: boolean;
   editor: boolean;
+
+
+  success: boolean;
+  code: string;
+
 }
+
+

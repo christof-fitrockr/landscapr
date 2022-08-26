@@ -36,4 +36,11 @@ export class AppComponent implements OnInit {
       location.reload();
     });
   }
+
+  logout() {
+    this.authenticationService.logout().pipe(first()).subscribe(() => {
+      location.reload();
+
+    });
+  }
 }
