@@ -24,7 +24,7 @@ export class ProcessListComponent implements OnInit {
   }
 
   private refresh() {
-    this.processService.all(this.repoId).pipe(first()).subscribe(items => {
+    this.processService.all().pipe(first()).subscribe(items => {
       this.processes = items;
     });
   }

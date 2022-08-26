@@ -28,7 +28,7 @@ export class ApiCallListComponent implements OnInit, OnDestroy {
   }
 
   private refresh() {
-    this.apiCallService.all(this.repoId).pipe(first()).subscribe(apiCalls => {
+    this.apiCallService.all().pipe(first()).subscribe(apiCalls => {
       this.apiCalls = apiCalls;
     });
   }

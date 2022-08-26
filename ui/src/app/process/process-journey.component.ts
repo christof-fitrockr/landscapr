@@ -9,10 +9,18 @@ import {first} from 'rxjs/operators';
 import {ApiCall} from '../models/api-call';
 import {ApiCallService} from '../services/api-call.service';
 import {Subscription} from 'rxjs';
+import {Application} from '../models/application';
 
 @Component({selector: 'app-process-journey', styleUrls: ['./process-journey.component.scss'], templateUrl: './process-journey.component.html'})
 export class ProcessJourneyComponent implements OnInit {
 
+
+  private processMap = new Map<string, Process>();
+  private apiCallMap = new Map<string, ApiCall>();
+  private systemMap = new Map<string, Application>();
+  processOrder: Process[] = [];
+
+  mainProcessId: string;
   processId: string;
   process: Process;
   loading: boolean = false;
@@ -20,9 +28,10 @@ export class ProcessJourneyComponent implements OnInit {
   selectedProcess: Process;
   selectedSubprocesses: Process[];
   selectedFunctions: ApiCall[];
-  private subscription: Subscription;
-  repoId: string;
-  zoomFactor = 0.6;
+
+
+  nextSteps: ProcessWithNumber[];
+  private step: number;
 
   constructor(private processService: ProcessService, private apiCallService: ApiCallService,
               private formBuilder: FormBuilder, private location: Location,
@@ -30,37 +39,89 @@ export class ProcessJourneyComponent implements OnInit {
   }
 
 
-
   ngOnInit() {
-
-    this.subscription = this.route.parent.paramMap.subscribe(obs => {
-      this.repoId = obs.get('repoId');
-      this.refresh();
-    });
-  }
-
-  ngOnDestroy() {
-    this.subscription.unsubscribe();
+    this.refresh();
   }
 
   private refresh() {
     this.loading = true;
-    this.processId = this.route.snapshot.paramMap.get('id');
-    this.processService.byId(this.processId).pipe(first()).subscribe(
-      process => {
-        this.process = process;
-        this.loadProcessDetails(process);
-        this.loading = false;
-      },
-      () => {
-        this.loading = false
-        this.toastr.error("Error loading process.")
-      });
+    this.mainProcessId = this.route.snapshot.paramMap.get('id');
+
+
+    this.processService.all().pipe(first()).subscribe((processes) => {
+      this.apiCallService.all().pipe(first()).subscribe(apiCalls => {
+          // this.systemService.all(this.repoId).pipe(first()).subscribe(systems => {
+            for (let process of processes) {
+              this.processMap.set(process.id, process);
+            }
+            for (let apiCall of apiCalls) {
+              this.apiCallMap.set(apiCall.id, apiCall);
+            }
+            this.createProcessOrder(this.mainProcessId);
+
+            if(this.route.snapshot.paramMap.has('step')) {
+              this.step = Number(this.route.snapshot.paramMap.get('step'));
+              this.processId = this.processOrder[this.step]?.id;
+              if(this.processOrder.length > this.step + 1) {
+                this.nextSteps = [new ProcessWithNumber(this.processOrder[this.step + 1], this.step + 1)];
+              }
+            } else {
+              this.processId = this.mainProcessId;
+              this.nextSteps = [new ProcessWithNumber(this.processOrder[0], 0)];
+            }
+
+        this.processService.byId(this.processId).pipe(first()).subscribe(process => {
+          this.process = process;
+          this.selectedProcess = process;
+          console.log(JSON.stringify(this.process))
+          this.loading = false;
+        });
+       })
+
+
+
+    },
+    () => {
+      this.loading = false
+      this.toastr.error("Error loading process.")
+    });
 
     this.processService.allParents(this.processId).pipe(first()).subscribe( result => {
       this.parents = result
     });
   }
+
+
+  private createProcessOrder(id: string, layer = 0): Process {
+    const process = this.processMap.get(id)
+
+    if(!process) {
+      console.error('Process with id ' + id + ' not found.');
+      let processBox = new Process();
+      processBox.id = id;
+      processBox.name = '!! MISSING !!';
+      return processBox;
+    }
+
+
+    if(process.steps && process.steps.length > 0) {
+      const childBoxes = new Map<string, Process>();
+      for (let step of process.steps) {
+        if(step.processReference) {
+          console.debug('Childs of id ' + id + ' with name ' + process.name + ' not found.');
+          const childBox = this.createProcessOrder(step.processReference, layer + 1);
+          childBoxes.set(step.processReference, childBox);
+        }
+      }
+    }
+
+
+    this.processOrder.push(process);
+
+    return process;
+
+  }
+
 
   private loadProcessDetails(process: Process) {
     this.selectedProcess = process;
@@ -97,5 +158,18 @@ export class ProcessJourneyComponent implements OnInit {
 
   showProcess(processId: string) {
     this.router.navigateByUrl('/process/journey/' + processId).then(() => location.reload());
+  }
+
+
+  show(number: number) {
+    this.router.navigateByUrl('/process/journey/' + this.mainProcessId + '/' + number).then(() => location.reload());
+    this.step = number;
+    this.refresh();
+  }
+}
+
+
+class ProcessWithNumber {
+  constructor(private process: Process, private number: number) {
   }
 }

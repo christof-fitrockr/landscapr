@@ -23,7 +23,7 @@ export class ProcessService {
   private static store(apps: Process[]): void {
     localStorage.setItem(ProcessService.STORAGE_KEY, JSON.stringify(apps));
   }
-  all(repoId: string): Observable<Process[]> {
+  all(): Observable<Process[]> {
     return new Observable<Process[]>(obs => {
       obs.next(ProcessService.load());
     });

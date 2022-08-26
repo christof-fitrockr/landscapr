@@ -23,7 +23,7 @@ export class ApiCallService {
     localStorage.setItem(ApiCallService.STORAGE_KEY, JSON.stringify(apps));
   }
 
-  all(repoId: string): Observable<ApiCall[]> {
+  all(): Observable<ApiCall[]> {
     return new Observable<ApiCall[]>(obs => {
       obs.next(ApiCallService.load());
     });

@@ -43,7 +43,9 @@ const routes: Routes = [
       { path: '', redirectTo: 'list', pathMatch: 'full' },
       { path: 'list', component: ProcessListComponent, canActivate: [AuthGuard] },
       { path: 'view/:id', component: ProcessViewComponent, canActivate: [AuthGuard] },
+
       { path: 'journey/:id', component: ProcessJourneyComponent, canActivate: [AuthGuard] },
+      { path: 'journey/:id/:step', component: ProcessJourneyComponent, canActivate: [AuthGuard] },
       { path: 'edit/:id', component: ProcessEditComponent, canActivate: [AuthGuard], children: [
           { path: '', redirectTo: 'base', pathMatch: 'full' },
           { path: 'base', component: ProcessEditBaseComponent, canActivate: [AuthGuard] },

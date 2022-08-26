@@ -10,9 +10,7 @@
       <div class="btn-toolbar justify-content-lg-start" role="toolbar" aria-label="Toolbar with button groups">
         <div class="btn-group mr-2" role="group" aria-label="First group">
 
-<!--          <button type="button" class="btn btn-secondary" title="Save" (click)="zoomIn()"><i class="fas fa-search-plus"></i></button>-->
-<!--          <button type="button" class="btn btn-secondary" title="Save" (click)="zoomOut()"><i class="fas fa-search-minus"></i></button>-->
-<!--          <a class="btn btn-secondary" title="Edit {{process?.name}}" routerLink="/process/edit/{{process?.id}}"><i class="fas fa-edit"></i></a>-->
+          <a class="btn btn-secondary" title="Edit {{process?.name}}" routerLink="/process/edit/{{process?.id}}"><i class="fas fa-edit"></i></a>
 
         </div>
       </div>
@@ -53,7 +51,11 @@
         </div>
         <div class="col-3">
 
-
+            <div *ngFor="let item of nextSteps">
+              <div class="card col-12">
+                <div class="card-body"><a href="javascript:void(0)" (click)="show(item.number)">{{item.process.name}}</a></div>
+              </div>
+            </div>
 
         </div>
       </div>
