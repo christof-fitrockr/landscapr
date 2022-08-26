@@ -9,6 +9,7 @@ import {first} from 'rxjs/operators';
 import {ApiCall} from '../models/api-call';
 import {ApiCallService} from '../services/api-call.service';
 import {Subscription} from 'rxjs';
+import pptxgen from "pptxgenjs";
 
 @Component({selector: 'app-process-view', styleUrls: ['./process-view.component.scss'], templateUrl: './process-view.component.html'})
 export class ProcessViewComponent implements OnInit {
@@ -99,5 +100,24 @@ export class ProcessViewComponent implements OnInit {
 
   showProcess(processId: string) {
     this.router.navigateByUrl('/process/view/' + processId).then(() => location.reload());
+  }
+
+  downloadPpt() {
+    let pres = new pptxgen();
+    pres.title = this.process.name;
+
+    let slide = pres.addSlide();
+
+
+// Shapes with text
+    slide.addText("ShapeType.rect", {
+      shape: pres.ShapeType.rect,
+      fill: { color: "FF0000" },
+      x: 1, y: 1, h: '10%', w: '10%', color: "363636"
+    });
+
+
+
+    pres.writeFile();
   }
 }
