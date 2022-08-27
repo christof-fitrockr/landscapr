@@ -11,6 +11,7 @@
         <div class="btn-group mr-2" role="group" aria-label="First group">
 
           <button type="button" class="btn btn-secondary" title="Download as Powerpoint" (click)="downloadPpt()"><i class="fas fa-file-powerpoint"></i></button>
+          <button type="button" class="btn btn-secondary" title="Download as PDF" (click)="downloadPdf()"><i class="fas fa-file-pdf"></i></button>
           <button type="button" class="btn btn-secondary" title="Zoom In" (click)="zoomIn()"><i class="fas fa-search-plus"></i></button>
           <button type="button" class="btn btn-secondary" title="Zoom Out" (click)="zoomOut()"><i class="fas fa-search-minus"></i></button>
           <a class="btn btn-secondary" title="Edit {{process?.name}}" routerLink="/process/edit/{{process?.id}}"><i class="fas fa-edit"></i></a>

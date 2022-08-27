@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, ElementRef, OnInit, ViewChild} from '@angular/core';
 import {ProcessService} from '../services/process.service';
 import {Process, ProcessWithStep} from '../models/process';
 import {FormBuilder} from '@angular/forms';
@@ -9,7 +9,7 @@ import {first} from 'rxjs/operators';
 import {ApiCall} from '../models/api-call';
 import {ApiCallService} from '../services/api-call.service';
 import {Subscription} from 'rxjs';
-import pptxgen from "pptxgenjs";
+import {SwimlaneViewComponent} from '../swimlaneView/swimlane-view.component';
 
 @Component({selector: 'app-process-view', styleUrls: ['./process-view.component.scss'], templateUrl: './process-view.component.html'})
 export class ProcessViewComponent implements OnInit {
@@ -22,6 +22,9 @@ export class ProcessViewComponent implements OnInit {
   selectedSubprocesses: Process[];
   selectedFunctions: ApiCall[];
   zoomFactor = 0.6;
+
+
+  @ViewChild(SwimlaneViewComponent) child:SwimlaneViewComponent;
 
   constructor(private processService: ProcessService, private apiCallService: ApiCallService, private formBuilder: FormBuilder, private location: Location,
               private route: ActivatedRoute, private router: Router, private toastr: ToastrService) {
@@ -103,21 +106,12 @@ export class ProcessViewComponent implements OnInit {
   }
 
   downloadPpt() {
-    let pres = new pptxgen();
-    pres.title = this.process.name;
+    this.child.downloadPpt();
 
-    let slide = pres.addSlide();
+  }
 
+  downloadPdf() {
 
-// Shapes with text
-    slide.addText("ShapeType.rect", {
-      shape: pres.ShapeType.rect,
-      fill: { color: "FF0000" },
-      x: 1, y: 1, h: '10%', w: '10%', color: "363636"
-    });
-
-
-
-    pres.writeFile();
+    this.child.downloadPdf();
   }
 }
