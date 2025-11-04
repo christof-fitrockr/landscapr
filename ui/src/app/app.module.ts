@@ -76,8 +76,8 @@ import {ProcessJourneyComponent} from './process/process-journey.component';
 import {PrivacyPolicyComponent} from './privacyPolicy/privacy-policy.component';
 import { GithubDialogComponent } from './components/github-dialog.component';
 import { FileTypePipe } from './pipes/file-type.pipe';
-import { MatDialogModule } from '@angular/material/dialog';
 import { SaveGithubDialogComponent } from './components/save-github-dialog.component';
+import { ModalModule } from 'ngx-bootstrap/modal';
 
 
 @NgModule({
@@ -174,7 +174,7 @@ import { SaveGithubDialogComponent } from './components/save-github-dialog.compo
     FormsModule,
     ReactiveFormsModule,
     HttpClientModule,
-    MatDialogModule,
+    ModalModule.forRoot(),
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },

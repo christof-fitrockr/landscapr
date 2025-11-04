@@ -1,29 +1,36 @@
-<h1 mat-dialog-title>Load from GitHub</h1>
-<div mat-dialog-content>
-  <mat-form-field>
-    <mat-label>GitHub Personal Access Token</mat-label>
-    <input matInput [(ngModel)]="pat" type="password">
-  </mat-form-field>
-  <button mat-button (click)="connect()">Connect</button>
+<div class="modal-header">
+  <h5 class="modal-title">Load from GitHub</h5>
+  <button type="button" class="close" aria-label="Close" (click)="close()">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+<div class="modal-body">
+  <div class="mb-3">
+    <label class="form-label">GitHub Personal Access Token</label>
+    <input class="form-control" [(ngModel)]="pat" type="password" placeholder="ghp_...">
+  </div>
+  <div class="d-flex justify-content-end mb-3">
+    <button class="btn btn-primary" (click)="connect()">Connect</button>
+  </div>
 
-  <div *ngIf="repos$ | async as repos">
-    <h2>Repositories</h2>
-    <mat-list>
-      <mat-list-item *ngFor="let repo of repos" (click)="selectRepo(repo)">
+  <div *ngIf="repos$ | async as repos" class="mb-3">
+    <h6 class="fw-bold">Repositories</h6>
+    <ul class="list-group">
+      <li class="list-group-item list-group-item-action" *ngFor="let repo of repos" (click)="selectRepo(repo)">
         {{ repo.name }}
-      </mat-list-item>
-    </mat-list>
+      </li>
+    </ul>
   </div>
 
   <div *ngIf="files$ | async as files">
-    <h2>Files</h2>
-    <mat-list>
-      <mat-list-item *ngFor="let file of files | fileType:'json'" (click)="selectFile(file)">
+    <h6 class="fw-bold">Files</h6>
+    <ul class="list-group">
+      <li class="list-group-item list-group-item-action" *ngFor="let file of files | fileType:'json'" (click)="selectFile(file)">
         {{ file.name }}
-      </mat-list-item>
-    </mat-list>
+      </li>
+    </ul>
   </div>
 </div>
-<div mat-dialog-actions>
-  <button mat-button (click)="close()">Cancel</button>
+<div class="modal-footer">
+  <button class="btn btn-outline-secondary" (click)="close()">Cancel</button>
 </div>
