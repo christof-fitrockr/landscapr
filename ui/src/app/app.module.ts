@@ -74,10 +74,17 @@ import {RepoFilterPipe} from './pipes/repo-filter.pipe';
 import {DndDirective} from './helpers/dnd.directive';
 import {ProcessJourneyComponent} from './process/process-journey.component';
 import {PrivacyPolicyComponent} from './privacyPolicy/privacy-policy.component';
+import { GithubDialogComponent } from './components/github-dialog.component';
+import { FileTypePipe } from './pipes/file-type.pipe';
+import { MatDialogModule } from '@angular/material/dialog';
+import { SaveGithubDialogComponent } from './components/save-github-dialog.component';
 
 
 @NgModule({
   declarations: [
+    GithubDialogComponent,
+    SaveGithubDialogComponent,
+    FileTypePipe,
     ProcessOverviewComponent,
     ProcessGraphComponent,
     ProcessListComponent,
@@ -167,6 +174,7 @@ import {PrivacyPolicyComponent} from './privacyPolicy/privacy-policy.component';
     FormsModule,
     ReactiveFormsModule,
     HttpClientModule,
+    MatDialogModule,
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },
