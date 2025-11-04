@@ -1,0 +1,35 @@
+<h1 mat-dialog-title>Save to GitHub</h1>
+<div mat-dialog-content>
+  <mat-form-field>
+    <mat-label>GitHub Personal Access Token</mat-label>
+    <input matInput [(ngModel)]="pat" type="password">
+  </mat-form-field>
+  <button mat-button (click)="connect()">Connect</button>
+
+  <div *ngIf="repos$ | async as repos">
+    <h2>Repositories</h2>
+    <mat-list>
+      <mat-list-item *ngFor="let repo of repos" (click)="selectRepo(repo)">
+        {{ repo.name }}
+      </mat-list-item>
+    </mat-list>
+  </div>
+
+  <div *ngIf="files$ | async as files">
+    <h2>Files</h2>
+    <mat-list>
+      <mat-list-item *ngFor="let file of files | fileType:'json'" (click)="selectFile(file)">
+        {{ file.name }}
+      </mat-list-item>
+    </mat-list>
+  </div>
+
+  <mat-form-field>
+    <mat-label>File name</mat-label>
+    <input matInput [(ngModel)]="fileName">
+  </mat-form-field>
+</div>
+<div mat-dialog-actions>
+  <button mat-button (click)="save()">Save</button>
+  <button mat-button (click)="close()">Cancel</button>
+</div>
