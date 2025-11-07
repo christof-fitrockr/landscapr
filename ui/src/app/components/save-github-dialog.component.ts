@@ -1,7 +1,7 @@
-import { Component, Inject, OnInit } from '@angular/core';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { Component, OnInit } from '@angular/core';
+import { BsModalRef } from 'ngx-bootstrap/modal';
 import { GithubService } from '../services/github.service';
-import { Observable } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
 
 @Component({
   selector: 'app-save-github-dialog',
@@ -16,14 +16,15 @@ export class SaveGithubDialogComponent implements OnInit {
   selectedRepo: any;
   owner: string;
   fileName: string;
+  onClose: Subject<any>;
 
   constructor(
-    public dialogRef: MatDialogRef<SaveGithubDialogComponent>,
+    public bsModalRef: BsModalRef,
     private githubService: GithubService,
-    @Inject(MAT_DIALOG_DATA) public data: any
   ) { }
 
   ngOnInit(): void {
+    this.onClose = new Subject<any>();
     this.pat = this.githubService.getPersonalAccessToken();
     if (this.pat) {
       this.connect();
@@ -48,14 +49,22 @@ export class SaveGithubDialogComponent implements OnInit {
   }
 
   save(): void {
-    this.dialogRef.close({
-      repo: this.selectedRepo,
-      fileName: this.fileName,
-      owner: this.owner
-    });
+    if (this.onClose) {
+      this.onClose.next({
+        repo: this.selectedRepo,
+        fileName: this.fileName,
+        owner: this.owner
+      });
+      this.onClose.complete();
+    }
+    this.bsModalRef.hide();
   }
 
   close(): void {
-    this.dialogRef.close();
+    if (this.onClose) {
+      this.onClose.next(null);
+      this.onClose.complete();
+    }
+    this.bsModalRef.hide();
   }
 }

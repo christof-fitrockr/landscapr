@@ -76,9 +76,12 @@ import {ProcessJourneyComponent} from './process/process-journey.component';
 import {PrivacyPolicyComponent} from './privacyPolicy/privacy-policy.component';
 import { GithubDialogComponent } from './components/github-dialog.component';
 import { FileTypePipe } from './pipes/file-type.pipe';
-import { MatDialogModule } from '@angular/material/dialog';
 import { SaveGithubDialogComponent } from './components/save-github-dialog.component';
+
 import { ThemeService } from './services/theme.service';
+
+import { ModalModule } from 'ngx-bootstrap/modal';
+
 
 
 @NgModule({
@@ -175,7 +178,7 @@ import { ThemeService } from './services/theme.service';
     FormsModule,
     ReactiveFormsModule,
     HttpClientModule,
-    MatDialogModule,
+    ModalModule.forRoot(),
   ],
   providers: [
     ThemeService,

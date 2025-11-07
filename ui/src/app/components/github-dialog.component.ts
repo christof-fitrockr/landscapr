@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { MatDialogRef } from '@angular/material/dialog';
+import { BsModalRef } from 'ngx-bootstrap/modal';
 import { GithubService } from '../services/github.service';
-import { Observable } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
 
 @Component({
   selector: 'app-github-dialog',
@@ -15,13 +15,15 @@ export class GithubDialogComponent implements OnInit {
   files$: Observable<any[]>;
   selectedRepo: any;
   owner: string;
+  onClose: Subject<any>;
 
   constructor(
-    public dialogRef: MatDialogRef<GithubDialogComponent>,
+    public bsModalRef: BsModalRef,
     private githubService: GithubService
   ) { }
 
   ngOnInit(): void {
+    this.onClose = new Subject<any>();
     this.pat = this.githubService.getPersonalAccessToken();
   }
 
@@ -39,10 +41,22 @@ export class GithubDialogComponent implements OnInit {
   }
 
   selectFile(file: any): void {
-    this.dialogRef.close(file);
+    if (this.onClose) {
+      this.onClose.next({
+        owner: { login: this.owner },
+        repo: this.selectedRepo,
+        path: file.path
+      });
+      this.onClose.complete();
+    }
+    this.bsModalRef.hide();
   }
 
   close(): void {
-    this.dialogRef.close();
+    if (this.onClose) {
+      this.onClose.next(null);
+      this.onClose.complete();
+    }
+    this.bsModalRef.hide();
   }
 }
