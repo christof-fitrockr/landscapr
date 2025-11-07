@@ -77,7 +77,11 @@ import {PrivacyPolicyComponent} from './privacyPolicy/privacy-policy.component';
 import { GithubDialogComponent } from './components/github-dialog.component';
 import { FileTypePipe } from './pipes/file-type.pipe';
 import { SaveGithubDialogComponent } from './components/save-github-dialog.component';
+
+import { ThemeService } from './services/theme.service';
+
 import { ModalModule } from 'ngx-bootstrap/modal';
+
 
 
 @NgModule({
@@ -177,6 +181,7 @@ import { ModalModule } from 'ngx-bootstrap/modal';
     ModalModule.forRoot(),
   ],
   providers: [
+    ThemeService,
     { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },
     { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true },
     {provide: LocationStrategy, useClass: HashLocationStrategy},
