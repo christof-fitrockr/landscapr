@@ -5,6 +5,7 @@ import {FileSaverService} from 'ngx-filesaver';
 import {first} from 'rxjs/operators';
 import {EMPTY, Observable} from 'rxjs';
 import {Upload} from './helpers/upload';
+import {ThemeService} from './services/theme.service';
 
 @Component({
   selector: 'app-root',
@@ -17,7 +18,7 @@ export class AppComponent implements OnInit {
   upload$: Observable<Upload> = EMPTY;
 
   constructor(private authenticationService: AuthenticationService,
-              private repoService: RepoService, private fileSaverService: FileSaverService) { }
+              private repoService: RepoService, private fileSaverService: FileSaverService, public themeService: ThemeService) { }
 
   ngOnInit() {
     this.dataAvailable = this.repoService.dataAvailable();

@@ -39,6 +39,11 @@
         <li class="nav-item">
           <button class="btn btn-link nav-link" (click)="logout()"><i class="fas fa-sign-out-alt"></i></button>
         </li>
+        <li class="nav-item">
+          <button class="btn btn-link nav-link" (click)="themeService.setDarkMode(!themeService.isDarkMode())">
+            <i class="fas" [ngClass]="themeService.isDarkMode() ? 'fa-sun' : 'fa-moon'"></i>
+          </button>
+        </li>
       </ul>
 
 

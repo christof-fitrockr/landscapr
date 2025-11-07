@@ -1,0 +1,41 @@
+
+Initial Chunk Files                                    | Names                |  Raw Size
+vendor.js                                              | vendor               |   6.29 MB |
+scripts.js                                             | scripts              |   1.37 MB |
+main.js                                                | main                 | 660.74 kB |
+styles.css, styles.js                                  | styles               | 439.67 kB |
+polyfills.js                                           | polyfills            | 349.00 kB |
+runtime.js                                             | runtime              |  15.03 kB |
+
+| Initial Total        |   9.09 MB
+
+Lazy Chunk Files                                       | Names                |  Raw Size
+node_modules_firebase_compat_auth_dist_index_esm_js.js | firebase-compat-auth | 491.34 kB |
+node_modules_canvg_lib_index_es_js.js                  | canvg                | 424.18 kB |
+node_modules_html2canvas_dist_html2canvas_js.js        | html2canvas          | 390.81 kB |
+node_modules_dompurify_dist_purify_js.js               | dompurify            |  61.77 kB |
+
+Build at: 2025-11-04T06:11:57.957Z - Hash: 4576e7f13dc06bc0 - Time: 15229ms
+
+** Angular Live Development Server is listening on localhost:4200, open your browser on http://localhost:4200/ **
+
+
+✖ Failed to compile.
+
+Initial Chunk Files | Names   | Raw Size
+runtime.js          | runtime | 15.03 kB |
+
+9 unchanged chunks
+
+Build at: 2025-11-04T06:12:00.020Z - Hash: 9b424c413550ab45 - Time: 1779ms
+
+✖ Failed to compile.
+
+Initial Chunk Files | Names   | Raw Size
+runtime.js          | runtime | 15.03 kB |
+
+9 unchanged chunks
+
+Build at: 2025-11-04T06:12:04.996Z - Hash: cfa117f6cc223a16 - Time: 2952ms
+
+✖ Failed to compile.

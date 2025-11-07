@@ -78,6 +78,7 @@ import { GithubDialogComponent } from './components/github-dialog.component';
 import { FileTypePipe } from './pipes/file-type.pipe';
 import { MatDialogModule } from '@angular/material/dialog';
 import { SaveGithubDialogComponent } from './components/save-github-dialog.component';
+import { ThemeService } from './services/theme.service';
 
 
 @NgModule({
@@ -177,6 +178,7 @@ import { SaveGithubDialogComponent } from './components/save-github-dialog.compo
     MatDialogModule,
   ],
   providers: [
+    ThemeService,
     { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },
     { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true },
     {provide: LocationStrategy, useClass: HashLocationStrategy},

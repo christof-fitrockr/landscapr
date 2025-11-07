@@ -1,4 +1,14 @@
 /* You can add global styles to this file, and also import other style files */
+@use '@angular/material' as mat;
+@use 'theme' as theme;
+
+// Apply the light theme by default
+@include mat.all-component-themes(theme.$light-theme);
+
+// Apply the dark theme when the .dark-theme class is present
+.dark-theme {
+  @include mat.all-component-colors(theme.$dark-theme);
+}
 
 @import "~@ng-select/ng-select/themes/default.theme.css";
 //@import "assets/css/vwag/vwag.min.css";
