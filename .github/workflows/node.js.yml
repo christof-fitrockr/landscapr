@@ -48,4 +48,4 @@ jobs:
 
           # Optional: Delete files on the server that are not in the local-dir
           # Use with caution!
-          # dangerous-clean-slate: true
+          dangerous-clean-slate: true
