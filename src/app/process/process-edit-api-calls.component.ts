@@ -3,9 +3,10 @@ import {ProcessService} from '../services/process.service';
 import {Process} from '../models/process';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {ActivatedRoute, Router} from '@angular/router';
-import {first, map, switchMap, debounceTime, distinctUntilChanged, catchError} from 'rxjs/operators';
+import {first, map, switchMap, tap} from 'rxjs/operators';
 import {ToastrService} from 'ngx-toastr';
-import {Observable, of, Subject} from 'rxjs';
+import {noop, Observable, Observer, of} from 'rxjs';
+import {TypeaheadMatch} from 'ngx-bootstrap/typeahead';
 import {ApiCall} from '../models/api-call';
 import {ApiCallService} from '../services/api-call.service';
 
@@ -15,9 +16,8 @@ export class ProcessEditApiCallsComponent implements OnInit {
   private processId: string;
   process: Process;
 
-  suggestions$?: Observable<ApiCall[]>;
-  apiCallInput$ = new Subject<string>();
-  selectedApiCallId?: string;
+  search?: string;
+  suggestions$?: Observable<Process[]>;
 
   apiCallForm: FormGroup;
   apiCalls: ApiCall[];
@@ -28,11 +28,8 @@ export class ProcessEditApiCallsComponent implements OnInit {
               private route: ActivatedRoute, private router: Router, private toastr: ToastrService) {
   }
 
-  onApiCallSelected(apiCallId: string) {
-    if (apiCallId) {
-      this.addApiCall(apiCallId);
-    }
-    this.selectedApiCallId = undefined;
+  typeaheadOnSelect(e: TypeaheadMatch): void {
+    this.addApiCall(e.item.id);
   }
 
   ngOnInit() {
@@ -48,17 +45,12 @@ export class ProcessEditApiCallsComponent implements OnInit {
 
     this.refresh();
 
-    this.suggestions$ = this.apiCallInput$.pipe(
-      debounceTime(200),
-      distinctUntilChanged(),
-      switchMap((term: string) => {
-        if (!!term && this.repoId) {
-          return this.apiCallService.byName(this.repoId, term).pipe(
+    this.suggestions$ = new Observable((observer: Observer<string | undefined>) => observer.next(this.search)).pipe(
+      switchMap((query: string) => {
+        if (query) {
+          return this.apiCallService.byName(this.repoId, query).pipe(
             map((data: ApiCall[]) => data || []),
-            catchError(err => {
-              this.toastr.error((err && err.message) || 'Something went wrong');
-              return of([]);
-            })
+            tap(() => noop, err => this.toastr.error(err && err.message || 'Something went wrong'))
           );
         }
         return of([]);

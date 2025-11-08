@@ -53,7 +53,7 @@ jobs:
           remote_path: '/landscapr/'
 
           # Optional: Delete files on the server before upload (for a clean deployment)
-          delete_remote_files: true
+          #delete_remote_files: true
 
           sftp_only: true
 

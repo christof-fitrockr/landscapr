@@ -3,9 +3,10 @@ import {CapabilityService} from '../services/capability.service';
 import {Capability} from '../models/capability';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {ActivatedRoute, Router} from '@angular/router';
-import {first, map, switchMap, debounceTime, distinctUntilChanged, catchError} from 'rxjs/operators';
+import {first, map, switchMap, tap} from 'rxjs/operators';
 import {ToastrService} from 'ngx-toastr';
-import {Observable, of, Subject} from 'rxjs';
+import {noop, Observable, Observer, of} from 'rxjs';
+import {TypeaheadMatch} from 'ngx-bootstrap/typeahead';
 import {ApplicationService} from '../services/application.service';
 import {Application} from '../models/application';
 
@@ -14,11 +15,8 @@ export class CapabilityEditImplementedByComponent implements OnInit {
 
   private capabilityId: string;
   capability: Capability;
-
+  search?: string;
   suggestions$?: Observable<Application[]>;
-  systemInput$ = new Subject<string>();
-  selectedSystemId?: string;
-
   systemForm: FormGroup;
   systems: Application[];
   private repoId: string;
@@ -27,11 +25,8 @@ export class CapabilityEditImplementedByComponent implements OnInit {
               private route: ActivatedRoute, private router: Router, private toastr: ToastrService) {
   }
 
-  onSystemSelected(systemId: string) {
-    if (systemId) {
-      this.addImplementedBySystem(systemId);
-    }
-    this.selectedSystemId = undefined;
+  typeaheadOnSelect(e: TypeaheadMatch): void {
+    this.addImplementedBySystem(e.item.id);
   }
 
   ngOnInit() {
@@ -47,17 +42,12 @@ export class CapabilityEditImplementedByComponent implements OnInit {
 
     this.refresh();
 
-    this.suggestions$ = this.systemInput$.pipe(
-      debounceTime(200),
-      distinctUntilChanged(),
-      switchMap((term: string) => {
-        if (!!term && this.repoId) {
-          return this.systemService.byName(this.repoId, term).pipe(
+    this.suggestions$ = new Observable((observer: Observer<string | undefined>) => observer.next(this.search)).pipe(
+      switchMap((query: string) => {
+        if (query) {
+          return this.systemService.byName(this.repoId, query).pipe(
             map((data: Application[]) => data || []),
-            catchError(err => {
-              this.toastr.error((err && err.message) || 'Something went wrong');
-              return of([]);
-            })
+            tap(() => noop, err => this.toastr.error(err && err.message || 'Something went wrong'))
           );
         }
         return of([]);
