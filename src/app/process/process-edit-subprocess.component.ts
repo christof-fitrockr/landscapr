@@ -5,7 +5,7 @@ import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {ActivatedRoute, Router} from '@angular/router';
 import {first, map, switchMap, tap, debounceTime, distinctUntilChanged, catchError} from 'rxjs/operators';
 import {ToastrService} from 'ngx-toastr';
-import {noop, Observable, Observer, of, Subscription, Subject} from 'rxjs';
+import {Observable, of, Subscription, Subject} from 'rxjs';
 import {CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop';
 
 @Component({templateUrl: './process-edit-subprocess.component.html', styleUrls: ['./process-edit-subprocess.component.scss']})
@@ -14,8 +14,9 @@ export class ProcessEditSubprocessComponent implements OnInit, OnDestroy {
 
 
 
-  search?: string;
   suggestions$?: Observable<Process[]>;
+  processInput$ = new Subject<string>();
+  selectedProcessId?: string;
 
   subProcessForm: FormGroup;
   process: Process;
@@ -38,18 +39,22 @@ export class ProcessEditSubprocessComponent implements OnInit, OnDestroy {
 
     this.refresh();
 
-    this.suggestions$ = new Observable((observer: Observer<string | undefined>) => observer.next(this.search)).pipe(
-      switchMap((query: string) => {
-        if (query) {
-          return this.processService.byName(this.repoId, query).pipe(
+    this.suggestions$ = this.processInput$.pipe(
+      debounceTime(200),
+      distinctUntilChanged(),
+      switchMap((term: string) => {
+        if (!!term && this.repoId) {
+          return this.processService.byName(this.repoId, term).pipe(
             map((data: Process[]) => data || []),
-            tap(() => noop, err => this.toastr.error(err && err.message || 'Something goes wrong'))
+            catchError(err => {
+              this.toastr.error((err && err.message) || 'Something went wrong');
+              return of([]);
+            })
           );
         }
         return of([]);
       })
     );
-
 
     this.subscription = this.route.parent.paramMap.subscribe(obs => {
       this.repoId = obs.get('repoId');
@@ -180,5 +185,12 @@ export class ProcessEditSubprocessComponent implements OnInit, OnDestroy {
     }
     this.onUpdate();
 
+  }
+
+  onProcessSelected(processId: string) {
+    if (processId) {
+      this.addSubProcess(processId);
+    }
+    this.selectedProcessId = undefined;
   }
 }
