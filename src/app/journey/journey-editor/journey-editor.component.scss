@@ -120,3 +120,11 @@ svg .handle-e, svg .handle-w { cursor: ew-resize; }
 .ng-dropdown-panel {
   z-index: 1040; /* bs dropdowns ~1000, modals 1050+ */
 }
+
+
+svg .edge-label {
+  font-size: 11px;
+  fill: #495057;
+  pointer-events: none; /* let edge hit-path receive clicks/dblclicks */
+  user-select: none;
+}

@@ -81,17 +81,8 @@
             <!-- Pan/Zoom group -->
             <g [attr.transform]="'translate(' + panX + ',' + panY + ') scale(' + zoom + ')'"><!-- World space -->
 
-              <!-- Edges -->
-              <g class="edges">
-                <g *ngFor="let e of edges">
-                  <path [attr.d]="edgePath(e)" class="edge" [ngClass]="{'selected': e.selected}" [attr.marker-end]="'url(#arrowhead)'" (mousedown)="onEdgeMouseDown(e, $event)" (dblclick)="onEdgeDblClick(e, $event)" />
-                  <text *ngIf="e.label" [attr.x]="edgeMidpoint(e).x" [attr.y]="edgeMidpoint(e).y - 6" text-anchor="middle" class="edge-label">{{e.label}}</text>
-                </g>
-              </g>
-
-              <!-- Nodes -->
+              <!-- Background groups (rendered behind edges and other nodes) -->
               <g class="nodes">
-                <!-- Background groups layer: render Group boxes first so they are always behind -->
                 <ng-container *ngFor="let n of nodes">
                   <g *ngIf="n.type === 'group'" [attr.transform]="'translate(' + n.x + ',' + n.y + ')'" (dblclick)="onGroupDblClick(n, $event)"><!-- group node -->
                     <rect [attr.width]="n.width" [attr.height]="n.height" class="node group" [ngClass]="{'selected': n.selected}"></rect>
@@ -120,8 +111,30 @@
                     </g>
                   </g>
                 </ng-container>
+              </g>
+
+              <!-- Edges (above groups, below foreground nodes) -->
+              <g class="edges">
+                <g *ngFor="let e of edges">
+                  <!-- Wide invisible stroke to improve hit area for selection and dblclick -->
+                  <path [attr.d]="edgePath(e)"
+                        style="fill: none; stroke: transparent; stroke-width: 32; vector-effect: non-scaling-stroke; pointer-events: stroke;"
+                        (mousedown)="onEdgeMouseDown(e, $event)"
+                        (dblclick)="onEdgeDblClick(e, $event)" />
+                  <!-- Visible edge -->
+                  <path [attr.d]="edgePath(e)" class="edge" [ngClass]="{'selected': e.selected}" [attr.marker-end]="'url(#arrowhead)'" />
+                  <text *ngIf="e.label"
+                        [attr.x]="edgeLabelPosition(e).x"
+                        [attr.y]="edgeLabelPosition(e).y"
+                        [attr.transform]="edgeLabelTransform(e)"
+                        text-anchor="middle"
+                        dominant-baseline="middle"
+                        class="edge-label">{{e.label}}</text>
+                </g>
+              </g>
 
                 <!-- Foreground layer: Processes and Decisions -->
+                <g class="nodes">
                 <ng-container *ngFor="let n of nodes">
                   <g *ngIf="n.type !== 'group'" [attr.transform]="'translate(' + n.x + ',' + n.y + ')'"><!-- non-group node -->
                     <ng-container [ngSwitch]="n.type">

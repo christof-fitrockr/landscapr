@@ -178,18 +178,40 @@ export class JourneyEditorComponent implements OnInit {
     this.panX = layout.panX || 0;
     this.panY = layout.panY || 0;
     this.zoom = layout.zoom || 1;
-    // map layout nodes to canvas nodes
+
+    let changed = false;
+    // map layout nodes to canvas nodes (and migrate decision sizes to 24x24 keeping center)
     this.nodes = (layout.nodes || []).map(n => {
       if (n.type === 'process') {
         return { id: n.id, type: 'process', x: n.x, y: n.y, width: n.width, height: n.height, label: n.label || '', processId: n.processId || '' } as ProcessNode;
       }
       if (n.type === 'decision') {
-        return { id: n.id, type: 'decision', x: n.x, y: n.y, width: n.width, height: n.height, label: n.label || 'Condition' } as DecisionNode;
+        const targetSize = 24;
+        const needsResize = (n.width !== targetSize) || (n.height !== targetSize);
+        let x = n.x;
+        let y = n.y;
+        let w = n.width;
+        let h = n.height;
+        if (needsResize) {
+          const cx = n.x + n.width / 2;
+          const cy = n.y + n.height / 2;
+          w = targetSize;
+          h = targetSize;
+          x = cx - w / 2;
+          y = cy - h / 2;
+          changed = true;
+        }
+        return { id: n.id, type: 'decision', x, y, width: w, height: h, label: n.label || 'Condition' } as DecisionNode;
       }
       return { id: n.id, type: 'group', x: n.x, y: n.y, width: n.width, height: n.height, label: n.label || 'Group' } as GroupNode;
     });
     this.nodes.forEach(n => n.selected = false);
     this.edges = (layout.edges || []).map(e => ({ id: e.id, from: e.from, to: e.to, label: e.label }));
+
+    // Persist migration back into the journey layout if any decision node was resized
+    if (changed) {
+      this.scheduleSave();
+    }
   }
 
   private buildLayout(): JourneyLayout {
@@ -365,23 +387,29 @@ export class JourneyEditorComponent implements OnInit {
 
   onWheel(event: WheelEvent) {
     event.preventDefault();
-    const delta = event.deltaY;
-    const factor = Math.exp(-delta / 500); // smooth zoom
+    const svg = this.svgEl.nativeElement;
+    const ctm = svg.getScreenCTM();
+    if (!ctm) return;
 
-    // Zoom to cursor position
-    const ptBefore = this.getSvgPoint(event as any as MouseEvent);
+    const factor = Math.exp(-event.deltaY / 500); // smooth zoom
     const oldZoom = this.zoom;
-    this.zoom *= factor;
-    this.zoom = Math.max(0.2, Math.min(4, this.zoom));
-    const ptAfter = this.getSvgPoint(event as any as MouseEvent);
 
-    // Adjust pan to keep the cursor under the same world point
-    this.panX += (ptAfter.x - ptBefore.x) * this.zoom;
-    this.panY += (ptAfter.y - ptBefore.y) * this.zoom;
+    // World point under cursor BEFORE zoom
+    const ptBefore = this.getSvgPoint(event as any as MouseEvent);
 
-    if (oldZoom !== this.zoom) {
-      this.scheduleSave();
-    }
+    // Apply new zoom (clamped)
+    const newZoom = Math.max(0.2, Math.min(4, oldZoom * factor));
+    if (newZoom === oldZoom) return;
+
+    this.zoom = newZoom;
+
+    // Recompute pan so the cursor stays anchored to the same world point
+    const screenX = event.clientX - ctm.e;
+    const screenY = event.clientY - ctm.f;
+    this.panX = screenX - ptBefore.x * this.zoom;
+    this.panY = screenY - ptBefore.y * this.zoom;
+
+    this.scheduleSave();
   }
 
   private startPan(event: MouseEvent) {
@@ -426,7 +454,7 @@ export class JourneyEditorComponent implements OnInit {
   }
 
   private placeDecisionNode(x: number, y: number) {
-    const size = 48; // smaller decision node
+    const size = 24; // half-sized decision node per request
     const node: DecisionNode = {
       id: this.newId('dec'),
       x: x - size/2,
@@ -570,26 +598,115 @@ export class JourneyEditorComponent implements OnInit {
     }
   }
 
-  edgePath(e: Edge): string {
+  // Geometry helpers for connecting edges to node borders
+  private nodeCenter(n: CanvasNode): { x: number; y: number } {
+    return { x: n.x + n.width / 2, y: n.y + n.height / 2 };
+  }
+
+  private rectBorderPoint(n: CanvasNode, toward: { x: number; y: number }): { x: number; y: number } {
+    const c = this.nodeCenter(n);
+    const dx = toward.x - c.x;
+    const dy = toward.y - c.y;
+    if (dx === 0 && dy === 0) return c;
+    const hw = n.width / 2;
+    const hh = n.height / 2;
+    const t = 1 / Math.max(Math.abs(dx) / hw || 0, Math.abs(dy) / hh || 0);
+    return { x: c.x + dx * t, y: c.y + dy * t };
+  }
+
+  private diamondBorderPoint(n: CanvasNode, toward: { x: number; y: number }): { x: number; y: number } {
+    // Diamond inscribed in the node's bounding box (as rendered)
+    const c = this.nodeCenter(n);
+    const dx = toward.x - c.x;
+    const dy = toward.y - c.y;
+    if (dx === 0 && dy === 0) return c;
+    const hw = n.width / 2;
+    const hh = n.height / 2;
+    const denom = (Math.abs(dx) / hw) + (Math.abs(dy) / hh);
+    const t = denom === 0 ? 0 : 1 / denom;
+    return { x: c.x + dx * t, y: c.y + dy * t };
+  }
+
+  private borderPoint(n: CanvasNode, toward: { x: number; y: number }): { x: number; y: number } {
+    if (n.type === 'decision') {
+      return this.diamondBorderPoint(n, toward);
+    }
+    // For process (rounded rect) and group, approximate as rectangle
+    return this.rectBorderPoint(n, toward);
+  }
+
+  private edgeEndpoints(e: Edge): { p1: { x: number; y: number }; p2: { x: number; y: number } } {
     const from = this.nodes.find(n => n.id === e.from);
     const to = this.nodes.find(n => n.id === e.to);
-    if (!from || !to) return '';
-    const x1 = from.x + from.width / 2;
-    const y1 = from.y + from.height / 2;
-    const x2 = to.x + to.width / 2;
-    const y2 = to.y + to.height / 2;
-    return `M ${x1} ${y1} L ${x2} ${y2}`;
+    if (!from || !to) return { p1: { x: 0, y: 0 }, p2: { x: 0, y: 0 } };
+    const cFrom = this.nodeCenter(from);
+    const cTo = this.nodeCenter(to);
+    const p1 = this.borderPoint(from, cTo);
+    const p2 = this.borderPoint(to, cFrom);
+    return { p1, p2 };
+  }
+
+  edgePath(e: Edge): string {
+    const { p1, p2 } = this.edgeEndpoints(e);
+    return `M ${p1.x} ${p1.y} L ${p2.x} ${p2.y}`;
   }
 
   edgeMidpoint(e: Edge): { x: number; y: number } {
-    const from = this.nodes.find(n => n.id === e.from);
-    const to = this.nodes.find(n => n.id === e.to);
-    if (!from || !to) return { x: 0, y: 0 };
-    const x1 = from.x + from.width / 2;
-    const y1 = from.y + from.height / 2;
-    const x2 = to.x + to.width / 2;
-    const y2 = to.y + to.height / 2;
-    return { x: (x1 + x2) / 2, y: (y1 + y2) / 2 };
+    const { p1, p2 } = this.edgeEndpoints(e);
+    return { x: (p1.x + p2.x) / 2, y: (p1.y + p2.y) / 2 };
+  }
+
+  /** Returns {dx, dy, len} vector from from->to using border-to-border endpoints */
+  private edgeVector(e: Edge): { dx: number; dy: number; len: number } {
+    const { p1, p2 } = this.edgeEndpoints(e);
+    const dx = p2.x - p1.x;
+    const dy = p2.y - p1.y;
+    const len = Math.hypot(dx, dy);
+    return { dx, dy, len };
+  }
+
+  /** Raw edge angle in degrees (from -> to), may be outside [-90, 90] */
+  private edgeAngleDegRaw(e: Edge): number {
+    const v = this.edgeVector(e);
+    if (v.len === 0) return 0;
+    return Math.atan2(v.dy, v.dx) * (180 / Math.PI);
+  }
+
+  /** Normalize angle to keep text upright within [-90°, 90°] */
+  private normalizeAngleUpright(angle: number): number {
+    let a = angle;
+    if (a > 90) a -= 180;
+    if (a < -90) a += 180;
+    return a;
+  }
+
+  /** Public: angle to use for label rendering (upright) */
+  edgeLabelAngleDeg(e: Edge): number {
+    return this.normalizeAngleUpright(this.edgeAngleDegRaw(e));
+  }
+
+  /** Label position slightly offset from the edge midpoint along its normal, with consistent side */
+  edgeLabelPosition(e: Edge): { x: number; y: number } {
+    const mid = this.edgeMidpoint(e);
+    const v = this.edgeVector(e);
+    if (v.len === 0) return mid;
+    // Normal vector (-dy, dx) normalized
+    const nx = -v.dy / v.len;
+    const ny =  v.dx / v.len;
+    const offset = 10; // world units; adjust as needed
+
+    // Flip offset if the raw angle would render text upside-down, to keep side consistent
+    const rawAngle = this.edgeAngleDegRaw(e);
+    const flip = (rawAngle > 90 || rawAngle < -90) ? -1 : 1;
+
+    return { x: mid.x + nx * offset * flip, y: mid.y + ny * offset * flip };
+  }
+
+  /** Transform attribute to rotate text around its center position */
+  edgeLabelTransform(e: Edge): string {
+    const pos = this.edgeLabelPosition(e);
+    const angle = this.edgeLabelAngleDeg(e);
+    return `rotate(${angle} ${pos.x} ${pos.y})`;
   }
 
   onEdgeDblClick(e: Edge, event: MouseEvent) {
