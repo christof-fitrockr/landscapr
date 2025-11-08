@@ -3,10 +3,9 @@ import {CapabilityService} from '../services/capability.service';
 import {Capability} from '../models/capability';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {ActivatedRoute, Router} from '@angular/router';
-import {first, map, switchMap, tap} from 'rxjs/operators';
+import {first, map, switchMap, debounceTime, distinctUntilChanged, catchError} from 'rxjs/operators';
 import {ToastrService} from 'ngx-toastr';
-import {noop, Observable, Observer, of} from 'rxjs';
-import {TypeaheadMatch} from 'ngx-bootstrap/typeahead';
+import {Observable, of, Subject} from 'rxjs';
 import {ApplicationService} from '../services/application.service';
 import {Application} from '../models/application';
 
@@ -15,18 +14,17 @@ export class CapabilityEditImplementedByComponent implements OnInit {
 
   private capabilityId: string;
   capability: Capability;
-  search?: string;
+
   suggestions$?: Observable<Application[]>;
+  systemInput$ = new Subject<string>();
+  selectedSystemId?: string;
+
   systemForm: FormGroup;
   systems: Application[];
   private repoId: string;
 
   constructor(private capabilityService: CapabilityService, private systemService: ApplicationService, private formBuilder: FormBuilder,
               private route: ActivatedRoute, private router: Router, private toastr: ToastrService) {
-  }
-
-  typeaheadOnSelect(e: TypeaheadMatch): void {
-    this.addImplementedBySystem(e.item.id);
   }
 
   ngOnInit() {

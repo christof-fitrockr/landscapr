@@ -36,14 +36,21 @@
         <div class="card text-center p-2 mt-1">
           <div class="card-body">
 
-            <input [(ngModel)]="search"
+            <ng-select
+                   [items]="suggestions$ | async"
+                   bindLabel="name"
+                   bindValue="id"
+                   [typeahead]="systemInput$"
+                   [(ngModel)]="selectedSystemId"
                    [ngModelOptions]="{standalone: true}"
-                   [typeahead]="suggestions$"
-                   [typeaheadAsync]="true"
-                   (typeaheadOnSelect)="typeaheadOnSelect($event)"
-                   typeaheadOptionField="name"
-                   class="form-control m-1"
-                   placeholder="Add new reference to system implementing this capability">
+                   [clearable]="true"
+                   [searchable]="true"
+                   dropdownPosition="bottom"
+                   appendTo="body"
+                   (ngModelChange)="onSystemSelected($event)"
+                   class="m-1"
+                   placeholder="Add reference to system implementing this capability">
+            </ng-select>
             or<br>
             <button type="button" class="btn btn-outline-primary mt-2" title="Add new process" data-toggle="modal" data-target="#addProcess"><i class="fas fa-plus-circle"></i> Create New</button>
           </div>

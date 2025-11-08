@@ -33,13 +33,27 @@ jobs:
         # Check your angular.json or package.json for the correct build command.
         run: npm run build -- --configuration production
 
-      # --- FTP Deployment Section ---
-      - name: 📂 FTP Deploy
-        uses: milanmk/actions-file-deployer@master
+      - name: 🚀 Deploy via SFTP
+        uses: wlixcc/SFTP-Deploy-Action@v1.2.6
         with:
-          remote-protocol: 'sftp'
-          remote-host: ${{ secrets.FTP_SERVER }}
-          remote-user: ${{ secrets.FTP_USERNAME }}
-          remote-password: ${{ secrets.FTP_PASSWORD }} # Uses password directly
-          remote-path: '/landscapr/'
-          local-path: 'dist/'
+          # --- Authentication (Using Password Secrets) ---
+          username: ${{ secrets.FTP_USERNAME }}
+          server: ${{ secrets.FTP_SERVER }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          port: 22
+
+          # Force password authentication and prevent error about missing key
+          ssh_private_key: ''
+
+          # --- Paths and Settings ---
+          # Local directory to upload
+          local_path: './dist/'
+
+          # Target directory on the remote server
+          remote_path: '/landscapr/'
+
+          # Optional: Delete files on the server before upload (for a clean deployment)
+          delete_remote_files: true
+
+          sftp_only: true
+
