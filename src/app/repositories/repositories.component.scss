@@ -25,3 +25,7 @@
 .huge-icon {
   font-size: 2rem;
 }
+
+.list-group-item.repo-item.active, .list-group-item.file-item.active {
+  color: #000 !important;
+}

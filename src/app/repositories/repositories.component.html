@@ -1,4 +1,4 @@
-<div class="container-fluid mt-3">
+<div class="container-xl mt-3">
   <div class="row">
     <div class="col-md-4">
       <div class="card mb-3">
@@ -34,11 +34,11 @@
           <span>Files <ng-container *ngIf="selectedRepo">in {{selectedRepo.name}}</ng-container></span>
           <div class="d-flex align-items-center">
             <!-- Local data actions -->
-            <input id="uploadJsonInput" type="file" accept="application/json" class="d-none" (change)="uploadDocument($event.target.files)">
+            <input id="uploadJsonInput" #uploadJsonInput type="file" accept="application/json" class="d-none" (change)="uploadDocument($event.target.files)">
             <button class="btn btn-sm btn-outline-secondary me-2" (click)="download()" title="Download current data as JSON">
               <i class="fas fa-file-download"></i> Download
             </button>
-            <button class="btn btn-sm btn-outline-secondary me-3" (click)="document.getElementById('uploadJsonInput')?.click()" title="Upload JSON to replace current data">
+            <button class="btn btn-sm btn-outline-secondary me-3" (click)="uploadJsonInput.click()" title="Upload JSON to replace current data">
               <i class="fas fa-file-upload"></i> Upload
             </button>
             <!-- GitHub actions for the selected file -->
