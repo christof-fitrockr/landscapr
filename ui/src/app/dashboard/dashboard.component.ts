@@ -9,6 +9,7 @@ import { GithubDialogComponent } from '../components/github-dialog.component';
 import { SaveGithubDialogComponent } from '../components/save-github-dialog.component';
 import { GithubService } from '../services/github.service';
 import { ToastrService } from 'ngx-toastr';
+import { RepoService } from '../services/repo.service';
 
 @Component({selector: 'app-dashboard', templateUrl: './dashboard.component.html'})
 export class DashboardComponent implements OnInit {
@@ -19,7 +20,8 @@ export class DashboardComponent implements OnInit {
     private route: ActivatedRoute,
     public dialog: MatDialog,
     private githubService: GithubService,
-    private toastr: ToastrService
+    private toastr: ToastrService,
+    private repoService: RepoService
   ) {
   }
 
@@ -44,10 +46,14 @@ export class DashboardComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        this.githubService.getFileContent(result.owner.login, result.repo.name, result.path).subscribe(fileContent => {
+        this.githubService.getFileContent(result.owner, result.repo.name, result.file.path).subscribe(fileContent => {
           const content = atob(fileContent.content);
-          this.processes = JSON.parse(content);
-          this.toastr.success('File loaded successfully');
+          const blob = new Blob([content], { type: 'application/json' });
+          const file = new File([blob], result.file.name);
+          this.repoService.uploadJson(file).subscribe(() => {
+            this.toastr.success('File loaded successfully');
+            this.refresh();
+          });
         });
       }
     });
@@ -60,21 +66,26 @@ export class DashboardComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        this.githubService.getRepoContents(result.owner, result.repo.name, result.fileName).subscribe(
-          (fileArray) => {
-            const existingFile = fileArray.find(file => file.name === result.fileName);
-            const content = JSON.stringify(this.processes, null, 2);
-            this.githubService.createOrUpdateFile(result.owner, result.repo.name, result.fileName, content, existingFile?.sha).subscribe(() => {
-              this.toastr.success('File saved successfully');
-            });
-          },
-          () => {
-            const content = JSON.stringify(this.processes, null, 2);
-            this.githubService.createOrUpdateFile(result.owner, result.repo.name, result.fileName, content).subscribe(() => {
-              this.toastr.success('File saved successfully');
-            });
-          }
-        );
+        this.repoService.downloadAsJson().subscribe(blob => {
+          const reader = new FileReader();
+          reader.onload = () => {
+            const content = reader.result as string;
+            this.githubService.getRepoContents(result.owner, result.repo.name, result.fileName).subscribe(
+              (fileArray) => {
+                const existingFile = fileArray.find(file => file.name === result.fileName);
+                this.githubService.createOrUpdateFile(result.owner, result.repo.name, result.fileName, content, existingFile?.sha).subscribe(() => {
+                  this.toastr.success('File saved successfully');
+                });
+              },
+              () => {
+                this.githubService.createOrUpdateFile(result.owner, result.repo.name, result.fileName, content).subscribe(() => {
+                  this.toastr.success('File saved successfully');
+                });
+              }
+            );
+          };
+          reader.readAsText(blob);
+        });
       }
     });
   }

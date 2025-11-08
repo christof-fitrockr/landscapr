@@ -39,7 +39,11 @@ export class GithubDialogComponent implements OnInit {
   }
 
   selectFile(file: any): void {
-    this.dialogRef.close(file);
+    this.dialogRef.close({
+      owner: this.owner,
+      repo: this.selectedRepo,
+      file: file
+    });
   }
 
   close(): void {
