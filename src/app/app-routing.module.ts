@@ -36,6 +36,7 @@ import {ProcessJourneyComponent} from './process/process-journey.component';
 import { JourneyViewComponent } from './journey/journey-view/journey-view.component';
 import { JourneyMaintenanceComponent } from './journey/journey-maintenance/journey-maintenance.component';
 import { JourneyListComponent } from './journey/journey-list/journey-list.component';
+import { JourneyEditorComponent } from './journey/journey-editor/journey-editor.component';
 
 const routes: Routes = [
 
@@ -46,6 +47,7 @@ const routes: Routes = [
       { path: 'view/:id', component: JourneyViewComponent, canActivate: [AuthGuard] },
       { path: 'edit/:id', component: JourneyMaintenanceComponent, canActivate: [AuthGuard] },
       { path: 'create', component: JourneyMaintenanceComponent, canActivate: [AuthGuard] },
+      { path: 'editor', component: JourneyEditorComponent, canActivate: [AuthGuard] },
     ] },
   { path: 'swimlane/view/:id', component: SwimlaneViewComponent, canActivate: [AuthGuard] },
 

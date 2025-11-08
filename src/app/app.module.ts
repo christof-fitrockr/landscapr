@@ -86,7 +86,7 @@ import { JourneyViewComponent } from './journey/journey-view/journey-view.compon
 import { MermaidDirective } from './journey/mermaid.directive';
 import { JourneyMaintenanceComponent } from './journey/journey-maintenance/journey-maintenance.component';
 import { JourneyListComponent } from './journey/journey-list/journey-list.component';
-
+import { JourneyEditorComponent } from './journey/journey-editor/journey-editor.component';
 
 
 @NgModule({
@@ -171,6 +171,7 @@ import { JourneyListComponent } from './journey/journey-list/journey-list.compon
     MermaidDirective,
     JourneyMaintenanceComponent,
     JourneyListComponent,
+    JourneyEditorComponent,
   ],
   imports: [
     BrowserModule,

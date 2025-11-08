@@ -1,0 +1,94 @@
+.journey-editor {
+  position: relative;
+  height: calc(100vh - 120px);
+  display: flex;
+  flex-direction: column;
+}
+
+.toolbar {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: 10;
+  padding: 10px;
+  background: #fff;
+  border-radius: 6px;
+}
+
+.tool-buttons {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.canvas-wrapper {
+  flex: 1;
+  position: absolute;
+  top: 0; bottom: 0; left: 0; right: 0;
+  overflow: hidden;
+  background-color: #fafafa;
+}
+
+svg.canvas {
+  width: 100%;
+  height: 100%;
+  outline: none;
+  cursor: crosshair;
+}
+
+svg .node.process {
+  fill: #ffffff;
+  stroke: #6c757d;
+  stroke-width: 2;
+}
+
+svg .node.decision {
+  fill: #ffffff;
+  stroke: #6c757d;
+  stroke-width: 2;
+}
+
+svg .node.group {
+  fill: rgba(108, 117, 125, 0.08);
+  stroke: #adb5bd;
+  stroke-dasharray: 4 4;
+}
+
+svg .node.selected {
+  stroke: #007bff;
+  stroke-width: 3;
+}
+
+svg .edges .edge {
+  fill: none;
+  stroke: #999;
+  stroke-width: 2;
+  marker-end: url(#arrowhead);
+}
+
+/* Optional: arrowheads */
+svg defs marker#arrowhead {
+  overflow: visible;
+}
+
+.group-label {
+  font-size: 12px;
+  fill: #495057;
+}
+
+.legend {
+  margin-top: 6px;
+}
+
+/* Resize handles */
+svg .resize-handle {
+  fill: #ffffff;
+  stroke: #007bff;
+  stroke-width: 2;
+  cursor: pointer;
+}
+
+svg .handle-nw, svg .handle-se { cursor: nwse-resize; }
+svg .handle-ne, svg .handle-sw { cursor: nesw-resize; }
+svg .handle-n, svg .handle-s { cursor: ns-resize; }
+svg .handle-e, svg .handle-w { cursor: ew-resize; }
