@@ -1,0 +1,27 @@
+.repo-list, .file-list {
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+.repo-item, .file-item {
+  cursor: pointer;
+}
+
+.repo-item.active, .file-item.active {
+  background-color: rgba(0, 123, 255, 0.1);
+}
+
+.dnd-container {
+  border: 2px dashed #6c757d;
+  border-radius: 6px;
+  text-align: center;
+}
+
+.dnd-container label {
+  cursor: pointer;
+  color: #0d6efd;
+}
+
+.huge-icon {
+  font-size: 2rem;
+}

@@ -1,113 +1,151 @@
-<div class="journey-editor">
-  <div class="toolbar card shadow-sm">
-    <div class="tool-buttons">
-      <button class="btn btn-sm" [ngClass]="{'btn-primary': activeTool==='select', 'btn-light': activeTool!=='select'}" (click)="setTool('select')" title="Select">
-        <i class="fas fa-mouse-pointer"></i>
-      </button>
-      <button class="btn btn-sm" [ngClass]="{'btn-primary': activeTool==='process', 'btn-light': activeTool!=='process'}" (click)="setTool('process')" title="Process">
-        <i class="fas fa-cube"></i>
-      </button>
-      <button class="btn btn-sm" [ngClass]="{'btn-primary': activeTool==='decision', 'btn-light': activeTool!=='decision'}" (click)="setTool('decision')" title="Decision">
-        <i class="fas fa-code-branch"></i>
-      </button>
-      <button class="btn btn-sm" [ngClass]="{'btn-primary': activeTool==='group', 'btn-light': activeTool!=='group'}" (click)="setTool('group')" title="Group Box">
-        <i class="fas fa-object-group"></i>
-      </button>
-      <button class="btn btn-sm" [ngClass]="{'btn-primary': activeTool==='connector', 'btn-light': activeTool!=='connector'}" (click)="setTool('connector')" title="Connector">
-        <i class="fas fa-project-diagram"></i>
-      </button>
+<div class="container-fluid">
+  <div class="card shadow mb-4">
+
+    <div class="card-header py-3 d-flex flex-column">
+      <div class="d-flex flex-row align-items-center justify-content-between w-100">
+        <div class="btn-toolbar" role="toolbar" aria-label="Editor tools">
+          <div class="btn-group mr-2" role="group" aria-label="Tool buttons">
+            <button class="btn btn-secondary" [ngClass]="{'active': activeTool==='select'}" (click)="setTool('select')" title="Select">
+              <i class="fas fa-mouse-pointer"></i>
+            </button>
+            <button class="btn btn-secondary" [ngClass]="{'active': activeTool==='process'}" (click)="setTool('process')" title="Process">
+              <i class="fas fa-cube"></i>
+            </button>
+            <button class="btn btn-secondary" [ngClass]="{'active': activeTool==='decision'}" (click)="setTool('decision')" title="Decision">
+              <i class="fas fa-code-branch"></i>
+            </button>
+            <button class="btn btn-secondary" [ngClass]="{'active': activeTool==='group'}" (click)="setTool('group')" title="Group Box">
+              <i class="fas fa-object-group"></i>
+            </button>
+            <button class="btn btn-secondary" [ngClass]="{'active': activeTool==='connector'}" (click)="setTool('connector')" title="Connector">
+              <i class="fas fa-project-diagram"></i>
+            </button>
+          </div>
+          <div class="ml-2" *ngIf="activeTool==='process'">
+            <div class="input-group input-group-sm align-items-stretch">
+              <div class="input-group-prepend">
+                <span class="input-group-text">Process</span>
+              </div>
+              <div class="process-select">
+                <ng-select
+                  [items]="processes"
+                  bindLabel="name"
+                  bindValue="id"
+                  [(ngModel)]="selectedProcessId"
+                  [clearable]="true"
+                  [searchable]="true"
+                  dropdownPosition="bottom"
+                  appendTo="body"
+                  placeholder="Select process...">
+                </ng-select>
+              </div>
+              <div class="input-group-append">
+                <button class="btn btn-outline-primary" type="button" (click)="openNewProcessModal()">New Process</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="text-right">
+          <div class="m-0 font-weight-bold text-uppercase text-gray-400">Journey Editor</div>
+          <div class="small text-muted" *ngIf="journeyName">{{journeyName}}</div>
+        </div>
+      </div>
+      <div class="legend small text-muted mt-2">
+        Tips: Mouse wheel to zoom, right mouse or Shift+drag to pan. Click canvas with a tool to place. Delete key removes selection.
+      </div>
     </div>
 
-    <div class="tool-options" *ngIf="activeTool==='process'">
-      <label class="small text-muted mb-1">Process</label>
-      <select class="form-control form-control-sm" [(ngModel)]="selectedProcessId">
-        <option [ngValue]="null" disabled selected>Select process...</option>
-        <option *ngFor="let p of processes" [ngValue]="p.id">{{p.name}}</option>
-      </select>
-    </div>
+    <div class="card-body p-0">
+      <div class="journey-editor">
+        <div class="canvas-wrapper" (contextmenu)="$event.preventDefault()">
+          <svg #svgEl class="canvas" tabindex="0"
+               (mousedown)="onCanvasMouseDown($event)"
+               (mousemove)="onCanvasMouseMove($event)"
+               (mouseup)="onCanvasMouseUp($event)"
+               (wheel)="onWheel($event)">
+            <!-- Grid background using patterns -->
+            <defs>
+              <pattern id="smallGrid" width="20" height="20" patternUnits="userSpaceOnUse">
+                <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#e5e5e5" stroke-width="1" />
+              </pattern>
+              <pattern id="grid" width="100" height="100" patternUnits="userSpaceOnUse">
+                <rect width="100" height="100" fill="url(#smallGrid)" />
+                <path d="M 100 0 L 0 0 0 100" fill="none" stroke="#d6d6d6" stroke-width="1" />
+              </pattern>
+              <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+                <polygon points="0 0, 10 3.5, 0 7" fill="#999" />
+              </marker>
+            </defs>
+            <rect x="-100000" y="-100000" width="200000" height="200000" fill="url(#grid)"></rect>
 
-    <div class="legend small text-muted">
-      Tips: Mouse wheel to zoom, right mouse or Shift+drag to pan. Click canvas with a tool to place. Delete key removes selection.
-    </div>
-  </div>
+            <!-- Pan/Zoom group -->
+            <g [attr.transform]="'translate(' + panX + ',' + panY + ') scale(' + zoom + ')'"><!-- World space -->
 
-  <div class="canvas-wrapper" (contextmenu)="$event.preventDefault()">
-    <svg #svgEl class="canvas" tabindex="0"
-         (mousedown)="onCanvasMouseDown($event)"
-         (mousemove)="onCanvasMouseMove($event)"
-         (mouseup)="onCanvasMouseUp($event)"
-         (wheel)="onWheel($event)">
-      <!-- Grid background using patterns -->
-      <defs>
-        <pattern id="smallGrid" width="20" height="20" patternUnits="userSpaceOnUse">
-          <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#e5e5e5" stroke-width="1" />
-        </pattern>
-        <pattern id="grid" width="100" height="100" patternUnits="userSpaceOnUse">
-          <rect width="100" height="100" fill="url(#smallGrid)" />
-          <path d="M 100 0 L 0 0 0 100" fill="none" stroke="#d6d6d6" stroke-width="1" />
-        </pattern>
-        <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
-          <polygon points="0 0, 10 3.5, 0 7" fill="#999" />
-        </marker>
-      </defs>
-      <rect x="-100000" y="-100000" width="200000" height="200000" fill="url(#grid)"></rect>
-
-      <!-- Pan/Zoom group -->
-      <g [attr.transform]="'translate(' + panX + ',' + panY + ') scale(' + zoom + ')'"><!-- World space -->
-
-        <!-- Edges -->
-        <g class="edges">
-          <g *ngFor="let e of edges">
-            <path [attr.d]="edgePath(e)" class="edge" />
-          </g>
-        </g>
-
-        <!-- Nodes -->
-        <g class="nodes">
-          <!-- Process nodes -->
-          <g *ngFor="let n of nodes" [attr.transform]="'translate(' + n.x + ',' + n.y + ')'">
-            <ng-container [ngSwitch]="n.type">
-              <g *ngSwitchCase="'process'">
-                <rect [attr.width]="n.width" [attr.height]="n.height" rx="8" ry="8" class="node process" [ngClass]="{'selected': n.selected}"></rect>
-                <text [attr.x]="n.width/2" [attr.y]="n.height/2" dominant-baseline="middle" text-anchor="middle">{{n.label}}</text>
-              </g>
-              <g *ngSwitchCase="'decision'">
-                <!-- Diamond: rotate a square around its center -->
-                <rect [attr.width]="n.width" [attr.height]="n.height"
-                      [attr.transform]="'translate(' + (n.width/2) + ',' + (n.height/2) + ') rotate(45) translate(' + (-n.width/2) + ',' + (-n.height/2) + ')'"
-                      class="node decision" [ngClass]="{'selected': n.selected}"></rect>
-                <text [attr.x]="n.width/2" [attr.y]="n.height/2" dominant-baseline="middle" text-anchor="middle">{{n.label}}</text>
-              </g>
-              <g *ngSwitchCase="'group'">
-                <rect [attr.width]="n.width" [attr.height]="n.height" class="node group" [ngClass]="{'selected': n.selected}"></rect>
-                <text x="8" y="16" class="group-label">{{n.label}}</text>
-
-                <!-- Resize handles when selected -->
-                <g *ngIf="n.selected">
-                  <!-- corners -->
-                  <rect class="resize-handle handle-nw" [attr.x]="-4" [attr.y]="-4" width="8" height="8"
-                        (mousedown)="onResizeHandleMouseDown(n, 'nw', $event)"></rect>
-                  <rect class="resize-handle handle-ne" [attr.x]="n.width-4" [attr.y]="-4" width="8" height="8"
-                        (mousedown)="onResizeHandleMouseDown(n, 'ne', $event)"></rect>
-                  <rect class="resize-handle handle-se" [attr.x]="n.width-4" [attr.y]="n.height-4" width="8" height="8"
-                        (mousedown)="onResizeHandleMouseDown(n, 'se', $event)"></rect>
-                  <rect class="resize-handle handle-sw" [attr.x]="-4" [attr.y]="n.height-4" width="8" height="8"
-                        (mousedown)="onResizeHandleMouseDown(n, 'sw', $event)"></rect>
-                  <!-- edges -->
-                  <rect class="resize-handle handle-n" [attr.x]="n.width/2-4" [attr.y]="-4" width="8" height="8"
-                        (mousedown)="onResizeHandleMouseDown(n, 'n', $event)"></rect>
-                  <rect class="resize-handle handle-s" [attr.x]="n.width/2-4" [attr.y]="n.height-4" width="8" height="8"
-                        (mousedown)="onResizeHandleMouseDown(n, 's', $event)"></rect>
-                  <rect class="resize-handle handle-e" [attr.x]="n.width-4" [attr.y]="n.height/2-4" width="8" height="8"
-                        (mousedown)="onResizeHandleMouseDown(n, 'e', $event)"></rect>
-                  <rect class="resize-handle handle-w" [attr.x]="-4" [attr.y]="n.height/2-4" width="8" height="8"
-                        (mousedown)="onResizeHandleMouseDown(n, 'w', $event)"></rect>
+              <!-- Edges -->
+              <g class="edges">
+                <g *ngFor="let e of edges">
+                  <path [attr.d]="edgePath(e)" class="edge" [attr.marker-end]="'url(#arrowhead)'" (dblclick)="onEdgeDblClick(e, $event)" />
+                  <text *ngIf="e.label" [attr.x]="edgeMidpoint(e).x" [attr.y]="edgeMidpoint(e).y - 6" text-anchor="middle" class="edge-label">{{e.label}}</text>
                 </g>
               </g>
-            </ng-container>
-          </g>
-        </g>
-      </g>
-    </svg>
+
+              <!-- Nodes -->
+              <g class="nodes">
+                <!-- Background groups layer: render Group boxes first so they are always behind -->
+                <ng-container *ngFor="let n of nodes">
+                  <g *ngIf="n.type === 'group'" [attr.transform]="'translate(' + n.x + ',' + n.y + ')'" (dblclick)="onGroupDblClick(n, $event)"><!-- group node -->
+                    <rect [attr.width]="n.width" [attr.height]="n.height" class="node group" [ngClass]="{'selected': n.selected}"></rect>
+                    <text x="8" y="16" class="group-label">{{n.label}}</text>
+
+                    <!-- Resize handles when selected -->
+                    <g *ngIf="n.selected">
+                      <!-- corners -->
+                      <rect class="resize-handle handle-nw" [attr.x]="-4" [attr.y]="-4" width="8" height="8"
+                            (mousedown)="onResizeHandleMouseDown(n, 'nw', $event)"></rect>
+                      <rect class="resize-handle handle-ne" [attr.x]="n.width-4" [attr.y]="-4" width="8" height="8"
+                            (mousedown)="onResizeHandleMouseDown(n, 'ne', $event)"></rect>
+                      <rect class="resize-handle handle-se" [attr.x]="n.width-4" [attr.y]="n.height-4" width="8" height="8"
+                            (mousedown)="onResizeHandleMouseDown(n, 'se', $event)"></rect>
+                      <rect class="resize-handle handle-sw" [attr.x]="-4" [attr.y]="n.height-4" width="8" height="8"
+                            (mousedown)="onResizeHandleMouseDown(n, 'sw', $event)"></rect>
+                      <!-- edges -->
+                      <rect class="resize-handle handle-n" [attr.x]="n.width/2-4" [attr.y]="-4" width="8" height="8"
+                            (mousedown)="onResizeHandleMouseDown(n, 'n', $event)"></rect>
+                      <rect class="resize-handle handle-s" [attr.x]="n.width/2-4" [attr.y]="n.height-4" width="8" height="8"
+                            (mousedown)="onResizeHandleMouseDown(n, 's', $event)"></rect>
+                      <rect class="resize-handle handle-e" [attr.x]="n.width-4" [attr.y]="n.height/2-4" width="8" height="8"
+                            (mousedown)="onResizeHandleMouseDown(n, 'e', $event)"></rect>
+                      <rect class="resize-handle handle-w" [attr.x]="-4" [attr.y]="n.height/2-4" width="8" height="8"
+                            (mousedown)="onResizeHandleMouseDown(n, 'w', $event)"></rect>
+                    </g>
+                  </g>
+                </ng-container>
+
+                <!-- Foreground layer: Processes and Decisions -->
+                <ng-container *ngFor="let n of nodes">
+                  <g *ngIf="n.type !== 'group'" [attr.transform]="'translate(' + n.x + ',' + n.y + ')'"><!-- non-group node -->
+                    <ng-container [ngSwitch]="n.type">
+                      <g *ngSwitchCase="'process'" (dblclick)="onProcessDblClick(n, $event)">
+                        <rect [attr.width]="n.width" [attr.height]="n.height" rx="8" ry="8" class="node process" [ngClass]="{'selected': n.selected}"></rect>
+                        <text [attr.x]="n.width/2" [attr.y]="n.height/2" dominant-baseline="middle" text-anchor="middle">{{n.label}}</text>
+                      </g>
+                      <g *ngSwitchCase="'decision'" (dblclick)="onDecisionDblClick(n, $event)">
+                        <!-- Diamond: rotate a smaller square around its center -->
+                        <rect [attr.width]="n.width" [attr.height]="n.height"
+                              [attr.transform]="'translate(' + (n.width/2) + ',' + (n.height/2) + ') rotate(45) translate(' + (-n.width/2) + ',' + (-n.height/2) + ')'"
+                              class="node decision" [ngClass]="{'selected': n.selected}"></rect>
+                        <!-- Label below the diamond -->
+                        <text [attr.x]="n.width/2" [attr.y]="n.height + 12" text-anchor="middle" class="decision-label">{{n.label}}</text>
+                      </g>
+                    </ng-container>
+                  </g>
+                </ng-container>
+              </g>
+            </g>
+          </svg>
+        </div>
+      </div>
+    </div>
+
   </div>
 </div>

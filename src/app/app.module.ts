@@ -84,9 +84,14 @@ import { ThemeService } from './services/theme.service';
 import { ModalModule } from 'ngx-bootstrap/modal';
 import { JourneyViewComponent } from './journey/journey-view/journey-view.component';
 import { MermaidDirective } from './journey/mermaid.directive';
-import { JourneyMaintenanceComponent } from './journey/journey-maintenance/journey-maintenance.component';
+import { JourneyEditComponent } from './journey/journey-maintenance/journey-edit.component';
 import { JourneyListComponent } from './journey/journey-list/journey-list.component';
 import { JourneyEditorComponent } from './journey/journey-editor/journey-editor.component';
+import { ProcessQuickViewModalComponent } from './journey/journey-editor/process-quick-view-modal.component';
+import { ConditionEditModalComponent } from './journey/journey-editor/condition-edit-modal.component';
+import { NewProcessModalComponent } from './journey/journey-editor/new-process-modal.component';
+import { JourneyEditBaseComponent } from './journey/journey-edit-base.component';
+import { RepositoriesComponent } from './repositories/repositories.component';
 
 
 @NgModule({
@@ -94,6 +99,7 @@ import { JourneyEditorComponent } from './journey/journey-editor/journey-editor.
     GithubDialogComponent,
     SaveGithubDialogComponent,
     GithubActionsDialogComponent,
+    RepositoriesComponent,
     FileTypePipe,
     ProcessOverviewComponent,
     ProcessGraphComponent,
@@ -169,9 +175,13 @@ import { JourneyEditorComponent } from './journey/journey-editor/journey-editor.
     CapabilityComponent,
     JourneyViewComponent,
     MermaidDirective,
-    JourneyMaintenanceComponent,
+    JourneyEditComponent,
+    JourneyEditBaseComponent,
     JourneyListComponent,
     JourneyEditorComponent,
+    ProcessQuickViewModalComponent,
+    ConditionEditModalComponent,
+    NewProcessModalComponent,
   ],
   imports: [
     BrowserModule,

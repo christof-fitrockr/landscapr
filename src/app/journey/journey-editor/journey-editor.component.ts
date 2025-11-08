@@ -1,6 +1,13 @@
 import { Component, ElementRef, HostListener, OnInit, ViewChild } from '@angular/core';
-import { Process } from '../../models/process';
+import { ActivatedRoute } from '@angular/router';
+import { Process, Status } from '../../models/process';
 import { ProcessService } from '../../services/process.service';
+import { BsModalService } from 'ngx-bootstrap/modal';
+import { ProcessQuickViewModalComponent } from './process-quick-view-modal.component';
+import { ConditionEditModalComponent } from './condition-edit-modal.component';
+import { NewProcessModalComponent } from './new-process-modal.component';
+import { Journey, JourneyLayout, JourneyLayoutEdge, JourneyLayoutNode } from '../../models/journey.model';
+import { JourneyService } from '../../services/journey.service';
 
 // Basic types for nodes and edges
 export type ToolType = 'select' | 'process' | 'decision' | 'group' | 'connector';
@@ -51,6 +58,10 @@ export interface Edge {
 export class JourneyEditorComponent implements OnInit {
   @ViewChild('svgEl', { static: true }) svgEl: ElementRef<SVGSVGElement>;
 
+  journeyId: string | null = null;
+  journey: Journey | null = null;
+  journeyName: string | null = null;
+
   // Toolbox / tools
   tools: { key: ToolType; icon: string; label: string }[] = [
     { key: 'select', icon: 'fa-mouse-pointer', label: 'Select' },
@@ -97,12 +108,117 @@ export class JourneyEditorComponent implements OnInit {
   // Connector drawing state
   private pendingEdgeSourceId: string | null = null;
 
-  constructor(private processService: ProcessService) {}
+  private saveTimer: any;
+
+  openNewProcessModal(): void {
+    const ref = this.modalService.show(NewProcessModalComponent, { class: 'modal-sm', initialState: {} });
+    const comp = ref.content as NewProcessModalComponent;
+    if (comp) {
+      comp.saved.subscribe((name: string) => {
+        const p: Process = {
+          id: undefined as any,
+          repoId: '',
+          name,
+          description: '',
+          status: Status.Draft,
+          input: '',
+          output: '',
+          tags: [],
+          role: 0 as any,
+          steps: [],
+          apiCallIds: [],
+          favorite: false,
+          implementedBy: []
+        };
+        this.processService.create(p).subscribe(created => {
+          // Refresh list and select created
+          this.processService.all().subscribe(list => {
+            this.processes = list || [];
+            this.selectedProcessId = created.id;
+          });
+        });
+      });
+    }
+  }
+
+  constructor(
+    private route: ActivatedRoute,
+    private processService: ProcessService,
+    private journeyService: JourneyService,
+    private modalService: BsModalService
+  ) {}
 
   ngOnInit(): void {
     this.processService.all().subscribe(list => {
       this.processes = list || [];
     });
+
+    this.route.paramMap.subscribe(params => {
+      const id = params.get('id');
+      this.journeyId = id;
+      if (id) {
+        this.journeyService.byId(id).subscribe(j => {
+          this.journey = j;
+          this.journeyName = j?.name || null;
+          if (j?.layout) {
+            this.applyLayout(j.layout);
+          } else {
+            // reset to defaults for new/empty journeys
+            this.nodes = [];
+            this.edges = [];
+            this.panX = 0; this.panY = 0; this.zoom = 1;
+          }
+        });
+      }
+    });
+  }
+
+  private applyLayout(layout: JourneyLayout) {
+    this.panX = layout.panX || 0;
+    this.panY = layout.panY || 0;
+    this.zoom = layout.zoom || 1;
+    // map layout nodes to canvas nodes
+    this.nodes = (layout.nodes || []).map(n => {
+      if (n.type === 'process') {
+        return { id: n.id, type: 'process', x: n.x, y: n.y, width: n.width, height: n.height, label: n.label || '', processId: n.processId || '' } as ProcessNode;
+      }
+      if (n.type === 'decision') {
+        return { id: n.id, type: 'decision', x: n.x, y: n.y, width: n.width, height: n.height, label: n.label || 'Condition' } as DecisionNode;
+      }
+      return { id: n.id, type: 'group', x: n.x, y: n.y, width: n.width, height: n.height, label: n.label || 'Group' } as GroupNode;
+    });
+    this.nodes.forEach(n => n.selected = false);
+    this.edges = (layout.edges || []).map(e => ({ id: e.id, from: e.from, to: e.to, label: e.label }));
+  }
+
+  private buildLayout(): JourneyLayout {
+    const nodes: JourneyLayoutNode[] = this.nodes.map(n => ({
+      id: n.id,
+      type: n.type,
+      label: n.label,
+      x: n.x,
+      y: n.y,
+      width: n.width,
+      height: n.height,
+      processId: (n.type === 'process') ? (n as ProcessNode).processId : undefined
+    }));
+    const edges: JourneyLayoutEdge[] = this.edges.map(e => ({ id: e.id, from: e.from, to: e.to, label: e.label }));
+    return { nodes, edges, panX: this.panX, panY: this.panY, zoom: this.zoom };
+  }
+
+  private scheduleSave() {
+    if (!this.journeyId) return;
+    if (this.saveTimer) {
+      clearTimeout(this.saveTimer);
+    }
+    this.saveTimer = setTimeout(() => {
+      const updatedLayout = this.buildLayout();
+      if (!this.journey) return;
+      const updated: Journey = { ...this.journey, layout: updatedLayout } as Journey;
+      this.journeyService.update(this.journeyId!, updated).subscribe(j => {
+        this.journey = j;
+      });
+    }, 400);
   }
 
   // Mouse interactions on canvas
@@ -221,16 +337,22 @@ export class JourneyEditorComponent implements OnInit {
   }
 
   onCanvasMouseUp(_event: MouseEvent) {
+    const wasPanning = this.isPanning;
     this.isPanning = false;
     if (this.isDraggingNodes) {
       this.isDraggingNodes = false;
       this.dragStartPositions.clear();
+      this.scheduleSave();
     }
     if (this.isResizing) {
       this.isResizing = false;
       this.resizeHandle = null;
       this.resizeNodeId = null;
       this.resizeStartRect = null;
+      this.scheduleSave();
+    }
+    if (wasPanning) {
+      this.scheduleSave();
     }
   }
 
@@ -247,6 +369,7 @@ export class JourneyEditorComponent implements OnInit {
 
     // Zoom to cursor position
     const ptBefore = this.getSvgPoint(event as any as MouseEvent);
+    const oldZoom = this.zoom;
     this.zoom *= factor;
     this.zoom = Math.max(0.2, Math.min(4, this.zoom));
     const ptAfter = this.getSvgPoint(event as any as MouseEvent);
@@ -254,6 +377,10 @@ export class JourneyEditorComponent implements OnInit {
     // Adjust pan to keep the cursor under the same world point
     this.panX += (ptAfter.x - ptBefore.x) * this.zoom;
     this.panY += (ptAfter.y - ptBefore.y) * this.zoom;
+
+    if (oldZoom !== this.zoom) {
+      this.scheduleSave();
+    }
   }
 
   private startPan(event: MouseEvent) {
@@ -294,21 +421,24 @@ export class JourneyEditorComponent implements OnInit {
     // Auto-select the newly created node and switch back to select tool
     this.selectSingleNode(node.id);
     this.activeTool = 'select';
+    this.scheduleSave();
   }
 
   private placeDecisionNode(x: number, y: number) {
+    const size = 48; // smaller decision node
     const node: DecisionNode = {
       id: this.newId('dec'),
-      x: x - 50,
-      y: y - 50,
-      width: 100,
-      height: 100,
+      x: x - size/2,
+      y: y - size/2,
+      width: size,
+      height: size,
       type: 'decision',
-      label: 'Decision',
+      label: 'Condition',
     };
     this.nodes.push(node);
     this.selectSingleNode(node.id);
     this.activeTool = 'select';
+    this.scheduleSave();
   }
 
   private placeGroupNode(x: number, y: number) {
@@ -328,12 +458,22 @@ export class JourneyEditorComponent implements OnInit {
 
   // Selection & connector logic (minimal)
   private handleSelectDown(x: number, y: number): CanvasNode | undefined {
-    // Toggle selection by hit testing nodes from topmost
+    // Hit test preferring non-group nodes first, then groups
     let hit: CanvasNode | undefined;
+    // Pass 1: non-group (process/decision)
     for (let i = this.nodes.length - 1; i >= 0; i--) {
       const n = this.nodes[i];
-      if (x >= n.x && x <= n.x + n.width && y >= n.y && y <= n.y + n.height) {
+      if (n.type !== 'group' && x >= n.x && x <= n.x + n.width && y >= n.y && y <= n.y + n.height) {
         hit = n; break;
+      }
+    }
+    // Pass 2: groups (only if nothing else hit)
+    if (!hit) {
+      for (let i = this.nodes.length - 1; i >= 0; i--) {
+        const n = this.nodes[i];
+        if (n.type === 'group' && x >= n.x && x <= n.x + n.width && y >= n.y && y <= n.y + n.height) {
+          hit = n; break;
+        }
       }
     }
     this.nodes.forEach(n => n.selected = false);
@@ -357,18 +497,10 @@ export class JourneyEditorComponent implements OnInit {
       this.activeTool = 'select';
       // Select the target node for convenience
       this.selectSingleNode(node.id);
+      this.scheduleSave();
     }
   }
 
-  private findNodeAt(x: number, y: number): CanvasNode | undefined {
-    for (let i = this.nodes.length - 1; i >= 0; i--) {
-      const n = this.nodes[i];
-      if (x >= n.x && x <= n.x + n.width && y >= n.y && y <= n.y + n.height) {
-        return n;
-      }
-    }
-    return undefined;
-  }
 
   private selectSingleNode(id: string) {
     this.nodes.forEach(n => n.selected = (n.id === id));
@@ -413,6 +545,7 @@ export class JourneyEditorComponent implements OnInit {
         const ids = new Set(selected.map(n => n.id));
         this.nodes = this.nodes.filter(n => !ids.has(n.id));
         this.edges = this.edges.filter(e => !ids.has(e.from) && !ids.has(e.to));
+        this.scheduleSave();
       }
     }
   }
@@ -435,8 +568,90 @@ export class JourneyEditorComponent implements OnInit {
     return `M ${x1} ${y1} L ${x2} ${y2}`;
   }
 
+  edgeMidpoint(e: Edge): { x: number; y: number } {
+    const from = this.nodes.find(n => n.id === e.from);
+    const to = this.nodes.find(n => n.id === e.to);
+    if (!from || !to) return { x: 0, y: 0 };
+    const x1 = from.x + from.width / 2;
+    const y1 = from.y + from.height / 2;
+    const x2 = to.x + to.width / 2;
+    const y2 = to.y + to.height / 2;
+    return { x: (x1 + x2) / 2, y: (y1 + y2) / 2 };
+  }
+
+  onEdgeDblClick(e: Edge, event: MouseEvent) {
+    event.stopPropagation();
+    const ref = this.modalService.show(ConditionEditModalComponent, { initialState: { }, class: 'modal-sm' });
+    const comp = ref.content as ConditionEditModalComponent;
+    if (comp) {
+      comp.label = e.label || '';
+      comp.saved.subscribe((newLabel: string) => {
+        const trimmed = (newLabel || '').trim();
+        e.label = trimmed;
+        this.scheduleSave();
+      });
+    }
+  }
+
   setTool(tool: ToolType) {
     this.activeTool = tool;
     this.pendingEdgeSourceId = null;
+  }
+
+  // Open process quick view on double click
+  onProcessDblClick(node: CanvasNode, event: MouseEvent) {
+    event.stopPropagation();
+    if (node.type !== 'process') return;
+    const initialState = { processId: (node as ProcessNode).processId } as any;
+    this.modalService.show(ProcessQuickViewModalComponent, { initialState, class: 'modal-lg' });
+  }
+
+  // Open decision condition editor on double click
+  onDecisionDblClick(node: CanvasNode, event: MouseEvent) {
+    event.stopPropagation();
+    if (node.type !== 'decision') return;
+    const ref = this.modalService.show(ConditionEditModalComponent, { initialState: { }, class: 'modal-sm' });
+    const comp = ref.content as ConditionEditModalComponent;
+    if (comp) {
+      comp.label = node.label || '';
+      comp.saved.subscribe((newLabel: string) => {
+        node.label = newLabel || node.label || '';
+        this.scheduleSave();
+      });
+    }
+  }
+
+  // Open group rename editor on double click
+  onGroupDblClick(node: CanvasNode, event: MouseEvent) {
+    event.stopPropagation();
+    if (node.type !== 'group') return;
+    const ref = this.modalService.show(ConditionEditModalComponent, { initialState: { }, class: 'modal-sm' });
+    const comp = ref.content as ConditionEditModalComponent;
+    if (comp) {
+      comp.label = node.label || '';
+      comp.saved.subscribe((newLabel: string) => {
+        node.label = (newLabel || '').trim() || node.label || 'Group';
+        this.scheduleSave();
+      });
+    }
+  }
+
+  // Adjusted to prefer non-group nodes when connecting
+  private findNodeAt(x: number, y: number): CanvasNode | undefined {
+    // First try non-group nodes
+    for (let i = this.nodes.length - 1; i >= 0; i--) {
+      const n = this.nodes[i];
+      if (n.type !== 'group' && x >= n.x && x <= n.x + n.width && y >= n.y && y <= n.y + n.height) {
+        return n;
+      }
+    }
+    // Then allow groups
+    for (let i = this.nodes.length - 1; i >= 0; i--) {
+      const n = this.nodes[i];
+      if (n.type === 'group' && x >= n.x && x <= n.x + n.width && y >= n.y && y <= n.y + n.height) {
+        return n;
+      }
+    }
+    return undefined;
   }
 }

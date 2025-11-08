@@ -34,9 +34,11 @@ import {ProcessEditUsedByComponent} from './process/process-edit-used-by.compone
 import {SwimlaneViewComponent} from './swimlaneView/swimlane-view.component';
 import {ProcessJourneyComponent} from './process/process-journey.component';
 import { JourneyViewComponent } from './journey/journey-view/journey-view.component';
-import { JourneyMaintenanceComponent } from './journey/journey-maintenance/journey-maintenance.component';
+import { JourneyEditComponent } from './journey/journey-maintenance/journey-edit.component';
 import { JourneyListComponent } from './journey/journey-list/journey-list.component';
 import { JourneyEditorComponent } from './journey/journey-editor/journey-editor.component';
+import { JourneyEditBaseComponent } from './journey/journey-edit-base.component';
+import { RepositoriesComponent } from './repositories/repositories.component';
 
 const routes: Routes = [
 
@@ -45,9 +47,13 @@ const routes: Routes = [
       { path: '', redirectTo: 'list', pathMatch: 'full' },
       { path: 'list', component: JourneyListComponent, canActivate: [AuthGuard] },
       { path: 'view/:id', component: JourneyViewComponent, canActivate: [AuthGuard] },
-      { path: 'edit/:id', component: JourneyMaintenanceComponent, canActivate: [AuthGuard] },
-      { path: 'create', component: JourneyMaintenanceComponent, canActivate: [AuthGuard] },
+      { path: 'edit/:id', component: JourneyEditComponent, canActivate: [AuthGuard], children: [
+          { path: '', redirectTo: 'base', pathMatch: 'full' },
+          { path: 'base', component: JourneyEditBaseComponent, canActivate: [AuthGuard] },
+        ] },
+      { path: 'create', component: JourneyEditBaseComponent, canActivate: [AuthGuard] },
       { path: 'editor', component: JourneyEditorComponent, canActivate: [AuthGuard] },
+      { path: 'editor/:id', component: JourneyEditorComponent, canActivate: [AuthGuard] },
     ] },
   { path: 'swimlane/view/:id', component: SwimlaneViewComponent, canActivate: [AuthGuard] },
 
@@ -110,6 +116,7 @@ const routes: Routes = [
   { path: 'disclaimer', component: DisclaimerComponent},
   { path: 'imprint', component: ImprintComponent},
   { path: 'login', component: LoginPage},
+  { path: 'repositories', component: RepositoriesComponent, canActivate: [AuthGuard] },
   { path: '', redirectTo: '/dashboard', pathMatch: 'full' },
 ];
 

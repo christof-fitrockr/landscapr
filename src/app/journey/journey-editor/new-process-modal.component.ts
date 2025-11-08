@@ -2,17 +2,21 @@ import { Component, EventEmitter, Output } from '@angular/core';
 import { BsModalRef } from 'ngx-bootstrap/modal';
 
 @Component({
-  selector: 'app-condition-edit-modal',
-  templateUrl: './condition-edit-modal.component.html'
+  selector: 'app-new-process-modal',
+  templateUrl: './new-process-modal.component.html'
 })
-export class ConditionEditModalComponent {
-  label: string = '';
+export class NewProcessModalComponent {
+  name: string = '';
   @Output() saved = new EventEmitter<string>();
 
   constructor(public bsModalRef: BsModalRef) {}
 
   save(): void {
-    this.saved.emit(this.label);
+    const trimmed = (this.name || '').trim();
+    if (!trimmed) {
+      return;
+    }
+    this.saved.emit(trimmed);
     this.bsModalRef.hide();
   }
 

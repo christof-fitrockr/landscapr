@@ -1,0 +1,75 @@
+<div class="container-fluid mt-3">
+  <div class="row">
+    <div class="col-md-4">
+      <div class="card mb-3">
+        <div class="card-header">GitHub Connection</div>
+        <div class="card-body">
+          <div class="mb-3">
+            <label class="form-label">Personal Access Token</label>
+            <input [(ngModel)]="pat" type="password" class="form-control" placeholder="ghp_..." />
+          </div>
+          <button class="btn btn-primary" (click)="connect()" [disabled]="connecting">
+            <span *ngIf="!connecting">Connect</span>
+            <span *ngIf="connecting"><i class="fas fa-spinner fa-spin"></i> Connecting...</span>
+          </button>
+          <div *ngIf="owner" class="mt-2 text-muted">Connected as {{owner}}</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">Repositories</div>
+        <div class="card-body p-0 repo-list">
+          <ul class="list-group list-group-flush">
+            <li class="list-group-item repo-item" *ngFor="let r of (repos$ | async)" (click)="selectRepo(r)" [class.active]="selectedRepo?.name===r.name">
+              <i class="fab fa-github"></i> {{r.name}}
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="card mt-3">
+        <div class="card-header">Upload/Download Data</div>
+        <div class="card-body">
+          <div class="dnd-container pb-3 pt-3 m-0 mt-2 mb-2" appDnd (fileDropped)="uploadDocument($event)">
+            <input type="file" id="fileDropRef" class="dnd-input" (change)="uploadDocument($event.target.files)">
+            <i class="huge-icon fas fa-upload"></i>
+            <h6 class="mt-2">Drop JSON here</h6>
+            <p class="m-0">or</p>
+            <label for="fileDropRef">Browse for file</label>
+          </div>
+          <button class="btn btn-outline-secondary" (click)="download()"><i class="fas fa-download"></i> Download current JSON</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-8">
+      <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <span>Files <ng-container *ngIf="selectedRepo">in {{selectedRepo.name}}</ng-container></span>
+          <div>
+            <button class="btn btn-sm btn-outline-primary me-2" (click)="loadFromGithub()" [disabled]="!selectedFilePath"><i class="fas fa-download"></i> Load</button>
+            <button class="btn btn-sm btn-primary" (click)="saveToGithub()" [disabled]="!selectedFilePath || saving">
+              <span *ngIf="!saving"><i class="fas fa-upload"></i> Save</span>
+              <span *ngIf="saving"><i class="fas fa-spinner fa-spin"></i> Saving...</span>
+            </button>
+          </div>
+        </div>
+        <div class="card-body p-0 file-list">
+          <div *ngIf="!selectedRepo" class="p-3 text-muted">Select a repository to view its files.</div>
+          <div *ngIf="selectedRepo">
+            <div *ngIf="loadingFiles" class="p-3"><i class="fas fa-spinner fa-spin"></i> Loading files...</div>
+            <ul class="list-group list-group-flush">
+              <li class="list-group-item file-item" *ngFor="let f of (files$ | async)" (click)="selectFile(f)" [class.active]="selectedFilePath===f.path">
+                <i class="far" [ngClass]="f.type==='dir' ? 'fa-folder' : 'fa-file'" class="me-2"></i>
+                {{f.path}}
+              </li>
+            </ul>
+          </div>
+        </div>
+        <div *ngIf="selectedFilePath" class="card-footer small text-muted">
+          Selected: {{selectedFilePath}}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
