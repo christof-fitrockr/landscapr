@@ -27,6 +27,13 @@ export class CapabilityEditImplementedByComponent implements OnInit {
               private route: ActivatedRoute, private router: Router, private toastr: ToastrService) {
   }
 
+  onSystemSelected(systemId: string) {
+    if (systemId) {
+      this.addImplementedBySystem(systemId);
+    }
+    this.selectedSystemId = undefined;
+  }
+
   ngOnInit() {
 
     this.systemForm = this.formBuilder.group({
@@ -40,12 +47,17 @@ export class CapabilityEditImplementedByComponent implements OnInit {
 
     this.refresh();
 
-    this.suggestions$ = new Observable((observer: Observer<string | undefined>) => observer.next(this.search)).pipe(
-      switchMap((query: string) => {
-        if (query) {
-          return this.systemService.byName(this.repoId, query).pipe(
+    this.suggestions$ = this.systemInput$.pipe(
+      debounceTime(200),
+      distinctUntilChanged(),
+      switchMap((term: string) => {
+        if (!!term && this.repoId) {
+          return this.systemService.byName(this.repoId, term).pipe(
             map((data: Application[]) => data || []),
-            tap(() => noop, err => this.toastr.error(err && err.message || 'Something went wrong'))
+            catchError(err => {
+              this.toastr.error((err && err.message) || 'Something went wrong');
+              return of([]);
+            })
           );
         }
         return of([]);
