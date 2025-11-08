@@ -47,7 +47,7 @@ jobs:
 
           # --- Paths and Settings ---
           # Local directory to upload
-          local_path: './dist'
+          local_path: './dist/*'
 
           # Target directory on the remote server
           remote_path: '/landscapr/'

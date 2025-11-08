@@ -13,10 +13,13 @@ import {CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop';
 export class ProcessEditSubprocessComponent implements OnInit, OnDestroy {
   private repoId: string;
 
-
-
+  // Typeahead search
   search?: string;
   suggestions$?: Observable<Process[]>;
+
+  // New: catalog (all processes) + filter
+  allProcesses: Process[] = [];
+  catalogFilter = '';
 
   subProcessForm: FormGroup;
   process: Process;
@@ -41,6 +44,11 @@ export class ProcessEditSubprocessComponent implements OnInit, OnDestroy {
     });
 
     this.refresh();
+
+    // Load all processes for the catalog
+    this.processService.all().pipe(first()).subscribe(list => {
+      this.allProcesses = list || [];
+    });
 
     this.suggestions$ = new Observable((observer: Observer<string | undefined>) => observer.next(this.search)).pipe(
       switchMap((query: string) => {
