@@ -44,7 +44,7 @@ jobs:
           local-dir: ./dist/
 
           # The path on your FTP server where the files should be uploaded.
-          remote-dir: /landscapr/ # e.g., /public_html/, /www/, or /httpdocs/
+          server-dir: /landscapr/ # e.g., /public_html/, /www/, or /httpdocs/
 
           # Optional: Delete files on the server that are not in the local-dir
           # Use with caution!
