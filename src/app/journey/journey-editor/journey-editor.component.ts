@@ -593,6 +593,10 @@ export class JourneyEditorComponent implements OnInit {
   }
 
   onEdgeDblClick(e: Edge, event: MouseEvent) {
+    // Only allow editing when the Select tool is active
+    if (this.activeTool !== 'select') {
+      return;
+    }
     event.stopPropagation();
     const ref = this.modalService.show(ConditionEditModalComponent, { initialState: { }, class: 'modal-sm' });
     const comp = ref.content as ConditionEditModalComponent;
@@ -607,8 +611,11 @@ export class JourneyEditorComponent implements OnInit {
   }
 
   onEdgeMouseDown(e: Edge, event: MouseEvent) {
+    // Only handle edge selection in Select tool with left button
+    if (this.activeTool !== 'select' || event.button !== 0) {
+      return;
+    }
     event.stopPropagation();
-    if (event.button !== 0) return;
     // Select only this edge and deselect nodes
     this.nodes.forEach(n => n.selected = false);
     this.edges.forEach(ed => ed.selected = (ed.id === e.id));
