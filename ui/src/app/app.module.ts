@@ -82,6 +82,10 @@ import { GithubActionsDialogComponent } from './components/github-actions-dialog
 import { ThemeService } from './services/theme.service';
 
 import { ModalModule } from 'ngx-bootstrap/modal';
+import { JourneyViewComponent } from './journey/journey-view/journey-view.component';
+import { MermaidDirective } from './journey/mermaid.directive';
+import { JourneyMaintenanceComponent } from './journey/journey-maintenance/journey-maintenance.component';
+import { JourneyListComponent } from './journey/journey-list/journey-list.component';
 
 
 
@@ -163,6 +167,10 @@ import { ModalModule } from 'ngx-bootstrap/modal';
     InformationObjectFilterPipe,
     ProcessOverviewComponent,
     CapabilityComponent,
+    JourneyViewComponent,
+    MermaidDirective,
+    JourneyMaintenanceComponent,
+    JourneyListComponent,
   ],
   imports: [
     BrowserModule,

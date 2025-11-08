@@ -1,0 +1,24 @@
+<div class="container-fluid">
+  <h1>Journeys</h1>
+  <a routerLink="/journeys/create" class="btn btn-primary mb-3">Create Journey</a>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Description</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let journey of journeys">
+        <td>{{journey.name}}</td>
+        <td>{{journey.description}}</td>
+        <td>
+          <a [routerLink]="['/journeys/view', journey.id]" class="btn btn-sm btn-secondary">View</a>
+          <a [routerLink]="['/journeys/edit', journey.id]" class="btn btn-sm btn-primary">Edit</a>
+          <button (click)="deleteJourney(journey.id)" class="btn btn-sm btn-danger">Delete</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
