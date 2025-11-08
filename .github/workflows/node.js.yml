@@ -31,25 +31,11 @@ jobs:
 
       # --- FTP Deployment Section ---
       - name: 📂 FTP Deploy
-        uses: wlixcc/SFTP-Deploy-Action@v1.2.6
+        uses: milanmk/actions-file-deployer@master
         with:
-          # Required inputs
-          username: ${{ secrets.FTP_USERNAME }}
-          server: ${{ secrets.FTP_SERVER }}
-          remote_path: '/landscapr' # The target directory on the server
-          local_path: './dist'             # Your local build folder
-
-          # Password input (use a GitHub Secret for security)
-          password: ${{ secrets.FTP_PASSWORD }}
-
-          # Optional inputs
-          port: 22                         # Default SFTP port is 22
-          sftp_only: true                  # Recommended to ensure SFTP protocol is used
-
-          # --- Cleaning Parameter ---
-          # Set to 'true' to delete all files/folders in remote_path before uploading
-          delete_remote_files: true
-
-          # CRITICAL: Explicitly set ssh_private_key to an empty string
-          # to stop the action from searching for it.
-          ssh_private_key: ''
+          remote-protocol: 'sftp'
+          remote-host: ${{ secrets.FTP_SERVER }}
+          remote-user: ${{ secrets.FTP_USERNAME }}
+          remote-password: ${{ secrets.FTP_PASSWORD }} # Uses password directly
+          remote-path: '/landscapr/'
+          local-path: 'dist/'

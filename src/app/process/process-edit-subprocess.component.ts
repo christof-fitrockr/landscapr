@@ -3,10 +3,9 @@ import {ProcessService} from '../services/process.service';
 import {Process, ProcessWithStep, Step, StepSuccessor} from '../models/process';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {ActivatedRoute, Router} from '@angular/router';
-import {first, map, switchMap, tap} from 'rxjs/operators';
+import {first, map, switchMap, tap, debounceTime, distinctUntilChanged, catchError} from 'rxjs/operators';
 import {ToastrService} from 'ngx-toastr';
-import {noop, Observable, Observer, of, Subscription} from 'rxjs';
-import {TypeaheadMatch} from 'ngx-bootstrap/typeahead';
+import {noop, Observable, Observer, of, Subscription, Subject} from 'rxjs';
 import {CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop';
 
 @Component({templateUrl: './process-edit-subprocess.component.html', styleUrls: ['./process-edit-subprocess.component.scss']})
@@ -29,9 +28,6 @@ export class ProcessEditSubprocessComponent implements OnInit, OnDestroy {
   constructor(private processService: ProcessService, private formBuilder: FormBuilder, private route: ActivatedRoute, private router: Router, private toastr: ToastrService) {
   }
 
-  typeaheadOnSelect(e: TypeaheadMatch): void {
-    this.addSubProcess(e.item.id);
-  }
 
   ngOnInit() {
 
