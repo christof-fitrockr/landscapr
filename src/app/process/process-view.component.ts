@@ -1,6 +1,6 @@
-import {Component, ElementRef, OnInit, ViewChild} from '@angular/core';
+import {Component, Input, OnChanges, OnInit, SimpleChanges, ViewChild} from '@angular/core';
 import {ProcessService} from '../services/process.service';
-import {Process, ProcessWithStep} from '../models/process';
+import {Process} from '../models/process';
 import {FormBuilder} from '@angular/forms';
 import {ActivatedRoute, Router} from '@angular/router';
 import {ToastrService} from 'ngx-toastr';
@@ -8,13 +8,12 @@ import {Location} from '@angular/common';
 import {first} from 'rxjs/operators';
 import {ApiCall} from '../models/api-call';
 import {ApiCallService} from '../services/api-call.service';
-import {Subscription} from 'rxjs';
 import {SwimlaneViewComponent} from '../swimlaneView/swimlane-view.component';
 
 @Component({selector: 'app-process-view', styleUrls: ['./process-view.component.scss'], templateUrl: './process-view.component.html'})
-export class ProcessViewComponent implements OnInit {
+export class ProcessViewComponent implements OnInit, OnChanges {
 
-  processId: string;
+  @Input() processId: string | null = null;
   process: Process;
   loading: boolean = false;
   parents: Process[];
@@ -39,12 +38,26 @@ export class ProcessViewComponent implements OnInit {
   }
 
   ngOnInit() {
+      // Prefer input `processId` if provided; otherwise fallback to route param
+      if (!this.processId) {
+        this.processId = this.route.snapshot.paramMap.get('id');
+      }
+      if (this.processId) {
+        this.refresh();
+      }
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['processId'] && this.processId) {
       this.refresh();
+    }
   }
 
   private refresh() {
+    if (!this.processId) {
+      return;
+    }
     this.loading = true;
-    this.processId = this.route.snapshot.paramMap.get('id');
     this.processService.byId(this.processId).pipe(first()).subscribe(
       process => {
         this.process = process;

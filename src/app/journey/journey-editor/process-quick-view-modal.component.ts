@@ -1,22 +1,24 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { BsModalRef } from 'ngx-bootstrap/modal';
-import { Process } from '../../models/process';
-import { ProcessService } from '../../services/process.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-process-quick-view-modal',
   templateUrl: './process-quick-view-modal.component.html',
 })
-export class ProcessQuickViewModalComponent implements OnInit {
-  @Input() processId: string;
-  process: Process | null = null;
+export class ProcessQuickViewModalComponent {
+  @Input() processId: string | null = null;
 
-  constructor(public bsModalRef: BsModalRef, private processService: ProcessService) {}
+  constructor(public bsModalRef: BsModalRef, private router: Router) {}
 
-  ngOnInit(): void {
-    if (this.processId) {
-      this.processService.byId(this.processId).subscribe(p => this.process = p);
-    }
+  openDetails(): void {
+    if (!this.processId) { return; }
+    this.router.navigate(['/process/edit', this.processId, 'base']).then(() => this.close());
+  }
+
+  openFullView(): void {
+    if (!this.processId) { return; }
+    this.router.navigate(['/process/view', this.processId]).then(() => this.close());
   }
 
   close(): void {

@@ -750,7 +750,7 @@ export class JourneyEditorComponent implements OnInit {
     event.stopPropagation();
     if (node.type !== 'process') return;
     const initialState = { processId: (node as ProcessNode).processId } as any;
-    this.modalService.show(ProcessQuickViewModalComponent, { initialState, class: 'modal-lg' });
+    this.modalService.show(ProcessQuickViewModalComponent, { initialState, class: 'modal-xl modal-dialog-scrollable w-100' });
   }
 
   // Open decision condition editor on double click
