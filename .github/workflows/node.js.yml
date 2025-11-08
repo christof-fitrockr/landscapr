@@ -31,26 +31,22 @@ jobs:
 
       # --- FTP Deployment Section ---
       - name: 📂 FTP Deploy
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        uses: wlixcc/SFTP-Deploy-Action@v1.2.6
         with:
-          server: ${{ secrets.FTP_SERVER }}
+          # Required inputs
           username: ${{ secrets.FTP_USERNAME }}
+          server: ${{ secrets.FTP_SERVER }}
+          remote_path: '/landscapr' # The target directory on the server
+          local_path: './dist'             # Your local build folder
+
+          # Password input (use a GitHub Secret for security)
           password: ${{ secrets.FTP_PASSWORD }}
-          # Explicitly set the port for SFTP (SSH Port). Default is 22.
-          port: 22
 
-          # This should match the output path of your build command.
-          # Check your 'angular.json' or the output of 'npm run build'
-          # The default for many newer Angular projects is 'dist/PROJECT-NAME/browser/'
-          # Replace 'my-project-name' with your actual Angular project name.
-          local-dir: ./dist/
+          # Optional inputs
+          port: 22                         # Default SFTP port is 22
+          sftp_only: true                  # Recommended to ensure SFTP protocol is used
 
-          # The path on your FTP server where the files should be uploaded.
-          server-dir: /landscapr/ # e.g., /public_html/, /www/, or /httpdocs/
+          # --- Cleaning Parameter ---
+          # Set to 'true' to delete all files/folders in remote_path before uploading
+          delete_remote_files: true
 
-          # Force the connection type to be SFTP (Optional, but good practice)
-          protocol: ftps
-
-          # Optional: Delete files on the server that are not in the local-dir
-          # Use with caution!
-          dangerous-clean-slate: true
