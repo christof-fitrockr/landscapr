@@ -1,0 +1,51 @@
+name: Angular Build and FTP Deploy
+
+on:
+  push:
+    branches:
+      - main  # Set this to your main branch (e.g., 'master' or 'main')
+
+jobs:
+  web-deploy:
+    name: Build and Deploy
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: ⬇️ Checkout code
+        uses: actions/checkout@v4
+
+      - name: ⚙️ Setup Node.js environment
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20' # Use a recent, stable Node.js version
+          cache: 'npm'
+
+      - name: 📦 Install dependencies
+        run: npm install
+
+      - name: 🏗️ Build Angular project
+        # Use the Angular CLI command.
+        # The output directory is typically 'dist/project-name'.
+        # Check your angular.json or package.json for the correct build command.
+        run: npm run build -- --configuration production
+
+      # --- FTP Deployment Section ---
+      - name: 📂 FTP Deploy
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+
+          # This should match the output path of your build command.
+          # Check your 'angular.json' or the output of 'npm run build'
+          # The default for many newer Angular projects is 'dist/PROJECT-NAME/browser/'
+          # Replace 'my-project-name' with your actual Angular project name.
+          local-dir: ./dist/my-project-name/browser/
+
+          # The path on your FTP server where the files should be uploaded.
+          remote-dir: /landscapr/ # e.g., /public_html/, /www/, or /httpdocs/
+
+          # Optional: Delete files on the server that are not in the local-dir
+          # Use with caution!
+          # dangerous-clean-slate: true
