@@ -33,7 +33,7 @@
                      placeholder="Filter processes...">
 
               <div cdkDropList [id]="'catalogList'" [cdkDropListData]="filteredCatalog" class="catalog-list">
-                <div class="card mb-1 p-2" *ngFor="let proc of filteredCatalog" cdkDrag>
+                <div class="card mb-1 p-2" *ngFor="let proc of filteredCatalog" cdkDrag [cdkDragData]="proc">
                   <div class="cdk-drag-handle"><i class="fas fa-grip-lines"></i></div>
                   <div class="small font-weight-bold">{{proc.name}}</div>
                   <div class="text-muted small" *ngIf="proc.description">{{proc.description}}</div>
@@ -45,7 +45,11 @@
 
         <!-- Right: Current subprocess steps -->
         <div class="col-md-7">
-          <div cdkDropList [id]="'stepsList'" [cdkDropListData]="subProcesses" [cdkDropListConnectedTo]="['catalogList']" (cdkDropListDropped)="drop($event)">
+          <div cdkDropList [id]="'stepsList'" class="steps-dropzone" [cdkDropListData]="subProcesses" [cdkDropListConnectedTo]="['catalogList']" (cdkDropListDropped)="drop($event)">
+
+            <div *ngIf="!subProcesses || !subProcesses.length" class="empty-hint">
+              Drop processes here to add them as steps
+            </div>
 
             <div class="process-card mt-1" *ngFor="let item of subProcesses" cdkDrag>
 

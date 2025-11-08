@@ -73,6 +73,27 @@ export class ProcessEditSubprocessComponent implements OnInit, OnDestroy {
     this.subscription.unsubscribe();
   }
 
+  get filteredCatalog(): Process[] {
+    let list = this.allProcesses || [];
+    // Exclude the current process itself
+    if (this.processId) {
+      list = list.filter(p => p.id !== this.processId);
+    }
+    // Optionally exclude already added subprocesses to avoid duplicates in the UI
+    if (this.process && this.process.steps && this.process.steps.length) {
+      const used = new Set(this.process.steps.map(s => s.processReference));
+      list = list.filter(p => !used.has(p.id));
+    }
+    const term = (this.catalogFilter || '').toLowerCase().trim();
+    if (term) {
+      list = list.filter(p =>
+        (p.name || '').toLowerCase().includes(term) ||
+        (p.description || '').toLowerCase().includes(term)
+      );
+    }
+    return list;
+  }
+
   private refresh() {
     this.processId = this.route.parent.snapshot.paramMap.get('id');
     if (this.processId) {
@@ -167,11 +188,36 @@ export class ProcessEditSubprocessComponent implements OnInit, OnDestroy {
     }
   }
 
-  drop(event: CdkDragDrop<ProcessWithStep[]>) {
+  drop(event: CdkDragDrop<any>) {
+     // Reorder inside the steps list
      if (event.previousContainer === event.container) {
        moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
        this.updateList(event.container.data);
-    }
+     } else {
+       // Dragged from catalog to steps list
+       const dragged: Process = event.item.data as Process;
+       if (!dragged) {
+         return;
+       }
+       if (!this.process.steps) {
+         this.process.steps = [];
+       }
+       const exists = this.process.steps.some(s => s.processReference === dragged.id);
+       if (exists) {
+         this.toastr.info('Process already added as a step');
+         return;
+       }
+       const newStep = new Step();
+       newStep.processReference = dragged.id;
+       // Insert at the dropped position if valid, else push at the end
+       const insertAt = typeof event.currentIndex === 'number' ? event.currentIndex : this.process.steps.length;
+       if (insertAt >= 0 && insertAt <= this.process.steps.length) {
+         this.process.steps.splice(insertAt, 0, newStep);
+       } else {
+         this.process.steps.push(newStep);
+       }
+       this.onUpdate();
+     }
   }
 
   private updateList(steps: ProcessWithStep[]) {
