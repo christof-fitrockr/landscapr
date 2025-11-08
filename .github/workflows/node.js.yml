@@ -36,6 +36,8 @@ jobs:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
+          # Explicitly set the port for SFTP (SSH Port). Default is 22.
+          port: 22
 
           # This should match the output path of your build command.
           # Check your 'angular.json' or the output of 'npm run build'
@@ -45,6 +47,9 @@ jobs:
 
           # The path on your FTP server where the files should be uploaded.
           server-dir: /landscapr/ # e.g., /public_html/, /www/, or /httpdocs/
+
+          # Force the connection type to be SFTP (Optional, but good practice)
+          protocol: sftp
 
           # Optional: Delete files on the server that are not in the local-dir
           # Use with caution!
