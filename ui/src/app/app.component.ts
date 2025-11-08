@@ -6,6 +6,8 @@ import {first} from 'rxjs/operators';
 import {EMPTY, Observable} from 'rxjs';
 import {Upload} from './helpers/upload';
 import {ThemeService} from './services/theme.service';
+import { BsModalService } from 'ngx-bootstrap/modal';
+import { GithubActionsDialogComponent } from './components/github-actions-dialog.component';
 
 @Component({
   selector: 'app-root',
@@ -18,7 +20,8 @@ export class AppComponent implements OnInit {
   upload$: Observable<Upload> = EMPTY;
 
   constructor(private authenticationService: AuthenticationService,
-              private repoService: RepoService, private fileSaverService: FileSaverService, public themeService: ThemeService) { }
+              private repoService: RepoService, private fileSaverService: FileSaverService, public themeService: ThemeService,
+              private modalService: BsModalService) { }
 
   ngOnInit() {
     this.dataAvailable = this.repoService.dataAvailable();
@@ -43,5 +46,9 @@ export class AppComponent implements OnInit {
       location.reload();
 
     });
+  }
+
+  openGithubActionsDialog() {
+    this.modalService.show(GithubActionsDialogComponent, { class: 'modal-sm' });
   }
 }

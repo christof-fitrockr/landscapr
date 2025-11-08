@@ -9,6 +9,8 @@ import { GithubDialogComponent } from '../components/github-dialog.component';
 import { SaveGithubDialogComponent } from '../components/save-github-dialog.component';
 import { GithubService } from '../services/github.service';
 import { ToastrService } from 'ngx-toastr';
+import { RepoService } from '../services/repo.service';
+import { GithubActionsDialogComponent } from '../components/github-actions-dialog.component';
 
 @Component({selector: 'app-dashboard', templateUrl: './dashboard.component.html'})
 export class DashboardComponent implements OnInit {
@@ -20,7 +22,8 @@ export class DashboardComponent implements OnInit {
     private route: ActivatedRoute,
     private modalService: BsModalService,
     private githubService: GithubService,
-    private toastr: ToastrService
+    private toastr: ToastrService,
+    private repoService: RepoService
   ) {
   }
 
@@ -47,9 +50,17 @@ export class DashboardComponent implements OnInit {
       content.onClose.subscribe((result: any) => {
         if (result) {
           this.githubService.getFileContent(result.owner.login, result.repo.name, result.path).subscribe(fileContent => {
-            const content = atob(fileContent.content);
-            this.processes = JSON.parse(content);
-            this.toastr.success('File loaded successfully');
+            try {
+              const content = atob(fileContent.content);
+              this.repoService.uploadJsonContent(content).pipe(first()).subscribe(() => {
+                this.refresh();
+                this.toastr.success('Repository content updated from GitHub file');
+              });
+            } catch (e) {
+              this.toastr.error('Failed to parse GitHub file content');
+            }
+          }, () => {
+            this.toastr.error('Failed to load file from GitHub');
           });
         }
       });
@@ -62,18 +73,32 @@ export class DashboardComponent implements OnInit {
     if (content && content.onClose) {
       content.onClose.subscribe((result: any) => {
         if (result) {
-          this.githubService.getRepoContents(result.owner, result.repo.name, result.fileName).subscribe(
-            (fileArray) => {
-              const existingFile = fileArray.find(file => file.name === result.fileName);
-              const content = JSON.stringify(this.processes, null, 2);
-              this.githubService.createOrUpdateFile(result.owner, result.repo.name, result.fileName, content, existingFile?.sha).subscribe(() => {
-                this.toastr.success('File saved successfully');
+          this.githubService.getFileContent(result.owner, result.repo.name, result.fileName).subscribe(
+            (file) => {
+              const sha = file && file.sha ? file.sha : undefined;
+              this.repoService.downloadAsJson().pipe(first()).subscribe(blob => {
+                (blob as Blob).text().then(content => {
+                  this.githubService.createOrUpdateFile(result.owner, result.repo.name, result.fileName, content, sha).subscribe(() => {
+                    this.toastr.success('File saved successfully');
+                  }, (err) => {
+                    this.toastr.error('Failed to save file to GitHub');
+                  });
+                }).catch(() => {
+                  this.toastr.error('Failed to prepare JSON content for GitHub');
+                });
               });
             },
             () => {
-              const content = JSON.stringify(this.processes, null, 2);
-              this.githubService.createOrUpdateFile(result.owner, result.repo.name, result.fileName, content).subscribe(() => {
-                this.toastr.success('File saved successfully');
+              this.repoService.downloadAsJson().pipe(first()).subscribe(blob => {
+                (blob as Blob).text().then(content => {
+                  this.githubService.createOrUpdateFile(result.owner, result.repo.name, result.fileName, content).subscribe(() => {
+                    this.toastr.success('File saved successfully');
+                  }, (err) => {
+                    this.toastr.error('Failed to save file to GitHub');
+                  });
+                }).catch(() => {
+                  this.toastr.error('Failed to prepare JSON content for GitHub');
+                });
               });
             }
           );
@@ -84,5 +109,9 @@ export class DashboardComponent implements OnInit {
 
   ngOnDestroy() {
     this.subscription.unsubscribe();
+  }
+
+  openGithubActionsDialog(): void {
+    this.modalService.show(GithubActionsDialogComponent, { class: 'modal-sm' });
   }
 }

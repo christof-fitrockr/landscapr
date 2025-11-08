@@ -7,7 +7,7 @@ import {ProcessViewComponent} from './process/process-view.component';
 import {ProcessEditComponent} from './process/process-edit.component';
 import {ProcessEditSubprocessComponent} from './process/process-edit-subprocess.component';
 import {ProcessEditBaseComponent} from './process/process-edit-base.component';
-import {DashboardComponent} from './dashboard/dashboard,component';
+import {DashboardComponent} from './dashboard/dashboard.component';
 import {ProcessEditFlowComponent} from './process/process-edit-flow.component';
 import {ProcessEditApiCallsComponent} from './process/process-edit-api-calls.component';
 import {ApiCallListComponent} from './apiCall/api-call-list.component';

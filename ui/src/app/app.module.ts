@@ -28,7 +28,7 @@ import {NgSelectModule} from '@ng-select/ng-select';
 import {ProcessEditSubprocessComponent} from './process/process-edit-subprocess.component';
 import {ProcessEditBaseComponent} from './process/process-edit-base.component';
 import {NgxGraphModule} from '@swimlane/ngx-graph';
-import {DashboardComponent} from './dashboard/dashboard,component';
+import {DashboardComponent} from './dashboard/dashboard.component';
 import {ProcessEditFlowComponent} from './process/process-edit-flow.component';
 import {ProcessGraphComponent} from './components/process-graph.component';
 import {ProcessEditApiCallsComponent} from './process/process-edit-api-calls.component';
@@ -77,6 +77,7 @@ import {PrivacyPolicyComponent} from './privacyPolicy/privacy-policy.component';
 import { GithubDialogComponent } from './components/github-dialog.component';
 import { FileTypePipe } from './pipes/file-type.pipe';
 import { SaveGithubDialogComponent } from './components/save-github-dialog.component';
+import { GithubActionsDialogComponent } from './components/github-actions-dialog.component';
 
 import { ThemeService } from './services/theme.service';
 
@@ -88,6 +89,7 @@ import { ModalModule } from 'ngx-bootstrap/modal';
   declarations: [
     GithubDialogComponent,
     SaveGithubDialogComponent,
+    GithubActionsDialogComponent,
     FileTypePipe,
     ProcessOverviewComponent,
     ProcessGraphComponent,
