@@ -26,29 +26,24 @@
           </ul>
         </div>
       </div>
-
-      <div class="card mt-3">
-        <div class="card-header">Upload/Download Data</div>
-        <div class="card-body">
-          <div class="dnd-container pb-3 pt-3 m-0 mt-2 mb-2" appDnd (fileDropped)="uploadDocument($event)">
-            <input type="file" id="fileDropRef" class="dnd-input" (change)="uploadDocument($event.target.files)">
-            <i class="huge-icon fas fa-upload"></i>
-            <h6 class="mt-2">Drop JSON here</h6>
-            <p class="m-0">or</p>
-            <label for="fileDropRef">Browse for file</label>
-          </div>
-          <button class="btn btn-outline-secondary" (click)="download()"><i class="fas fa-download"></i> Download current JSON</button>
-        </div>
-      </div>
     </div>
 
     <div class="col-md-8">
       <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center">
           <span>Files <ng-container *ngIf="selectedRepo">in {{selectedRepo.name}}</ng-container></span>
-          <div>
-            <button class="btn btn-sm btn-outline-primary me-2" (click)="loadFromGithub()" [disabled]="!selectedFilePath"><i class="fas fa-download"></i> Load</button>
-            <button class="btn btn-sm btn-primary" (click)="saveToGithub()" [disabled]="!selectedFilePath || saving">
+          <div class="d-flex align-items-center">
+            <!-- Local data actions -->
+            <input id="uploadJsonInput" type="file" accept="application/json" class="d-none" (change)="uploadDocument($event.target.files)">
+            <button class="btn btn-sm btn-outline-secondary me-2" (click)="download()" title="Download current data as JSON">
+              <i class="fas fa-file-download"></i> Download
+            </button>
+            <button class="btn btn-sm btn-outline-secondary me-3" (click)="document.getElementById('uploadJsonInput')?.click()" title="Upload JSON to replace current data">
+              <i class="fas fa-file-upload"></i> Upload
+            </button>
+            <!-- GitHub actions for the selected file -->
+            <button class="btn btn-sm btn-outline-primary me-2" (click)="loadFromGithub()" [disabled]="!selectedFilePath" title="Load selected GitHub file into app data"><i class="fas fa-download"></i> Load</button>
+            <button class="btn btn-sm btn-primary" (click)="saveToGithub()" [disabled]="!selectedFilePath || saving" title="Save current data to selected GitHub file">
               <span *ngIf="!saving"><i class="fas fa-upload"></i> Save</span>
               <span *ngIf="saving"><i class="fas fa-spinner fa-spin"></i> Saving...</span>
             </button>

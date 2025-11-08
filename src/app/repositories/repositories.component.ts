@@ -13,6 +13,9 @@ import { FileSaverService } from 'ngx-filesaver';
 })
 export class RepositoriesComponent implements OnInit {
 
+  private static readonly STORAGE_SELECTED_REPO = 'repositories.selectedRepo';
+  private static readonly STORAGE_SELECTED_FILE = 'repositories.selectedFilePath';
+
   pat: string = '';
   owner: string = '';
 
@@ -48,6 +51,18 @@ export class RepositoriesComponent implements OnInit {
     this.githubService.getUser().pipe(first()).subscribe(user => {
       this.owner = user.login;
       this.repos$ = this.githubService.getRepos();
+
+      // Try to preselect previously selected repo when repos arrive
+      const savedRepoName = localStorage.getItem(RepositoriesComponent.STORAGE_SELECTED_REPO);
+      if (savedRepoName) {
+        this.repos$.pipe(first()).subscribe(repos => {
+          const found = repos?.find((r: any) => r?.name === savedRepoName);
+          if (found) {
+            this.selectRepo(found);
+          }
+        });
+      }
+
       this.connecting = false;
       this.toastr.success('Connected to GitHub');
     }, _ => {
@@ -58,15 +73,31 @@ export class RepositoriesComponent implements OnInit {
 
   selectRepo(repo: any): void {
     this.selectedRepo = repo;
+    localStorage.setItem(RepositoriesComponent.STORAGE_SELECTED_REPO, repo?.name ?? '');
+    // Reset file selection in memory; keep stored selection to try to restore if it belongs to this repo
     this.selectedFilePath = null;
+
     this.loadingFiles = true;
     this.files$ = this.githubService.getRepoContents(this.owner, repo.name, '');
     // When observable resolves, Angular will render. We just turn off spinner shortly after by subscribing once.
-    this.files$.pipe(first()).subscribe(_ => this.loadingFiles = false, _ => this.loadingFiles = false);
+    this.files$.pipe(first()).subscribe(files => {
+      this.loadingFiles = false;
+      // Try to preselect previously selected file if it exists in this repo
+      const savedFilePath = localStorage.getItem(RepositoriesComponent.STORAGE_SELECTED_FILE);
+      if (savedFilePath) {
+        const found = (files || []).find((f: any) => f?.path === savedFilePath);
+        if (found) {
+          this.selectFile(found);
+        }
+      }
+    }, _ => this.loadingFiles = false);
   }
 
   selectFile(file: any): void {
     this.selectedFilePath = file.path;
+    if (this.selectedFilePath) {
+      localStorage.setItem(RepositoriesComponent.STORAGE_SELECTED_FILE, this.selectedFilePath);
+    }
   }
 
   // Load from selected GitHub file into local app storage

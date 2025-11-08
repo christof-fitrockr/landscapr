@@ -41,7 +41,7 @@ jobs:
           # Check your 'angular.json' or the output of 'npm run build'
           # The default for many newer Angular projects is 'dist/PROJECT-NAME/browser/'
           # Replace 'my-project-name' with your actual Angular project name.
-          local-dir: ./dist/landscapr/browser/
+          local-dir: ./dist/
 
           # The path on your FTP server where the files should be uploaded.
           remote-dir: /landscapr/ # e.g., /public_html/, /www/, or /httpdocs/
