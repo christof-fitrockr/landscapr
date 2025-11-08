@@ -33,10 +33,20 @@ import {ApiCallEditImplementedInComponent} from './apiCall/api-call-edit-impleme
 import {ProcessEditUsedByComponent} from './process/process-edit-used-by.component';
 import {SwimlaneViewComponent} from './swimlaneView/swimlane-view.component';
 import {ProcessJourneyComponent} from './process/process-journey.component';
+import { JourneyViewComponent } from './journey/journey-view/journey-view.component';
+import { JourneyMaintenanceComponent } from './journey/journey-maintenance/journey-maintenance.component';
+import { JourneyListComponent } from './journey/journey-list/journey-list.component';
 
 const routes: Routes = [
 
   { path: 'dashboard', component: DashboardComponent, canActivate: [AuthGuard] },
+  { path: 'journeys', canActivate: [AuthGuard], children: [
+      { path: '', redirectTo: 'list', pathMatch: 'full' },
+      { path: 'list', component: JourneyListComponent, canActivate: [AuthGuard] },
+      { path: 'view/:id', component: JourneyViewComponent, canActivate: [AuthGuard] },
+      { path: 'edit/:id', component: JourneyMaintenanceComponent, canActivate: [AuthGuard] },
+      { path: 'create', component: JourneyMaintenanceComponent, canActivate: [AuthGuard] },
+    ] },
   { path: 'swimlane/view/:id', component: SwimlaneViewComponent, canActivate: [AuthGuard] },
 
   { path: 'process', canActivate: [AuthGuard], children: [

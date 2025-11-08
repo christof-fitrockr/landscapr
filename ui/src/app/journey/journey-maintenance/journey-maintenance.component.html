@@ -1,0 +1,58 @@
+<div class="container-fluid">
+  <h1>Journey Maintenance</h1>
+  <form [formGroup]="journeyForm" (ngSubmit)="saveJourney()">
+    <div class="form-group">
+      <label for="name">Name</label>
+      <input type="text" id="name" formControlName="name" class="form-control">
+    </div>
+    <div class="form-group">
+      <label for="description">Description</label>
+      <textarea id="description" formControlName="description" class="form-control"></textarea>
+    </div>
+    <div class="row">
+      <div class="col-md-3">
+        <h2>Available Processes</h2>
+        <div cdkDropList #availableList="cdkDropList" [cdkDropListData]="availableProcesses"
+          [cdkDropListConnectedTo]="[journeyList]" class="list">
+          <div class="list-item" *ngFor="let process of availableProcesses" cdkDrag>{{process.name}}</div>
+        </div>
+        <h2>Available Journeys</h2>
+        <div cdkDropList #availableJourneysList="cdkDropList" [cdkDropListData]="availableJourneys"
+          [cdkDropListConnectedTo]="[journeyList]" class="list">
+          <div class="list-item" *ngFor="let journey of availableJourneys" cdkDrag>{{journey.name}}</div>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <h2>Journey Processes</h2>
+        <div cdkDropList #journeyList="cdkDropList" [cdkDropListData]="journeyProcesses" (cdkDropListDropped)="drop($event)"
+          class="list">
+          <div class="list-item" *ngFor="let item of journeyProcesses" cdkDrag>
+            {{item.name}}
+            <button class="btn btn-sm btn-secondary" (click)="setConnectionStart(item)">From</button>
+            <button class="btn btn-sm btn-secondary" (click)="setConnectionEnd(item)">To</button>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <h2>Connections</h2>
+        <div *ngIf="connectionStart">
+          <p>From: {{connectionStart.name}}</p>
+          <p>To: {{connectionEnd?.name}}</p>
+          <div class="form-group">
+            <label for="connectionLabel">Label</label>
+            <input type="text" id="connectionLabel" [(ngModel)]="connectionLabel" class="form-control">
+          </div>
+          <button class="btn btn-primary" (click)="addConnection()">Add Connection</button>
+        </div>
+        <hr>
+        <ul>
+          <li *ngFor="let connection of journey?.connections; let i = index">
+            {{getConnectionNodeName(connection.from)}} -> {{getConnectionNodeName(connection.to)}}: {{connection.label}}
+            <button class="btn btn-sm btn-danger" (click)="removeConnection(i)">X</button>
+          </li>
+        </ul>
+      </div>
+    </div>
+    <button type="submit" class="btn btn-primary" [disabled]="journeyForm.invalid">Save</button>
+  </form>
+</div>
