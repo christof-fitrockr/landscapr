@@ -48,6 +48,7 @@ export interface Edge {
   from: string; // node id
   to: string;   // node id
   label?: string;
+  selected?: boolean;
 }
 
 @Component({
@@ -268,12 +269,12 @@ export class JourneyEditorComponent implements OnInit {
   }
 
   onCanvasMouseMove(event: MouseEvent) {
-    // Resizing group
+    // Resizing node
     if (this.isResizing && this.resizeNodeId && this.resizeStartRect && this.resizeHandle) {
       const pt = this.getSvgPoint(event);
       const dx = pt.x - this.resizeStartMouseX;
       const dy = pt.y - this.resizeStartMouseY;
-      const node = this.nodes.find(n => n.id === this.resizeNodeId) as GroupNode | undefined;
+      const node = this.nodes.find(n => n.id === this.resizeNodeId);
       if (node) {
         const minW = 40;
         const minH = 30;
@@ -458,6 +459,9 @@ export class JourneyEditorComponent implements OnInit {
 
   // Selection & connector logic (minimal)
   private handleSelectDown(x: number, y: number): CanvasNode | undefined {
+    // Clear edge selection on any canvas click in select mode
+    this.edges.forEach(e => e.selected = false);
+
     // Hit test preferring non-group nodes first, then groups
     let hit: CanvasNode | undefined;
     // Pass 1: non-group (process/decision)
@@ -506,19 +510,18 @@ export class JourneyEditorComponent implements OnInit {
     this.nodes.forEach(n => n.selected = (n.id === id));
   }
 
-  onResizeHandleMouseDown(node: any, handle: ResizeHandle, event: MouseEvent) {
+  onResizeHandleMouseDown(node: CanvasNode, handle: ResizeHandle, event: MouseEvent) {
     event.preventDefault();
     event.stopPropagation();
     // Only allow with left button
     if (event.button !== 0) return;
-    const g: GroupNode = node as GroupNode;
     this.isResizing = true;
     this.resizeHandle = handle;
-    this.resizeNodeId = g.id;
+    this.resizeNodeId = node.id;
     const pt = this.getSvgPoint(event);
     this.resizeStartMouseX = pt.x;
     this.resizeStartMouseY = pt.y;
-    this.resizeStartRect = { x: g.x, y: g.y, w: g.width, h: g.height };
+    this.resizeStartRect = { x: node.x, y: node.y, w: node.width, h: node.height };
   }
 
   // Keyboard shortcuts
@@ -538,13 +541,23 @@ export class JourneyEditorComponent implements OnInit {
       }
     }
 
-    // Delete key removes selected nodes and their connected edges
+    // Delete key removes selected nodes and/or selected edges
     if (ev.key === 'Delete') {
-      const selected = this.nodes.filter(n => n.selected);
-      if (selected.length > 0) {
-        const ids = new Set(selected.map(n => n.id));
+      const selectedNodes = this.nodes.filter(n => n.selected);
+      const selectedEdges = this.edges.filter(e => e.selected);
+
+      if (selectedNodes.length > 0) {
+        const ids = new Set(selectedNodes.map(n => n.id));
         this.nodes = this.nodes.filter(n => !ids.has(n.id));
         this.edges = this.edges.filter(e => !ids.has(e.from) && !ids.has(e.to));
+      }
+      // Remove explicitly selected edges (also covers case when no nodes were selected)
+      if (selectedEdges.length > 0) {
+        const removeIds = new Set(selectedEdges.map(e => e.id));
+        this.edges = this.edges.filter(e => !removeIds.has(e.id));
+      }
+
+      if (selectedNodes.length > 0 || selectedEdges.length > 0) {
         this.scheduleSave();
       }
     }
@@ -593,9 +606,19 @@ export class JourneyEditorComponent implements OnInit {
     }
   }
 
+  onEdgeMouseDown(e: Edge, event: MouseEvent) {
+    event.stopPropagation();
+    if (event.button !== 0) return;
+    // Select only this edge and deselect nodes
+    this.nodes.forEach(n => n.selected = false);
+    this.edges.forEach(ed => ed.selected = (ed.id === e.id));
+  }
+
   setTool(tool: ToolType) {
     this.activeTool = tool;
     this.pendingEdgeSourceId = null;
+    // Clear edge selection when switching tools
+    this.edges.forEach(e => e.selected = false);
   }
 
   // Open process quick view on double click

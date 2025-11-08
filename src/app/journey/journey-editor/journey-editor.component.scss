@@ -58,6 +58,11 @@ svg .edges .edge {
   marker-end: url(#arrowhead);
 }
 
+svg .edges .edge.selected {
+  stroke: #007bff;
+  stroke-width: 3;
+}
+
 /* Optional: arrowheads */
 svg defs marker#arrowhead {
   overflow: visible;
