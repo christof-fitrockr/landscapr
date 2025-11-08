@@ -49,7 +49,7 @@ jobs:
           server-dir: /landscapr/ # e.g., /public_html/, /www/, or /httpdocs/
 
           # Force the connection type to be SFTP (Optional, but good practice)
-          protocol: sftp
+          protocol: ftps
 
           # Optional: Delete files on the server that are not in the local-dir
           # Use with caution!
