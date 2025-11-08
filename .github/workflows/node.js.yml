@@ -50,3 +50,6 @@ jobs:
           # Set to 'true' to delete all files/folders in remote_path before uploading
           delete_remote_files: true
 
+          # CRITICAL: Explicitly set ssh_private_key to an empty string
+          # to stop the action from searching for it.
+          ssh_private_key: ''
