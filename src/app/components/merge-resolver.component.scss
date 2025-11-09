@@ -28,3 +28,75 @@
   font-weight: bold;
   color: #666;
 }
+
+.modal-body {
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+.sections .section {
+  border-top: 1px solid #e5e5e5;
+  padding-top: 10px;
+  margin-top: 10px;
+}
+
+.side .side-header {
+  font-weight: 600;
+  margin-bottom: 5px;
+}
+
+.json-preview {
+  background: #f8f9fa;
+  border: 1px solid #e1e4e8;
+  padding: 8px;
+  height: 200px;
+  overflow: auto;
+  font-family: SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace;
+  font-size: 12px;
+}
+
+.vs {
+  font-weight: bold;
+  color: #666;
+}
+
+/* Diff highlighting */
+.diff-tree {
+  font-family: SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace;
+  font-size: 12px;
+  background: #fff;
+  border: 1px solid #e1e4e8;
+  padding: 6px;
+  max-height: 220px;
+  overflow: auto;
+}
+
+.diff-node.container {
+  margin-bottom: 2px;
+}
+
+.diff-line {
+  display: inline-block;
+}
+
+.diff-key {
+  color: #5a5a5a;
+  margin-right: 4px;
+}
+
+.diff-value {
+  white-space: pre-wrap;
+}
+
+/* State classes */
+.diff-added { background: #e6ffed; border-left: 3px solid #28a745; }
+.diff-removed { background: #ffeef0; border-left: 3px solid #d73a49; }
+.diff-changed { background: #fff5b1; border-left: 3px solid #f0ad4e; }
+.diff-equal { color: #999; }
+.diff-missing { color: #bbb; font-style: italic; }
+
+
+/* Active tab label text should be black */
+.nav-tabs .nav-link.active {
+  color: #000 !important;
+}

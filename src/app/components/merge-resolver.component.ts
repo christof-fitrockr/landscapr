@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { BsModalRef } from 'ngx-bootstrap/modal';
-import { MergeService, LandscaprData, SectionChoice } from '../services/merge.service';
+import { MergeService, LandscaprData, SectionDiff, AllItemChoices, ItemChoicesPerSection, ItemRecord, DiffNode } from '../services/merge.service';
 import { Subject } from 'rxjs';
 
 @Component({
@@ -16,55 +16,150 @@ export class MergeResolverComponent {
   // Outputs
   onClose: Subject<LandscaprData> = new Subject<LandscaprData>();
 
-  choice: any = {
-    processes: 'repo',
-    apiCalls: 'repo',
-    capabilities: 'repo',
-    applications: 'repo',
-    journeys: 'repo'
+  // Item-level state
+  diffs: { [K in keyof LandscaprData]: SectionDiff } | null = null;
+  choices: AllItemChoices = {
+    processes: {},
+    apiCalls: {},
+    capabilities: {},
+    applications: {},
+    journeys: {}
   };
+
+  activeTab: keyof LandscaprData = 'processes';
+  showConflictsOnly: boolean = false;
+
+  // View options
+  highlightedView: boolean = true;
+  showChangedOnly: boolean = false;
+
+  // Diff cache per section+itemKey
+  private diffCache = new Map<string, any>();
 
   constructor(public bsModalRef: BsModalRef, private mergeService: MergeService) {}
 
   ngOnInit(): void {
-    // Initialize defaults to prefer local when it differs, otherwise keep repo
-    this.choice = {
-      processes: this.pref('processes'),
-      apiCalls: this.pref('apiCalls'),
-      capabilities: this.pref('capabilities'),
-      applications: this.pref('applications'),
-      journeys: this.pref('journeys'),
-    } as SectionChoice;
+    const repo = this.repoData || {};
+    const local = this.localData || {};
+    this.diffs = this.mergeService.computeDiffs(repo, local);
+    // Defaults: same -> either (prefer local), onlyRepo -> repo, onlyLocal -> local, conflict -> local
+    (['processes','apiCalls','capabilities','applications','journeys'] as (keyof LandscaprData)[]).forEach(sec => {
+      const map: ItemChoicesPerSection = {};
+      for (const rec of (this.diffs![sec].items || [])) {
+        switch (rec.status) {
+          case 'same':
+            // no explicit choice needed
+            break;
+          case 'onlyRepo':
+            map[rec.key] = 'repo';
+            break;
+          case 'onlyLocal':
+            map[rec.key] = 'local';
+            break;
+          case 'conflict':
+            map[rec.key] = 'local';
+            break;
+        }
+      }
+      (this.choices as any)[sec] = map;
+    });
   }
 
-  private pref(section: keyof LandscaprData): 'repo' | 'local' {
-    const r = (this.repoData && this.repoData[section]) || [];
-    const l = (this.localData && this.localData[section]) || [];
-    return this.mergeService.different(r, l) ? 'local' : 'repo';
+  setActiveTab(tab: keyof LandscaprData): void {
+    this.activeTab = tab;
   }
 
-  get repo(): any { return this.repoData || {}; }
-  get local(): any { return this.localData || {}; }
+  // UI helpers
+  sectionTitle(section: keyof LandscaprData): string { return section; }
 
-  getChoice(section: string): 'repo' | 'local' {
-    return this.choice[section];
+  countByStatus(section: keyof LandscaprData, status: string): number {
+    const sec = this.diffs![section];
+    return (sec?.items || []).filter(i => i.status === status).length;
   }
 
-  setChoice(section: string, val: 'repo' | 'local'): void {
-    this.choice[section] = val;
+  filteredItems(section: keyof LandscaprData): ItemRecord[] {
+    const all = this.diffs ? (this.diffs[section]?.items || []) : [];
+    return this.showConflictsOnly ? all.filter(i => i.status === 'conflict') : all;
   }
 
-  getArray(obj: any, section: string): any[] {
-    const val = obj && obj[section];
-    return Array.isArray(val) ? val : (val ? val : []);
+  getName(item: any): string {
+    return (item && (item.name || item.id || item.repoId || '')) + '';
   }
 
-  getCount(obj: any, section: string): number {
-    return this.getArray(obj, section).length;
+  pick(section: keyof LandscaprData, key: string, side: 'repo' | 'local'): void {
+    (this.choices[section] as ItemChoicesPerSection)[key] = side;
+  }
+
+  bulk(section: keyof LandscaprData, side: 'repo' | 'local'): void {
+    const map = (this.choices[section] as ItemChoicesPerSection);
+    for (const rec of (this.diffs![section].items || [])) {
+      if (rec.status === 'conflict') {
+        map[rec.key] = side;
+      }
+    }
+  }
+
+  // ----- Diff helpers -----
+  private cacheKey(section: keyof LandscaprData, key: string): string {
+    return `${section}:${key}`;
+  }
+
+  getDiff(section: keyof LandscaprData, rec: ItemRecord): DiffNode | null {
+    if (!rec) return null;
+    const ckey = this.cacheKey(section, rec.key);
+    if (this.diffCache.has(ckey)) return this.diffCache.get(ckey);
+    const node = this.mergeService.computeItemDiff(section, rec.repoItem, rec.localItem);
+    this.diffCache.set(ckey, node);
+    return node;
+  }
+
+  countChanges(node: DiffNode | null | undefined): { changed: number; added: number; removed: number } {
+    const out = { changed: 0, added: 0, removed: 0 };
+    const walk = (n: DiffNode | undefined) => {
+      if (!n) return;
+      if (n.type === 'changed') out.changed++;
+      if (n.type === 'added') out.added++;
+      if (n.type === 'removed') out.removed++;
+      (n.children || []).forEach(walk);
+    };
+    walk(node || undefined);
+    return out;
+  }
+
+  // Whether to render a node based on showChangedOnly
+  showNode(n: DiffNode): boolean {
+    if (!this.showChangedOnly) return true;
+    if (n.type === 'equal') return false;
+    if (!n.children || n.children.length === 0) return true;
+    return (n.children || []).some(ch => this.showNode(ch));
+  }
+
+  // CSS class to highlight per side
+  cssClass(n: DiffNode, side: 'left' | 'right'): any {
+    switch (n.type) {
+      case 'added': return side === 'left' ? 'diff-added' : 'diff-missing';
+      case 'removed': return side === 'right' ? 'diff-added' : 'diff-missing'; // show as added on local side
+      case 'changed': return 'diff-changed';
+      case 'equal': return 'diff-equal';
+      default: return '';
+    }
+  }
+
+  // Value for a leaf node per side
+  valueFor(n: DiffNode, side: 'left' | 'right'): any {
+    return side === 'left' ? n.left : n.right;
+  }
+
+  isContainer(n: DiffNode): boolean {
+    return n.type === 'object' || n.type === 'array';
+  }
+
+  isLeaf(n: DiffNode): boolean {
+    return !n.children || n.children.length === 0;
   }
 
   apply(): void {
-    const merged = this.mergeService.buildMerged(this.repoData || {}, this.localData || {}, this.choice);
+    const merged = this.mergeService.buildMergedItemLevel(this.repoData || {}, this.localData || {}, this.choices);
     this.onClose.next(merged);
     this.bsModalRef.hide();
   }
