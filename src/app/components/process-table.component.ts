@@ -15,6 +15,8 @@ export class ProcessTableComponent  {
   @Input() processes: Process[];
   @Input() showFilter = true
 
+  // UI toggle for the default subprocess filter (checked by default)
+  onlyWithSubprocesses: boolean = true;
 
   constructor() { }
 

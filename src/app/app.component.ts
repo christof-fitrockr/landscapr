@@ -8,6 +8,7 @@ import {Upload} from './helpers/upload';
 import {ThemeService} from './services/theme.service';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { GithubActionsDialogComponent } from './components/github-actions-dialog.component';
+import { SyncStatusService, SyncStatus } from './services/sync-status.service';
 
 @Component({
   selector: 'app-root',
@@ -18,13 +19,16 @@ export class AppComponent implements OnInit {
   dataAvailable: boolean;
 
   upload$: Observable<Upload> = EMPTY;
+  status$: Observable<SyncStatus> = EMPTY;
 
   constructor(private authenticationService: AuthenticationService,
               private repoService: RepoService, private fileSaverService: FileSaverService, public themeService: ThemeService,
-              private modalService: BsModalService) { }
+              private modalService: BsModalService,
+              public syncStatusService: SyncStatusService) { }
 
   ngOnInit() {
     this.dataAvailable = this.repoService.dataAvailable();
+    this.status$ = this.syncStatusService.status$;
   }
 
   download() {
