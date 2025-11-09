@@ -57,3 +57,35 @@
     transform: translate3d(4px, 0, 0);
   }
 }
+
+.sync-badge {
+  display: inline-flex;
+  align-items: center;
+  font-weight: 600;
+  padding: 0.2rem 0.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  color: #fff;
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.05);
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: .02em;
+}
+
+.sync-badge .label {
+  line-height: 1;
+}
+
+/* State accents override the default border color to improve affordance */
+.sync-badge-warning {
+  border-color: #ffc107; /* Bootstrap warning */
+}
+
+.sync-badge-danger {
+  border-color: #dc3545; /* Bootstrap danger */
+}
+
+/* Subtle hover to indicate interactivity when buttons are nearby */
+.sync-badge:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
