@@ -12,6 +12,28 @@ import { JourneyService } from './journey.service';
 })
 export class RepoService {
 
+  getCurrentData(): { processes: any[]; apiCalls: any[]; capabilities: any[]; applications: any[]; journeys: any[] } {
+    const processesRaw = localStorage.getItem(ProcessService.STORAGE_KEY);
+    const apiCallsRaw = localStorage.getItem(ApiCallService.STORAGE_KEY);
+    const capabilitiesRaw = localStorage.getItem(CapabilityService.STORAGE_KEY);
+    const applicationsRaw = localStorage.getItem(ApplicationService.STORAGE_KEY);
+    const journeysRaw = localStorage.getItem(JourneyService.STORAGE_KEY);
+
+    let processes: any = [];
+    let apiCalls: any = [];
+    let capabilities: any = [];
+    let applications: any = [];
+    let journeys: any = [];
+
+    try { processes = processesRaw ? JSON.parse(processesRaw) : []; } catch { processes = []; }
+    try { apiCalls = apiCallsRaw ? JSON.parse(apiCallsRaw) : []; } catch { apiCalls = []; }
+    try { capabilities = capabilitiesRaw ? JSON.parse(capabilitiesRaw) : []; } catch { capabilities = []; }
+    try { applications = applicationsRaw ? JSON.parse(applicationsRaw) : []; } catch { applications = []; }
+    try { journeys = journeysRaw ? JSON.parse(journeysRaw) : []; } catch { journeys = []; }
+
+    return { processes, apiCalls, capabilities, applications, journeys };
+  }
+
   dataAvailable(): boolean {
     return localStorage.getItem(ProcessService.STORAGE_KEY) != null
       || localStorage.getItem(ApiCallService.STORAGE_KEY) != null
@@ -75,6 +97,10 @@ export class RepoService {
         throw err;
       }
     });
+  }
+
+  applyData(parsedData: { applications?: any; capabilities?: any; apiCalls?: any; processes?: any; journeys?: any; }): void {
+    this.applyParsedData(parsedData);
   }
 
   private applyParsedData(parsedData: { applications?: any; capabilities?: any; apiCalls?: any; processes?: any; journeys?: any; }): void {

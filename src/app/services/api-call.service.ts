@@ -16,6 +16,14 @@ export class ApiCallService {
     if(!item) {
       return [];
     }
+    // Backward compatibility/migration: map legacy docLinkUrl to documentation
+    for (const api of item) {
+      // @ts-ignore
+      if ((api as any).documentation == null && (api as any).docLinkUrl) {
+        // @ts-ignore
+        (api as any).documentation = (api as any).docLinkUrl;
+      }
+    }
     return item;
   }
 

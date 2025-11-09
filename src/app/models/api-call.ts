@@ -4,8 +4,14 @@ export class ApiCall {
   name: string;
   implementationStatus: ApiImplementationStatus;
   description: string;
+  // Deprecated: kept for backward compatibility. Use `documentation` instead
   docLinkUrl: string
   capabilityId: string;
+
+  // New: optional grouping of APIs
+  apiGroup?: string;
+  // New: documentation link for the API
+  documentation?: string;
 
   implementedBy: string[];
 

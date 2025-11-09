@@ -1,0 +1,45 @@
+<div class="modal-header">
+  <h4 class="modal-title">Resolve Merge Conflicts</h4>
+  <button type="button" class="close" aria-label="Close" (click)="cancel()">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+<div class="modal-body">
+  <p>
+    A difference was detected between the repository file (left) and your local data (right).
+    Choose, for each section, which side to keep. You can review counts and raw JSON.
+  </p>
+
+  <div class="sections">
+    <div class="section" *ngFor="let section of ['processes','apiCalls','capabilities','applications','journeys']">
+      <h5 class="mt-3">{{section}}</h5>
+      <div class="row">
+        <div class="col-5">
+          <div class="side">
+            <div class="side-header">
+              <input type="radio" [name]="section" value="repo" [checked]="getChoice(section) === 'repo'" (change)="setChoice(section, 'repo')"> Repository
+              <span class="badge badge-pill badge-info ml-2">{{ getCount(repo, section) }} items</span>
+            </div>
+            <pre class="json-preview">{{ getArray(repo, section) | json }}</pre>
+          </div>
+        </div>
+        <div class="col-2 d-flex align-items-center justify-content-center">
+          <span class="vs">vs</span>
+        </div>
+        <div class="col-5">
+          <div class="side">
+            <div class="side-header">
+              <input type="radio" [name]="section" value="local" [checked]="getChoice(section) === 'local'" (change)="setChoice(section, 'local')"> Local
+              <span class="badge badge-pill badge-info ml-2">{{ getCount(local, section) }} items</span>
+            </div>
+            <pre class="json-preview">{{ getArray(local, section) | json }}</pre>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal-footer">
+  <button class="btn btn-outline-secondary" (click)="cancel()">Cancel</button>
+  <button class="btn btn-primary" (click)="apply()">Apply merge</button>
+</div>

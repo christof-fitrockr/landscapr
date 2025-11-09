@@ -1,0 +1,30 @@
+.modal-body {
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+.sections .section {
+  border-top: 1px solid #e5e5e5;
+  padding-top: 10px;
+  margin-top: 10px;
+}
+
+.side .side-header {
+  font-weight: 600;
+  margin-bottom: 5px;
+}
+
+.json-preview {
+  background: #f8f9fa;
+  border: 1px solid #e1e4e8;
+  padding: 8px;
+  height: 200px;
+  overflow: auto;
+  font-family: SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace;
+  font-size: 12px;
+}
+
+.vs {
+  font-weight: bold;
+  color: #666;
+}

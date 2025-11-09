@@ -39,6 +39,7 @@ import { JourneyListComponent } from './journey/journey-list/journey-list.compon
 import { JourneyEditorComponent } from './journey/journey-editor/journey-editor.component';
 import { JourneyEditBaseComponent } from './journey/journey-edit-base.component';
 import { RepositoriesComponent } from './repositories/repositories.component';
+import { ApiGroupMapComponent } from './components/api-group-map.component';
 
 const routes: Routes = [
 
@@ -78,6 +79,8 @@ const routes: Routes = [
   { path: 'apiCall', canActivate: [AuthGuard], children: [
       { path: '', redirectTo: 'list', pathMatch: 'full' },
       { path: 'list', component: ApiCallListComponent, canActivate: [AuthGuard] },
+      { path: 'groups', component: ApiGroupMapComponent, canActivate: [AuthGuard], data: { mode: 'group' } },
+      { path: 'groups/capabilities', component: ApiGroupMapComponent, canActivate: [AuthGuard], data: { mode: 'capability' } },
       { path: 'view/:id', component: ApiCallViewComponent, canActivate: [AuthGuard] },
       { path: 'edit/:id', component: ApiCallEditComponent, canActivate: [AuthGuard], children: [
           { path: '', redirectTo: 'base', pathMatch: 'full' },

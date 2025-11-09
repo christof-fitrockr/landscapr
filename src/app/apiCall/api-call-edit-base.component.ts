@@ -36,6 +36,8 @@ export class ApiCallEditBaseComponent implements OnInit, OnDestroy {
       implementationType: [''],
       status: [0],
       capabilityId: [''],
+      apiGroup: [''],
+      documentation: [''],
       implementedBy: [],
       tags: [],
       input: [''],

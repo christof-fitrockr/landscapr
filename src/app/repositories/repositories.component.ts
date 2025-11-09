@@ -5,6 +5,9 @@ import { ToastrService } from 'ngx-toastr';
 import { Observable, EMPTY } from 'rxjs';
 import { first } from 'rxjs/operators';
 import { FileSaverService } from 'ngx-filesaver';
+import { BsModalService } from 'ngx-bootstrap/modal';
+import { MergeService } from '../services/merge.service';
+import { MergeResolverComponent } from '../components/merge-resolver.component';
 
 @Component({
   selector: 'app-repositories',
@@ -34,6 +37,8 @@ export class RepositoriesComponent implements OnInit {
     private repoService: RepoService,
     private fileSaverService: FileSaverService,
     private toastr: ToastrService,
+    private modalService: BsModalService,
+    private mergeService: MergeService,
   ) {}
 
   ngOnInit(): void {
@@ -108,9 +113,28 @@ export class RepositoriesComponent implements OnInit {
       .subscribe(fileContent => {
         try {
           const contentStr = atob(fileContent.content);
-          this.repoService.uploadJsonContent(contentStr).pipe(first()).subscribe(() => {
-            this.toastr.success('Repository content updated from GitHub file');
-          });
+          const repoData = JSON.parse(contentStr);
+          const localData = this.repoService.getCurrentData();
+          if (this.mergeService.different(repoData, localData)) {
+            const modalRef = this.modalService.show(MergeResolverComponent, {
+              class: 'modal-xl',
+              initialState: { repoData, localData }
+            });
+            const content: any = modalRef.content;
+            if (content && content.onClose) {
+              content.onClose.pipe(first()).subscribe((merged: any) => {
+                if (merged) {
+                  this.repoService.applyData(merged);
+                  this.toastr.success('Merged data applied to local storage');
+                }
+              });
+            }
+          } else {
+            // identical -> just apply
+            this.repoService.uploadJsonContent(contentStr).pipe(first()).subscribe(() => {
+              this.toastr.success('Repository content updated from GitHub file');
+            });
+          }
         } catch (e) {
           this.toastr.error('Failed to parse GitHub file content');
         }
@@ -125,16 +149,65 @@ export class RepositoriesComponent implements OnInit {
     const repo = this.selectedRepo.name;
     const path = this.selectedFilePath;
 
+    const localData = this.repoService.getCurrentData();
+
     this.githubService.getFileContent(owner, repo, path).pipe(first()).subscribe(file => {
       const sha = file && file.sha ? file.sha : undefined;
-      this.performSave(owner, repo, path, sha);
+      let remoteData: any = {};
+      try {
+        remoteData = JSON.parse(atob(file.content));
+      } catch {
+        remoteData = {};
+      }
+
+      if (this.mergeService.different(remoteData, localData)) {
+        const modalRef = this.modalService.show(MergeResolverComponent, {
+          class: 'modal-xl',
+          initialState: { repoData: remoteData, localData }
+        });
+        const content: any = modalRef.content;
+        if (content && content.onClose) {
+          content.onClose.pipe(first()).subscribe((merged: any) => {
+            if (merged) {
+              const mergedText = JSON.stringify(merged, null, 2);
+              this.githubService.createOrUpdateFile(owner, repo, path, mergedText, sha).pipe(first()).subscribe(() => {
+                this.toastr.success('File saved successfully');
+                this.saving = false;
+              }, _ => {
+                this.toastr.error('Failed to save file to GitHub');
+                this.saving = false;
+              });
+            } else {
+              this.saving = false;
+            }
+          });
+        }
+      } else {
+        // No difference, push local as is
+        const contentText = JSON.stringify(localData, null, 2);
+        this.githubService.createOrUpdateFile(owner, repo, path, contentText, sha).pipe(first()).subscribe(() => {
+          this.toastr.success('File saved successfully');
+          this.saving = false;
+        }, _ => {
+          this.toastr.error('Failed to save file to GitHub');
+          this.saving = false;
+        });
+      }
     }, _ => {
       // File does not exist -> create new
-      this.performSave(owner, repo, path);
+      const contentText = JSON.stringify(localData, null, 2);
+      this.githubService.createOrUpdateFile(owner, repo, path, contentText).pipe(first()).subscribe(() => {
+        this.toastr.success('File created successfully');
+        this.saving = false;
+      }, _ => {
+        this.toastr.error('Failed to create file on GitHub');
+        this.saving = false;
+      });
     });
   }
 
   private performSave(owner: string, repo: string, path: string, sha?: string): void {
+    // Deprecated by merge-aware saveToGithub
     this.repoService.downloadAsJson().pipe(first()).subscribe(blob => {
       (blob as Blob).text().then(contentText => {
         this.githubService.createOrUpdateFile(owner, repo, path, contentText, sha).pipe(first()).subscribe(() => {

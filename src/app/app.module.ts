@@ -79,6 +79,7 @@ import { GithubDialogComponent } from './components/github-dialog.component';
 import { FileTypePipe } from './pipes/file-type.pipe';
 import { SaveGithubDialogComponent } from './components/save-github-dialog.component';
 import { GithubActionsDialogComponent } from './components/github-actions-dialog.component';
+import { MergeResolverComponent } from './components/merge-resolver.component';
 
 import { ThemeService } from './services/theme.service';
 
@@ -93,6 +94,7 @@ import { ConditionEditModalComponent } from './journey/journey-editor/condition-
 import { NewProcessModalComponent } from './journey/journey-editor/new-process-modal.component';
 import { JourneyEditBaseComponent } from './journey/journey-edit-base.component';
 import { RepositoriesComponent } from './repositories/repositories.component';
+import { ApiGroupMapComponent } from './components/api-group-map.component';
 
 
 @NgModule({
@@ -184,6 +186,8 @@ import { RepositoriesComponent } from './repositories/repositories.component';
     ConditionEditModalComponent,
     NewProcessModalComponent,
     CapabilityMapComponent,
+    ApiGroupMapComponent,
+    MergeResolverComponent,
   ],
   imports: [
     BrowserModule,
