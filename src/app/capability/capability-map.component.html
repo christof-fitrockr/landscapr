@@ -1,0 +1,15 @@
+<div class="container-fluid">
+  <div class="d-flex align-items-center justify-content-between p-2">
+    <div>
+      <span class="legend">
+        <span class="legend-swatch cap"></span> Capability
+        <span class="legend-swatch sys ml-3"></span> System
+        <span class="legend-swatch api ml-3"></span> API Call
+      </span>
+    </div>
+    <div class="text-muted small" *ngIf="currentRootId && capById.get(currentRootId)?.name">Root: {{ capById.get(currentRootId)?.name }}</div>
+  </div>
+  <div class="card-body overflow-auto" style="overflow-y: auto;">
+    <canvas #canvas class="canvas" (click)="onCanvasClick($event)"></canvas>
+  </div>
+</div>

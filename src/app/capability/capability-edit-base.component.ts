@@ -16,18 +16,21 @@ export class CapabilityEditBaseComponent implements OnInit, OnDestroy {
   private capabilityId: string;
   private subscription: Subscription;
 
+  // Parent selector sources
+  allCaps: Capability[] = [];
+  parentOptions: Capability[] = [];
 
   constructor(private capabilityService: CapabilityService, private formBuilder: FormBuilder,
               private route: ActivatedRoute, private router: Router, private toastr: ToastrService) {
   }
-
 
   ngOnInit() {
     this.capabilityForm = this.formBuilder.group({
       name: ['', Validators.required],
       status: [0],
       description: [''],
-      tags: []
+      tags: [],
+      parentId: [null]
     });
 
     this.subscription = this.route.parent.paramMap.subscribe(obs => {
@@ -45,16 +48,48 @@ export class CapabilityEditBaseComponent implements OnInit, OnDestroy {
     this.subscription.unsubscribe();
   }
 
+  private buildParentOptions() {
+    if (!this.capability) { this.parentOptions = this.allCaps; return; }
+    const excludeIds = new Set<string>();
+    // exclude self and descendants
+    const byId = new Map<string, Capability>();
+    for (const c of this.allCaps) { byId.set(c.id, c); }
+    const visit = (id: string) => {
+      excludeIds.add(id);
+      const node = byId.get(id);
+      if (!node) return;
+      let children: Capability[] = [];
+      if (node.childrenIds && node.childrenIds.length) {
+        children = node.childrenIds.map(cid => byId.get(cid)).filter(Boolean) as Capability[];
+      } else {
+        children = this.allCaps.filter(a => a.parentId === id);
+      }
+      for (const ch of children) visit(ch.id);
+    };
+    if (this.capability && this.capability.id) {
+      visit(this.capability.id);
+    }
+    this.parentOptions = this.allCaps.filter(c => !excludeIds.has(c.id));
+  }
+
   private refresh() {
     this.capabilityId = this.route.parent.snapshot.paramMap.get('id');
-    if (this.capabilityId != null) {
-      this.capabilityService.byId(this.capabilityId).pipe(first()).subscribe(capability => {
-        this.capability = capability;
-        this.capabilityForm.patchValue(this.capability);
-      });
-    } else {
-      this.capability = new Capability();
-    }
+
+    // Load all for parent selector first
+    this.capabilityService.all(this.repoId).pipe(first()).subscribe(all => {
+      this.allCaps = all || [];
+
+      if (this.capabilityId != null) {
+        this.capabilityService.byId(this.capabilityId).pipe(first()).subscribe(capability => {
+          this.capability = capability;
+          this.capabilityForm.patchValue(this.capability);
+          this.buildParentOptions();
+        });
+      } else {
+        this.capability = new Capability();
+        this.buildParentOptions();
+      }
+    });
   }
 
   onUpdate() {
@@ -72,11 +107,15 @@ export class CapabilityEditBaseComponent implements OnInit, OnDestroy {
             this.toastr.info('Capability created successfully');
             this.refresh()
           });
+        }, err => {
+          this.toastr.error(err?.message || 'Error creating capability');
         });
       } else {
         this.capabilityService.update(this.capabilityId, this.capability).pipe(first()).subscribe(() => {
           this.toastr.info('Capability updated successfully');
           this.refresh();
+        }, err => {
+          this.toastr.error(err?.message || 'Error updating capability');
         });
       }
     }

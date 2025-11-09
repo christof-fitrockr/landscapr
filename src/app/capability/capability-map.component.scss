@@ -1,0 +1,20 @@
+.canvas {
+  max-width: none;
+  cursor: pointer;
+}
+
+.card-body {
+  height: 80vh;
+}
+
+.legend-swatch {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 1px solid #666;
+  margin-right: 6px;
+  vertical-align: middle;
+}
+.legend-swatch.cap { background: #e0e0f8; }
+.legend-swatch.sys { background: #d1f7c4; }
+.legend-swatch.api { background: #fce4d6; }

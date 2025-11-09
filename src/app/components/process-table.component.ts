@@ -13,6 +13,7 @@ export class ProcessTableComponent  {
   @Input() repoId: string;
   @Input() filter: string;
   @Input() processes: Process[];
+  @Input() showFilter = true
 
 
   constructor() { }

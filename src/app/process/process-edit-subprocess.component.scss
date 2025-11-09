@@ -22,3 +22,70 @@
 .cdk-drag-animating {
   transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
 }
+
+.steps-dropzone {
+  min-height: 140px;
+  padding: 8px;
+  border: 2px dashed #cbd5e0; /* gray-400 */
+  border-radius: 6px;
+  background: #f8fafc; /* very light */
+}
+
+.steps-dropzone.cdk-drop-list-dragging,
+.steps-dropzone.cdk-drop-list-receiving {
+  border-color: #4299e1; /* blue-500 */
+  background: #ebf8ff; /* blue-100 */
+}
+
+.empty-hint {
+  text-align: center;
+  color: #718096; /* gray-600 */
+  font-size: 0.9rem;
+  padding: 16px 0;
+}
+
+.catalog-list .catalog-item {
+  display: flex;
+  align-items: center;
+}
+
+.catalog-list .catalog-item .cdk-drag-handle {
+  cursor: move;
+  color: #a0aec0; /* gray-500 */
+}
+
+.catalog-list .catalog-item:hover .cdk-drag-handle {
+  color: #4a5568; /* gray-700 */
+}
+
+/* Process card with left handle and right content */
+.process-card {
+  display: flex;
+  align-items: stretch;
+  border: 1px solid #e2e8f0; /* gray-300 */
+  border-radius: 6px;
+  background: #ffffff;
+}
+
+.process-card + .process-card {
+  margin-top: 8px;
+}
+
+.process-handle {
+  width: 36px;
+  min-width: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-right: 1px dashed #e2e8f0;
+  color: #a0aec0; /* gray-500 */
+  cursor: move;
+}
+
+.process-handle:hover {
+  color: #4a5568; /* gray-700 */
+}
+
+.process-content {
+  padding: 8px 10px;
+}

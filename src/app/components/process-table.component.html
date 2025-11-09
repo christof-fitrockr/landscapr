@@ -1,5 +1,5 @@
 
-<input  *ngIf="processes && processes?.length > 0" type="text" class="input-group form-control" placeholder="Search.." [(ngModel)]="filter" [ngModelOptions]="{standalone: true}">
+<input  *ngIf="processes && processes?.length > 0 && showFilter" type="text" class="input-group form-control" placeholder="Search.." [(ngModel)]="filter" [ngModelOptions]="{standalone: true}">
 
 <table class="mt-3 table table-sm table-striped" *ngIf="processes && processes?.length > 0">
   <thead>

@@ -58,6 +58,7 @@ import {CapabilityOverviewComponent} from './components/capability-overview.comp
 import {SystemOverviewComponent} from './components/system-overview.component';
 import {ApiCallEditImplementedInComponent} from './apiCall/api-call-edit-implemented-in.component';
 import {CapabilityComponent} from './components/capability.component';
+import { CapabilityMapComponent } from './capability/capability-map.component';
 import {ApiCallGraphComponent} from './components/api-call-graph.component';
 import {ProcessEditUsedByComponent} from './process/process-edit-used-by.component';
 import {SwimlaneViewComponent} from './swimlaneView/swimlane-view.component';
@@ -182,6 +183,7 @@ import { RepositoriesComponent } from './repositories/repositories.component';
     ProcessQuickViewModalComponent,
     ConditionEditModalComponent,
     NewProcessModalComponent,
+    CapabilityMapComponent,
   ],
   imports: [
     BrowserModule,

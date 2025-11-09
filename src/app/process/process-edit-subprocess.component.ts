@@ -20,6 +20,7 @@ export class ProcessEditSubprocessComponent implements OnInit, OnDestroy {
   // New: catalog (all processes) + filter
   allProcesses: Process[] = [];
   catalogFilter = '';
+  catalogCollapsed = true;
 
   subProcessForm: FormGroup;
   process: Process;

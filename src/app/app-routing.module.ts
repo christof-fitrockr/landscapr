@@ -91,6 +91,7 @@ const routes: Routes = [
       { path: '', redirectTo: 'list', pathMatch: 'full' },
       { path: 'list', component: CapabilityListComponent, canActivate: [AuthGuard] },
       { path: 'view', component: CapabilityViewComponent, canActivate: [AuthGuard] },
+      { path: 'view/:root', component: CapabilityViewComponent, canActivate: [AuthGuard] },
       { path: 'edit/:id', component: CapabilityEditComponent, canActivate: [AuthGuard], children: [
           { path: '', redirectTo: 'base', pathMatch: 'full' },
           { path: 'base', component: CapabilityEditBaseComponent, canActivate: [AuthGuard] },

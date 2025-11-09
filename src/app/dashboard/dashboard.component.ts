@@ -11,11 +11,13 @@ import { GithubService } from '../services/github.service';
 import { ToastrService } from 'ngx-toastr';
 import { RepoService } from '../services/repo.service';
 import { GithubActionsDialogComponent } from '../components/github-actions-dialog.component';
+import { JourneyService } from '../services/journey.service';
+import { Journey } from '../models/journey.model';
 
 @Component({selector: 'app-dashboard', templateUrl: './dashboard.component.html'})
 export class DashboardComponent implements OnInit {
   private subscription: Subscription;
-  private repoId: string;
+  public repoId: string;
   private modalRef?: BsModalRef;
   constructor(
     private processService: ProcessService,
@@ -23,11 +25,13 @@ export class DashboardComponent implements OnInit {
     private modalService: BsModalService,
     private githubService: GithubService,
     private toastr: ToastrService,
-    private repoService: RepoService
+    private repoService: RepoService,
+    private journeyService: JourneyService
   ) {
   }
 
   processes: Process[];
+  journeys: Journey[];
 
   ngOnInit() {
 
@@ -40,6 +44,9 @@ export class DashboardComponent implements OnInit {
   private refresh() {
     this.processService.allFavorites(this.repoId).pipe(first()).subscribe(items => {
       this.processes = items;
+    });
+    this.journeyService.all().pipe(first()).subscribe(js => {
+      this.journeys = js || [];
     });
   }
 

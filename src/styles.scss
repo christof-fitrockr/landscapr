@@ -13,8 +13,18 @@
 @import "~@ng-select/ng-select/themes/default.theme.css";
 //@import "assets/css/vwag/vwag.min.css";
 
-html {
+// Default (light) document background and text color
+html, body {
   background-color: #ffffff;
+  color: #000000;
+}
+
+// Dark mode base colors for the whole document
+.dark-theme,
+.dark-theme html,
+.dark-theme body {
+  background-color: #121212;
+  color: #e0e0e0;
 }
 
 $gray-100: #f8f9fc !default;
