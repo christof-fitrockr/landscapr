@@ -136,8 +136,19 @@
       </ng-container>
     </ng-template>
   </div>
+
+<!-- Commit message field (required when pushing) -->
+<div class="px-3 pb-2" *ngIf="requireCommitMessage">
+  <div class="form-group">
+    <label for="commitMessage"><strong>Commit message</strong></label>
+    <textarea id="commitMessage" class="form-control" rows="3" [(ngModel)]="commitMessage" placeholder="Summarize your changes (e.g., feat: add new process flows)"></textarea>
+    <small class="form-text text-muted">Please provide a clear, conventional commit-style message.</small>
+  </div>
 </div>
+
+</div>
+
 <div class="modal-footer">
   <button class="btn btn-outline-secondary" (click)="cancel()">Cancel</button>
-  <button class="btn btn-primary" (click)="apply()">Apply merge</button>
+  <button class="btn btn-primary" [disabled]="requireCommitMessage && (!commitMessage || !commitMessage.trim())" (click)="apply()">Apply merge</button>
 </div>

@@ -12,9 +12,10 @@ export class MergeResolverComponent {
   // Inputs via initialState
   repoData: any;
   localData: any;
+  requireCommitMessage: boolean = false;
 
   // Outputs
-  onClose: Subject<LandscaprData> = new Subject<LandscaprData>();
+  onClose: Subject<any> = new Subject<any>();
 
   // Item-level state
   diffs: { [K in keyof LandscaprData]: SectionDiff } | null = null;
@@ -27,11 +28,14 @@ export class MergeResolverComponent {
   };
 
   activeTab: keyof LandscaprData = 'processes';
-  showConflictsOnly: boolean = false;
+  showConflictsOnly: boolean = true;
 
   // View options
   highlightedView: boolean = true;
   showChangedOnly: boolean = false;
+
+  // Commit message
+  commitMessage: string = '';
 
   // Diff cache per section+itemKey
   private diffCache = new Map<string, any>();
@@ -160,7 +164,12 @@ export class MergeResolverComponent {
 
   apply(): void {
     const merged = this.mergeService.buildMergedItemLevel(this.repoData || {}, this.localData || {}, this.choices);
-    this.onClose.next(merged);
+    if (this.requireCommitMessage) {
+      const msg = (this.commitMessage || '').trim();
+      this.onClose.next({ data: merged, commitMessage: msg });
+    } else {
+      this.onClose.next(merged);
+    }
     this.bsModalRef.hide();
   }
 

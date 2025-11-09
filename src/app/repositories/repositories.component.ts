@@ -160,49 +160,49 @@ export class RepositoriesComponent implements OnInit {
         remoteData = {};
       }
 
-      if (this.mergeService.different(remoteData, localData)) {
-        const modalRef = this.modalService.show(MergeResolverComponent, {
-          class: 'modal-xl',
-          initialState: { repoData: remoteData, localData }
-        });
-        const content: any = modalRef.content;
-        if (content && content.onClose) {
-          content.onClose.pipe(first()).subscribe((merged: any) => {
-            if (merged) {
-              const mergedText = JSON.stringify(merged, null, 2);
-              this.githubService.createOrUpdateFile(owner, repo, path, mergedText, sha).pipe(first()).subscribe(() => {
-                this.toastr.success('File saved successfully');
-                this.saving = false;
-              }, _ => {
-                this.toastr.error('Failed to save file to GitHub');
-                this.saving = false;
-              });
-            } else {
-              this.saving = false;
-            }
+      // Always show merge resolver to enforce commit message
+      const modalRef = this.modalService.show(MergeResolverComponent, {
+        class: 'modal-xl',
+        initialState: { repoData: remoteData, localData, requireCommitMessage: true }
+      });
+      const content: any = modalRef.content;
+      if (content && content.onClose) {
+        content.onClose.pipe(first()).subscribe((result: any) => {
+          if (!result) { this.saving = false; return; }
+          const merged = result.data ? result.data : result; // backward compatible
+          const commitMessage: string | undefined = result.commitMessage;
+          const mergedText = JSON.stringify(merged, null, 2);
+          this.githubService.createOrUpdateFile(owner, repo, path, mergedText, sha, commitMessage).pipe(first()).subscribe(() => {
+            this.toastr.success('File saved successfully');
+            this.saving = false;
+          }, _ => {
+            this.toastr.error('Failed to save file to GitHub');
+            this.saving = false;
           });
-        }
-      } else {
-        // No difference, push local as is
-        const contentText = JSON.stringify(localData, null, 2);
-        this.githubService.createOrUpdateFile(owner, repo, path, contentText, sha).pipe(first()).subscribe(() => {
-          this.toastr.success('File saved successfully');
-          this.saving = false;
-        }, _ => {
-          this.toastr.error('Failed to save file to GitHub');
-          this.saving = false;
         });
       }
     }, _ => {
-      // File does not exist -> create new
-      const contentText = JSON.stringify(localData, null, 2);
-      this.githubService.createOrUpdateFile(owner, repo, path, contentText).pipe(first()).subscribe(() => {
-        this.toastr.success('File created successfully');
-        this.saving = false;
-      }, _ => {
-        this.toastr.error('Failed to create file on GitHub');
-        this.saving = false;
+      // File does not exist -> open resolver to enforce commit message on initial commit
+      const modalRef = this.modalService.show(MergeResolverComponent, {
+        class: 'modal-xl',
+        initialState: { repoData: {}, localData, requireCommitMessage: true }
       });
+      const content: any = modalRef.content;
+      if (content && content.onClose) {
+        content.onClose.pipe(first()).subscribe((result: any) => {
+          if (!result) { this.saving = false; return; }
+          const merged = result.data ? result.data : result;
+          const commitMessage: string | undefined = result.commitMessage;
+          const mergedText = JSON.stringify(merged, null, 2);
+          this.githubService.createOrUpdateFile(owner, repo, path, mergedText, undefined, commitMessage).pipe(first()).subscribe(() => {
+            this.toastr.success('File created successfully');
+            this.saving = false;
+          }, _ => {
+            this.toastr.error('Failed to create file on GitHub');
+            this.saving = false;
+          });
+        });
+      }
     });
   }
 

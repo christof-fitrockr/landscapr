@@ -153,41 +153,46 @@ export class SyncStatusService {
       let remoteData: any = {};
       try { remoteData = JSON.parse(atob(file.content)); } catch { remoteData = {}; }
 
-      if (this.mergeService.different(remoteData, localData)) {
-        const modalRef = this.modalService.show(MergeResolverComponent, {
-          class: 'modal-xl',
-          initialState: { repoData: remoteData, localData }
+      // Always show merge resolver to require commit message
+      const modalRef = this.modalService.show(MergeResolverComponent, {
+        class: 'modal-xl',
+        initialState: { repoData: remoteData, localData, requireCommitMessage: true }
+      });
+      const content: any = modalRef.content;
+      if (content && content.onClose) {
+        content.onClose.pipe(first()).subscribe((result: any) => {
+          if (!result) { return; }
+          const merged = result.data ? result.data : result; // backward compatibility
+          const commitMessage: string | undefined = result.commitMessage;
+          const mergedText = JSON.stringify(merged, null, 2);
+          this.githubService.createOrUpdateFile(owner, repoName, filePath, mergedText, sha, commitMessage).pipe(first()).subscribe(() => {
+            this.toastr.success('File saved successfully');
+            this.updateSyncSnapshot((file && file.sha) || sha || '', this.hash(mergedText));
+            this.refresh();
+          }, _ => this.toastr.error('Failed to save file to GitHub'));
         });
-        const content: any = modalRef.content;
-        if (content && content.onClose) {
-          content.onClose.pipe(first()).subscribe((merged: any) => {
-            if (merged) {
-              const mergedText = JSON.stringify(merged, null, 2);
-              this.githubService.createOrUpdateFile(owner, repoName, filePath, mergedText, sha).pipe(first()).subscribe(() => {
-                this.toastr.success('File saved successfully');
-                this.updateSyncSnapshot((file && file.sha) || sha || '', this.hash(mergedText));
-                this.refresh();
-              }, _ => this.toastr.error('Failed to save file to GitHub'));
-            }
-          });
-        }
-      } else {
-        // No difference, push local as is
-        const contentText = JSON.stringify(localData, null, 2);
-        this.githubService.createOrUpdateFile(owner, repoName, filePath, contentText, sha).pipe(first()).subscribe(() => {
-          this.toastr.success('File saved successfully');
-          this.updateSyncSnapshot((file && file.sha) || sha || '', this.hash(contentText));
-          this.refresh();
-        }, _ => this.toastr.error('Failed to save file to GitHub'));
       }
     }, _ => {
-      // File does not exist -> create new
-      const contentText = JSON.stringify(localData, null, 2);
-      this.githubService.createOrUpdateFile(owner, repoName, filePath, contentText).pipe(first()).subscribe(() => {
-        this.toastr.success('File created successfully');
-        this.updateSyncSnapshot('new', this.hash(contentText));
-        this.refresh();
-      }, _ => this.toastr.error('Failed to create file on GitHub'));
+      // File does not exist -> still open resolver to enforce commit message
+      const remoteData: any = {};
+      const modalRef = this.modalService.show(MergeResolverComponent, {
+        class: 'modal-xl',
+        initialState: { repoData: remoteData, localData, requireCommitMessage: true }
+      });
+      const content: any = modalRef.content;
+      if (content && content.onClose) {
+        content.onClose.pipe(first()).subscribe((result: any) => {
+          if (!result) { return; }
+          const merged = result.data ? result.data : result;
+          const commitMessage: string | undefined = result.commitMessage;
+          const mergedText = JSON.stringify(merged, null, 2);
+          this.githubService.createOrUpdateFile(owner, repoName, filePath, mergedText, undefined, commitMessage).pipe(first()).subscribe(() => {
+            this.toastr.success('File created successfully');
+            this.updateSyncSnapshot('new', this.hash(mergedText));
+            this.refresh();
+          }, _ => this.toastr.error('Failed to create file on GitHub'));
+        });
+      }
     });
   }
 

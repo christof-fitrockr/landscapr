@@ -38,12 +38,12 @@ export class GithubService {
     });
   }
 
-  createOrUpdateFile(owner: string, repo: string, path: string, content: string, sha?: string): Observable<any> {
-    const body = {
-      message: `feat: update ${path}`,
-      content: btoa(content),
-      sha: sha
+  createOrUpdateFile(owner: string, repo: string, path: string, content: string, sha?: string, message?: string): Observable<any> {
+    const body: any = {
+      message: (message && message.trim()) ? message.trim() : `feat: update ${path}`,
+      content: btoa(content)
     };
+    if (sha) body.sha = sha;
     return this.http.put(`${this.GITHUB_API_URL}/repos/${owner}/${repo}/contents/${path}`, body, {
       headers: this.getAuthorizationHeaders()
     });
