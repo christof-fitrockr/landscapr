@@ -2,9 +2,7 @@ import {BrowserModule} from '@angular/platform-browser';
 import {CUSTOM_ELEMENTS_SCHEMA, NgModule} from '@angular/core';
 
 import {AppComponent} from './app.component';
-import {ClusterComponent} from './components/cluster.component';
 import {AppRoutingModule} from './app-routing.module';
-import {FunctionalClusterFilterPipe} from './pipes/functional-cluster-filter.pipe';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {BusinessServiceFilterPipe} from './pipes/business-service.pipe';
 import {LoginPage} from './pages/login.page';
