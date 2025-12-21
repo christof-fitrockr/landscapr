@@ -6,6 +6,8 @@
       <div class="btn-toolbar justify-content-lg-start" role="toolbar" aria-label="Toolbar with button groups">
         <div class="btn-group mr-2" role="group" aria-label="First group">
           <a type="button" class="btn btn-primary" title="Create" routerLink="../create"><i class="fas fa-plus"></i></a>
+          <a class="btn btn-secondary" title="Edit {{system?.name}}" routerLink="/system/edit/{{system?.id}}"><i class="fas fa-edit"></i></a>
+          <button type="button" class="btn btn-danger" title="Delete {{system?.name}}" (click)="delete()"><i class="fas fa-trash"></i></button>
         </div>
       </div>
 

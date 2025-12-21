@@ -7,14 +7,22 @@ import {Capability} from '../models/capability';
   name: 'capabilityFilter'
 })
 export class CapabilityFilterPipe implements PipeTransform {
-  transform(items: Capability[], searchText: string): any[] {
+  transform(items: Capability[], searchText: string, showOrphansOnly: boolean = false, orphanIds: string[] = []): any[] {
     if(!items) {
       return [];
     }
-    if(!searchText) {
-      return items;
+
+    let result = items;
+
+    if (showOrphansOnly) {
+      result = result.filter(el => orphanIds.includes(el.id));
     }
-    return items.filter(el=> el.name?.toLowerCase().includes(searchText.toLowerCase()));
+
+    if(searchText) {
+      result = result.filter(el=> el.name?.toLowerCase().includes(searchText.toLowerCase()));
+    }
+
+    return result;
 
    }
 }

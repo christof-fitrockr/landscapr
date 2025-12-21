@@ -5,14 +5,22 @@ import {ApiCall} from '../models/api-call';
   name: 'apiCallFilter'
 })
 export class ApiCallFilterPipe implements PipeTransform {
-  transform(items: ApiCall[], searchText: string): any[] {
+  transform(items: ApiCall[], searchText: string, showOrphansOnly: boolean = false, orphanIds: string[] = []): any[] {
     if(!items) {
       return [];
     }
-    if(!searchText) {
-      return items;
+
+    let result = items;
+
+    if (showOrphansOnly) {
+      result = result.filter(el => orphanIds.includes(el.id));
     }
-    return items.filter(el=> el.name?.toLowerCase().includes(searchText.toLowerCase()));
+
+    if(searchText) {
+      result = result.filter(el=> el.name?.toLowerCase().includes(searchText.toLowerCase()));
+    }
+
+    return result;
 
    }
 }

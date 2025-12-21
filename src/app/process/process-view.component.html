@@ -16,6 +16,7 @@
           <button type="button" class="btn btn-secondary" title="Zoom Out" (click)="zoomOut()"><i class="fas fa-search-minus"></i></button>
           <button type="button" class="btn btn-secondary" title="Flow Tree View" (click)="toggleFlowView()" [class.active]="showFlowView"><i class="fas fa-sitemap"></i></button>
           <a class="btn btn-secondary" title="Edit {{process?.name}}" routerLink="/process/edit/{{process?.id}}"><i class="fas fa-edit"></i></a>
+          <button type="button" class="btn btn-danger" title="Delete {{process?.name}}" (click)="delete()"><i class="fas fa-trash"></i></button>
 
         </div>
       </div>

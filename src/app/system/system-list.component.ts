@@ -4,6 +4,7 @@ import {ApplicationService} from '../services/application.service';
 import {Application} from '../models/application';
 import {ActivatedRoute} from '@angular/router';
 import {Subscription} from 'rxjs';
+import {ApiCallService} from '../services/api-call.service';
 
 @Component({selector: 'app-system-list', templateUrl: './system-list.component.html'})
 export class SystemListComponent implements OnInit, OnDestroy {
@@ -11,9 +12,14 @@ export class SystemListComponent implements OnInit, OnDestroy {
   repoId: string;
   systems: Application[];
   searchText: string;
+  orphanIds: string[] = [];
   private subscription: Subscription;
 
-  constructor(private systemService: ApplicationService, private activatedRoute: ActivatedRoute) {
+  constructor(
+    private systemService: ApplicationService,
+    private apiCallService: ApiCallService,
+    private activatedRoute: ActivatedRoute
+  ) {
   }
 
   ngOnInit() {
@@ -30,6 +36,21 @@ export class SystemListComponent implements OnInit, OnDestroy {
   refresh() {
     this.systemService.all(this.repoId).pipe(first()).subscribe(systems => {
       this.systems = systems;
+      this.calculateOrphans();
+    });
+  }
+
+  private calculateOrphans() {
+    this.apiCallService.all().pipe(first()).subscribe(apiCalls => {
+      const referencedSystemIds = new Set<string>();
+      apiCalls.forEach(api => {
+        if (api.implementedBy) {
+          api.implementedBy.forEach(id => referencedSystemIds.add(id));
+        }
+      });
+      this.orphanIds = this.systems
+        .filter(sys => !referencedSystemIds.has(sys.id))
+        .map(sys => sys.id);
     });
   }
 }
