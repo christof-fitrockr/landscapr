@@ -25,6 +25,10 @@
 
 
       <input *ngIf="capabilities && capabilities?.length > 0" type="text" class="input-group form-control" placeholder="Search.." [(ngModel)]="searchText" [ngModelOptions]="{standalone: true}">
+      <div *ngIf="capabilities && capabilities?.length > 0" class="form-check mt-2">
+        <input id="showOrphansOnly" type="checkbox" class="form-check-input" #showOrphansOnlyInput (change)="0">
+        <label class="form-check-label" for="showOrphansOnly" title="Show only Capabilities not referenced by any API">Show orphans only</label>
+      </div>
 
       <div *ngIf="capabilities && capabilities?.length === 0" class="small font-italic">No capabilities available. Please <a routerLink="../create">create</a> a new one.</div>
 
@@ -38,9 +42,12 @@
         </tr>
         </thead>
         <tbody>
-        <tr *ngFor="let capability of capabilities | capabilityFilter: searchText">
+        <tr *ngFor="let capability of capabilities | capabilityFilter: searchText : showOrphansOnlyInput.checked : orphanIds">
           <td><a class="black" routerLink="/capability/edit/{{capability?.id}}"><i class="fas fa-edit"></i></a></td>
-          <td><a class="black" routerLink="/capability/edit/{{capability?.id}}">{{capability.name}}</a></td>
+          <td>
+            <a class="black" routerLink="/capability/edit/{{capability?.id}}">{{capability.name}}</a>
+            <i *ngIf="orphanIds.includes(capability.id)" class="ml-2 text-warning fas fa-unlink" title="Orphan: Not referenced by any API"></i>
+          </td>
           <td>{{capability.tags}}</td>
           <td class="text-nowrap">
             <i *ngIf="capability?.status === 0" class="text-warning fas fa-exclamation-triangle mr-1"></i>

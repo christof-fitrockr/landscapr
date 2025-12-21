@@ -80,6 +80,7 @@ import { FileTypePipe } from './pipes/file-type.pipe';
 import { SaveGithubDialogComponent } from './components/save-github-dialog.component';
 import { GithubActionsDialogComponent } from './components/github-actions-dialog.component';
 import { MergeResolverComponent } from './components/merge-resolver.component';
+import { DeleteConfirmationDialogComponent } from './components/delete-confirmation-dialog.component';
 
 import { ThemeService } from './services/theme.service';
 
@@ -105,6 +106,7 @@ import { ProcessFlowViewComponent } from './process/process-flow-view.component'
     GithubDialogComponent,
     SaveGithubDialogComponent,
     GithubActionsDialogComponent,
+    DeleteConfirmationDialogComponent,
     RepositoriesComponent,
     FileTypePipe,
     ProcessOverviewComponent,

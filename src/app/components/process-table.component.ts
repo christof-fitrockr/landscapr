@@ -14,9 +14,11 @@ export class ProcessTableComponent  {
   @Input() filter: string;
   @Input() processes: Process[];
   @Input() showFilter = true
+  @Input() orphanIds: string[] = [];
 
   // UI toggle for the default subprocess filter (checked by default)
   onlyWithSubprocesses: boolean = true;
+  showOrphansOnly: boolean = false;
 
   constructor() { }
 

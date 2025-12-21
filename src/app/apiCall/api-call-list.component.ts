@@ -4,16 +4,22 @@ import {ApiCallService} from '../services/api-call.service';
 import {ApiCall} from '../models/api-call';
 import {Subscription} from 'rxjs';
 import {ActivatedRoute} from '@angular/router';
+import {ProcessService} from '../services/process.service';
 
 @Component({selector: 'app-api-call-list', templateUrl: './api-call-list.component.html'})
 export class ApiCallListComponent implements OnInit, OnDestroy {
 
-  constructor(private apiCallService: ApiCallService, private activatedRoute: ActivatedRoute) {
+  constructor(
+    private apiCallService: ApiCallService,
+    private processService: ProcessService,
+    private activatedRoute: ActivatedRoute
+  ) {
   }
 
   repoId: string;
   apiCalls: ApiCall[];
   searchText: string;
+  orphanIds: string[] = [];
   private subscription: Subscription;
 
   ngOnInit() {
@@ -30,6 +36,21 @@ export class ApiCallListComponent implements OnInit, OnDestroy {
   private refresh() {
     this.apiCallService.all().pipe(first()).subscribe(apiCalls => {
       this.apiCalls = apiCalls;
+      this.calculateOrphans();
+    });
+  }
+
+  private calculateOrphans() {
+    this.processService.all().pipe(first()).subscribe(processes => {
+      const referencedApiIds = new Set<string>();
+      processes.forEach(p => {
+        if (p.apiCallIds) {
+          p.apiCallIds.forEach(id => referencedApiIds.add(id));
+        }
+      });
+      this.orphanIds = this.apiCalls
+        .filter(api => !referencedApiIds.has(api.id))
+        .map(api => api.id);
     });
   }
 }

@@ -8,14 +8,22 @@ import {Application} from '../models/application';
   name: 'systemFilter'
 })
 export class SystemFilterPipe implements PipeTransform {
-  transform(items: Application[], searchText: string): any[] {
+  transform(items: Application[], searchText: string, showOrphansOnly: boolean = false, orphanIds: string[] = []): any[] {
     if(!items) {
       return [];
     }
-    if(!searchText) {
-      return items;
+
+    let result = items;
+
+    if (showOrphansOnly) {
+      result = result.filter(el => orphanIds.includes(el.id));
     }
-    return items.filter(el=> (el.name?.toLowerCase().includes(searchText.toLowerCase()) || el.systemCluster?.toLowerCase().includes(searchText.toLowerCase())) );
+
+    if(searchText) {
+      result = result.filter(el=> (el.name?.toLowerCase().includes(searchText.toLowerCase()) || el.systemCluster?.toLowerCase().includes(searchText.toLowerCase())) );
+    }
+
+    return result;
 
    }
 }

@@ -13,6 +13,8 @@ import { FlowViewService } from './flow-view.service';
 import { Application } from '../models/application';
 import { ApplicationService } from '../services/application.service';
 import { Subscription } from 'rxjs';
+import { BsModalService } from 'ngx-bootstrap/modal';
+import { DeleteConfirmationDialogComponent } from '../components/delete-confirmation-dialog.component';
 
 @Component({selector: 'app-process-view', styleUrls: ['./process-view.component.scss'], templateUrl: './process-view.component.html'})
 export class ProcessViewComponent implements OnInit, OnChanges, OnDestroy {
@@ -47,7 +49,8 @@ export class ProcessViewComponent implements OnInit, OnChanges, OnDestroy {
       private router: Router,
       private toastr: ToastrService,
       private flowViewService: FlowViewService,
-      private applicationService: ApplicationService
+      private applicationService: ApplicationService,
+      private modalService: BsModalService
   ) {
       this.selectionSubscription = this.flowViewService.selection$.subscribe(selection => {
           if (selection.type === 'api') {
@@ -207,5 +210,19 @@ export class ProcessViewComponent implements OnInit, OnChanges, OnDestroy {
               }
           });
       }
+  }
+
+  delete() {
+    const modalRef = this.modalService.show(DeleteConfirmationDialogComponent, { class: 'modal-sm' });
+    modalRef.content.onClose.subscribe(result => {
+      if (result) {
+        this.processService.delete(this.process.id).subscribe(() => {
+          this.toastr.success('Process deleted');
+          this.router.navigate(['/process/list']);
+        }, error => {
+          this.toastr.error('Error deleting process');
+        });
+      }
+    });
   }
 }

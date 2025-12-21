@@ -6,7 +6,7 @@
       <div class="btn-toolbar justify-content-lg-start" role="toolbar" aria-label="Toolbar with button groups">
         <div class="btn-group mr-2" role="group" aria-label="First group">
           <a type="button" class="btn btn-primary" title="View Capability Map" routerLink="../list"><i class="fas fa-list"></i></a>
-
+          <button *ngIf="capability" type="button" class="btn btn-danger" title="Delete {{capability?.name}}" (click)="delete()"><i class="fas fa-trash"></i></button>
         </div>
       </div>
 

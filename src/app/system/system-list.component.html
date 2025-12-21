@@ -25,6 +25,10 @@
 
 
       <input *ngIf="systems && systems?.length > 0" type="text" class="input-group form-control" placeholder="Search name or cluster.." [(ngModel)]="searchText" [ngModelOptions]="{standalone: true}">
+      <div *ngIf="systems && systems?.length > 0" class="form-check mt-2">
+        <input id="showOrphansOnly" type="checkbox" class="form-check-input" #showOrphansOnlyInput (change)="0">
+        <label class="form-check-label" for="showOrphansOnly" title="Show only Systems not referenced by any API">Show orphans only</label>
+      </div>
 
       <div *ngIf="systems && systems?.length === 0" class="small font-italic">No systems available. Please <a routerLink="../create">create</a> a new one.</div>
 
@@ -39,9 +43,12 @@
         </tr>
         </thead>
         <tbody>
-        <tr *ngFor="let system of systems | systemFilter: searchText">
+        <tr *ngFor="let system of systems | systemFilter: searchText : showOrphansOnlyInput.checked : orphanIds">
           <td><a class="black" routerLink="/system/edit/{{system?.id}}"><i class="fas fa-edit"></i></a></td>
-          <td><a class="black" routerLink="/system/edit/{{system?.id}}">{{system.name}}</a></td>
+          <td>
+            <a class="black" routerLink="/system/edit/{{system?.id}}">{{system.name}}</a>
+            <i *ngIf="orphanIds.includes(system.id)" class="ml-2 text-warning fas fa-unlink" title="Orphan: Not referenced by any API"></i>
+          </td>
           <td>{{system.systemCluster}}</td>
           <td>{{system.tags}}</td>
 
