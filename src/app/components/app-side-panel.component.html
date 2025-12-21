@@ -1,0 +1,14 @@
+<div class="side-panel-container" [class.open]="isOpen">
+  <div class="side-panel-overlay" (click)="close.emit()" *ngIf="isOpen"></div>
+  <div class="side-panel shadow">
+    <div class="side-panel-header">
+      <h4 class="m-0">{{ title }}</h4>
+      <button type="button" class="close" aria-label="Close" (click)="close.emit()">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+    <div class="side-panel-body">
+      <ng-content></ng-content>
+    </div>
+  </div>
+</div>

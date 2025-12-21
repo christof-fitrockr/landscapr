@@ -1,4 +1,4 @@
-import {Component, Input, OnChanges, OnInit, SimpleChanges, ViewChild} from '@angular/core';
+import {Component, Input, OnChanges, OnInit, SimpleChanges, ViewChild, OnDestroy} from '@angular/core';
 import {ProcessService} from '../services/process.service';
 import {Process} from '../models/process';
 import {FormBuilder} from '@angular/forms';
@@ -9,9 +9,13 @@ import {first} from 'rxjs/operators';
 import {ApiCall} from '../models/api-call';
 import {ApiCallService} from '../services/api-call.service';
 import {SwimlaneViewComponent} from '../swimlaneView/swimlane-view.component';
+import { FlowViewService } from './flow-view.service';
+import { Application } from '../models/application';
+import { ApplicationService } from '../services/application.service';
+import { Subscription } from 'rxjs';
 
 @Component({selector: 'app-process-view', styleUrls: ['./process-view.component.scss'], templateUrl: './process-view.component.html'})
-export class ProcessViewComponent implements OnInit, OnChanges {
+export class ProcessViewComponent implements OnInit, OnChanges, OnDestroy {
 
   @Input() processId: string | null = null;
   process: Process;
@@ -22,11 +26,42 @@ export class ProcessViewComponent implements OnInit, OnChanges {
   selectedFunctions: ApiCall[];
   zoomFactor = 0.6;
 
+  // Flow View & Sidebar State
+  showFlowView = false;
+  panelOpen = false;
+  panelTitle = '';
+  selectedApi: ApiCall | null = null;
+  selectedSystem: Application | null = null;
+  selectedApiSystemName: string | null = null;
+  private selectionSubscription: Subscription;
+
 
   @ViewChild(SwimlaneViewComponent) child:SwimlaneViewComponent;
 
-  constructor(private processService: ProcessService, private apiCallService: ApiCallService, private formBuilder: FormBuilder, private location: Location,
-              private route: ActivatedRoute, private router: Router, private toastr: ToastrService) {
+  constructor(
+      private processService: ProcessService,
+      private apiCallService: ApiCallService,
+      private formBuilder: FormBuilder,
+      private location: Location,
+      private route: ActivatedRoute,
+      private router: Router,
+      private toastr: ToastrService,
+      private flowViewService: FlowViewService,
+      private applicationService: ApplicationService
+  ) {
+      this.selectionSubscription = this.flowViewService.selection$.subscribe(selection => {
+          if (selection.type === 'api') {
+              this.showApiDetails(selection.data as ApiCall);
+          } else if (selection.type === 'system') {
+              this.showSystemDetails(selection.data as Application);
+          }
+      });
+  }
+
+  ngOnDestroy(): void {
+      if (this.selectionSubscription) {
+          this.selectionSubscription.unsubscribe();
+      }
   }
 
 
@@ -126,5 +161,51 @@ export class ProcessViewComponent implements OnInit, OnChanges {
   downloadPdf() {
 
     this.child.downloadPdf();
+  }
+
+  toggleFlowView() {
+    this.showFlowView = !this.showFlowView;
+  }
+
+  closePanel() {
+      this.panelOpen = false;
+      this.selectedApi = null;
+      this.selectedSystem = null;
+  }
+
+  showApiDetails(api: ApiCall) {
+      this.selectedApi = api;
+      this.selectedSystem = null;
+      this.panelTitle = 'API Call: ' + api.name;
+      this.panelOpen = true;
+      this.selectedApiSystemName = null;
+
+      if (api.implementedBy && api.implementedBy.length > 0) {
+          // Fetch system name for display
+          this.applicationService.byId(api.implementedBy[0]).pipe(first()).subscribe(app => {
+              if (app) {
+                  this.selectedApiSystemName = app.name;
+              }
+          });
+      }
+  }
+
+  showSystemDetails(system: Application) {
+      this.selectedSystem = system;
+      this.selectedApi = null;
+      this.panelTitle = 'System: ' + system.name;
+      this.panelOpen = true;
+  }
+
+  onSystemClick(systemId: string) {
+      if (systemId) {
+          this.applicationService.byId(systemId).pipe(first()).subscribe(app => {
+              if (app) {
+                  this.showSystemDetails(app);
+              } else {
+                  this.toastr.warning('System details not found.');
+              }
+          });
+      }
   }
 }
