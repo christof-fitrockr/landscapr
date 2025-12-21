@@ -1,8 +1,34 @@
-<div class="container-fluid" >
-  <div class="card-body overflow-auto" style="overflow-y: auto;">
-    <canvas id="canvas" #canvas class="canvas"></canvas>
+<div class="container-fluid position-relative h-100 overflow-hidden" >
+  <div class="card-body overflow-auto h-100" style="overflow-y: auto;">
+    <canvas id="canvas" #canvas class="canvas" (click)="onCanvasClick($event)"></canvas>
 
     <canvas id="hiddenCanvas" #hiddenCanvas style="display:none;">
       Your browser does not support the HTML5 canvas tag.</canvas>
+  </div>
+
+  <div class="side-panel" [class.open]="selectedItem">
+    <div class="side-panel-header d-flex justify-content-between align-items-center p-3 border-bottom">
+      <h5 class="mb-0">{{selectedItem?.title || 'Properties'}}</h5>
+      <button type="button" class="btn-close" (click)="selectedItem = null"></button>
+    </div>
+    <div class="side-panel-body p-3" *ngIf="selectedItem">
+      <div *ngIf="selectedProcess">
+        <p><strong>Description:</strong> {{selectedProcess.description}}</p>
+        <p><strong>Role:</strong> {{Role[selectedProcess.role]}}</p>
+        <p><strong>Status:</strong> {{Status[selectedProcess.status]}}</p>
+        <div *ngIf="selectedProcess.apiCallIds?.length > 0">
+            <h6>API Calls</h6>
+            <ul>
+                <li *ngFor="let apiId of selectedProcess.apiCallIds">{{apiCallMap.get(apiId)?.name}}</li>
+            </ul>
+        </div>
+      </div>
+      <div *ngIf="selectedApiCall">
+        <p><strong>Description:</strong> {{selectedApiCall.description}}</p>
+        <p><strong>Status:</strong> {{ApiImplementationStatus[selectedApiCall.implementationStatus]}}</p>
+        <p><strong>Input:</strong> {{selectedApiCall.input}}</p>
+        <p><strong>Output:</strong> {{selectedApiCall.output}}</p>
+      </div>
+    </div>
   </div>
 </div>

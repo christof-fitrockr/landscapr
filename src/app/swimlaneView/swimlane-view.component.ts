@@ -12,10 +12,10 @@ import {
 import {ProcessService} from '../services/process.service';
 import {ActivatedRoute} from '@angular/router';
 import {first} from 'rxjs/operators';
-import {Process, Role} from '../models/process';
+import {Process, Role, Status} from '../models/process';
 import {CanvasService} from '../services/canvas.service';
 import {ApiCallService} from '../services/api-call.service';
-import {ApiCall} from '../models/api-call';
+import {ApiCall, ApiImplementationStatus} from '../models/api-call';
 import {Application} from '../models/application';
 import {ApplicationService} from '../services/application.service';
 import {Subscription} from 'rxjs';
@@ -47,6 +47,12 @@ export class SwimlaneViewComponent implements OnInit, AfterViewInit, OnChanges {
   width: number;
   height: number;
   private subscription: Subscription;
+  selectedItem: ProcessBox | null = null;
+  selectedProcess: Process | null = null;
+  selectedApiCall: ApiCall | null = null;
+  Role = Role;
+  Status = Status;
+  ApiImplementationStatus = ApiImplementationStatus;
 
 
   constructor(private activatedRoute: ActivatedRoute,private processService: ProcessService, private systemService: ApplicationService,
@@ -251,6 +257,42 @@ export class SwimlaneViewComponent implements OnInit, AfterViewInit, OnChanges {
     this.functionBoxMap.set(processBox.id, processBox);
     this.functionOrder.push(processBox);
     return processBox;
+  }
+
+  public onCanvasClick(event: MouseEvent) {
+    const rect = this.canvas.nativeElement.getBoundingClientRect();
+    const x = (event.clientX - rect.left) / this.zoomFactor;
+    const y = (event.clientY - rect.top) / this.zoomFactor;
+
+    this.selectedItem = null;
+    this.selectedProcess = null;
+    this.selectedApiCall = null;
+
+    let maxDepth = 0;
+    for(let box of this.processBoxMap.values()) {
+      maxDepth = Math.max(maxDepth, box.depth);
+    }
+
+    // Check process boxes
+    for (let box of this.processOrder) {
+      const boxY = SwimlaneViewComponent.getYForBox(box, maxDepth);
+      if (x >= box.x && x <= box.x + box.w && y >= boxY && y <= boxY + 50) {
+        this.selectedItem = box;
+        this.selectedProcess = this.processMap.get(box.processId);
+        return;
+      }
+    }
+
+    // Check api boxes
+    let apiLaneIdx = maxDepth + 6; // Based on drawGraph logic: idx = maxDepth + 6
+    for (let box of this.functionBoxMap.values()) {
+      const boxY = (apiLaneIdx) * 100 + 25;
+      if (x >= box.x && x <= box.x + box.w && y >= boxY && y <= boxY + 50) { // Height is 50 for functions (BOX_HEIGHT)
+        this.selectedItem = box;
+        this.selectedApiCall = this.apiCallMap.get(box.processId); // processId holds apiCallId for these
+        return;
+      }
+    }
   }
 
   private drawGraph(elem: ElementRef<HTMLCanvasElement>, clipX = -1, clipY = -1, clipW = -1, clipH = -1) {

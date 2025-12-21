@@ -30,19 +30,23 @@ export class JourneyViewComponent implements OnInit {
     });
   }
 
-  private generateMermaidSyntax(journey: Journey): string {
-    let mermaid = 'stateDiagram-v2\\n';
-    for (const item of journey.items) {
-      if ('items' in item) {
-        mermaid += `  state ${item.id} {\\n`;
-        mermaid += `    ${this.generateMermaidSyntax(item as Journey)}\\n`;
-        mermaid += `  }\\n`;
-      } else {
-        mermaid += `  ${item.id}: ${item.name}\\n`;
+  private generateMermaidSyntax(journey: Journey, isRoot = true): string {
+    let mermaid = isRoot ? 'stateDiagram-v2\n' : '';
+    if (journey && journey.items) {
+      for (const item of journey.items) {
+        if (item && 'items' in item) {
+          mermaid += `  state ${item.id} {\n`;
+          mermaid += `    ${this.generateMermaidSyntax(item as Journey, false)}\n`;
+          mermaid += `  }\n`;
+        } else if (item) {
+          mermaid += `  ${item.id}: ${item.name}\n`;
+        }
       }
     }
-    for (const connection of journey.connections) {
-      mermaid += `  ${connection.from} --> ${connection.to}: ${connection.label || ''}\\n`;
+    if (journey && journey.connections) {
+      for (const connection of journey.connections) {
+        mermaid += `  ${connection.from} --> ${connection.to}: ${connection.label || ''}\n`;
+      }
     }
     return mermaid;
   }

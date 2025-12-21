@@ -42,16 +42,16 @@
                 'sync-badge-warning': st.state === 'LOCAL_NEWER' || st.state === 'REMOTE_NEWER',
                 'sync-badge-danger': st.state === 'DIVERGED'
               }" [title]="st.state === 'LOCAL_NEWER' ? 'Local changes not on GitHub' : (st.state === 'REMOTE_NEWER' ? 'Updates available from GitHub' : 'Local and remote have diverged')">
-              <i class="fas" [ngClass]="{
-                'fa-upload': st.state === 'LOCAL_NEWER',
-                'fa-download': st.state === 'REMOTE_NEWER',
-                'fa-exchange-alt': st.state === 'DIVERGED'
-              }"></i>
+<!--              <i class="fas" [ngClass]="{-->
+<!--                'fa-upload': st.state === 'LOCAL_NEWER',-->
+<!--                'fa-download': st.state === 'REMOTE_NEWER',-->
+<!--                'fa-exchange-alt': st.state === 'DIVERGED'-->
+<!--              }"></i>-->
               <span class="label pt-1 pb-1">&nbsp;Sync&nbsp;</span>
-            <button *ngIf="st.state === 'LOCAL_NEWER' || st.state === 'DIVERGED'" class="btn btn-sm btn-outline-light me-2" (click)="syncStatusService.push()" title="Save local version to GitHub">
+            <button *ngIf="st.state === 'LOCAL_NEWER' || st.state === 'DIVERGED'" class="btn btn-sm btn-outline-light border-0 me-2" (click)="syncStatusService.push()" title="Save local version to GitHub">
               <i class="fas fa-upload"></i>
             </button>
-            <button *ngIf="st.state === 'REMOTE_NEWER' || st.state === 'DIVERGED'" class="btn btn-sm btn-outline-light ms-2" (click)="syncStatusService.pull()" title="Load changes from GitHub">
+            <button *ngIf="st.state === 'REMOTE_NEWER' || st.state === 'DIVERGED'" class="btn btn-sm btn-outline-light border-0 ms-2" (click)="syncStatusService.pull()" title="Load changes from GitHub">
               <i class="fas fa-download"></i>
             </button>
             </span>
