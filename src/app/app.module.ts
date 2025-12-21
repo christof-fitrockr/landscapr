@@ -25,10 +25,8 @@ import {ProcessOverviewComponent} from './components/process-overview.component'
 import {NgSelectModule} from '@ng-select/ng-select';
 import {ProcessEditSubprocessComponent} from './process/process-edit-subprocess.component';
 import {ProcessEditBaseComponent} from './process/process-edit-base.component';
-import {NgxGraphModule} from '@swimlane/ngx-graph';
 import {DashboardComponent} from './dashboard/dashboard.component';
 import {ProcessEditFlowComponent} from './process/process-edit-flow.component';
-import {ProcessGraphComponent} from './components/process-graph.component';
 import {ProcessEditApiCallsComponent} from './process/process-edit-api-calls.component';
 import {ApiCallEditComponent} from './apiCall/api-call-edit.component';
 import {ApiCallEditBaseComponent} from './apiCall/api-call-edit-base.component';
@@ -108,7 +106,6 @@ import {LicensesComponent} from './licenses/licenses.component';
     RepositoriesComponent,
     FileTypePipe,
     ProcessOverviewComponent,
-    ProcessGraphComponent,
     ProcessListComponent,
     ProcessViewComponent,
     ProcessEditComponent,
@@ -196,7 +193,6 @@ import {LicensesComponent} from './licenses/licenses.component';
   ],
   imports: [
     BrowserModule,
-    NgxGraphModule,
     NgSelectModule,
     BrowserAnimationsModule,
     DragDropModule,

@@ -1,8 +1,6 @@
 import {AfterViewChecked, AfterViewInit, Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild} from '@angular/core';
 import {FunctionCall, ModelledProcess, Process, ProcessModel, ProcessStep, Swimlane} from '../models/process';
 import * as shape from 'd3-shape';
-import {Layout} from '@swimlane/ngx-graph';
-import {DagreNodesOnlyLayout} from './customDagreNodesOnly';
 import {ProcessService} from '../services/process.service';
 import {first} from 'rxjs/operators';
 import {Subject} from 'rxjs';
@@ -30,9 +28,6 @@ export class ApiCallGraphComponent implements OnInit, AfterViewInit, AfterViewCh
   @Input() processId: string;
   @Output() processClicked = new EventEmitter<string>();
 
-  public curve: any = shape.curveLinear;
-  public layout: Layout = new DagreNodesOnlyLayout();
-  hierarchicalGraph = {nodes: [], links: []}
 
   process: Process;
   subProcesses: Process[];
