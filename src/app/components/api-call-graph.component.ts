@@ -9,6 +9,11 @@ import {Subject} from 'rxjs';
 import {ProcessDrawingService} from '../services/process-drawing.service';
 import {CanvasService} from '../services/canvas.service';
 import {ApiCallService} from '../services/api-call.service';
+import {CapabilityService} from '../services/capability.service';
+import {ApplicationService} from '../services/application.service';
+import {ApiCall} from '../models/api-call';
+import {Capability} from '../models/capability';
+import {Application} from '../models/application';
 
 
 @Component({
@@ -35,7 +40,12 @@ export class ApiCallGraphComponent implements OnInit, AfterViewInit, AfterViewCh
   centerGraph$ = new Subject<boolean>();
 
 
-  constructor(private processService: ProcessService, private apiCallService: ApiCallService, private processDrawingService: ProcessDrawingService, private canvasService: CanvasService) {
+  constructor(private processService: ProcessService,
+              private apiCallService: ApiCallService,
+              private processDrawingService: ProcessDrawingService,
+              private canvasService: CanvasService,
+              private capabilityService: CapabilityService,
+              private applicationService: ApplicationService) {
   }
 
   ngOnInit() {
@@ -75,26 +85,29 @@ export class ApiCallGraphComponent implements OnInit, AfterViewInit, AfterViewCh
       for (let i = 0; i < this.process.apiCallIds.length; i += chunkSize) {
         const idChunk = this.process.apiCallIds.slice(i, i + chunkSize);
         this.apiCallService.byIds(idChunk).pipe(first()).subscribe(result => {
-          for(let item of result) {
 
-            const call = new FunctionCall();
-            call.laneId = 'api';
-            call.fct = item.name;
-            call.in = item.input + ' ';
-            call.out = item.output + ' ';
+          const capIds = result.map(a => a.capabilityId).filter(id => !!id);
 
-            // TODO System via capability
-            //call.
+          if (capIds.length === 0) {
+            this.processApiCalls(result, [], [], processStep);
+          } else {
+            this.capabilityService.byIds(capIds).pipe(first()).subscribe(capabilities => {
+              const sysIds: string[] = [];
+              capabilities.forEach(c => {
+                if (c.implementedBy) {
+                  sysIds.push(...c.implementedBy);
+                }
+              });
 
-            processStep.calls.push(call);
-
-
+              if (sysIds.length === 0) {
+                this.processApiCalls(result, capabilities, [], processStep);
+              } else {
+                this.applicationService.byIds(sysIds).pipe(first()).subscribe(systems => {
+                  this.processApiCalls(result, capabilities, systems, processStep);
+                });
+              }
+            });
           }
-
-          this.modelledProcess.process.processSteps = [processStep];
-
-
-          this.processDrawingService.drawProcess(this.canvas.nativeElement, this.modelledProcess.process);
         });
       }
 
@@ -104,6 +117,40 @@ export class ApiCallGraphComponent implements OnInit, AfterViewInit, AfterViewCh
   }
 
 
+
+  processApiCalls(apiCalls: ApiCall[], capabilities: Capability[], systems: Application[], processStep: ProcessStep) {
+    const sysMap = new Map(systems.map(s => [s.id, s]));
+    const capMap = new Map(capabilities.map(c => [c.id, c]));
+
+    for (const item of apiCalls) {
+
+      const call = new FunctionCall();
+      call.laneId = 'api';
+      call.fct = item.name;
+      call.in = item.input + ' ';
+      call.out = item.output + ' ';
+
+      if (item.capabilityId && capMap.has(item.capabilityId)) {
+        const cap = capMap.get(item.capabilityId);
+        if (cap.implementedBy && cap.implementedBy.length > 0) {
+          const systemNames = cap.implementedBy
+            .map(sysId => sysMap.get(sysId)?.name)
+            .filter(name => !!name)
+            .join(', ');
+          call.sys = systemNames;
+        }
+      }
+
+      processStep.calls.push(call);
+
+
+    }
+
+    this.modelledProcess.process.processSteps = [processStep];
+
+
+    this.processDrawingService.drawProcess(this.canvas.nativeElement, this.modelledProcess.process);
+  }
 
   onClick(node: any) {
     this.processClicked.emit(node.id);
