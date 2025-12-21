@@ -53,7 +53,6 @@ import {ApiCallOverviewComponent} from './components/api-call-overview.component
 import {CapabilityOverviewComponent} from './components/capability-overview.component';
 import {SystemOverviewComponent} from './components/system-overview.component';
 import {ApiCallEditImplementedInComponent} from './apiCall/api-call-edit-implemented-in.component';
-import {CapabilityComponent} from './components/capability.component';
 import { CapabilityMapComponent } from './capability/capability-map.component';
 import {ApiCallGraphComponent} from './components/api-call-graph.component';
 import {ProcessEditUsedByComponent} from './process/process-edit-used-by.component';
@@ -178,7 +177,6 @@ import {LicensesComponent} from './licenses/licenses.component';
     InformationSystemServiceFilterPipe,
     InformationObjectFilterPipe,
     ProcessOverviewComponent,
-    CapabilityComponent,
     JourneyEditComponent,
     JourneyEditBaseComponent,
     JourneyListComponent,
