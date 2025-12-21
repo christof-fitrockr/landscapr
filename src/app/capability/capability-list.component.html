@@ -26,7 +26,7 @@
 
       <input *ngIf="capabilities && capabilities?.length > 0" type="text" class="input-group form-control" placeholder="Search.." [(ngModel)]="searchText" [ngModelOptions]="{standalone: true}">
       <div *ngIf="capabilities && capabilities?.length > 0" class="form-check mt-2">
-        <input id="showOrphansOnly" type="checkbox" class="form-check-input" #showOrphansOnlyInput (change)="0">
+        <input id="showOrphansOnly" type="checkbox" class="form-check-input" [(ngModel)]="showOrphansOnly" (change)="0">
         <label class="form-check-label" for="showOrphansOnly" title="Show only Capabilities not referenced by any API">Show orphans only</label>
       </div>
 
@@ -42,7 +42,7 @@
         </tr>
         </thead>
         <tbody>
-        <tr *ngFor="let capability of capabilities | capabilityFilter: searchText : showOrphansOnlyInput.checked : orphanIds">
+        <tr *ngFor="let capability of capabilities | capabilityFilter: searchText : showOrphansOnly : orphanIds">
           <td><a class="black" routerLink="/capability/edit/{{capability?.id}}"><i class="fas fa-edit"></i></a></td>
           <td>
             <a class="black" routerLink="/capability/edit/{{capability?.id}}">{{capability.name}}</a>

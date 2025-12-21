@@ -1,9 +1,15 @@
+:host {
+  display: block;
+  height: 100%;
+}
+
 .journey-editor {
   position: relative;
   /* Fill the viewport height minus typical navbar + card header/footer paddings */
-  height: calc(100vh - 220px);
+  height: 100%;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 
 /* Toolbar is now in the card-header; remove floating toolbar styles */
@@ -127,4 +133,21 @@ svg .edge-label {
   fill: #495057;
   pointer-events: none; /* let edge hit-path receive clicks/dblclicks */
   user-select: none;
+}
+
+.swimlane-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: white;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+}
+
+.swimlane-overlay-body {
+  flex: 1;
+  overflow: hidden;
 }

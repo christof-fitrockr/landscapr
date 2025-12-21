@@ -9,7 +9,7 @@ import {ApplicationService} from '../services/application.service';
 import {Observable, Subscription} from 'rxjs';
 import {Application} from '../models/application';
 
-@Component({selector: 'app-process-edit', templateUrl: './process-edit-base.component.html'})
+@Component({selector: 'app-process-edit', templateUrl: './process-edit-base.component.html', styleUrls: ['./process-edit-base.component.scss']})
 export class ProcessEditBaseComponent implements OnInit, OnDestroy {
 
   processForm: FormGroup;
@@ -18,6 +18,7 @@ export class ProcessEditBaseComponent implements OnInit, OnDestroy {
   systems$: Observable<Application[]>;
   private repoId: string;
   private subscription: Subscription;
+  roles: string[] = ['Customer', 'Vehicle', 'Service with Customer', 'Service', 'Workshop', 'Parts'];
 
 
   constructor(private processService: ProcessService, private systemService: ApplicationService,

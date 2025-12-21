@@ -7,7 +7,7 @@ import {CapabilityService} from '../services/capability.service';
 import {Capability} from '../models/capability';
 import {Subscription} from 'rxjs';
 
-@Component({selector: 'app-capability-edit', templateUrl: './capability-edit-base.component.html'})
+@Component({selector: 'app-capability-edit', templateUrl: './capability-edit-base.component.html', styleUrls: ['./capability-edit-base.component.scss']})
 export class CapabilityEditBaseComponent implements OnInit, OnDestroy {
 
   capabilityForm: FormGroup;

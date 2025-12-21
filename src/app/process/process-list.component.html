@@ -26,7 +26,7 @@
 
 
 
-      <app-process-table [processes]="processes"  *ngIf="processes && processes?.length > 0" [filter]="searchText" [repoId]="repoId" [orphanIds]="orphanIds"></app-process-table>
+      <app-process-table (deleted)="refresh()" [processes]="processes"  *ngIf="processes && processes?.length > 0" [filter]="searchText" [repoId]="repoId" [orphanIds]="orphanIds"></app-process-table>
     </div>
 
   </div>

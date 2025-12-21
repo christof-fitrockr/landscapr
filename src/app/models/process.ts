@@ -7,7 +7,7 @@ export class Process {
   input: string;
   output: string;
   tags: string[];
-  role: number;
+  role: string;
   steps: Step[]
   apiCallIds: string[];
   favorite: boolean;

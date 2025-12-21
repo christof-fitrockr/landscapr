@@ -7,7 +7,7 @@ import {first} from 'rxjs/operators';
 import {Process} from '../models/process';
 import {Subscription} from 'rxjs';
 
-@Component({templateUrl: './process-edit-flow.component.html'})
+@Component({templateUrl: './process-edit-flow.component.html', styleUrls: ['./process-edit-flow.component.scss']})
 export class ProcessEditFlowComponent implements OnInit {
 
   processId: string;

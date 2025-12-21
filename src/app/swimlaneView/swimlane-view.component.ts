@@ -1,7 +1,7 @@
 import {
   AfterViewInit,
   Component,
-  ElementRef,
+  ElementRef, HostListener,
   Input,
   OnChanges,
   OnDestroy,
@@ -31,6 +31,7 @@ export class SwimlaneViewComponent implements OnInit, AfterViewInit, OnChanges {
 
   @ViewChild('canvas') public canvas: ElementRef<HTMLCanvasElement>;
   @ViewChild('hiddenCanvas') public hiddenCanvas: ElementRef<HTMLCanvasElement>;
+  @ViewChild('canvasContainer') public canvasContainer: ElementRef<HTMLDivElement>;
 
   @Input() repoId: string;
   @Input() processId: string;
@@ -44,6 +45,11 @@ export class SwimlaneViewComponent implements OnInit, AfterViewInit, OnChanges {
   functionBoxMap = new Map<number, ProcessBox>();
   edges: Edge[] = [];
   @Input() zoomFactor = 0.6;
+  offsetX = 0;
+  offsetY = 0;
+  private isDragging = false;
+  private lastMouseX = 0;
+  private lastMouseY = 0;
   width: number;
   height: number;
   private subscription: Subscription;
@@ -53,6 +59,7 @@ export class SwimlaneViewComponent implements OnInit, AfterViewInit, OnChanges {
   Role = Role;
   Status = Status;
   ApiImplementationStatus = ApiImplementationStatus;
+  dynamicRoles: string[] = [];
 
 
   constructor(private activatedRoute: ActivatedRoute,private processService: ProcessService, private systemService: ApplicationService,
@@ -60,7 +67,11 @@ export class SwimlaneViewComponent implements OnInit, AfterViewInit, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    if(this.canvas && this.processMap.size > 0) {
+    if (changes.processId && !changes.processId.firstChange) {
+      if (this.canvas && this.processMap.size > 0) {
+        this.draw(this.canvas);
+      }
+    } else if (this.canvas && this.processMap.size > 0) {
       this.resize(this.canvas);
       this.drawGraph(this.canvas);
     }
@@ -103,9 +114,71 @@ export class SwimlaneViewComponent implements OnInit, AfterViewInit, OnChanges {
   }
 
   private draw(canvas: ElementRef<HTMLCanvasElement>, clipX?: number, clipY?: number, clipW?: number, clipH?: number) {
+    this.dynamicRoles = [];
+    this.processOrder = [];
+    this.functionOrder = [];
+    this.processBoxMap.clear();
+    this.functionBoxMap.clear();
+    this.edges = [];
+    this.collectRoles(this.processId);
     this.createGraph(canvas, this.processId, 50, 0);
     this.resize(canvas, clipX, clipY, clipW, clipH);
+    if (!clipX && !clipY) {
+      this.centerGraph(canvas);
+    }
     this.drawGraph(canvas, clipX, clipY, clipW, clipH);
+  }
+
+  @HostListener('window:resize')
+  onResize() {
+    if (this.canvas) {
+      this.resize(this.canvas);
+      this.drawGraph(this.canvas);
+    }
+  }
+
+  private centerGraph(canvas: ElementRef<HTMLCanvasElement>) {
+    if (this.processOrder.length === 0) return;
+
+    let maxDepth = 0;
+    for (let box of this.processBoxMap.values()) {
+      maxDepth = Math.max(maxDepth, box.depth);
+    }
+
+    const lastElement = this.processOrder[this.processOrder.length - 1];
+    const graphWidth = (lastElement.x + lastElement.w);
+    const graphHeight = (maxDepth + this.dynamicRoles.length + 1) * 100 + 100;
+
+    const canvasWidth = canvas.nativeElement.width;
+    const canvasHeight = canvas.nativeElement.height;
+
+    // Center based on current zoom
+    this.offsetX = (canvasWidth - graphWidth * this.zoomFactor) / 2;
+    this.offsetY = (canvasHeight - graphHeight * this.zoomFactor) / 2;
+
+    // Minimum padding
+    if (this.offsetY < 50) this.offsetY = 50;
+    if (this.offsetX < 50) this.offsetX = 50;
+  }
+
+  private collectRoles(id: string) {
+    const process = this.processMap.get(id);
+    if (!process) return;
+
+    if (process.role !== undefined && process.role !== null && process.role !== '') {
+      const roleName = typeof process.role === 'number' ? Role[process.role] : process.role;
+      if (roleName && !this.dynamicRoles.includes(roleName)) {
+        this.dynamicRoles.push(roleName);
+      }
+    }
+
+    if (process.steps) {
+      for (const step of process.steps) {
+        if (step.processReference) {
+          this.collectRoles(step.processReference);
+        }
+      }
+    }
   }
 
   private createGraph(canvas: ElementRef<HTMLCanvasElement>, id: string, x = 0, layer = 0): ProcessBox {
@@ -140,7 +213,8 @@ export class SwimlaneViewComponent implements OnInit, AfterViewInit, OnChanges {
     processBox.depth = layer;
     processBox.roleLayer = -1;
     if(!process.steps || process.steps.length === 0) {
-      processBox.roleLayer = process.role;
+      const roleName = typeof process.role === 'number' ? Role[process.role] : process.role;
+      processBox.roleLayer = this.dynamicRoles.indexOf(roleName);
       processBox.w = this.canvasService.calcFunctionWidth(cx, 0, process.name, '');
     }
 
@@ -208,12 +282,10 @@ export class SwimlaneViewComponent implements OnInit, AfterViewInit, OnChanges {
           const inEdge = new Edge();
           inEdge.startId = processBox.id;
           inEdge.endId = childBox.id;
-          inEdge.title = apiCall.input;
 
           const outEdge = new Edge();
           outEdge.startId = childBox.id;
           outEdge.endId = processBox.id;
-          outEdge.title = apiCall.output;
 
           this.edges.push(inEdge, outEdge);
 
@@ -260,9 +332,52 @@ export class SwimlaneViewComponent implements OnInit, AfterViewInit, OnChanges {
   }
 
   public onCanvasClick(event: MouseEvent) {
+    // We'll use mouseUp for selection to distinguish from drag
+  }
+
+  private totalDragDistance = 0;
+
+  public onMouseDown(event: MouseEvent) {
+    if (event.button === 0) { // Only left click for dragging
+      this.isDragging = true;
+      this.lastMouseX = event.clientX;
+      this.lastMouseY = event.clientY;
+      this.totalDragDistance = 0;
+    }
+  }
+
+  public onMouseMove(event: MouseEvent) {
+    if (this.isDragging) {
+      const dx = event.clientX - this.lastMouseX;
+      const dy = event.clientY - this.lastMouseY;
+      this.totalDragDistance += Math.sqrt(dx * dx + dy * dy);
+      this.offsetX += dx;
+      this.offsetY += dy;
+      this.lastMouseX = event.clientX;
+      this.lastMouseY = event.clientY;
+      this.drawGraph(this.canvas);
+    }
+  }
+
+  openSelectedItem() {
+    if (this.selectedProcess) {
+      window.open(`/process/view/${this.selectedProcess.id}`, '_blank');
+    } else if (this.selectedApiCall) {
+      window.open(`/apiCall/view/${this.selectedApiCall.id}`, '_blank');
+    }
+  }
+
+  public onMouseUp(event: MouseEvent) {
+    if (event.button !== 0) return;
+    this.isDragging = false;
+
+    // Only select if it was a click, not a drag
+    if (this.totalDragDistance > 5) return;
+
+    // Selection logic
     const rect = this.canvas.nativeElement.getBoundingClientRect();
-    const x = (event.clientX - rect.left) / this.zoomFactor;
-    const y = (event.clientY - rect.top) / this.zoomFactor;
+    const x = (event.clientX - rect.left - this.offsetX) / this.zoomFactor;
+    const y = (event.clientY - rect.top - this.offsetY) / this.zoomFactor;
 
     this.selectedItem = null;
     this.selectedProcess = null;
@@ -284,7 +399,7 @@ export class SwimlaneViewComponent implements OnInit, AfterViewInit, OnChanges {
     }
 
     // Check api boxes
-    let apiLaneIdx = maxDepth + 6; // Based on drawGraph logic: idx = maxDepth + 6
+    const apiLaneIdx = maxDepth + this.dynamicRoles.length;
     for (let box of this.functionBoxMap.values()) {
       const boxY = (apiLaneIdx) * 100 + 25;
       if (x >= box.x && x <= box.x + box.w && y >= boxY && y <= boxY + 50) { // Height is 50 for functions (BOX_HEIGHT)
@@ -292,6 +407,32 @@ export class SwimlaneViewComponent implements OnInit, AfterViewInit, OnChanges {
         this.selectedApiCall = this.apiCallMap.get(box.processId); // processId holds apiCallId for these
         return;
       }
+    }
+  }
+
+  public onWheel(event: WheelEvent) {
+    if (event.ctrlKey || event.metaKey) {
+      event.preventDefault();
+      const zoomSpeed = 0.001;
+      const oldZoom = this.zoomFactor;
+      this.zoomFactor -= event.deltaY * zoomSpeed;
+      this.zoomFactor = Math.min(Math.max(0.1, this.zoomFactor), 3);
+
+      // Zoom towards mouse
+      const rect = this.canvas.nativeElement.getBoundingClientRect();
+      const mouseX = event.clientX - rect.left;
+      const mouseY = event.clientY - rect.top;
+
+      this.offsetX -= (mouseX - this.offsetX) * (this.zoomFactor / oldZoom - 1);
+      this.offsetY -= (mouseY - this.offsetY) * (this.zoomFactor / oldZoom - 1);
+
+      this.drawGraph(this.canvas);
+    } else {
+      // Normal scroll
+      event.preventDefault(); // Also prevent default on normal scroll to keep it within canvas
+      this.offsetY -= event.deltaY;
+      this.offsetX -= event.deltaX;
+      this.drawGraph(this.canvas);
     }
   }
 
@@ -309,6 +450,11 @@ export class SwimlaneViewComponent implements OnInit, AfterViewInit, OnChanges {
 
     const lastElement = this.processOrder[this.processOrder.length - 1];
     const width = (lastElement.x + lastElement.w);
+    const canvasWidth = elem.nativeElement.width / this.zoomFactor;
+    const canvasHeight = elem.nativeElement.height / this.zoomFactor;
+    // Only paint until the last element, but at least 50px more
+    const swimlaneWidth = width + 50;
+
     cx.save();
     cx.clearRect(0, 0, elem.nativeElement.width, elem.nativeElement.height);
 
@@ -317,25 +463,21 @@ export class SwimlaneViewComponent implements OnInit, AfterViewInit, OnChanges {
       cx.beginPath();
       cx.rect(clipX, clipY, clipW, clipH);
       cx.clip();
-
-
     }
+    cx.translate(this.offsetX, this.offsetY);
     cx.scale(this.zoomFactor, this.zoomFactor);
 
 
       let idx = 0;
       while(idx < maxDepth) {
-        this.canvasService.drawSwimlane(cx, 0, idx*100, width, 90, 'P' + idx, idx)
+        this.canvasService.drawSwimlane(cx, 0, idx*100, swimlaneWidth, 90, 'P' + idx, idx)
         idx++;
       }
 
-      this.canvasService.drawSwimlane(cx, 0, idx * 100, width, 90, 'Customer', idx++);
-      this.canvasService.drawSwimlane(cx, 0, idx * 100, width, 90, 'Vehicle', idx++);
-      this.canvasService.drawSwimlane(cx, 0, idx * 100, width, 90, 'Service w/ customer', idx++);
-      this.canvasService.drawSwimlane(cx, 0, idx * 100, width, 90, 'Service w/o customer', idx++);
-      this.canvasService.drawSwimlane(cx, 0, idx * 100, width, 90, 'Workshop', idx++);
-      this.canvasService.drawSwimlane(cx, 0, idx * 100, width, 90, 'Parts', idx++);
-      this.canvasService.drawSwimlane(cx, 0, idx * 100, width, 140, 'API', idx);
+      for (const role of this.dynamicRoles) {
+        this.canvasService.drawSwimlane(cx, 0, idx * 100, swimlaneWidth, 90, role, idx++);
+      }
+      this.canvasService.drawSwimlane(cx, 0, idx * 100, swimlaneWidth, 140, 'API', idx);
 
       for(let box of this.processOrder) {
         if (box.roleLayer >= 0) {
@@ -417,6 +559,14 @@ export class SwimlaneViewComponent implements OnInit, AfterViewInit, OnChanges {
 
   private resize(canvas: ElementRef<HTMLCanvasElement>, clipX?: number, clipY?: number, clipW?: number, clipH?: number) {
 
+    if (canvas === this.canvas && this.canvasContainer) {
+      canvas.nativeElement.width = this.canvasContainer.nativeElement.clientWidth;
+      canvas.nativeElement.height = this.canvasContainer.nativeElement.clientHeight;
+      this.width = canvas.nativeElement.width;
+      this.height = canvas.nativeElement.height;
+      return;
+    }
+
     if (this.processOrder.length === 0) {
       return;
     }
@@ -429,7 +579,7 @@ export class SwimlaneViewComponent implements OnInit, AfterViewInit, OnChanges {
     }
 
     const fullWidth = (lastElement.x + lastElement.w) * this.zoomFactor + 100;
-    const fullHeight = (maxDepth * 100 + 8*90 + 0 + 50) * this.zoomFactor;
+    const fullHeight = (maxDepth + this.dynamicRoles.length + 1) * 100 * this.zoomFactor + 100;
 
     this.width = fullWidth;
     this.height = fullHeight;

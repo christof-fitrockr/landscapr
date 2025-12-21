@@ -6,7 +6,7 @@ import { first } from 'rxjs/operators';
 import { Journey } from '../models/journey.model';
 import { JourneyService } from '../services/journey.service';
 
-@Component({ selector: 'app-journey-edit-base', templateUrl: './journey-edit-base.component.html' })
+@Component({ selector: 'app-journey-edit-base', templateUrl: './journey-edit-base.component.html', styleUrls: ['./journey-edit-base.component.scss'] })
 export class JourneyEditBaseComponent implements OnInit, OnDestroy {
   journeyForm: FormGroup;
   journey: Journey;

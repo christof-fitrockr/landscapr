@@ -24,7 +24,7 @@
       <a class="black mr-2" routerLink="/process/journey/{{process?.id}}"><i class="fas fa-play-circle" title="Journey"></i></a>
       <a class="black mr-2" routerLink="/process/view/{{process?.id}}"><i class="fas fa-layer-group" title="View Process"></i></a>
       <a class="black mr-2" routerLink="/process/edit/{{process?.id}}"><i class="fas fa-edit" title="Edit Process"></i></a>
-
+      <a class="black mr-2" style="cursor: pointer" (click)="prepareDelete(process)" data-toggle="modal" data-target="#confirmDeleteProcess"><i class="fas fa-trash" title="Delete Process"></i></a>
     </td>
     <td>
       <a class="black" routerLink="/process/edit/{{process?.id}}">{{process.name}}</a>
@@ -42,3 +42,25 @@
   </tr>
   </tbody>
 </table>
+
+<div class="modal fade" id="confirmDeleteProcess" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header border-bottom-0">
+        <h5 class="modal-title">Confirm Delete</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="col-12 form-group d-flex justify-content-start">
+          Really delete process '{{processToDelete?.name}}'?
+        </div>
+      </div>
+      <div class="modal-footer border-top-0 d-flex justify-content-center">
+        <button class="btn btn-danger" (click)="delete()" data-dismiss="modal">Delete</button>
+        <button class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,9 +1,5 @@
-
-
-
-
 <div class="container-fluid">
-  <div class="card shadow mb-4">
+  <div class="card mb-4 content">
 
     <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
 
@@ -30,13 +26,13 @@
     <div class="card-body p-0 m-0">
 
 
-      <div *ngIf="showFlowView">
+      <ng-container *ngIf="showFlowView">
         <app-process-flow-view [processId]="processId"></app-process-flow-view>
-      </div>
+      </ng-container>
 
-      <div *ngIf="!showFlowView">
+      <ng-container *ngIf="!showFlowView">
         <app-swimlane-view [zoomFactor]="zoomFactor" [processId]="processId"></app-swimlane-view>
-      </div>
+      </ng-container>
 
     </div>
 

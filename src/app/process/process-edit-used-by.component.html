@@ -23,7 +23,7 @@
 
     <div class="card-body">
 
-      <app-process-table [processes]="parentProcesses"></app-process-table>
+      <app-process-table (deleted)="refresh()" [processes]="parentProcesses"></app-process-table>
 
     </div>
   </div>

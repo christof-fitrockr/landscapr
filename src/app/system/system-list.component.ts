@@ -6,12 +6,13 @@ import {ActivatedRoute} from '@angular/router';
 import {Subscription} from 'rxjs';
 import {ApiCallService} from '../services/api-call.service';
 
-@Component({selector: 'app-system-list', templateUrl: './system-list.component.html'})
+@Component({selector: 'app-system-list', templateUrl: './system-list.component.html', styleUrls: ['./system-list.component.scss']})
 export class SystemListComponent implements OnInit, OnDestroy {
 
   repoId: string;
   systems: Application[];
-  searchText: string;
+  searchText = '';
+  showOrphansOnly = false;
   orphanIds: string[] = [];
   private subscription: Subscription;
 

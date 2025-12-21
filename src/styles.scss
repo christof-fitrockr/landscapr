@@ -1,6 +1,30 @@
-/* You can add global styles to this file, and also import other style files */
 @use '@angular/material' as mat;
 @use 'theme' as theme;
+
+:root {
+  --navbar-height: 56px;
+  --submenu-height: 56px;
+}
+
+.h-100 {
+  height: 100% !important;
+}
+
+.min-h-100 {
+  min-height: 100% !important;
+}
+
+.flex-column-fill {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.flex-grow-1 {
+  flex-grow: 1 !important;
+}
+
+/* You can add global styles to this file, and also import other style files */
 
 // Apply the light theme by default
 @include mat.all-component-themes(theme.$light-theme);

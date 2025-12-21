@@ -127,8 +127,6 @@ export class ApiCallGraphComponent implements OnInit, AfterViewInit, AfterViewCh
       const call = new FunctionCall();
       call.laneId = 'api';
       call.fct = item.name;
-      call.in = item.input + ' ';
-      call.out = item.output + ' ';
 
       if (item.capabilityId && capMap.has(item.capabilityId)) {
         const cap = capMap.get(item.capabilityId);

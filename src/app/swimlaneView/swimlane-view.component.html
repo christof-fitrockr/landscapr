@@ -1,6 +1,11 @@
 <div class="container-fluid position-relative h-100 overflow-hidden" >
-  <div class="card-body overflow-auto h-100" style="overflow-y: auto;">
-    <canvas id="canvas" #canvas class="canvas" (click)="onCanvasClick($event)"></canvas>
+  <div class="canvas-container h-100 w-100" #canvasContainer>
+    <canvas id="canvas" #canvas class="canvas"
+            (mousedown)="onMouseDown($event)"
+            (mousemove)="onMouseMove($event)"
+            (mouseup)="onMouseUp($event)"
+            (wheel)="onWheel($event)"
+            (click)="onCanvasClick($event)"></canvas>
 
     <canvas id="hiddenCanvas" #hiddenCanvas style="display:none;">
       Your browser does not support the HTML5 canvas tag.</canvas>
@@ -9,7 +14,12 @@
   <div class="side-panel" [class.open]="selectedItem">
     <div class="side-panel-header d-flex justify-content-between align-items-center p-3 border-bottom">
       <h5 class="mb-0">{{selectedItem?.title || 'Properties'}}</h5>
-      <button type="button" class="btn-close" (click)="selectedItem = null"></button>
+      <button type="button" class="btn btn-sm btn-close" (click)="selectedItem = null">&times;</button>
+    </div>
+    <div class="side-panel-toolbar p-2 border-bottom d-flex gap-2" *ngIf="selectedItem">
+      <button class="btn btn-sm btn-outline-primary" (click)="openSelectedItem()">
+        <i class="bi bi-box-arrow-up-right me-1"></i> Open
+      </button>
     </div>
     <div class="side-panel-body p-3" *ngIf="selectedItem">
       <div *ngIf="selectedProcess">

@@ -6,7 +6,7 @@ import {ToastrService} from 'ngx-toastr';
 import {ApplicationService} from '../services/application.service';
 import {Application} from '../models/application';
 
-@Component({selector: 'app-system-edit', templateUrl: './system-edit-base.component.html'})
+@Component({selector: 'app-system-edit', templateUrl: './system-edit-base.component.html', styleUrls: ['./system-edit-base.component.scss']})
 export class SystemEditBaseComponent implements OnInit {
 
   systemForm: FormGroup;

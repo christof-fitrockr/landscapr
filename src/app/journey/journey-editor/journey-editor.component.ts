@@ -72,6 +72,7 @@ export class JourneyEditorComponent implements OnInit {
     { key: 'connector', icon: 'fa-project-diagram', label: 'Connector' },
   ];
   activeTool: ToolType = 'select';
+  selectedProcessIdForSwimlane: string | null = null;
 
   // Process catalog for the process tool
   processes: Process[] = [];
@@ -749,8 +750,7 @@ export class JourneyEditorComponent implements OnInit {
   onProcessDblClick(node: CanvasNode, event: MouseEvent) {
     event.stopPropagation();
     if (node.type !== 'process') return;
-    const initialState = { processId: (node as ProcessNode).processId } as any;
-    this.modalService.show(ProcessQuickViewModalComponent, { initialState, class: 'modal-xl modal-dialog-scrollable w-100' });
+    this.selectedProcessIdForSwimlane = (node as ProcessNode).processId;
   }
 
   // Open decision condition editor on double click

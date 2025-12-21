@@ -6,7 +6,7 @@ import {Subscription} from 'rxjs';
 import {ActivatedRoute} from '@angular/router';
 import {ProcessService} from '../services/process.service';
 
-@Component({selector: 'app-api-call-list', templateUrl: './api-call-list.component.html'})
+@Component({selector: 'app-api-call-list', templateUrl: './api-call-list.component.html', styleUrls: ['./api-call-list.component.scss']})
 export class ApiCallListComponent implements OnInit, OnDestroy {
 
   constructor(

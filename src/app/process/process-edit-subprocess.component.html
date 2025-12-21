@@ -63,7 +63,7 @@
                      placeholder="Filter processes...">
 
               <div cdkDropList [id]="'catalogList'" [cdkDropListData]="filteredCatalog" [cdkDropListConnectedTo]="['stepsList']" class="catalog-list">
-                <div class="card mb-1 p-2 catalog-item d-flex align-items-center" *ngFor="let proc of filteredCatalog" cdkDrag [cdkDragData]="proc">
+                <div class="card mb-1 p-2 catalog-item d-flex align-items-center flex-row" *ngFor="let proc of filteredCatalog" cdkDrag [cdkDragData]="proc">
                   <div class="cdk-drag-handle mr-2" title="Drag to add"><i class="fas fa-grip-lines"></i></div>
                   <div class="catalog-text">
                     <div class="small font-weight-bold m-0">{{proc.name}}</div>
@@ -71,12 +71,11 @@
                   </div>
                 </div>
               </div>
-
-              <div class="text-center mt-2">
-                <span class="text-muted small mr-2">or</span>
-                <button type="button" class="btn btn-outline-primary" title="Add new process" data-toggle="modal" data-target="#addProcess"><i class="fas fa-plus-circle"></i> Create New</button>
-              </div>
             </div>
+          </div>
+
+          <div class="text-center mt-2">
+            <button type="button" class="btn btn-outline-primary" title="Add new process" data-toggle="modal" data-target="#addProcess"><i class="fas fa-plus-circle"></i> Create new Process</button>
           </div>
         </div>
       </div>

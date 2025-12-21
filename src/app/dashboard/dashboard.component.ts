@@ -14,7 +14,7 @@ import { GithubActionsDialogComponent } from '../components/github-actions-dialo
 import { JourneyService } from '../services/journey.service';
 import { Journey } from '../models/journey.model';
 
-@Component({selector: 'app-dashboard', templateUrl: './dashboard.component.html'})
+@Component({selector: 'app-dashboard', templateUrl: './dashboard.component.html', styleUrls: ['./dashboard.component.scss']})
 export class DashboardComponent implements OnInit {
   private subscription: Subscription;
   public repoId: string;
@@ -41,7 +41,7 @@ export class DashboardComponent implements OnInit {
     });
   }
 
-  private refresh() {
+  refresh() {
     this.processService.allFavorites(this.repoId).pipe(first()).subscribe(items => {
       this.processes = items;
     });

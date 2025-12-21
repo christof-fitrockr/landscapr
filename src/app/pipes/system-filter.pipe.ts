@@ -15,12 +15,13 @@ export class SystemFilterPipe implements PipeTransform {
 
     let result = items;
 
-    if (showOrphansOnly) {
+    if (showOrphansOnly && orphanIds) {
       result = result.filter(el => orphanIds.includes(el.id));
     }
 
     if(searchText) {
-      result = result.filter(el=> (el.name?.toLowerCase().includes(searchText.toLowerCase()) || el.systemCluster?.toLowerCase().includes(searchText.toLowerCase())) );
+      const st = searchText.toLowerCase();
+      result = result.filter(el=> (el.name?.toLowerCase().includes(st) || el.systemCluster?.toLowerCase().includes(st)) );
     }
 
     return result;

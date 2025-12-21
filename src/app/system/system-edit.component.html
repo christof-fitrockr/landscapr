@@ -1,8 +1,10 @@
-<div class="container-fluid bg-gray-700 pt-3">
-  <ul class="nav justify-content-center">
-      <li class="nav-item"><a routerLink="base" routerLinkActive="active" class="nav-link gray" aria-current="page">Base</a></li>
-      <li class="nav-item" *ngIf="systemId"><a routerLink="usage" routerLinkActive="active" class="nav-link gray">Capabilities</a></li>
-    </ul>
-</div>
+<div class="flex-column-fill">
+  <div class="container-fluid bg-gray-700 pt-3">
+    <ul class="nav justify-content-center">
+        <li class="nav-item"><a routerLink="base" routerLinkActive="active" class="nav-link gray" aria-current="page">Base</a></li>
+        <li class="nav-item" *ngIf="systemId"><a routerLink="usage" routerLinkActive="active" class="nav-link gray">Capabilities</a></li>
+      </ul>
+  </div>
 
-<router-outlet></router-outlet>
+  <router-outlet></router-outlet>
+</div>

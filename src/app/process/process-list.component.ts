@@ -6,7 +6,7 @@ import {ActivatedRoute} from '@angular/router';
 import {Subscription} from 'rxjs';
 import {JourneyService} from '../services/journey.service';
 
-@Component({selector: 'app-process-list', templateUrl: './process-list.component.html'})
+@Component({selector: 'app-process-list', templateUrl: './process-list.component.html', styleUrls: ['./process-list.component.scss']})
 export class ProcessListComponent implements OnInit {
   repoId: string;
   private subscription: Subscription;
@@ -29,7 +29,7 @@ export class ProcessListComponent implements OnInit {
     });
   }
 
-  private refresh() {
+  refresh() {
     this.processService.all().pipe(first()).subscribe(items => {
       this.processes = items;
       this.calculateOrphans();
@@ -39,17 +39,44 @@ export class ProcessListComponent implements OnInit {
   private calculateOrphans() {
     this.journeyService.all().pipe(first()).subscribe(journeys => {
       const referencedProcessIds = new Set<string>();
+
+      // Check references in journeys
       journeys.forEach(journey => {
         if (journey.items) {
           journey.items.forEach(item => {
-            // Check if item is a process (has 'id', 'steps', etc, but JourneyItem can be Process or Journey)
-            // Assuming referenced by ID
+            // JourneyItem can be Process or Journey. Both have 'id'.
             if (item.id) {
               referencedProcessIds.add(item.id);
             }
           });
         }
+        if (journey.layout && journey.layout.nodes) {
+          journey.layout.nodes.forEach(node => {
+            if (node.processId) {
+              referencedProcessIds.add(node.processId);
+            }
+          });
+        }
       });
+
+      // Check references in other processes (as subprocesses)
+      this.processes.forEach(process => {
+        if (process.steps) {
+          process.steps.forEach(step => {
+            if (step.processReference) {
+              referencedProcessIds.add(step.processReference);
+            }
+            if (step.successors) {
+              step.successors.forEach(succ => {
+                if (succ.processReference) {
+                  referencedProcessIds.add(succ.processReference);
+                }
+              });
+            }
+          });
+        }
+      });
+
       this.orphanIds = this.processes
         .filter(p => !referencedProcessIds.has(p.id))
         .map(p => p.id);

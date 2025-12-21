@@ -5,6 +5,9 @@
     </button>
     <strong>{{ process?.name || 'Loading...' }}</strong>
     <span *ngIf="process?.description" class="text-muted small ml-2">{{ process.description }}</span>
+    <button *ngIf="process" class="btn btn-sm btn-link p-0 ml-auto" (click)="openProcessEdit($event, process.id)" title="Open in edit mode">
+      <i class="fas fa-external-link-alt text-gray-500"></i>
+    </button>
   </div>
 
   <div class="node-body ml-4 pl-2 border-left" *ngIf="isExpanded">
@@ -15,7 +18,12 @@
       <div *ngFor="let api of apiCalls" class="api-item p-2 mb-2 bg-white border rounded shadow-sm cursor-pointer" (click)="onApiClick(api)">
         <div class="d-flex justify-content-between align-items-center">
           <span class="font-weight-bold text-primary">{{ api.name }}</span>
-          <span class="badge badge-info" *ngIf="api.implementationType">{{ api.implementationType }}</span>
+          <div class="d-flex align-items-center">
+            <span class="badge badge-info mr-2" *ngIf="api.implementationType">{{ api.implementationType }}</span>
+            <button class="btn btn-sm btn-link p-0" (click)="openApiEdit($event, api.id)" title="Open in edit mode">
+              <i class="fas fa-external-link-alt text-gray-500"></i>
+            </button>
+          </div>
         </div>
       </div>
     </div>

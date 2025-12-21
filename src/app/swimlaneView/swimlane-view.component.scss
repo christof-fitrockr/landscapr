@@ -10,12 +10,15 @@
   padding: 0;
 }
 
-.card-body {
+.canvas-container {
   flex: 1;
-  overflow: auto;
   position: relative;
-  /* Ensure it has minimum height */
-  min-height: 200px;
+  overflow: hidden;
+  min-height: calc(100vh - var(--navbar-height) - var(--submenu-height) - 50px);
+}
+
+canvas {
+  display: block;
 }
 
 .side-panel {
@@ -24,12 +27,20 @@
   right: -400px;
   width: 400px;
   height: 100%;
-  background-color: white;
-  box-shadow: -2px 0 5px rgba(0,0,0,0.2);
+  background-color: #f8f9fa;
+  box-shadow: -2px 0 5px rgba(0,0,0,0.1);
   transition: right 0.3s ease;
   z-index: 1000;
   overflow-y: auto;
-  border-left: 1px solid #dee2e6;
+  border-left: 1px solid #adb5bd;
+}
+
+.side-panel-header {
+  background-color: #ffffff;
+}
+
+.side-panel-toolbar {
+  background-color: #ffffff;
 }
 
 .side-panel.open {

@@ -26,12 +26,16 @@ export class ApiCallEditUsageComponent implements OnInit {
     this.apiCallService.byId(this.apiCallId).pipe(first()).subscribe(apiCall => {
       this.apiCall = apiCall;
     });
-    this.processService.byApiCall(this.apiCallId).pipe(first()).subscribe(usedBy => {
-      this.usedBy = usedBy;
-    });
+    this.refresh();
 
     this.subscription = this.route.parent.paramMap.subscribe(obs => {
       this.repoId = obs.get('repoId');
+    });
+  }
+
+  refresh() {
+    this.processService.byApiCall(this.apiCallId).pipe(first()).subscribe(usedBy => {
+      this.usedBy = usedBy;
     });
   }
 

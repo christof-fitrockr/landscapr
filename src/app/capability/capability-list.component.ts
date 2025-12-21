@@ -6,13 +6,14 @@ import {Subscription} from 'rxjs';
 import {ActivatedRoute} from '@angular/router';
 import {ApiCallService} from '../services/api-call.service';
 
-@Component({selector: 'app-capability-list', templateUrl: './capability-list.component.html'})
+@Component({selector: 'app-capability-list', templateUrl: './capability-list.component.html', styleUrls: ['./capability-list.component.scss']})
 export class CapabilityListComponent implements OnInit, OnDestroy {
 
 
   repoId: string;
   capabilities: Capability[];
   searchText: string;
+  showOrphansOnly = false;
   orphanIds: string[] = [];
   private subscription: Subscription;
 

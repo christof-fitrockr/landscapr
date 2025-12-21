@@ -11,7 +11,7 @@ import {CapabilityService} from '../services/capability.service';
 import {Application} from '../models/application';
 import {ApplicationService} from '../services/application.service';
 
-@Component({selector: 'app-function-edit', templateUrl: './api-call-edit-base.component.html'})
+@Component({selector: 'app-function-edit', templateUrl: './api-call-edit-base.component.html', styleUrls: ['./api-call-edit-base.component.scss']})
 export class ApiCallEditBaseComponent implements OnInit, OnDestroy {
 
   apiCallForm: FormGroup;

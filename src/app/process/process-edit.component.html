@@ -1,11 +1,13 @@
-<div class="container-fluid bg-gray-800 pt-3">
-  <ul class="nav justify-content-center">
+<div class="flex-column-fill">
+  <div class="container-fluid bg-gray-800 pt-3">
+    <ul class="nav justify-content-center">
+      <li class="nav-item" *ngIf="processId"><a routerLink="flow" routerLinkActive="active" class="nav-link gray">Flow</a></li>
       <li class="nav-item"><a routerLink="base" routerLinkActive="active" class="nav-link gray" aria-current="page">Base</a></li>
       <li class="nav-item" *ngIf="processId"><a routerLink="subprocesses" routerLinkActive="active" class="nav-link gray">Subprocess</a></li>
       <li class="nav-item" *ngIf="processId"><a routerLink="functions" routerLinkActive="active" class="nav-link gray">Functions</a></li>
-    <li class="nav-item" *ngIf="processId"><a routerLink="usedBy" routerLinkActive="active" class="nav-link gray">Used by</a></li>
-      <li class="nav-item" *ngIf="processId"><a routerLink="flow" routerLinkActive="active" class="nav-link gray">Flow</a></li>
-    </ul>
-</div>
+      <li class="nav-item" *ngIf="processId"><a routerLink="usedBy" routerLinkActive="active" class="nav-link gray">Used by</a></li>
+      </ul>
+  </div>
 
-<router-outlet></router-outlet>
+  <router-outlet></router-outlet>
+</div>

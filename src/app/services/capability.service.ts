@@ -70,13 +70,20 @@ export class CapabilityService {
       const apps = CapabilityService.load();
       // Keep in-memory childrenIds consistent (non-destructive)
       CapabilityService.ensureChildrenConsistency(apps);
-      obs.next(apps.filter(a => a.repoId === repoId));
+      if (repoId) {
+        obs.next(apps.filter(a => a.repoId === repoId));
+      } else {
+        obs.next(apps);
+      }
     });
   }
 
   roots(repoId: string): Observable<Capability[]> {
     return new Observable<Capability[]>(obs => {
-      const apps = CapabilityService.load().filter(a => a.repoId === repoId);
+      let apps = CapabilityService.load();
+      if (repoId) {
+        apps = apps.filter(a => a.repoId === repoId);
+      }
       const byId = CapabilityService.mapById(apps);
       const roots = apps.filter(c => !c.parentId || !byId.has(c.parentId));
       obs.next(roots);

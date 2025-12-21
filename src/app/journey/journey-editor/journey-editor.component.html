@@ -1,5 +1,5 @@
-<div class="container-fluid">
-  <div class="card shadow mb-4">
+<div class="container-fluid h-100">
+  <div class="card shadow mb-4 h-100 flex-column-fill">
 
     <div class="card-header py-3 d-flex flex-column">
       <div class="d-flex flex-row align-items-center justify-content-between w-100">
@@ -55,7 +55,7 @@
       </div>
     </div>
 
-    <div class="card-body p-0">
+    <div class="card-body p-0 flex-column-fill">
       <div class="journey-editor">
         <div class="canvas-wrapper" (contextmenu)="$event.preventDefault()">
           <svg #svgEl class="canvas" tabindex="0"
@@ -179,8 +179,21 @@
             </g>
           </svg>
         </div>
+
+        <div class="swimlane-overlay" *ngIf="selectedProcessIdForSwimlane">
+          <div class="swimlane-overlay-header d-flex justify-content-between align-items-center p-2 bg-dark text-white">
+            <h5 class="mb-0">Process Swimlane View</h5>
+            <button type="button" class="btn btn-sm btn-outline-light" (click)="selectedProcessIdForSwimlane = null">
+              <i class="fas fa-times"></i> Close
+            </button>
+          </div>
+          <div class="swimlane-overlay-body">
+            <app-swimlane-view [processId]="selectedProcessIdForSwimlane"></app-swimlane-view>
+          </div>
+        </div>
       </div>
     </div>
 
   </div>
 </div>
+

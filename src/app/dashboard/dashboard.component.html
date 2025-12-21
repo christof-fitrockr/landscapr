@@ -63,7 +63,7 @@
 
       <div *ngIf="processes && processes?.length === 0" class="small font-italic">No favorite processes available.</div>
 
-      <app-process-table [repoId]="repoId" [showFilter]="false" [processes]="processes"  *ngIf="processes && processes?.length > 0"></app-process-table>
+      <app-process-table (deleted)="refresh()" [repoId]="repoId" [showFilter]="false" [processes]="processes"  *ngIf="processes && processes?.length > 0"></app-process-table>
 
     </div>
 

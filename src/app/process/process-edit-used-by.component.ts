@@ -33,7 +33,7 @@ export class ProcessEditUsedByComponent implements OnInit, OnDestroy {
     this.subscription.unsubscribe();
   }
 
-  private refresh() {
+  refresh() {
     this.processService.allParents(this.processId).pipe(first()).subscribe(parentProcesses => {
       this.parentProcesses = parentProcesses;
     });
