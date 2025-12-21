@@ -1,6 +1,6 @@
-import { Pipe, PipeTransform } from '@angular/core';
-import {FunctionalCluster} from "../models/functional-cluster";
+import {Pipe, PipeTransform} from '@angular/core';
 import {ApiCall} from '../models/api-call';
+
 @Pipe({
   name: 'functionCapabilityFilter'
 })

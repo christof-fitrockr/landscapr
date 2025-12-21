@@ -3,15 +3,12 @@ import {CUSTOM_ELEMENTS_SCHEMA, NgModule} from '@angular/core';
 
 import {AppComponent} from './app.component';
 import {AppRoutingModule} from './app-routing.module';
-import {FormsModule, ReactiveFormsModule} from '@angular/forms';
-import {BusinessServiceFilterPipe} from './pipes/business-service.pipe';
 import {LoginPage} from './pages/login.page';
 import {fakeBackendProvider} from './helpers/fake.backend';
 import {HTTP_INTERCEPTORS, HttpClientModule} from '@angular/common/http';
 import {ErrorInterceptor} from './helpers/error.interceptor';
 import {JwtInterceptor} from './helpers/jwt.interceptor';
-import {InformationSystemServiceFilterPipe} from './pipes/information-system-service.pipe';
-import {InformationObjectFilterPipe} from './pipes/information-object-filter.pipe';
+import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {ProcessListComponent} from './process/process-list.component';
 import {ProcessEditComponent} from './process/process-edit.component';
 import {ProcessViewComponent} from './process/process-view.component';
@@ -47,24 +44,18 @@ import {SystemViewComponent} from './system/system-view.component';
 import {SystemEditBaseComponent} from './system/system-edit-base.component';
 import {DragDropModule} from '@angular/cdk/drag-drop';
 import {CapabilityEditImplementedByComponent} from './capability/capability-edit-implemented-by.component';
-import {ApiCallOverviewComponent} from './components/api-call-overview.component';
 import {CapabilityOverviewComponent} from './components/capability-overview.component';
 import {SystemOverviewComponent} from './components/system-overview.component';
 import {ApiCallEditImplementedInComponent} from './apiCall/api-call-edit-implemented-in.component';
 import { CapabilityMapComponent } from './capability/capability-map.component';
-import {ApiCallGraphComponent} from './components/api-call-graph.component';
 import {ProcessEditUsedByComponent} from './process/process-edit-used-by.component';
+import {ApiCallOverviewComponent} from './components/api-call-overview.component';
 import {SwimlaneViewComponent} from './swimlaneView/swimlane-view.component';
 import {ApiCallCapabilityFilterPipe} from './pipes/api-call-capability-filter.pipe';
 import {ApiCallFilterPipe} from './pipes/api-call-filter.pipe';
 import {ProcessFilterPipe} from './pipes/process-filter.pipe';
 import {SystemFilterPipe} from './pipes/system-filter.pipe';
 import {CapabilityFilterPipe} from './pipes/capability-filter.pipe';
-import {AccountListComponent} from './account/account-list.component';
-import {AccountEditComponent} from './account/account-edit.component';
-import {AccountEditBaseComponent} from './account/account-edit-base.component';
-import {AccountFilterPipe} from './pipes/account-filter.pipe';
-import {RepoFilterPipe} from './pipes/repo-filter.pipe';
 import {DndDirective} from './helpers/dnd.directive';
 import {ProcessJourneyComponent} from './process/process-journey.component';
 import {PrivacyPolicyComponent} from './privacyPolicy/privacy-policy.component';
@@ -126,15 +117,6 @@ import {LicensesComponent} from './licenses/licenses.component';
     SystemFilterPipe,
     CapabilityFilterPipe,
 
-    AccountListComponent,
-    AccountEditComponent,
-    AccountEditBaseComponent,
-    AccountFilterPipe,
-
-
-    RepoFilterPipe,
-
-
     DndDirective,
 
     SwimlaneViewComponent,
@@ -149,7 +131,6 @@ import {LicensesComponent} from './licenses/licenses.component';
     ApiCallListComponent,
     ApiCallViewComponent,
     ApiCallOverviewComponent,
-    ApiCallGraphComponent,
 
     CapabilityEditComponent,
     CapabilityEditBaseComponent,
@@ -168,12 +149,7 @@ import {LicensesComponent} from './licenses/licenses.component';
 
     PrivacyPolicyComponent,
     AppComponent,
-    ClusterComponent,
-    FunctionalClusterFilterPipe,
-    BusinessServiceFilterPipe,
     LoginPage,
-    InformationSystemServiceFilterPipe,
-    InformationObjectFilterPipe,
     ProcessOverviewComponent,
     JourneyEditComponent,
     JourneyEditBaseComponent,
