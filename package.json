@@ -10,7 +10,8 @@
     "lint": "ng lint",
     "e2e": "ng e2e",
     "buildDev": "node set-version.js && ng build",
-    "buildWatch": "node set-version.js && ng build --watch=true"
+    "buildWatch": "node set-version.js && ng build --watch=true",
+    "generate-licenses": "license-checker --json --out src/assets/licenses.json"
   },
   "private": true,
   "dependencies": {
@@ -40,8 +41,8 @@
     "jszip": "^3.3.0",
     "leaflet": "^1.7.1",
     "leaflet-draw": "^1.0.4",
-    "moment": "2.24.0",
     "mermaid": "9.1.7",
+    "moment": "2.24.0",
     "monaco-editor": "^0.24.0",
     "net": "^1.0.2",
     "ngx-bootstrap": "^5.6.2",
@@ -77,6 +78,7 @@
     "karma-coverage-istanbul-reporter": "~3.0.2",
     "karma-jasmine": "5.1.0",
     "karma-jasmine-html-reporter": "2.0.0",
+    "license-checker": "^25.0.1",
     "protractor": "~7.0.0",
     "ts-node": "~7.0.0",
     "tslint": "~6.1.0",

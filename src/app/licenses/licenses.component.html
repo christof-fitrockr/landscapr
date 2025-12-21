@@ -1,0 +1,27 @@
+<div class="container mt-4">
+  <h1>Licenses</h1>
+  <p>The following third-party libraries are used in this project:</p>
+
+  <div class="row">
+    <div class="col-12" *ngFor="let license of licenses">
+      <div class="card license-card">
+        <div class="card-body">
+          <h5 class="card-title">{{ license.name }}</h5>
+          <h6 class="card-subtitle mb-2 text-muted">{{ license.info.licenses }}</h6>
+
+          <p class="card-text" *ngIf="license.info.publisher">
+            <strong>Publisher:</strong> {{ license.info.publisher }}
+          </p>
+
+          <p class="card-text" *ngIf="license.info.repository">
+            <strong>Repository:</strong> <a [href]="license.info.repository" target="_blank">{{ license.info.repository }}</a>
+          </p>
+
+           <p class="card-text" *ngIf="license.info.url">
+            <strong>URL:</strong> <a [href]="license.info.url" target="_blank">{{ license.info.url }}</a>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

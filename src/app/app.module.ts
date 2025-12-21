@@ -100,6 +100,7 @@ import { ApiCallGroupPipe } from './pipes/api-call-group.pipe';
 import { AppSidePanelComponent } from './components/app-side-panel.component';
 import { ProcessFlowNodeComponent } from './process/process-flow-node.component';
 import { ProcessFlowViewComponent } from './process/process-flow-view.component';
+import {LicensesComponent} from './licenses/licenses.component';
 
 
 @NgModule({
@@ -198,6 +199,7 @@ import { ProcessFlowViewComponent } from './process/process-flow-view.component'
     CapabilityMapComponent,
     ApiGroupMapComponent,
     MergeResolverComponent,
+    LicensesComponent
   ],
   imports: [
     BrowserModule,
