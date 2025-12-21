@@ -22,7 +22,11 @@ import {Subscription} from 'rxjs';
 // import pptxgen from "pptxgenjs";
 import { jsPDF } from "jspdf";
 
-@Component({selector: 'app-swimlane-view', templateUrl: './swimlane-view.component.html'})
+@Component({
+  selector: 'app-swimlane-view',
+  templateUrl: './swimlane-view.component.html',
+  styleUrls: ['./swimlane-view.component.scss']
+})
 export class SwimlaneViewComponent implements OnInit, AfterViewInit, OnChanges {
 
   @ViewChild('canvas') public canvas: ElementRef<HTMLCanvasElement>;
@@ -50,7 +54,7 @@ export class SwimlaneViewComponent implements OnInit, AfterViewInit, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    if(this.canvas) {
+    if(this.canvas && this.processMap.size > 0) {
       this.resize(this.canvas);
       this.drawGraph(this.canvas);
     }
@@ -58,7 +62,9 @@ export class SwimlaneViewComponent implements OnInit, AfterViewInit, OnChanges {
 
   ngOnInit() {
     console.log("Repo: " + this.repoId);
-    this.processId = this.activatedRoute.snapshot.paramMap.get('id');
+    if (!this.processId) {
+      this.processId = this.activatedRoute.snapshot.paramMap.get('id');
+    }
 
     // this.subscription = this.activatedRoute.parent.paramMap.subscribe(obs => {
     //   this.repoId = obs.get('repoId');
@@ -110,6 +116,10 @@ export class SwimlaneViewComponent implements OnInit, AfterViewInit, OnChanges {
       processBox.depth = layer;
       processBox.roleLayer = -1;
       processBox.w = this.canvasService.calcFunctionWidth(cx, 0, processBox.title, '');
+
+      // Fix: Ensure we push the missing box so resize/draw works
+      this.processBoxMap.set(processBox.id, processBox);
+      this.processOrder.push(processBox);
 
       return processBox;
     }
@@ -250,6 +260,11 @@ export class SwimlaneViewComponent implements OnInit, AfterViewInit, OnChanges {
       maxDepth = Math.max(maxDepth, box.depth);
     }
 
+    if (this.processOrder.length === 0) {
+        // Nothing to draw
+        return;
+    }
+
     const lastElement = this.processOrder[this.processOrder.length - 1];
     const width = (lastElement.x + lastElement.w);
     cx.save();
@@ -359,6 +374,11 @@ export class SwimlaneViewComponent implements OnInit, AfterViewInit, OnChanges {
   }
 
   private resize(canvas: ElementRef<HTMLCanvasElement>, clipX?: number, clipY?: number, clipW?: number, clipH?: number) {
+
+    if (this.processOrder.length === 0) {
+      return;
+    }
+
     const lastElement = this.processOrder[this.processOrder.length - 1];
 
     let maxDepth = 0;
@@ -590,7 +610,7 @@ class ProcessBox {
 }
 
 class Edge {
-  startId; number;
+  startId: number;
   endId: number;
   title: string;
 }
