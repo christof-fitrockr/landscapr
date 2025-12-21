@@ -40,6 +40,7 @@ import { JourneyEditorComponent } from './journey/journey-editor/journey-editor.
 import { JourneyEditBaseComponent } from './journey/journey-edit-base.component';
 import { RepositoriesComponent } from './repositories/repositories.component';
 import { ApiGroupMapComponent } from './components/api-group-map.component';
+import {LicensesComponent} from './licenses/licenses.component';
 
 const routes: Routes = [
 
@@ -119,6 +120,7 @@ const routes: Routes = [
   { path: 'privacyPolicy', component: PrivacyPolicyComponent},
   { path: 'disclaimer', component: DisclaimerComponent},
   { path: 'imprint', component: ImprintComponent},
+  { path: 'licenses', component: LicensesComponent},
   { path: 'login', component: LoginPage},
   { path: 'repositories', component: RepositoriesComponent, canActivate: [AuthGuard] },
   { path: '', redirectTo: '/dashboard', pathMatch: 'full' },
