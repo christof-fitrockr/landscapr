@@ -95,6 +95,9 @@ import { NewProcessModalComponent } from './journey/journey-editor/new-process-m
 import { JourneyEditBaseComponent } from './journey/journey-edit-base.component';
 import { RepositoriesComponent } from './repositories/repositories.component';
 import { ApiGroupMapComponent } from './components/api-group-map.component';
+import { AppSidePanelComponent } from './components/app-side-panel.component';
+import { ProcessFlowNodeComponent } from './process/process-flow-node.component';
+import { ProcessFlowViewComponent } from './process/process-flow-view.component';
 
 
 @NgModule({
@@ -114,6 +117,9 @@ import { ApiGroupMapComponent } from './components/api-group-map.component';
     ProcessEditFlowComponent,
     ProcessEditApiCallsComponent,
     ProcessOverviewComponent,
+    ProcessFlowNodeComponent,
+    ProcessFlowViewComponent,
+    AppSidePanelComponent,
     ProcessTableComponent,
     ProcessEditUsedByComponent,
     ProcessJourneyComponent,

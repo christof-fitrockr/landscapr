@@ -1,0 +1,35 @@
+<div class="process-node">
+  <div class="node-header p-2 mb-2 bg-light border rounded d-flex align-items-center">
+    <button class="btn btn-sm btn-link p-0 mr-2" (click)="toggleExpand()">
+      <i class="fas" [class.fa-chevron-down]="isExpanded" [class.fa-chevron-right]="!isExpanded"></i>
+    </button>
+    <strong>{{ process?.name || 'Loading...' }}</strong>
+    <span *ngIf="process?.description" class="text-muted small ml-2">{{ process.description }}</span>
+  </div>
+
+  <div class="node-body ml-4 pl-2 border-left" *ngIf="isExpanded">
+
+    <!-- API Calls -->
+    <div *ngIf="apiCalls?.length > 0">
+      <h6 class="text-xs font-weight-bold text-uppercase text-gray-500 mb-1">API Calls</h6>
+      <div *ngFor="let api of apiCalls" class="api-item p-2 mb-2 bg-white border rounded shadow-sm cursor-pointer" (click)="onApiClick(api)">
+        <div class="d-flex justify-content-between align-items-center">
+          <span class="font-weight-bold text-primary">{{ api.name }}</span>
+          <span class="badge badge-info" *ngIf="api.implementationType">{{ api.implementationType }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Subprocesses -->
+    <div *ngIf="childProcessIds?.length > 0">
+      <h6 class="text-xs font-weight-bold text-uppercase text-gray-500 mb-1 mt-3">Sub-processes</h6>
+      <div *ngFor="let childId of childProcessIds">
+        <app-process-flow-node [processId]="childId"></app-process-flow-node>
+      </div>
+    </div>
+
+     <div *ngIf="!apiCalls?.length && !childProcessIds?.length && !loading" class="text-muted font-italic small mb-2">
+       No APIs or Sub-processes.
+     </div>
+  </div>
+</div>

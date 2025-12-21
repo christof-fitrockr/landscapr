@@ -14,6 +14,7 @@
           <button type="button" class="btn btn-secondary" title="Download as PDF" (click)="downloadPdf()"><i class="fas fa-file-pdf"></i></button>
           <button type="button" class="btn btn-secondary" title="Zoom In" (click)="zoomIn()"><i class="fas fa-search-plus"></i></button>
           <button type="button" class="btn btn-secondary" title="Zoom Out" (click)="zoomOut()"><i class="fas fa-search-minus"></i></button>
+          <button type="button" class="btn btn-secondary" title="Flow Tree View" (click)="toggleFlowView()" [class.active]="showFlowView"><i class="fas fa-sitemap"></i></button>
           <a class="btn btn-secondary" title="Edit {{process?.name}}" routerLink="/process/edit/{{process?.id}}"><i class="fas fa-edit"></i></a>
 
         </div>
@@ -28,11 +29,59 @@
     <div class="card-body p-0 m-0">
 
 
+      <div *ngIf="showFlowView">
+        <app-process-flow-view [processId]="processId"></app-process-flow-view>
+      </div>
 
-      <app-swimlane-view [zoomFactor]="zoomFactor" [processId]="processId"></app-swimlane-view>
+      <div *ngIf="!showFlowView">
+        <app-swimlane-view [zoomFactor]="zoomFactor" [processId]="processId"></app-swimlane-view>
+      </div>
 
     </div>
 
   </div>
 </div>
 
+<app-side-panel [isOpen]="panelOpen" [title]="panelTitle" (close)="closePanel()">
+  <div *ngIf="selectedApi">
+    <div class="mb-3">
+      <label class="font-weight-bold small text-uppercase text-gray-500">Description</label>
+      <div class="p-2 bg-light rounded border">{{ selectedApi.description || 'No description' }}</div>
+    </div>
+
+    <div class="mb-3">
+      <label class="font-weight-bold small text-uppercase text-gray-500">Input Data</label>
+      <div class="p-2 bg-light rounded border">{{ selectedApi.input || 'No input data defined' }}</div>
+    </div>
+
+    <div class="mb-3">
+      <label class="font-weight-bold small text-uppercase text-gray-500">Output Data</label>
+      <div class="p-2 bg-light rounded border">{{ selectedApi.output || 'No output data defined' }}</div>
+    </div>
+
+    <div class="mb-3" *ngIf="selectedApiSystemName">
+      <label class="font-weight-bold small text-uppercase text-gray-500">Implemented By</label>
+      <div class="p-2 bg-light rounded border cursor-pointer hover-highlight" (click)="onSystemClick(selectedApi.implementedBy[0])" title="Click to view System details">
+        <i class="fas fa-server mr-2"></i> {{ selectedApiSystemName }}
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="selectedSystem">
+    <div class="mb-3">
+      <label class="font-weight-bold small text-uppercase text-gray-500">Description</label>
+      <div class="p-2 bg-light rounded border">{{ selectedSystem.description || 'No description' }}</div>
+    </div>
+    <div class="mb-3">
+       <label class="font-weight-bold small text-uppercase text-gray-500">Contact</label>
+       <div class="p-2 bg-light rounded border">{{ selectedSystem.contact || 'No contact info' }}</div>
+    </div>
+    <div class="mb-3">
+       <label class="font-weight-bold small text-uppercase text-gray-500">URL</label>
+       <div class="p-2 bg-light rounded border">
+         <a *ngIf="selectedSystem.url" [href]="selectedSystem.url" target="_blank">{{ selectedSystem.url }}</a>
+         <span *ngIf="!selectedSystem.url">No URL</span>
+       </div>
+    </div>
+  </div>
+</app-side-panel>
