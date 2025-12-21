@@ -68,15 +68,15 @@
 
 
         <div class="form-group row">
-          <label for="role" class="col-sm-2 col-form-label">Role</label>
+          <label for="tags" class="col-sm-2 col-form-label">Role</label>
           <div class="col-sm-10">
-            <ng-select id="role"
-                       [items]="roles"
-                       [addTag]="true"
-                       [multiple]="false"
-                       [selectOnTab]="true"
-                       [isOpen]="false"
-                       formControlName="role">
+            <ng-select id="role" formControlName="role">
+              <ng-option [value]="0">Customer</ng-option>
+              <ng-option [value]="1">Vehicle</ng-option>
+              <ng-option [value]="2">Service with Customer</ng-option>
+              <ng-option [value]="3">Service</ng-option>
+              <ng-option [value]="4">Workshop</ng-option>
+              <ng-option [value]="5">Parts</ng-option>
             </ng-select>
           </div>
         </div>

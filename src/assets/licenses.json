@@ -7951,13 +7951,6 @@
     "path": "/app/node_modules/merge2",
     "licenseFile": "/app/node_modules/merge2/LICENSE"
   },
-  "mermaid@9.1.7": {
-    "licenses": "MIT",
-    "repository": "https://github.com/knsv/mermaid",
-    "publisher": "Knut Sveidqvist",
-    "path": "/app/node_modules/mermaid",
-    "licenseFile": "/app/node_modules/mermaid/LICENSE"
-  },
   "methods@1.1.2": {
     "licenses": "MIT",
     "repository": "https://github.com/jshttp/methods",

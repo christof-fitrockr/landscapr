@@ -31,7 +31,8 @@ export class SystemViewComponent implements OnInit {
   }
 
   delete() {
-    const modalRef = this.modalService.show(DeleteConfirmationDialogComponent, { class: 'modal-sm' });
+    const modalRef = this.modalService.show(DeleteConfirmationDialogComponent, { class: 'modal-md' });
+    modalRef.content.itemName = this.system.name;
     modalRef.content.onClose.subscribe(result => {
       if (result) {
         this.applicationService.delete(this.system.id).subscribe(() => {

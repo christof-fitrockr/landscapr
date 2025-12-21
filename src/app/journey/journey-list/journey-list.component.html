@@ -6,7 +6,6 @@
       <div class="btn-toolbar justify-content-lg-start" role="toolbar" aria-label="Toolbar with button groups">
         <div class="btn-group mr-2" role="group" aria-label="First group">
           <a type="button" class="btn btn-primary" title="Create" routerLink="../create"><i class="fas fa-plus"></i></a>
-          <a type="button" class="btn btn-outline-secondary" title="Open Journey Editor" routerLink="../editor"><i class="fas fa-project-diagram"></i></a>
         </div>
       </div>
 
@@ -30,20 +29,17 @@
             <th scope="col"></th>
             <th scope="col" class="w-50">Name</th>
             <th scope="col" class="w-50">Description</th>
-            <th scope="col"></th>
           </tr>
         </thead>
         <tbody>
           <tr *ngFor="let journey of journeys">
-            <td><a class="black" [routerLink]="['/journeys/edit', journey.id]"><i class="fas fa-edit"></i></a></td>
+            <td class="text-nowrap">
+              <a class="black mr-2" [routerLink]="['/journeys/editor', journey.id]" title="Open in Editor"><i class="fas fa-eye"></i></a>
+              <a class="black mr-2" [routerLink]="['/journeys/edit', journey.id]" title="Edit"><i class="fas fa-edit"></i></a>
+              <a class="black cursor-pointer" title="Delete" (click)="deleteJourney(journey)"><i class="fas fa-trash"></i></a>
+            </td>
             <td><a class="black" [routerLink]="['/journeys/view', journey.id]">{{journey.name}}</a></td>
             <td>{{journey.description}}</td>
-            <td class="text-nowrap">
-              <a class="black mr-2" [routerLink]="['/journeys/view', journey.id]" title="View"><i class="fas fa-eye"></i></a>
-              <a class="black mr-2" [routerLink]="['/journeys/edit', journey.id]" title="Edit"><i class="fas fa-edit"></i></a>
-              <a class="black mr-2" [routerLink]="['/journeys/editor', journey.id]" title="Open in Editor"><i class="fas fa-project-diagram"></i></a>
-              <button class="btn btn-link p-0 text-danger" title="Delete" (click)="deleteJourney(journey.id)"><i class="fas fa-trash"></i></button>
-            </td>
           </tr>
         </tbody>
       </table>

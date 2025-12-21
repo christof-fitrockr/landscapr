@@ -59,12 +59,12 @@ export class ProcessFlowNodeComponent implements OnInit {
 
   openProcessEdit(event: MouseEvent, processId: string) {
     event.stopPropagation();
-    window.open(`/process/edit/${processId}`, '_blank');
+    window.open(`/#/process/edit/${processId}`, '_blank');
   }
 
   openApiEdit(event: MouseEvent, apiId: string) {
     event.stopPropagation();
-    window.open(`/apiCall/edit/${apiId}`, '_blank');
+    window.open(`/#/apiCall/edit/${apiId}`, '_blank');
   }
 
   toggleExpand() {

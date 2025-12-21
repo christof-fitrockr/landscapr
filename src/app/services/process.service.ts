@@ -82,7 +82,7 @@ export class ProcessService {
       const apps = ProcessService.load();
       const result: Process[] = [];
       for (const app of apps) {
-        if(ids.indexOf(app.id) >= 0) {
+        if(ids && ids.indexOf(app.id) >= 0) {
           result.push(app);
         }
       }
@@ -108,7 +108,7 @@ export class ProcessService {
       const apps = ProcessService.load();
       const result: Process[] = [];
       for (const app of apps) {
-        if(app.apiCallIds.indexOf(apiCallId) >= 0) {
+        if(app.apiCallIds && app.apiCallIds.indexOf(apiCallId) >= 0) {
           result.push(app);
         }
       }

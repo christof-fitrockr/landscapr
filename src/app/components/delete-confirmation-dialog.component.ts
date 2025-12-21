@@ -8,10 +8,15 @@ import { Subject } from 'rxjs';
 })
 export class DeleteConfirmationDialogComponent {
   public onClose: Subject<boolean> = new Subject<boolean>();
+  public itemName: string;
+  public confirmationInput: string = '';
 
   constructor(public bsModalRef: BsModalRef) {}
 
   confirm(): void {
+    if (this.itemName && this.confirmationInput !== this.itemName) {
+      return;
+    }
     this.onClose.next(true);
     this.bsModalRef.hide();
   }
@@ -19,5 +24,12 @@ export class DeleteConfirmationDialogComponent {
   decline(): void {
     this.onClose.next(false);
     this.bsModalRef.hide();
+  }
+
+  isConfirmDisabled(): boolean {
+    if (!this.itemName) {
+      return false;
+    }
+    return this.confirmationInput !== this.itemName;
   }
 }

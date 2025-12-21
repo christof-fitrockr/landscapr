@@ -85,8 +85,6 @@ import { DeleteConfirmationDialogComponent } from './components/delete-confirmat
 import { ThemeService } from './services/theme.service';
 
 import { ModalModule } from 'ngx-bootstrap/modal';
-import { JourneyViewComponent } from './journey/journey-view/journey-view.component';
-import { MermaidDirective } from './journey/mermaid.directive';
 import { JourneyEditComponent } from './journey/journey-maintenance/journey-edit.component';
 import { JourneyListComponent } from './journey/journey-list/journey-list.component';
 import { JourneyEditorComponent } from './journey/journey-editor/journey-editor.component';
@@ -187,8 +185,6 @@ import {LicensesComponent} from './licenses/licenses.component';
     InformationObjectFilterPipe,
     ProcessOverviewComponent,
     CapabilityComponent,
-    JourneyViewComponent,
-    MermaidDirective,
     JourneyEditComponent,
     JourneyEditBaseComponent,
     JourneyListComponent,

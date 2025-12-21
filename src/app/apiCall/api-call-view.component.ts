@@ -31,7 +31,8 @@ export class ApiCallViewComponent implements OnInit {
   }
 
   delete() {
-    const modalRef = this.modalService.show(DeleteConfirmationDialogComponent, { class: 'modal-sm' });
+    const modalRef = this.modalService.show(DeleteConfirmationDialogComponent, { class: 'modal-md' });
+    modalRef.content.itemName = this.apiCall.name;
     modalRef.content.onClose.subscribe(result => {
       if (result) {
         this.apiCallService.delete(this.apiCall.id).subscribe(() => {

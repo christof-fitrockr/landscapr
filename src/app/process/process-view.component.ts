@@ -213,7 +213,8 @@ export class ProcessViewComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   delete() {
-    const modalRef = this.modalService.show(DeleteConfirmationDialogComponent, { class: 'modal-sm' });
+    const modalRef = this.modalService.show(DeleteConfirmationDialogComponent, { class: 'modal-md' });
+    modalRef.content.itemName = this.process.name;
     modalRef.content.onClose.subscribe(result => {
       if (result) {
         this.processService.delete(this.process.id).subscribe(() => {

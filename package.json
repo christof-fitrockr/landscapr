@@ -41,7 +41,6 @@
     "jszip": "^3.3.0",
     "leaflet": "^1.7.1",
     "leaflet-draw": "^1.0.4",
-    "mermaid": "9.1.7",
     "moment": "2.24.0",
     "monaco-editor": "^0.24.0",
     "net": "^1.0.2",

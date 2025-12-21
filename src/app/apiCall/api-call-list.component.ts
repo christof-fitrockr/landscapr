@@ -22,6 +22,7 @@ export class ApiCallListComponent implements OnInit, OnDestroy {
   showOrphansOnly: boolean = false;
   orphanIds: string[] = [];
   expandedGroups: Set<string> = new Set();
+  apiCallToDelete: ApiCall;
   private subscription: Subscription;
 
   ngOnInit() {
@@ -66,5 +67,18 @@ export class ApiCallListComponent implements OnInit, OnDestroy {
 
   isExpanded(groupName: string): boolean {
     return this.expandedGroups.has(groupName);
+  }
+
+  prepareDelete(apiCall: ApiCall) {
+    this.apiCallToDelete = apiCall;
+  }
+
+  delete() {
+    if (this.apiCallToDelete) {
+      this.apiCallService.delete(this.apiCallToDelete.id).pipe(first()).subscribe(() => {
+        this.refresh();
+        this.apiCallToDelete = null;
+      });
+    }
   }
 }

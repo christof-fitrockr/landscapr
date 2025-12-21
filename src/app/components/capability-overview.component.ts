@@ -16,6 +16,6 @@ export class CapabilityOverviewComponent  {
   constructor() { }
 
   delete() {
-    this.deleteEmitter.emit(this.capability.capabilityId);
+    this.deleteEmitter.emit(this.capability.id);
   }
 }

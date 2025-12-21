@@ -10,6 +10,7 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  min-height: calc(100vh - var(--navbar-height) - var(--submenu-height));
 }
 
 /* Toolbar is now in the card-header; remove floating toolbar styles */
@@ -32,6 +33,7 @@ svg.canvas {
   height: 100%;
   outline: none;
   cursor: crosshair;
+  min-height: calc(100vh - var(--navbar-height) - var(--submenu-height));
 }
 
 svg .node.process {

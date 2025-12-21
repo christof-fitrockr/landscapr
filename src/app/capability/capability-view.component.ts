@@ -58,7 +58,8 @@ export class CapabilityViewComponent implements OnInit, OnDestroy {
   delete() {
     if (!this.capability) return;
 
-    const modalRef = this.modalService.show(DeleteConfirmationDialogComponent, { class: 'modal-sm' });
+    const modalRef = this.modalService.show(DeleteConfirmationDialogComponent, { class: 'modal-md' });
+    modalRef.content.itemName = this.capability.name;
     modalRef.content.onClose.subscribe(result => {
       if (result) {
         this.capabilityService.delete(this.capability.id).subscribe(() => {

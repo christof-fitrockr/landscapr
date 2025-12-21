@@ -10,7 +10,7 @@ import {
   ViewChild
 } from '@angular/core';
 import {ProcessService} from '../services/process.service';
-import {ActivatedRoute} from '@angular/router';
+import {ActivatedRoute, Router} from '@angular/router';
 import {first} from 'rxjs/operators';
 import {Process, Role, Status} from '../models/process';
 import {CanvasService} from '../services/canvas.service';
@@ -62,7 +62,7 @@ export class SwimlaneViewComponent implements OnInit, AfterViewInit, OnChanges {
   dynamicRoles: string[] = [];
 
 
-  constructor(private activatedRoute: ActivatedRoute,private processService: ProcessService, private systemService: ApplicationService,
+  constructor(private activatedRoute: ActivatedRoute, private router: Router, private processService: ProcessService, private systemService: ApplicationService,
               private canvasService: CanvasService, private apiCallService: ApiCallService) {
   }
 
@@ -361,9 +361,23 @@ export class SwimlaneViewComponent implements OnInit, AfterViewInit, OnChanges {
 
   openSelectedItem() {
     if (this.selectedProcess) {
-      window.open(`/process/view/${this.selectedProcess.id}`, '_blank');
+      this.router.navigate(['process', 'edit', this.selectedProcess.id]);
     } else if (this.selectedApiCall) {
-      window.open(`/apiCall/view/${this.selectedApiCall.id}`, '_blank');
+      this.router.navigate(['apiCall', 'edit', this.selectedApiCall.id]);
+    }
+  }
+
+  openSelectedItemInNewTab() {
+    if (this.selectedProcess) {
+      window.open(`/#/process/edit/${this.selectedProcess.id}`, '_blank');
+    } else if (this.selectedApiCall) {
+      window.open(`/#/apiCall/edit/${this.selectedApiCall.id}`, '_blank');
+    }
+  }
+
+  viewSelectedItem() {
+    if (this.selectedProcess) {
+      window.open(`/#/process/view/${this.selectedProcess.id}`, '_blank');
     }
   }
 

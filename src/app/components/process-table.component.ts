@@ -17,12 +17,11 @@ export class ProcessTableComponent  {
   @Input() processes: Process[];
   @Input() showFilter = true
   @Input() orphanIds: string[] = [];
+  // UI toggle for the default subprocess filter (checked by default)
+  @Input() onlyWithSubprocesses: boolean = true;
+  @Input() showOrphansOnly: boolean = false;
 
   @Output() deleted = new EventEmitter<void>();
-
-  // UI toggle for the default subprocess filter (checked by default)
-  onlyWithSubprocesses: boolean = true;
-  showOrphansOnly: boolean = false;
 
   processToDelete: Process;
 
