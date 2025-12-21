@@ -58,7 +58,7 @@ export class SwimlaneViewComponent implements OnInit, AfterViewInit, OnChanges {
 
   ngOnInit() {
     console.log("Repo: " + this.repoId);
-    // this.processId = this.activatedRoute.snapshot.paramMap.get('id');
+    this.processId = this.activatedRoute.snapshot.paramMap.get('id');
 
     // this.subscription = this.activatedRoute.parent.paramMap.subscribe(obs => {
     //   this.repoId = obs.get('repoId');
@@ -268,17 +268,17 @@ export class SwimlaneViewComponent implements OnInit, AfterViewInit, OnChanges {
 
       let idx = 0;
       while(idx < maxDepth) {
-        this.canvasService.drawSwimlane(cx, 0, idx*100, width, 90, 'P' + idx )
+        this.canvasService.drawSwimlane(cx, 0, idx*100, width, 90, 'P' + idx, idx)
         idx++;
       }
 
-      this.canvasService.drawSwimlane(cx, 0, (idx++)*100, width, 90, 'Customer' )
-      this.canvasService.drawSwimlane(cx, 0, (idx++)*100, width, 90, 'Vehicle' )
-      this.canvasService.drawSwimlane(cx, 0, (idx++)*100, width, 90, 'Service w/ customer' );
-      this.canvasService.drawSwimlane(cx, 0, (idx++)*100, width, 90, 'Service w/o customer' );
-      this.canvasService.drawSwimlane(cx, 0, (idx++)*100, width, 90, 'Workshop');
-      this.canvasService.drawSwimlane(cx, 0, (idx++)*100, width, 90, 'Parts');
-      this.canvasService.drawSwimlane(cx, 0, (idx)*100, width, 140, 'API');
+      this.canvasService.drawSwimlane(cx, 0, idx * 100, width, 90, 'Customer', idx++);
+      this.canvasService.drawSwimlane(cx, 0, idx * 100, width, 90, 'Vehicle', idx++);
+      this.canvasService.drawSwimlane(cx, 0, idx * 100, width, 90, 'Service w/ customer', idx++);
+      this.canvasService.drawSwimlane(cx, 0, idx * 100, width, 90, 'Service w/o customer', idx++);
+      this.canvasService.drawSwimlane(cx, 0, idx * 100, width, 90, 'Workshop', idx++);
+      this.canvasService.drawSwimlane(cx, 0, idx * 100, width, 90, 'Parts', idx++);
+      this.canvasService.drawSwimlane(cx, 0, idx * 100, width, 140, 'API', idx);
 
       for(let box of this.processOrder) {
         if (box.roleLayer >= 0) {

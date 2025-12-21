@@ -1,12 +1,28 @@
 import {Injectable} from '@angular/core';
 import {ProcessStep} from '../models/process';
 
+// Modern Color Palette & Styles
+const PALETTE = {
+  text: '#374151',           // Gray 700 - Softer than black
+  swimlaneOdd: '#ffffff',    // White
+  swimlaneEven: '#f9fafb',   // Gray 50
+  swimlaneBorder: '#e5e7eb', // Gray 200
+  processFill: '#dbeafe',    // Blue 100
+  processBorder: '#93c5fd',  // Blue 300
+  functionFill: '#fef3c7',   // Amber 100
+  functionBorder: '#fde68a', // Amber 200
+  shadow: 'rgba(0, 0, 0, 0.1)',
+  arrow: '#4b5563'           // Gray 600
+};
 
-const SWIMLANE_COLOR = '#c0c0c0';
+const SHADOW_BLUR = 4;
+const SHADOW_OFFSET = 2;
+const CORNER_RADIUS = 8;
+
 const BOX_HEIGHT = 50;
 const BOX_PADDING = 20;
-const FUN_FONT = '18px sans-serif';
-const SYS_FONT = '14px sans-serif';
+const FUN_FONT = '500 16px "Segoe UI", Roboto, Helvetica, Arial, sans-serif';
+const SYS_FONT = '400 12px "Segoe UI", Roboto, Helvetica, Arial, sans-serif';
 const PROCESS_EDGE = 15;
 
 @Injectable({
@@ -45,22 +61,37 @@ export class CanvasService {
         const w = Math.max(funW, sysW, width);
         const h = BOX_HEIGHT;
 
-        cx.fillStyle = color;
+        // Shadow
+        cx.shadowColor = PALETTE.shadow;
+        cx.shadowBlur = SHADOW_BLUR;
+        cx.shadowOffsetX = SHADOW_OFFSET;
+        cx.shadowOffsetY = SHADOW_OFFSET;
 
+        // Use Function Fill from Palette if generic color passed, or use passed color if specific (though we generally override)
+        // Check if color is the default white/yellow from old code, if so replace with new palette
+        let fillStyle = color;
+        if (color === '#ffffff' || color === '#e0e050') {
+             fillStyle = PALETTE.functionFill;
+        } else {
+             fillStyle = color; // Keep specific overrides if any
+        }
+        cx.fillStyle = fillStyle;
+        cx.strokeStyle = PALETTE.functionBorder;
 
-        // Function
+        // Function Box - Rounded Rect
         cx.beginPath();
         cx.lineWidth = 1;
-        cx.rect(x, y, w, h);
+        this.roundRect(cx, x, y, w, h, CORNER_RADIUS);
         cx.fill();
         cx.stroke();
 
+        // Reset shadow for text
+        cx.shadowColor = 'transparent';
+        cx.shadowBlur = 0;
+        cx.shadowOffsetX = 0;
+        cx.shadowOffsetY = 0;
 
-
-
-
-
-        cx.fillStyle = '#000000';
+        cx.fillStyle = PALETTE.text;
         cx.font = FUN_FONT;
         cx.fillText(functionName, x + w / 2, y + h / 3);
         cx.font = SYS_FONT;
@@ -80,45 +111,75 @@ export class CanvasService {
         cx.textBaseline = 'middle';
 
         cx.font = FUN_FONT;
-        cx.fillStyle = color;
 
-        const edge = PROCESS_EDGE;
+        // Modernize Color
+        let fillStyle = color;
+        if (color === '#a0f0f0' || color === '#e0e0e0' || color === '#ffffff') {
+            fillStyle = PALETTE.processFill;
+        } else {
+            fillStyle = color;
+        }
 
-        // Function
+        cx.fillStyle = fillStyle;
+        cx.strokeStyle = PALETTE.processBorder;
+
+        // Shadow
+        cx.shadowColor = PALETTE.shadow;
+        cx.shadowBlur = SHADOW_BLUR;
+        cx.shadowOffsetX = SHADOW_OFFSET;
+        cx.shadowOffsetY = SHADOW_OFFSET;
+
+        // Shape: Rounded Rectangle (Pill-like)
         cx.lineWidth = 1;
         cx.beginPath();
-        cx.moveTo(x, y);
-        cx.lineTo(x + w, y);
-        cx.lineTo(x + w + edge, y + h / 2);
-        cx.lineTo(x + w, y + h);
-        cx.lineTo(x, y + h);
-        cx.lineTo(x + edge, y + h / 2);
-        cx.lineTo(x, y);
+        this.roundRect(cx, x, y, w, h, CORNER_RADIUS);
         cx.fill();
         cx.stroke();
 
+        // Reset shadow
+        cx.shadowColor = 'transparent';
+        cx.shadowBlur = 0;
+        cx.shadowOffsetX = 0;
+        cx.shadowOffsetY = 0;
 
-        cx.fillStyle = '#000000';
+        cx.fillStyle = PALETTE.text;
         cx.font = FUN_FONT;
-        cx.fillText(processStepName, x + 10 + w / 2, y + h / 2);
+        // Adjust text position slightly if needed
+        cx.fillText(processStepName, x + w / 2, y + h / 2);
         cx.restore();
     }
 
-    drawSwimlane(cx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, description: string) {
+    // Helper for rounded rectangle
+    private roundRect(cx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) {
+      if (w < 2 * r) r = w / 2;
+      if (h < 2 * r) r = h / 2;
+      cx.beginPath();
+      cx.moveTo(x + r, y);
+      cx.arcTo(x + w, y, x + w, y + h, r);
+      cx.arcTo(x + w, y + h, x, y + h, r);
+      cx.arcTo(x, y + h, x, y, r);
+      cx.arcTo(x, y, x + w, y, r);
+      cx.closePath();
+    }
+
+    drawSwimlane(cx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, description: string, index: number = 0) {
         cx.save();
 
-        cx.strokeStyle = SWIMLANE_COLOR;
+        // Zebra Striping
+        cx.fillStyle = (index % 2 === 0) ? PALETTE.swimlaneEven : PALETTE.swimlaneOdd;
+        cx.fillRect(x, y, w, h);
+
+        cx.strokeStyle = PALETTE.swimlaneBorder;
         cx.beginPath();
         cx.moveTo(x , y);
         cx.lineTo(x , y + h);
         cx.lineTo(x + w, y + h);
         cx.stroke();
 
-
-
-        cx.fillStyle = SWIMLANE_COLOR;
+        cx.fillStyle = PALETTE.text; // Modern text color
         cx.font = FUN_FONT;
-        cx.fillText(description, x + 10, y + h - 10);
+        // Adjust text position
+        cx.fillText(description, x + 10, y + h - 15);
 
         cx.restore();
     }
@@ -129,15 +190,20 @@ export class CanvasService {
 
 
   drawLine(cx: CanvasRenderingContext2D, fromX: number, fromY: number, toX: number, toY: number, description: string) {
+    cx.save();
+    cx.strokeStyle = PALETTE.arrow;
     cx.beginPath();
     cx.moveTo(fromX, fromY);
     cx.lineTo(toX, toY);
     cx.stroke();
+    cx.restore();
   }
 
   drawArrowWithHeight(cx: CanvasRenderingContext2D, fromX: number, fromY: number, toX: number, toY: number, height: number, description: string) {
 
     cx.save();
+    cx.strokeStyle = PALETTE.arrow;
+    cx.fillStyle = PALETTE.arrow;
 
     const headlen = 10; // length of head in pixels
     const dx = toX - fromX;
@@ -168,7 +234,7 @@ export class CanvasService {
     // cx.rotate(dy > 0 ? -angle : angle);
     cx.translate(-(fromX + dx / 2), -(fromY + dy / 2));
 
-    cx.fillStyle = '#000000';
+    cx.fillStyle = PALETTE.text;
 
     cx.textAlign = 'center';
     cx.textBaseline = 'middle';
@@ -182,6 +248,8 @@ export class CanvasService {
 
     drawArrow(cx: CanvasRenderingContext2D, fromX: number, fromY: number, toX: number, toY: number, description: string) {
         cx.save();
+        cx.strokeStyle = PALETTE.arrow;
+        cx.fillStyle = PALETTE.arrow;
 
         const headlen = 10; // length of head in pixels
         const dx = toX - fromX;
@@ -218,7 +286,7 @@ export class CanvasService {
         cx.rotate(dy > 0 ? -angle : angle);
         cx.translate(-(fromX + dx / 2), -(fromY + dy / 2));
 
-        cx.fillStyle = '#000000';
+        cx.fillStyle = PALETTE.text;
 
         cx.textAlign = 'center';
         cx.textBaseline = 'middle';
