@@ -9,6 +9,7 @@ import {ThemeService} from './services/theme.service';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { GithubActionsDialogComponent } from './components/github-actions-dialog.component';
 import { SyncStatusService, SyncStatus } from './services/sync-status.service';
+import { version } from '../environments/version';
 
 @Component({
   selector: 'app-root',
@@ -17,6 +18,7 @@ import { SyncStatusService, SyncStatus } from './services/sync-status.service';
 })
 export class AppComponent implements OnInit {
   dataAvailable: boolean;
+  version = version.date;
 
   upload$: Observable<Upload> = EMPTY;
   status$: Observable<SyncStatus> = EMPTY;

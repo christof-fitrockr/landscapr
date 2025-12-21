@@ -3,14 +3,14 @@
   "version": "1.0.0",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve",
-    "build": "ng build --configuration=production",
-    "buildToSpring": "ng build --configuration=production",
+    "start": "node set-version.js && ng serve",
+    "build": "node set-version.js && ng build --configuration=production",
+    "buildToSpring": "node set-version.js && ng build --configuration=production",
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e",
-    "buildDev": "ng build",
-    "buildWatch": "ng build --watch=true"
+    "buildDev": "node set-version.js && ng build",
+    "buildWatch": "node set-version.js && ng build --watch=true"
   },
   "private": true,
   "dependencies": {
