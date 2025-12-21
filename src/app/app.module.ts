@@ -14,8 +14,6 @@ import {ErrorInterceptor} from './helpers/error.interceptor';
 import {JwtInterceptor} from './helpers/jwt.interceptor';
 import {InformationSystemServiceFilterPipe} from './pipes/information-system-service.pipe';
 import {InformationObjectFilterPipe} from './pipes/information-object-filter.pipe';
-import {ProcessComponent} from './pages/process/process.component';
-import {AngularFireAuthModule} from '@angular/fire/compat/auth';
 import {ProcessListComponent} from './process/process-list.component';
 import {ProcessEditComponent} from './process/process-edit.component';
 import {ProcessViewComponent} from './process/process-view.component';
@@ -177,7 +175,6 @@ import {LicensesComponent} from './licenses/licenses.component';
     PrivacyPolicyComponent,
     AppComponent,
     ClusterComponent,
-    ProcessComponent,
     FunctionalClusterFilterPipe,
     BusinessServiceFilterPipe,
     LoginPage,
@@ -199,12 +196,9 @@ import {LicensesComponent} from './licenses/licenses.component';
   ],
   imports: [
     BrowserModule,
-    // AngularFireModule.initializeApp(environment.firebase),
-    // AngularFireDatabaseModule,
     NgxGraphModule,
     NgSelectModule,
     BrowserAnimationsModule,
-    AngularFireAuthModule,
     DragDropModule,
     SortableModule.forRoot(),
     TypeaheadModule.forRoot(),

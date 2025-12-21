@@ -25,7 +25,6 @@ export class ApiCallGraphComponent implements OnInit, AfterViewInit, AfterViewCh
   @ViewChild('canvas') public canvas: ElementRef;
 
   modelledProcess: ModelledProcess = new ModelledProcess();
-  editorOptions = {theme: 'vs-dark', language: 'yaml'};
   showCode =  false;
 
   @Input() processId: string;
