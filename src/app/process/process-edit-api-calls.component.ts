@@ -3,9 +3,9 @@ import {ProcessService} from '../services/process.service';
 import {Process} from '../models/process';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {ActivatedRoute, Router} from '@angular/router';
-import {first, map, switchMap, tap} from 'rxjs/operators';
+import {catchError, first, map, switchMap, tap} from 'rxjs/operators';
 import {ToastrService} from 'ngx-toastr';
-import {noop, Observable, Observer, of} from 'rxjs';
+import {forkJoin, noop, Observable, Observer, of} from 'rxjs';
 import {TypeaheadMatch} from 'ngx-bootstrap/typeahead';
 import {ApiCall} from '../models/api-call';
 import {ApiCallService} from '../services/api-call.service';
@@ -61,19 +61,24 @@ export class ProcessEditApiCallsComponent implements OnInit {
   private refresh() {
     this.processId = this.route.parent.snapshot.paramMap.get('id');
     if (this.processId != null) {
-      this.processService.byId(this.processId).pipe(first()).subscribe(process => {
-        this.process = process;
-
-        // todo seqquential
-        if(this.process.apiCallIds) {
-          this.apiCalls = [];
-          this.process.apiCallIds.forEach(item => {
-            this.apiCallService.byId(item).pipe(first()).subscribe(result => {
-              this.apiCalls.push(result);
-            })
-          });
-        }
-
+      this.processService.byId(this.processId).pipe(
+        first(),
+        tap(process => this.process = process),
+        switchMap(process => {
+          if (process.apiCallIds && process.apiCallIds.length > 0) {
+            const observables = process.apiCallIds.map(item =>
+              this.apiCallService.byId(item).pipe(
+                first(),
+                catchError(() => of(null))
+              )
+            );
+            return forkJoin(observables);
+          } else {
+            return of([]);
+          }
+        })
+      ).subscribe(apiCalls => {
+        this.apiCalls = apiCalls.filter(apiCall => apiCall !== null);
       });
     }
   }
