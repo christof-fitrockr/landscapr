@@ -19,7 +19,9 @@ export class ApiCallListComponent implements OnInit, OnDestroy {
   repoId: string;
   apiCalls: ApiCall[];
   searchText: string;
+  showOrphansOnly: boolean = false;
   orphanIds: string[] = [];
+  expandedGroups: Set<string> = new Set();
   private subscription: Subscription;
 
   ngOnInit() {
@@ -52,5 +54,17 @@ export class ApiCallListComponent implements OnInit, OnDestroy {
         .filter(api => !referencedApiIds.has(api.id))
         .map(api => api.id);
     });
+  }
+
+  toggleGroup(groupName: string) {
+    if (this.expandedGroups.has(groupName)) {
+      this.expandedGroups.delete(groupName);
+    } else {
+      this.expandedGroups.add(groupName);
+    }
+  }
+
+  isExpanded(groupName: string): boolean {
+    return this.expandedGroups.has(groupName);
   }
 }

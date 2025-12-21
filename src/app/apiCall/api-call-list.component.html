@@ -30,7 +30,7 @@
 
       <input *ngIf="apiCalls && apiCalls?.length > 0" type="text" class="input-group form-control" placeholder="Search.." [(ngModel)]="searchText" [ngModelOptions]="{standalone: true}">
       <div *ngIf="apiCalls && apiCalls?.length > 0" class="form-check mt-2">
-        <input id="showOrphansOnly" type="checkbox" class="form-check-input" #showOrphansOnlyInput (change)="0">
+        <input id="showOrphansOnly" type="checkbox" class="form-check-input" [(ngModel)]="showOrphansOnly" [ngModelOptions]="{standalone: true}">
         <label class="form-check-label" for="showOrphansOnly" title="Show only APIs not referenced by any Process">Show orphans only</label>
       </div>
 
@@ -43,19 +43,27 @@
           <th scope="col"></th>
         </tr>
         </thead>
-        <tbody>
-        <tr *ngFor="let apiCall of apiCalls | apiCallFilter: searchText : showOrphansOnlyInput.checked : orphanIds">
-          <td><a class="black" routerLink="/apiCall/edit/{{apiCall?.id}}"><i class="fas fa-edit"></i></a></td>
-          <td>
-            <a class="black" routerLink="/apiCall/edit/{{apiCall?.id}}">{{apiCall.name}}</a>
-            <i *ngIf="orphanIds.includes(apiCall.id)" class="ml-2 text-warning fas fa-unlink" title="Orphan: Not referenced by any Process"></i>
-          </td>
-          <td>{{apiCall?.tags}}</td>
-          <td class="text-nowrap">
-            <i *ngIf="apiCall?.status === 0" class="text-warning fas fa-exclamation-triangle mr-1"></i>
-            <i *ngIf="apiCall?.status === 1" class="text-success fas fa-check-circle mr-1"></i>
-          </td>
-        </tr>
+        <tbody *ngFor="let group of apiCalls | apiCallFilter: searchText : showOrphansOnly : orphanIds | apiCallGroup">
+          <tr class="table-active pointer" (click)="toggleGroup(group.name)" style="cursor: pointer;">
+            <td colspan="4" class="font-weight-bold">
+              <i class="fas mr-2" [class.fa-chevron-right]="!isExpanded(group.name)" [class.fa-chevron-down]="isExpanded(group.name)"></i>
+              {{ group.name }} <span class="badge badge-light ml-2">{{ group.items.length }}</span>
+            </td>
+          </tr>
+          <ng-container *ngIf="isExpanded(group.name)">
+            <tr *ngFor="let apiCall of group.items">
+              <td class="pl-4"><a class="black" routerLink="/apiCall/edit/{{apiCall?.id}}"><i class="fas fa-edit"></i></a></td>
+              <td>
+                <a class="black" routerLink="/apiCall/edit/{{apiCall?.id}}">{{apiCall.name}}</a>
+                <i *ngIf="orphanIds.includes(apiCall.id)" class="ml-2 text-warning fas fa-unlink" title="Orphan: Not referenced by any Process"></i>
+              </td>
+              <td>{{apiCall?.tags}}</td>
+              <td class="text-nowrap">
+                <i *ngIf="apiCall?.status === 0" class="text-warning fas fa-exclamation-triangle mr-1"></i>
+                <i *ngIf="apiCall?.status === 1" class="text-success fas fa-check-circle mr-1"></i>
+              </td>
+            </tr>
+          </ng-container>
         </tbody>
       </table>
     </div>
