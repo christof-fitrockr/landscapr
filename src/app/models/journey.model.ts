@@ -1,4 +1,5 @@
 import { Process } from './process';
+import { Comment } from './comment';
 
 export interface JourneyLayoutNode {
   id: string;
@@ -34,6 +35,7 @@ export interface Journey {
   items: JourneyItem[];
   connections: Connection[];
   layout?: JourneyLayout;
+  comments?: Comment[];
 }
 
 export type JourneyItem = Process | Journey;

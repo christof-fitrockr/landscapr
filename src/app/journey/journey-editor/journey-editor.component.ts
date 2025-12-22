@@ -8,6 +8,7 @@ import { ConditionEditModalComponent } from './condition-edit-modal.component';
 import { NewProcessModalComponent } from './new-process-modal.component';
 import { Journey, JourneyLayout, JourneyLayoutEdge, JourneyLayoutNode } from '../../models/journey.model';
 import { JourneyService } from '../../services/journey.service';
+import { Comment } from '../../models/comment';
 
 // Basic types for nodes and edges
 export type ToolType = 'select' | 'process' | 'decision' | 'group' | 'connector';
@@ -77,6 +78,7 @@ export class JourneyEditorComponent implements OnInit {
   // Process catalog for the process tool
   processes: Process[] = [];
   selectedProcessId: string | null = null;
+  showCommentsPanel = false;
 
   // Canvas state
   nodes: CanvasNode[] = [];
@@ -800,5 +802,11 @@ export class JourneyEditorComponent implements OnInit {
       }
     }
     return undefined;
+  }
+
+  updateJourneyComments(comments: Comment[]) {
+    if (!this.journey) return;
+    this.journey.comments = comments;
+    this.journeyService.update(this.journey.id, this.journey).subscribe();
   }
 }

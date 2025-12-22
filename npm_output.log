@@ -2,17 +2,17 @@
 > landscapr@1.0.0 start
 > node set-version.js && ng serve
 
-Wrote version 2025-12-21 17:58:38 to /app/src/environments/version.ts
+Wrote version 2025-12-22 08:12:50 to /app/src/environments/version.ts
 - Generating browser application bundles (phase: setup)...
 Processing legacy "View Engine" libraries:
 - ngx-bootstrap/utils [es2015/esm2015] (git+ssh://git@github.com/valor-software/ngx-bootstrap.git)
 - ngx-bootstrap/positioning [es2015/esm2015] (git+ssh://git@github.com/valor-software/ngx-bootstrap.git)
-- ngx-filesaver [es2015/esm2015] (git+https://github.com/cipchk/ngx-filesaver.git)
-- ngx-toastr [es2015/esm2015] (scttcper/ngx-toastr)
-- ngx-bootstrap/sortable [es2015/esm2015] (git+ssh://git@github.com/valor-software/ngx-bootstrap.git)
 - ngx-bootstrap/component-loader [es2015/esm2015] (git+ssh://git@github.com/valor-software/ngx-bootstrap.git)
+- ngx-filesaver [es2015/esm2015] (git+https://github.com/cipchk/ngx-filesaver.git)
 - ngx-bootstrap/modal [es2015/esm2015] (git+ssh://git@github.com/valor-software/ngx-bootstrap.git)
+- ngx-toastr [es2015/esm2015] (scttcper/ngx-toastr)
 - ngx-bootstrap/typeahead [es2015/esm2015] (git+ssh://git@github.com/valor-software/ngx-bootstrap.git)
+- ngx-bootstrap/sortable [es2015/esm2015] (git+ssh://git@github.com/valor-software/ngx-bootstrap.git)
 Encourage the library authors to publish an Ivy distribution.
 DEPRECATION WARNING: Using / for division outside of calc() is deprecated and will be removed in Dart Sass 2.0.0.
 
@@ -68,26 +68,22 @@ More info and automated migrator: https://sass-lang.com/d/slash-div
 
 ✔ Browser application bundle generation complete.
 
-Initial Chunk Files                                    | Names                |  Raw Size
-vendor.js                                              | vendor               |   7.60 MB |
-scripts.js                                             | scripts              |   1.37 MB |
-main.js                                                | main                 |   1.08 MB |
-styles.css, styles.js                                  | styles               | 608.65 kB |
-polyfills.js                                           | polyfills            | 349.00 kB |
-runtime.js                                             | runtime              |  15.03 kB |
+Initial Chunk Files                             | Names         |  Raw Size
+vendor.js                                       | vendor        |   4.17 MB |
+scripts.js                                      | scripts       |   1.37 MB |
+main.js                                         | main          |   1.05 MB |
+styles.css, styles.js                           | styles        | 607.66 kB |
+polyfills.js                                    | polyfills     | 348.96 kB |
+runtime.js                                      | runtime       |  14.14 kB |
 
-| Initial Total        |  11.00 MB
+| Initial Total |   7.54 MB
 
-Lazy Chunk Files                                       | Names                |  Raw Size
-node_modules_firebase_compat_auth_dist_index_esm_js.js | firebase-compat-auth | 490.75 kB |
-node_modules_canvg_lib_index_es_js.js                  | canvg                | 424.18 kB |
-node_modules_html2canvas_dist_html2canvas_js.js        | html2canvas          | 390.81 kB |
-node_modules_dompurify_dist_purify_js.js               | dompurify            |  63.17 kB |
+Lazy Chunk Files                                | Names         |  Raw Size
+node_modules_canvg_lib_index_es_js.js           | canvg         | 424.83 kB |
+node_modules_html2canvas_dist_html2canvas_js.js | html2canvas   | 390.81 kB |
+node_modules_dompurify_dist_purify_js.js        | dompurify     |  63.17 kB |
 
-Build at: 2025-12-21T17:59:27.105Z - Hash: cb4e4bb83b018334 - Time: 45935ms
-
-Warning: /app/node_modules/@swimlane/ngx-graph/fesm2015/swimlane-ngx-graph.mjs depends on 'webcola'. CommonJS or AMD dependencies can cause optimization bailouts.
-For more info see: https://angular.io/guide/build#configuring-commonjs-dependencies
+Build at: 2025-12-22T08:13:32.096Z - Hash: 2f09b25c09145aaa - Time: 38594ms
 
 Warning: /app/node_modules/canvg/lib/index.es.js depends on 'core-js/modules/es.array.index-of.js'. CommonJS or AMD dependencies can cause optimization bailouts.
 For more info see: https://angular.io/guide/build#configuring-commonjs-dependencies
@@ -146,12 +142,6 @@ For more info see: https://angular.io/guide/build#configuring-commonjs-dependenc
 Warning: /app/node_modules/ngx-filesaver/__ivy_ngcc__/fesm2015/ngx-filesaver.js depends on 'file-saver'. CommonJS or AMD dependencies can cause optimization bailouts.
 For more info see: https://angular.io/guide/build#configuring-commonjs-dependencies
 
-Warning: /app/src/app/components/customDagreNodesOnly.ts depends on 'dagre'. CommonJS or AMD dependencies can cause optimization bailouts.
-For more info see: https://angular.io/guide/build#configuring-commonjs-dependencies
-
-Warning: /app/src/app/pages/process/process.component.ts depends on 'js-yaml'. CommonJS or AMD dependencies can cause optimization bailouts.
-For more info see: https://angular.io/guide/build#configuring-commonjs-dependencies
-
 
 
 ** Angular Live Development Server is listening on localhost:4200, open your browser on http://localhost:4200/ **
@@ -161,36 +151,61 @@ For more info see: https://angular.io/guide/build#configuring-commonjs-dependenc
 ✔ Browser application bundle generation complete.
 
 Initial Chunk Files | Names   | Raw Size
-runtime.js          | runtime | 15.03 kB |
+runtime.js          | runtime | 14.14 kB |
 
-9 unchanged chunks
+8 unchanged chunks
 
-Build at: 2025-12-21T17:59:33.128Z - Hash: b152bc44b09fc300 - Time: 5475ms
-
-Warning: /app/node_modules/@swimlane/ngx-graph/fesm2015/swimlane-ngx-graph.mjs depends on 'dagre'. CommonJS or AMD dependencies can cause optimization bailouts.
-For more info see: https://angular.io/guide/build#configuring-commonjs-dependencies
-
-
+Build at: 2025-12-22T08:13:36.584Z - Hash: 6bfc315d83011d82 - Time: 4039ms
 
 ✔ Compiled successfully.
 ✔ Browser application bundle generation complete.
 
 Initial Chunk Files | Names   | Raw Size
-main.js             | main    |  1.08 MB |
-runtime.js          | runtime | 15.03 kB |
+main.js             | main    |  1.05 MB |
+runtime.js          | runtime | 14.14 kB |
 
-8 unchanged chunks
+7 unchanged chunks
 
-Build at: 2025-12-21T18:02:49.257Z - Hash: 85fe91d49f00917a - Time: 2466ms
+Build at: 2025-12-22T08:23:52.959Z - Hash: 0bf0abcf3f78b8d1 - Time: 1714ms
 
-./src/app/app.component.ts:10:0-50 - Error: Module not found: Error: Can't resolve '../environments/version' in '/app/src/app'
+✔ Compiled successfully.
+✔ Browser application bundle generation complete.
 
-Error: src/app/app.component.ts:12:25 - error TS2307: Cannot find module '../environments/version' or its corresponding type declarations.
+Initial Chunk Files | Names   | Raw Size
+vendor.js           | vendor  |  4.16 MB |
+main.js             | main    |  1.05 MB |
+runtime.js          | runtime | 14.14 kB |
 
-12 import { version } from '../environments/version';
-                           ~~~~~~~~~~~~~~~~~~~~~~~~~
+6 unchanged chunks
 
+Build at: 2025-12-22T08:30:31.037Z - Hash: c12a4490f03017be - Time: 2347ms
+
+./src/app/components/comments-panel/comments-panel.component.ts:3:0-36 - Error: Module not found: Error: Can't resolve 'uuid' in '/app/src/app/components/comments-panel'
+
+./src/app/services/api-call.service.ts:2:0-36 - Error: Module not found: Error: Can't resolve 'uuid' in '/app/src/app/services'
+
+./src/app/services/application.service.ts:2:0-36 - Error: Module not found: Error: Can't resolve 'uuid' in '/app/src/app/services'
+
+./src/app/services/authentication.service.ts:4:0-36 - Error: Module not found: Error: Can't resolve 'uuid' in '/app/src/app/services'
+
+./src/app/services/capability.service.ts:2:0-36 - Error: Module not found: Error: Can't resolve 'uuid' in '/app/src/app/services'
+
+./src/app/services/journey.service.ts:2:0-36 - Error: Module not found: Error: Can't resolve 'uuid' in '/app/src/app/services'
+
+./src/app/services/process.service.ts:2:0-36 - Error: Module not found: Error: Can't resolve 'uuid' in '/app/src/app/services'
 
 
 
 ✖ Failed to compile.
+✔ Browser application bundle generation complete.
+
+Initial Chunk Files | Names   | Raw Size
+vendor.js           | vendor  |  4.17 MB |
+main.js             | main    |  1.05 MB |
+runtime.js          | runtime | 14.14 kB |
+
+6 unchanged chunks
+
+Build at: 2025-12-22T08:30:37.278Z - Hash: 32016c56fcf27612 - Time: 6197ms
+
+✔ Compiled successfully.
