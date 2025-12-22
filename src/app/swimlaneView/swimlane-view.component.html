@@ -11,12 +11,14 @@
       Your browser does not support the HTML5 canvas tag.</canvas>
   </div>
 
-  <div class="side-panel" [class.open]="selectedItem">
-    <div class="side-panel-header d-flex justify-content-between align-items-center p-3 border-bottom">
+  <div class="side-panel shadow-lg" [class.open]="selectedItem">
+    <div class="side-panel-header d-flex justify-content-between align-items-center bg-gray-800 text-white p-3">
       <h5 class="mb-0">{{selectedItem?.title || 'Properties'}}</h5>
-      <button type="button" class="btn btn-sm btn-close" (click)="selectedItem = null">&times;</button>
+      <button type="button" class="btn btn-sm btn-link text-white" (click)="selectedItem = null">
+        <i class="fas fa-times"></i>
+      </button>
     </div>
-    <div class="side-panel-toolbar p-2 border-bottom d-flex gap-2" *ngIf="selectedItem">
+    <div class="side-panel-toolbar p-2 border-bottom d-flex gap-2 bg-white" *ngIf="selectedItem">
       <button class="btn btn-sm btn-outline-primary" (click)="openSelectedItem()">
         Open
       </button>
@@ -27,7 +29,7 @@
         <i class="bi bi-eye me-1"></i> View
       </button>
     </div>
-    <div class="side-panel-body p-3" *ngIf="selectedItem">
+    <div class="side-panel-body p-3 overflow-auto" *ngIf="selectedItem">
       <div *ngIf="selectedProcess">
         <p><strong>Description:</strong> {{selectedProcess.description}}</p>
         <p><strong>Role:</strong> {{Role[selectedProcess.role]}}</p>
@@ -37,6 +39,51 @@
             <ul>
                 <li *ngFor="let apiId of selectedProcess.apiCallIds">{{apiCallMap.get(apiId)?.name}}</li>
             </ul>
+        </div>
+        <hr>
+        <h6>Comments</h6>
+        <div class="comments-section">
+          <div class="add-comment mb-4">
+            <div class="form-group">
+              <textarea class="form-control mb-2" rows="3" [(ngModel)]="newCommentText" placeholder="Write a comment..."></textarea>
+            </div>
+            <div class="text-right">
+              <button class="btn btn-primary btn-sm" [disabled]="!newCommentText.trim()" (click)="addComment()">Add Comment</button>
+            </div>
+          </div>
+          <div class="comments-list">
+            <div *ngIf="!selectedProcess.comments || selectedProcess.comments.length === 0" class="text-center text-muted mt-5">
+              <p>No comments yet.</p>
+            </div>
+            <div *ngFor="let comment of selectedProcess.comments" class="comment-item card mb-2">
+              <div class="card-body p-2">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                  <div>
+                    <strong class="mr-2">{{comment.username}}</strong>
+                    <small class="text-muted">{{comment.timestamp | date:'short'}}</small>
+                  </div>
+                  <div class="actions">
+                    <button class="btn btn-link btn-xs text-secondary p-0 mr-2" title="Edit" (click)="startEdit(comment)">
+                      <i class="fas fa-pencil-alt"></i>
+                    </button>
+                    <button class="btn btn-link btn-xs text-danger p-0" title="Delete" (click)="deleteComment(comment)">
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </div>
+                </div>
+                <div *ngIf="editingCommentId !== comment.id" class="comment-text">
+                  {{comment.text}}
+                </div>
+                <div *ngIf="editingCommentId === comment.id" class="edit-box mt-2">
+                  <textarea class="form-control mb-2" rows="2" [(ngModel)]="editingText"></textarea>
+                  <div class="text-right">
+                    <button class="btn btn-secondary btn-xs mr-1" (click)="cancelEdit()">Cancel</button>
+                    <button class="btn btn-success btn-xs" (click)="saveEdit(comment)">Save</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
       <div *ngIf="selectedApiCall">

@@ -125,7 +125,7 @@ export class ProcessDrawingService {
     }
 
     private drawProcessStep(cx: CanvasRenderingContext2D, process: ProcessModel, laneId: string, x: number, w: number, step: ProcessStep, color: string = '#ffffff') {
-        this.canvasService.drawProcessStep(cx, x, this.getLaneMidX(process, laneId) - BOX_HEIGHT / 2, w, BOX_HEIGHT, step.name, color);
+        this.canvasService.drawProcessStep(cx, x, this.getLaneMidX(process, laneId) - BOX_HEIGHT / 2, w, BOX_HEIGHT, step.name, color, '');
     }
 
     private getLaneMidX(process: ProcessModel, laneId: string): number {

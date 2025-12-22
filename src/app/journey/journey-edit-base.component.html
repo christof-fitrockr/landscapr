@@ -4,6 +4,7 @@
       <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
         <div class="btn-group mr-2" role="group" aria-label="First group">
           <button type="button" class="btn btn-primary" title="Save" (click)="onUpdate()"><i class="fas fa-save"></i></button>
+          <a class="btn btn-secondary" title="View" *ngIf="journey?.id" [routerLink]="['/journeys/edit', journey.id, 'editor']"><i class="fas fa-eye"></i></a>
           <a class="btn btn-secondary" title="List" routerLink="/journeys/list"><i class="fas fa-list"></i></a>
         </div>
       </div>

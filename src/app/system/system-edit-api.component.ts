@@ -20,9 +20,8 @@ export class SystemEditApiComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    this.systemId = this.route.parent.snapshot.paramMap.get('id');
-
     this.subscription = this.route.parent.paramMap.subscribe(obs => {
+      this.systemId = obs.get('id');
       if(this.repoId && this.repoId !== obs.get('repoId')) {
         this.router.navigateByUrl('/r/' + obs.get('repoId') + '/system').then(() => {
         });
@@ -35,12 +34,14 @@ export class SystemEditApiComponent implements OnInit, OnDestroy {
   }
 
   private refresh() {
-    this.systemService.byId(this.systemId).pipe(first()).subscribe(system => {
-      this.system = system;
-    });
-    this.apiCallService.byImplementation(this.systemId).pipe(first()).subscribe(apis => {
-      this.apis = apis;
-    });
+    if (this.systemId) {
+      this.systemService.byId(this.systemId).pipe(first()).subscribe(system => {
+        this.system = system;
+      });
+      this.apiCallService.byImplementation(this.systemId).pipe(first()).subscribe(apis => {
+        this.apis = apis;
+      });
+    }
   }
 
   ngOnDestroy() {

@@ -44,21 +44,6 @@
   padding: 16px 0;
 }
 
-.catalog-list .catalog-item {
-  display: flex;
-  align-items: center;
-}
-
-.catalog-list .catalog-item .cdk-drag-handle {
-  cursor: move;
-  color: #a0aec0; /* gray-500 */
-}
-
-.catalog-list .catalog-item:hover .cdk-drag-handle {
-  color: #4a5568; /* gray-700 */
-}
-
-/* Process card with left handle and right content */
 .process-card {
   display: flex;
   align-items: stretch;

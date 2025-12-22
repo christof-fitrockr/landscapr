@@ -4,6 +4,10 @@
     <div class="card-header py-3 d-flex flex-column">
       <div class="d-flex flex-row align-items-center justify-content-between w-100">
         <div class="btn-toolbar" role="toolbar" aria-label="Editor tools">
+          <div class="btn-group mr-2" role="group" aria-label="First group">
+            <a class="btn btn-secondary" title="Edit" [routerLink]="['/journeys/edit', journeyId, 'base']"><i class="fas fa-edit"></i></a>
+            <a class="btn btn-secondary" title="List" routerLink="/journeys/list"><i class="fas fa-list"></i></a>
+          </div>
           <div class="btn-group mr-2" role="group" aria-label="Tool buttons">
             <button class="btn btn-secondary" [ngClass]="{'active': activeTool==='select'}" (click)="setTool('select')" title="Select">
               <i class="fas fa-mouse-pointer"></i>

@@ -43,6 +43,7 @@ export class ApiCallService {
       for (const app of apps) {
         if(app.id === id) {
           obs.next(app);
+          return;
         }
       }
       obs.error();
@@ -120,6 +121,7 @@ export class ApiCallService {
           apps[i] = apiCall;
           ApiCallService.store(apps);
           obs.next(apiCall);
+          return;
         }
       }
       obs.error();
@@ -135,6 +137,7 @@ export class ApiCallService {
           apps.splice(i, 1);
           ApiCallService.store(apps);
           obs.next();
+          return;
         }
       }
       obs.error();

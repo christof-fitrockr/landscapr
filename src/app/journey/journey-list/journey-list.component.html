@@ -29,17 +29,19 @@
             <th scope="col"></th>
             <th scope="col" class="w-50">Name</th>
             <th scope="col" class="w-50">Description</th>
+            <th scope="col">Comments</th>
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let journey of journeys">
+          <tr *ngFor="let journey of journeys" [class.table-info]="journey.comments?.length > 0">
             <td class="text-nowrap">
-              <a class="black mr-2" [routerLink]="['/journeys/editor', journey.id]" title="Open in Editor"><i class="fas fa-eye"></i></a>
-              <a class="black mr-2" [routerLink]="['/journeys/edit', journey.id]" title="Edit"><i class="fas fa-edit"></i></a>
+              <a class="black mr-2" [routerLink]="['/journeys/edit', journey.id, 'editor']" title="Open in Editor"><i class="fas fa-eye"></i></a>
+              <a class="black mr-2" [routerLink]="['/journeys/edit', journey.id, 'base']" title="Edit"><i class="fas fa-edit"></i></a>
               <a class="black cursor-pointer" title="Delete" (click)="deleteJourney(journey)"><i class="fas fa-trash"></i></a>
             </td>
-            <td><a class="black" [routerLink]="['/journeys/view', journey.id]">{{journey.name}}</a></td>
+            <td><a class="black" [routerLink]="['/journeys/edit', journey.id, 'editor']">{{journey.name}}</a></td>
             <td>{{journey.description}}</td>
+            <td>{{journey.comments?.length || 0}}</td>
           </tr>
         </tbody>
       </table>

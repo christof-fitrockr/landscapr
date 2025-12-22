@@ -38,6 +38,7 @@ export class ApplicationService {
 
         if(app.id === id) {
           obs.next(app);
+          return;
         }
       }
       obs.error();
@@ -89,6 +90,7 @@ export class ApplicationService {
           apps[i] = system;
           ApplicationService.store(apps);
           obs.next(system);
+          return;
         }
       }
       obs.error();
@@ -104,6 +106,7 @@ export class ApplicationService {
           apps.splice(i, 1);
           ApplicationService.store(apps);
           obs.next();
+          return;
         }
       }
       obs.error();

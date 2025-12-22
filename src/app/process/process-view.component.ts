@@ -7,6 +7,7 @@ import {ToastrService} from 'ngx-toastr';
 import {Location} from '@angular/common';
 import {first} from 'rxjs/operators';
 import {ApiCall} from '../models/api-call';
+import {Comment} from '../models/comment';
 import {ApiCallService} from '../services/api-call.service';
 import {SwimlaneViewComponent} from '../swimlaneView/swimlane-view.component';
 import { FlowViewService } from './flow-view.service';
@@ -26,7 +27,7 @@ export class ProcessViewComponent implements OnInit, OnChanges, OnDestroy {
   selectedProcess: Process;
   selectedSubprocesses: Process[];
   selectedFunctions: ApiCall[];
-  zoomFactor = 0.6;
+  zoomFactor = 1.0;
 
   // Flow View & Sidebar State
   showFlowView = false;
@@ -35,6 +36,7 @@ export class ProcessViewComponent implements OnInit, OnChanges, OnDestroy {
   selectedApi: ApiCall | null = null;
   selectedSystem: Application | null = null;
   selectedApiSystemName: string | null = null;
+  showCommentsPanel = false;
   private selectionSubscription: Subscription;
 
 
@@ -79,6 +81,9 @@ export class ProcessViewComponent implements OnInit, OnChanges, OnDestroy {
       // Prefer input `processId` if provided; otherwise fallback to route param
       if (!this.processId) {
         this.processId = this.route.snapshot.paramMap.get('id');
+      }
+      if (!this.processId && this.route.parent) {
+        this.processId = this.route.parent.snapshot.paramMap.get('id');
       }
       if (this.processId) {
         this.refresh();
@@ -156,10 +161,6 @@ export class ProcessViewComponent implements OnInit, OnChanges, OnDestroy {
     this.router.navigateByUrl('/process/view/' + processId).then(() => location.reload());
   }
 
-  downloadPpt() {
-    this.child.downloadPpt();
-
-  }
 
   downloadPdf() {
 
@@ -225,5 +226,11 @@ export class ProcessViewComponent implements OnInit, OnChanges, OnDestroy {
         });
       }
     });
+  }
+
+  updateProcessComments(comments: Comment[]) {
+    if (!this.process) return;
+    this.process.comments = comments;
+    this.processService.update(this.process.id, this.process).subscribe();
   }
 }

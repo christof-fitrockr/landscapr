@@ -105,7 +105,7 @@ export class CanvasService {
         return w;
     }
 
-    drawProcessStep(cx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, processStepName: string, color: string = '#ffffff') {
+    drawProcessStep(cx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, processStepName: string, color: string = '#ffffff', indicator: string = '') {
         cx.save();
         cx.textAlign = 'center';
         cx.textBaseline = 'middle';
@@ -146,6 +146,14 @@ export class CanvasService {
         cx.font = FUN_FONT;
         // Adjust text position slightly if needed
         cx.fillText(processStepName, x + w / 2, y + h / 2);
+
+        if (indicator) {
+            cx.font = SYS_FONT;
+            cx.textAlign = 'right';
+            cx.textBaseline = 'bottom';
+            cx.fillText(indicator, x + w - 5, y + h - 2);
+        }
+
         cx.restore();
     }
 

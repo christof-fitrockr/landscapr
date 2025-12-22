@@ -22,7 +22,8 @@ export class ProcessEditSubprocessComponent implements OnInit, OnDestroy {
   // New: catalog (all processes) + filter
   allProcesses: Process[] = [];
   allApiCalls: ApiCall[] = [];
-  catalogFilter = '';
+  processFilter = '';
+  apiCallFilter = '';
   catalogCollapsed = true;
 
   subProcessForm: FormGroup;
@@ -89,9 +90,8 @@ export class ProcessEditSubprocessComponent implements OnInit, OnDestroy {
     this.subscription.unsubscribe();
   }
 
-  get filteredCatalog(): any[] {
+  get filteredProcesses(): Process[] {
     let processList = this.allProcesses || [];
-    let apiCallList = this.allApiCalls || [];
 
     // Exclude the current process itself
     if (this.processId) {
@@ -100,23 +100,36 @@ export class ProcessEditSubprocessComponent implements OnInit, OnDestroy {
     // Optionally exclude already added steps to avoid duplicates in the UI
     if (this.process && this.process.steps && this.process.steps.length) {
       const usedProcesses = new Set(this.process.steps.map(s => s.processReference));
-      const usedApiCalls = new Set(this.process.steps.map(s => s.apiCallReference));
       processList = processList.filter(p => !usedProcesses.has(p.id));
-      apiCallList = apiCallList.filter(a => !usedApiCalls.has(a.id));
     }
 
-    const term = (this.catalogFilter || '').toLowerCase().trim();
+    const term = (this.processFilter || '').toLowerCase().trim();
     if (term) {
       processList = processList.filter(p =>
         (p.name || '').toLowerCase().includes(term) ||
         (p.description || '').toLowerCase().includes(term)
       );
+    }
+    return processList.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+  }
+
+  get filteredApiCalls(): ApiCall[] {
+    let apiCallList = this.allApiCalls || [];
+
+    // Optionally exclude already added steps to avoid duplicates in the UI
+    if (this.process && this.process.steps && this.process.steps.length) {
+      const usedApiCalls = new Set(this.process.steps.map(s => s.apiCallReference));
+      apiCallList = apiCallList.filter(a => !usedApiCalls.has(a.id));
+    }
+
+    const term = (this.apiCallFilter || '').toLowerCase().trim();
+    if (term) {
       apiCallList = apiCallList.filter(a =>
         (a.name || '').toLowerCase().includes(term) ||
         (a.description || '').toLowerCase().includes(term)
       );
     }
-    return [...processList, ...apiCallList].sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+    return apiCallList.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
   }
 
   private refresh() {
@@ -148,7 +161,12 @@ export class ProcessEditSubprocessComponent implements OnInit, OnDestroy {
                 pws.apiCall = apiCallMap.get(step.apiCallReference) as ApiCall;
               }
               return pws;
-            }).filter(pws => !!pws.process || !!pws.apiCall);
+            }).filter(pws => (pws.stepDetails.processReference && !!pws.process) || (pws.stepDetails.apiCallReference && !!pws.apiCall) || (!pws.stepDetails.processReference && !pws.stepDetails.apiCallReference));
+
+            if (this.subProcesses.length !== this.process.steps.length) {
+              this.process.steps = this.subProcesses.map(pws => pws.stepDetails);
+              this.processService.update(this.processId, this.process).pipe(first()).subscribe();
+            }
           });
         } else {
           this.subProcesses = [];
@@ -196,7 +214,7 @@ export class ProcessEditSubprocessComponent implements OnInit, OnDestroy {
     }
   }
 
-  private addSubProcess(id: string) {
+  public addSubProcess(id: string) {
     if(!this.process.steps) {
       this.process.steps = [];
     }
@@ -208,7 +226,7 @@ export class ProcessEditSubprocessComponent implements OnInit, OnDestroy {
     this.onUpdate();
   }
 
-  private addApiCall(id: string) {
+  public addApiCall(id: string) {
     if(!this.process.steps) {
       this.process.steps = [];
     }
@@ -239,40 +257,6 @@ export class ProcessEditSubprocessComponent implements OnInit, OnDestroy {
      if (event.previousContainer === event.container) {
        moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
        this.updateList(event.container.data);
-     } else {
-       // Dragged from catalog to steps list
-       const dragged = event.item.data;
-       if (!dragged) {
-         return;
-       }
-       if (!this.process.steps) {
-         this.process.steps = [];
-       }
-
-       const isProcess = 'status' in dragged; // Process has status, ApiCall doesn't necessarily or we check type
-       const exists = this.process.steps.some(s =>
-         (isProcess && s.processReference === dragged.id) ||
-         (!isProcess && s.apiCallReference === dragged.id)
-       );
-
-       if (exists) {
-         this.toastr.info('Step already added');
-         return;
-       }
-       const newStep = new Step();
-       if (isProcess) {
-         newStep.processReference = dragged.id;
-       } else {
-         newStep.apiCallReference = dragged.id;
-       }
-       // Insert at the dropped position if valid, else push at the end
-       const insertAt = typeof event.currentIndex === 'number' ? event.currentIndex : this.process.steps.length;
-       if (insertAt >= 0 && insertAt <= this.process.steps.length) {
-         this.process.steps.splice(insertAt, 0, newStep);
-       } else {
-         this.process.steps.push(newStep);
-       }
-       this.onUpdate();
      }
   }
 

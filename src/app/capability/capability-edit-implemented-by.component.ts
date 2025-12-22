@@ -1,17 +1,18 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import {CapabilityService} from '../services/capability.service';
 import {Capability} from '../models/capability';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {ActivatedRoute, Router} from '@angular/router';
 import {first, map, switchMap, tap} from 'rxjs/operators';
 import {ToastrService} from 'ngx-toastr';
-import {noop, Observable, Observer, of} from 'rxjs';
+import {forkJoin, noop, Observable, Observer, of, Subscription} from 'rxjs';
 import {TypeaheadMatch} from 'ngx-bootstrap/typeahead';
 import {ApplicationService} from '../services/application.service';
 import {Application} from '../models/application';
+import {ApiCallService} from '../services/api-call.service';
 
 @Component({templateUrl: './capability-edit-implemented-by.component.html'})
-export class CapabilityEditImplementedByComponent implements OnInit {
+export class CapabilityEditImplementedByComponent implements OnInit, OnDestroy {
 
   private capabilityId: string;
   capability: Capability;
@@ -21,8 +22,14 @@ export class CapabilityEditImplementedByComponent implements OnInit {
   systems: Application[];
   private repoId: string;
 
+  systemTree: any[] = [];
+  searchText = '';
+  showOrphansOnly = false;
+  orphanIds: string[] = [];
+  private subscription: Subscription;
+
   constructor(private capabilityService: CapabilityService, private systemService: ApplicationService, private formBuilder: FormBuilder,
-              private route: ActivatedRoute, private router: Router, private toastr: ToastrService) {
+              private route: ActivatedRoute, private router: Router, private toastr: ToastrService, private apiCallService: ApiCallService) {
   }
 
   typeaheadOnSelect(e: TypeaheadMatch): void {
@@ -36,11 +43,11 @@ export class CapabilityEditImplementedByComponent implements OnInit {
       description: [''],
     });
 
-    this.route.parent.paramMap.subscribe(obs => {
+    this.subscription = this.route.parent.paramMap.subscribe(obs => {
       this.repoId = obs.get('repoId');
+      this.refresh();
+      this.refreshTree();
     });
-
-    this.refresh();
 
     this.suggestions$ = new Observable((observer: Observer<string | undefined>) => observer.next(this.search)).pipe(
       switchMap((query: string) => {
@@ -53,6 +60,12 @@ export class CapabilityEditImplementedByComponent implements OnInit {
         return of([]);
       })
     );
+  }
+
+  ngOnDestroy() {
+    if (this.subscription) {
+      this.subscription.unsubscribe();
+    }
   }
 
   private refresh() {
@@ -115,5 +128,68 @@ export class CapabilityEditImplementedByComponent implements OnInit {
         this.onUpdate();
       }
     }
+  }
+
+  refreshTree() {
+    forkJoin([
+      this.systemService.all(this.repoId).pipe(first()),
+      this.capabilityService.all(this.repoId).pipe(first()),
+      this.apiCallService.all().pipe(first())
+    ]).subscribe(([systems, capabilities, apiCalls]) => {
+      this.calculateOrphans(systems, apiCalls);
+      this.buildTree(systems, capabilities, apiCalls);
+    });
+  }
+
+  private buildTree(systems: Application[], capabilities: any[], apiCalls: any[]) {
+    const systemsWithCounts = systems.map(sys => {
+      return {
+        ...sys,
+        capabilityCount: capabilities.filter(cap => cap.implementedBy?.includes(sys.id)).length,
+        apiCount: apiCalls.filter(api => api.implementedBy?.includes(sys.id)).length
+      };
+    });
+
+    const groups = new Map<string, any[]>();
+    systemsWithCounts.forEach(sys => {
+      const cluster = sys.systemCluster || 'No Cluster';
+      if (!groups.has(cluster)) {
+        groups.set(cluster, []);
+      }
+      groups.get(cluster).push(sys);
+    });
+
+    this.systemTree = [];
+    groups.forEach((systemsInGroup, clusterName) => {
+      this.systemTree.push({
+        name: clusterName,
+        isCluster: true,
+        systems: systemsInGroup.sort((a, b) => a.name.localeCompare(b.name)),
+        capabilityCount: systemsInGroup.reduce((acc, sys) => acc + sys.capabilityCount, 0),
+        apiCount: systemsInGroup.reduce((acc, sys) => acc + sys.apiCount, 0)
+      });
+    });
+
+    this.systemTree.sort((a, b) => {
+      if (a.name === 'No Cluster') return 1;
+      if (b.name === 'No Cluster') return -1;
+      return a.name.localeCompare(b.name);
+    });
+  }
+
+  private calculateOrphans(systems: Application[], apiCalls: any[]) {
+    const referencedSystemIds = new Set<string>();
+    apiCalls.forEach(api => {
+      if (api.implementedBy) {
+        api.implementedBy.forEach(id => referencedSystemIds.add(id));
+      }
+    });
+    this.orphanIds = systems
+      .filter(sys => !referencedSystemIds.has(sys.id))
+      .map(sys => sys.id);
+  }
+
+  selectSystem(system: any) {
+    this.addImplementedBySystem(system.id);
   }
 }

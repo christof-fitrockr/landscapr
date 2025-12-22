@@ -82,6 +82,10 @@ export class ProcessEditApiCallsComponent implements OnInit {
         })
       ).subscribe(apiCalls => {
         this.apiCalls = apiCalls.filter(apiCall => apiCall !== null);
+        if (this.apiCalls.length !== this.process.apiCallIds.length) {
+          this.process.apiCallIds = this.apiCalls.map(a => a.id);
+          this.processService.update(this.processId, this.process).pipe(first()).subscribe();
+        }
       });
     }
   }

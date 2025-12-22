@@ -2,7 +2,7 @@ import {Component, OnDestroy, OnInit} from '@angular/core';
 import {first} from 'rxjs/operators';
 import {ApiCallService} from '../services/api-call.service';
 import {ApiCall} from '../models/api-call';
-import {Subscription} from 'rxjs';
+import {Subscription, forkJoin} from 'rxjs';
 import {ActivatedRoute} from '@angular/router';
 import {ProcessService} from '../services/process.service';
 
@@ -21,7 +21,6 @@ export class ApiCallListComponent implements OnInit, OnDestroy {
   searchText: string;
   showOrphansOnly: boolean = false;
   orphanIds: string[] = [];
-  expandedGroups: Set<string> = new Set();
   apiCallToDelete: ApiCall;
   private subscription: Subscription;
 
@@ -37,36 +36,31 @@ export class ApiCallListComponent implements OnInit, OnDestroy {
   }
 
   private refresh() {
-    this.apiCallService.all().pipe(first()).subscribe(apiCalls => {
-      this.apiCalls = apiCalls;
-      this.calculateOrphans();
-    });
-  }
-
-  private calculateOrphans() {
-    this.processService.all().pipe(first()).subscribe(processes => {
-      const referencedApiIds = new Set<string>();
-      processes.forEach(p => {
-        if (p.apiCallIds) {
-          p.apiCallIds.forEach(id => referencedApiIds.add(id));
-        }
+    forkJoin([
+      this.apiCallService.all().pipe(first()),
+      this.processService.all().pipe(first())
+    ]).subscribe(([apiCalls, processes]) => {
+      this.apiCalls = apiCalls.map(api => {
+        return {
+          ...api,
+          usedByCount: processes.filter(p => p.apiCallIds && p.apiCallIds.includes(api.id)).length,
+          implementedInCount: api.implementedBy ? api.implementedBy.length : 0
+        };
       });
-      this.orphanIds = this.apiCalls
-        .filter(api => !referencedApiIds.has(api.id))
-        .map(api => api.id);
+      this.calculateOrphans(processes);
     });
   }
 
-  toggleGroup(groupName: string) {
-    if (this.expandedGroups.has(groupName)) {
-      this.expandedGroups.delete(groupName);
-    } else {
-      this.expandedGroups.add(groupName);
-    }
-  }
-
-  isExpanded(groupName: string): boolean {
-    return this.expandedGroups.has(groupName);
+  private calculateOrphans(processes: any[]) {
+    const referencedApiIds = new Set<string>();
+    processes.forEach(p => {
+      if (p.apiCallIds) {
+        p.apiCallIds.forEach(id => referencedApiIds.add(id));
+      }
+    });
+    this.orphanIds = this.apiCalls
+      .filter(api => !referencedApiIds.has(api.id))
+      .map(api => api.id);
   }
 
   prepareDelete(apiCall: ApiCall) {

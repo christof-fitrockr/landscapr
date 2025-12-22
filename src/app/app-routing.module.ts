@@ -8,7 +8,6 @@ import {ProcessEditComponent} from './process/process-edit.component';
 import {ProcessEditSubprocessComponent} from './process/process-edit-subprocess.component';
 import {ProcessEditBaseComponent} from './process/process-edit-base.component';
 import {DashboardComponent} from './dashboard/dashboard.component';
-import {ProcessEditFlowComponent} from './process/process-edit-flow.component';
 import {ProcessEditApiCallsComponent} from './process/process-edit-api-calls.component';
 import {ApiCallListComponent} from './apiCall/api-call-list.component';
 import {ApiCallViewComponent} from './apiCall/api-call-view.component';
@@ -33,7 +32,6 @@ import {CapabilityEditImplementedByComponent} from './capability/capability-edit
 import {ApiCallEditImplementedInComponent} from './apiCall/api-call-edit-implemented-in.component';
 import {ProcessEditUsedByComponent} from './process/process-edit-used-by.component';
 import {SwimlaneViewComponent} from './swimlaneView/swimlane-view.component';
-import {ProcessJourneyComponent} from './process/process-journey.component';
 import { JourneyEditComponent } from './journey/journey-maintenance/journey-edit.component';
 import { JourneyListComponent } from './journey/journey-list/journey-list.component';
 import { JourneyEditorComponent } from './journey/journey-editor/journey-editor.component';
@@ -51,9 +49,9 @@ const routes: Routes = [
       { path: 'edit/:id', component: JourneyEditComponent, canActivate: [AuthGuard], children: [
           { path: '', redirectTo: 'base', pathMatch: 'full' },
           { path: 'base', component: JourneyEditBaseComponent, canActivate: [AuthGuard] },
+          { path: 'editor', component: JourneyEditorComponent, canActivate: [AuthGuard] },
         ] },
       { path: 'create', component: JourneyEditBaseComponent, canActivate: [AuthGuard] },
-      { path: 'editor', component: JourneyEditorComponent, canActivate: [AuthGuard] },
       { path: 'editor/:id', component: JourneyEditorComponent, canActivate: [AuthGuard] },
     ] },
   { path: 'swimlane/view/:id', component: SwimlaneViewComponent, canActivate: [AuthGuard] },
@@ -63,12 +61,10 @@ const routes: Routes = [
       { path: 'list', component: ProcessListComponent, canActivate: [AuthGuard] },
       { path: 'view/:id', component: ProcessViewComponent, canActivate: [AuthGuard] },
 
-      { path: 'journey/:id', component: ProcessJourneyComponent, canActivate: [AuthGuard] },
-      { path: 'journey/:id/:step', component: ProcessJourneyComponent, canActivate: [AuthGuard] },
       { path: 'edit/:id', component: ProcessEditComponent, canActivate: [AuthGuard], children: [
           { path: '', redirectTo: 'base', pathMatch: 'full' },
           { path: 'base', component: ProcessEditBaseComponent, canActivate: [AuthGuard] },
-          { path: 'flow', component: ProcessEditFlowComponent, canActivate: [AuthGuard] },
+          { path: 'flow', component: ProcessViewComponent, canActivate: [AuthGuard] },
           { path: 'subprocesses', component: ProcessEditSubprocessComponent, canActivate: [AuthGuard] },
           { path: 'functions', component: ProcessEditApiCallsComponent, canActivate: [AuthGuard] },
           { path: 'usedBy', component: ProcessEditUsedByComponent, canActivate: [AuthGuard] },

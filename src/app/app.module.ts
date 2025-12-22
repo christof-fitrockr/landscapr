@@ -21,7 +21,6 @@ import {NgSelectModule} from '@ng-select/ng-select';
 import {ProcessEditSubprocessComponent} from './process/process-edit-subprocess.component';
 import {ProcessEditBaseComponent} from './process/process-edit-base.component';
 import {DashboardComponent} from './dashboard/dashboard.component';
-import {ProcessEditFlowComponent} from './process/process-edit-flow.component';
 import {ProcessEditApiCallsComponent} from './process/process-edit-api-calls.component';
 import {ApiCallEditComponent} from './apiCall/api-call-edit.component';
 import {ApiCallEditBaseComponent} from './apiCall/api-call-edit-base.component';
@@ -43,6 +42,7 @@ import {SystemEditApiComponent} from './system/system-edit-api.component';
 import {SystemListComponent} from './system/system-list.component';
 import {SystemViewComponent} from './system/system-view.component';
 import {SystemEditBaseComponent} from './system/system-edit-base.component';
+import {SystemTreeNodeComponent} from './system/system-tree-node.component';
 import {DragDropModule} from '@angular/cdk/drag-drop';
 import {CapabilityEditImplementedByComponent} from './capability/capability-edit-implemented-by.component';
 import {CapabilityOverviewComponent} from './components/capability-overview.component';
@@ -50,6 +50,7 @@ import {SystemOverviewComponent} from './components/system-overview.component';
 import {ApiCallEditImplementedInComponent} from './apiCall/api-call-edit-implemented-in.component';
 import { CapabilityMapComponent } from './capability/capability-map.component';
 import {CapabilityTreeNodeComponent} from './capability/capability-tree-node.component';
+import {ApiCallTreeNodeComponent} from './apiCall/api-call-tree-node.component';
 import {ProcessEditUsedByComponent} from './process/process-edit-used-by.component';
 import {ApiCallOverviewComponent} from './components/api-call-overview.component';
 import {SwimlaneViewComponent} from './swimlaneView/swimlane-view.component';
@@ -58,7 +59,6 @@ import {ApiCallFilterPipe} from './pipes/api-call-filter.pipe';
 import {ProcessFilterPipe} from './pipes/process-filter.pipe';
 import {SystemFilterPipe} from './pipes/system-filter.pipe';
 import {DndDirective} from './helpers/dnd.directive';
-import {ProcessJourneyComponent} from './process/process-journey.component';
 import {PrivacyPolicyComponent} from './privacyPolicy/privacy-policy.component';
 import { GithubDialogComponent } from './components/github-dialog.component';
 import { FileTypePipe } from './pipes/file-type.pipe';
@@ -102,7 +102,6 @@ import { CommentsPanelComponent } from './components/comments-panel/comments-pan
     ProcessEditComponent,
     ProcessEditBaseComponent,
     ProcessEditSubprocessComponent,
-    ProcessEditFlowComponent,
     ProcessEditApiCallsComponent,
     ProcessOverviewComponent,
     ProcessFlowNodeComponent,
@@ -110,7 +109,6 @@ import { CommentsPanelComponent } from './components/comments-panel/comments-pan
     AppSidePanelComponent,
     ProcessTableComponent,
     ProcessEditUsedByComponent,
-    ProcessJourneyComponent,
 
     DashboardComponent,
     ApiCallFilterPipe,
@@ -139,6 +137,7 @@ import { CommentsPanelComponent } from './components/comments-panel/comments-pan
     CapabilityEditApiCallComponent,
     CapabilityEditImplementedByComponent,
     CapabilityTreeNodeComponent,
+    ApiCallTreeNodeComponent,
     CapabilityListComponent,
     CapabilityViewComponent,
     CapabilityOverviewComponent,
@@ -147,6 +146,7 @@ import { CommentsPanelComponent } from './components/comments-panel/comments-pan
     SystemEditBaseComponent,
     SystemEditImplementsComponent,
     SystemEditApiComponent,
+    SystemTreeNodeComponent,
     SystemListComponent,
     SystemViewComponent,
     SystemOverviewComponent,

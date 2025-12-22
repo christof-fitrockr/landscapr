@@ -158,7 +158,10 @@ export class JourneyEditorComponent implements OnInit {
     });
 
     this.route.paramMap.subscribe(params => {
-      const id = params.get('id');
+      let id = params.get('id');
+      if (!id) {
+        id = this.route.parent?.snapshot.paramMap.get('id') || null;
+      }
       this.journeyId = id;
       if (id) {
         this.journeyService.byId(id).subscribe(j => {

@@ -19,8 +19,10 @@ import {ApiCall, ApiImplementationStatus} from '../models/api-call';
 import {Application} from '../models/application';
 import {ApplicationService} from '../services/application.service';
 import {Subscription} from 'rxjs';
-// import pptxgen from "pptxgenjs";
 import { jsPDF } from "jspdf";
+import {Comment} from '../models/comment';
+import {AuthenticationService} from '../services/authentication.service';
+import {v4 as uuidv4} from 'uuid';
 
 @Component({
   selector: 'app-swimlane-view',
@@ -44,7 +46,7 @@ export class SwimlaneViewComponent implements OnInit, AfterViewInit, OnChanges {
   processBoxMap = new Map<number, ProcessBox>();
   functionBoxMap = new Map<number, ProcessBox>();
   edges: Edge[] = [];
-  @Input() zoomFactor = 0.6;
+  @Input() zoomFactor = 1.0;
   offsetX = 0;
   offsetY = 0;
   private isDragging = false;
@@ -56,6 +58,7 @@ export class SwimlaneViewComponent implements OnInit, AfterViewInit, OnChanges {
   selectedItem: ProcessBox | null = null;
   selectedProcess: Process | null = null;
   selectedApiCall: ApiCall | null = null;
+  newCommentText = '';
   Role = Role;
   Status = Status;
   ApiImplementationStatus = ApiImplementationStatus;
@@ -63,7 +66,7 @@ export class SwimlaneViewComponent implements OnInit, AfterViewInit, OnChanges {
 
 
   constructor(private activatedRoute: ActivatedRoute, private router: Router, private processService: ProcessService, private systemService: ApplicationService,
-              private canvasService: CanvasService, private apiCallService: ApiCallService) {
+              private canvasService: CanvasService, private apiCallService: ApiCallService, private authService: AuthenticationService) {
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -113,7 +116,10 @@ export class SwimlaneViewComponent implements OnInit, AfterViewInit, OnChanges {
     })
   }
 
+  private nextProcessId = 0;
+
   private draw(canvas: ElementRef<HTMLCanvasElement>, clipX?: number, clipY?: number, clipW?: number, clipH?: number) {
+    this.nextProcessId = 0;
     this.dynamicRoles = [];
     this.processOrder = [];
     this.functionOrder = [];
@@ -189,11 +195,13 @@ export class SwimlaneViewComponent implements OnInit, AfterViewInit, OnChanges {
     if(!process) {
       console.error('Process with id ' + id + ' not found.');
       let processBox = new ProcessBox();
+      processBox.id = this.nextProcessId++;
       processBox.processId = id;
       processBox.title = '!! MISSING !!';
       processBox.x = x;
       processBox.depth = layer;
       processBox.roleLayer = -1;
+      processBox.role = '';
       processBox.w = this.canvasService.calcFunctionWidth(cx, 0, processBox.title, '');
 
       // Fix: Ensure we push the missing box so resize/draw works
@@ -207,13 +215,15 @@ export class SwimlaneViewComponent implements OnInit, AfterViewInit, OnChanges {
     mainProcess.children = [];
 
     let processBox = new ProcessBox();
+    processBox.id = this.nextProcessId++;
     processBox.title = process.name;
     processBox.processId = id;
     processBox.x = x;
     processBox.depth = layer;
     processBox.roleLayer = -1;
+    processBox.role = typeof process.role === 'number' ? Role[process.role] : process.role;
     if(!process.steps || process.steps.length === 0) {
-      const roleName = typeof process.role === 'number' ? Role[process.role] : process.role;
+      const roleName = processBox.role;
       processBox.roleLayer = this.dynamicRoles.indexOf(roleName);
       processBox.w = this.canvasService.calcFunctionWidth(cx, 0, process.name, '');
     }
@@ -259,9 +269,12 @@ export class SwimlaneViewComponent implements OnInit, AfterViewInit, OnChanges {
             const endKey = successor.processReference || successor.apiCallReference;
 
             if (childBoxes.has(startKey) && childBoxes.has(endKey)) {
-              edge.startId = childBoxes.get(startKey).id;
-              edge.endId = childBoxes.get(endKey).id;
+              const startBox = childBoxes.get(startKey);
+              const endBox = childBoxes.get(endKey);
+              edge.startId = startBox.id;
+              edge.endId = endBox.id;
               edge.title = successor.edgeTitle;
+
               this.edges.push(edge);
             }
           }
@@ -272,8 +285,6 @@ export class SwimlaneViewComponent implements OnInit, AfterViewInit, OnChanges {
       }
     }
 
-
-    processBox.id = this.processOrder.length;
 
     this.processBoxMap.set(processBox.id, processBox);
     this.processOrder.push(processBox);
@@ -369,10 +380,6 @@ export class SwimlaneViewComponent implements OnInit, AfterViewInit, OnChanges {
     const x = (event.clientX - rect.left - this.offsetX) / this.zoomFactor;
     const y = (event.clientY - rect.top - this.offsetY) / this.zoomFactor;
 
-    this.selectedItem = null;
-    this.selectedProcess = null;
-    this.selectedApiCall = null;
-
     let maxDepth = 0;
     for(let box of this.processBoxMap.values()) {
       maxDepth = Math.max(maxDepth, box.depth);
@@ -382,8 +389,11 @@ export class SwimlaneViewComponent implements OnInit, AfterViewInit, OnChanges {
     for (let box of this.processOrder) {
       const boxY = SwimlaneViewComponent.getYForBox(box, maxDepth);
       if (x >= box.x && x <= box.x + box.w && y >= boxY && y <= boxY + 50) {
+        if (this.selectedItem === box) return; // Already selected
         this.selectedItem = box;
         this.selectedProcess = this.processMap.get(box.processId);
+        this.selectedApiCall = null;
+        this.newCommentText = '';
         return;
       }
     }
@@ -393,11 +403,19 @@ export class SwimlaneViewComponent implements OnInit, AfterViewInit, OnChanges {
     for (let box of this.functionBoxMap.values()) {
       const boxY = (apiLaneIdx) * 100 + 25;
       if (x >= box.x && x <= box.x + box.w && y >= boxY && y <= boxY + 50) { // Height is 50 for functions (BOX_HEIGHT)
+        if (this.selectedItem === box) return; // Already selected
         this.selectedItem = box;
         this.selectedApiCall = this.apiCallMap.get(box.processId); // processId holds apiCallId for these
+        this.selectedProcess = null;
+        this.newCommentText = '';
         return;
       }
     }
+
+    this.selectedItem = null;
+    this.selectedProcess = null;
+    this.selectedApiCall = null;
+    this.newCommentText = '';
   }
 
   public onWheel(event: WheelEvent) {
@@ -423,6 +441,36 @@ export class SwimlaneViewComponent implements OnInit, AfterViewInit, OnChanges {
       this.offsetY -= event.deltaY;
       this.offsetX -= event.deltaX;
       this.drawGraph(this.canvas);
+    }
+  }
+
+  addComment() {
+    if (!this.newCommentText.trim() || !this.selectedProcess) return;
+
+    const user = this.authService.getCurrentUserValue();
+    const username = user ? (user.displayName || user.username) : 'Anonymous';
+
+    const newComment: Comment = {
+      id: uuidv4(),
+      timestamp: Date.now(),
+      username: username,
+      text: this.newCommentText.trim()
+    };
+
+    if (!this.selectedProcess.comments) {
+      this.selectedProcess.comments = [];
+    }
+
+    this.selectedProcess.comments.unshift(newComment);
+    this.processService.update(this.selectedProcess.id, this.selectedProcess).subscribe(() => {
+      this.newCommentText = '';
+    });
+  }
+
+  deleteComment(comment: Comment) {
+    if (confirm('Are you sure you want to delete this comment?') && this.selectedProcess) {
+      this.selectedProcess.comments = this.selectedProcess.comments.filter(c => c.id !== comment.id);
+      this.processService.update(this.selectedProcess.id, this.selectedProcess).subscribe();
     }
   }
 
@@ -471,9 +519,9 @@ export class SwimlaneViewComponent implements OnInit, AfterViewInit, OnChanges {
 
       for(let box of this.processOrder) {
         if (box.roleLayer >= 0) {
-          this.canvasService.drawProcessStep(cx, box.x, (maxDepth * 100) + box.roleLayer * 100, box.w, 50, box.title, '#a0f0f0')
+          this.canvasService.drawProcessStep(cx, box.x, (maxDepth * 100) + box.roleLayer * 100, box.w, 50, box.title, '#a0f0f0', box.role)
         } else {
-          this.canvasService.drawProcessStep(cx, box.x, box.depth * 100, box.w, 50, box.title, '#e0e0e0')
+          this.canvasService.drawProcessStep(cx, box.x, box.depth * 100, box.w, 50, box.title, '#e0e0e0', box.role)
         }
       }
 
@@ -603,168 +651,6 @@ export class SwimlaneViewComponent implements OnInit, AfterViewInit, OnChanges {
     pdf.save(process.name + ".pdf");
   }
 
-  downloadPpt() {
-    const process = this.processMap.get(this.processId)
-
-    // let pres = new pptxgen();
-    // pres.layout = 'LAYOUT_WIDE';
-    // pres.title = process.name;
-    // pres.defineSlideMaster({
-    //   title: "MASTER_SLIDE",
-    //   background: { color: "FFFFFF" },
-    //   slideNumber: { x: 12.3, y: 7.0 },
-    // });
-    //
-    //
-    // this.createGraph(this.hiddenCanvas, this.processId, 50, 0);
-    // this.resize(this.hiddenCanvas);
-    //
-    //
-    //
-    // pres.addSection({ title: "Title" });
-    // let slide = pres.addSlide({sectionTitle: 'Title'});
-    // slide.addShape(pres.ShapeType.rect, { fill: { color: "#2596be" }, x: 0, y: 3, w: 13.35, h: 3.5  });
-    // slide.addText(process.name, {
-    //   paraSpaceBefore: 0,
-    //   paraSpaceAfter: 0,
-    //   margin: 2,
-    //   x: 0.4, y: 3.5, h: 0.3, w: 12.7, color: "000000", fontSize: 24, fit: 'shrink', valign: 'top', bold: true,
-    // });
-    // slide.addText('Process Description', {
-    //   paraSpaceBefore: 0,
-    //   paraSpaceAfter: 0,
-    //   margin: 2,
-    //   x: 0.4, y: 4.0, h: 0.3, w: 12.7, color: "000000", fontSize: 18, fit: 'shrink', valign: 'top', bold: true,
-    // });
-    //
-    // slide.addText(new Date().toUTCString(), {
-    //   paraSpaceBefore: 0,
-    //   paraSpaceAfter: 0,
-    //   margin: 2,
-    //   x: 0.4, y: 6.0, h: 0.3, w: 12.7, color: "000000", fontSize: 12, fit: 'shrink', valign: 'top', bold: true,
-    // });
-    //
-    //
-    // pres.addSection({ title: "Process" });
-    //
-    // const processSlides = Math.ceil(this.width / 1500);
-    // let slideNumber = 1;
-    //
-    // let currX = 0;
-    // do {
-    //
-    //
-    //   let slide = pres.addSlide({sectionTitle: 'Process', masterName: 'MASTER_SLIDE'});
-    //   this.draw(this.hiddenCanvas, currX, 0, currX + 1500, this.hiddenCanvas.nativeElement.height);
-    //   currX += 1500;
-    //
-    //   slide.addText(process.name + ' (' + slideNumber + '/' + processSlides + ')', {x: 0.4, y: 0.3, w: 12.3, h: 0.5, color: "000000"})
-    //   slide.addImage({ data:this.hiddenCanvas.nativeElement.toDataURL("image/png"), x: 0.5, y: 1.3, w: 12.3, h: 5.5 });
-    //
-    //   slideNumber++;
-    //
-    // } while(currX < this.width);
-    //
-    //
-    // pres.addSection({ title: "Steps" });
-    //
-    // this.processOrder.forEach(processStep => {
-    //   const process = this.processMap.get(processStep.processId);
-    //   let slide = pres.addSlide({sectionTitle: 'Steps',masterName: 'MASTER_SLIDE'});
-    //   slide.addText(process.name, { x: 0.4, y: 0.3, w: 12.3, h: 0.5, color: "000000", margin: 0, inset: 0, valign: 'middle'});
-    //
-    //   slide.addText('Role', {
-    //     shape: pres.ShapeType.rect,
-    //     fill: { color: "#2596be" },
-    //     line: { color: "#2596be" },
-    //     paraSpaceBefore: 0,
-    //     paraSpaceAfter: 0,
-    //     margin: 2,
-    //     x: 0.4, y: 1, h: 0.3, w: 1.0, color: "000000", fontSize: 12, fit: 'shrink', valign: 'top', bold: true,
-    //   });
-    //
-    //   slide.addText(Role[process.role], {
-    //     shape: pres.ShapeType.rect,
-    //     fill: { color: "ffffff" },
-    //     line: { color: "#2596be" },
-    //     paraSpaceBefore: 0,
-    //     paraSpaceAfter: 0,
-    //     margin: 2,
-    //     x: 1.1, y: 1, h: 0.3, w: 1.8, color: "000000", fontSize: 12, fit: 'shrink', valign: 'top', bold: true,
-    //   });
-    //
-    //   slide.addText('Tags', {
-    //     shape: pres.ShapeType.rect,
-    //     fill: { color: "#2596be" },
-    //     line: { color: "#2596be" },
-    //     paraSpaceBefore: 0,
-    //     paraSpaceAfter: 0,
-    //     margin: 2,
-    //     x: 3.0, y: 1, h: 0.3, w: 1.0, color: "000000", fontSize: 12, fit: 'shrink', valign: 'top', bold: true,
-    //   });
-    //
-    //   slide.addText(process.tags?.toString(), {
-    //     shape: pres.ShapeType.rect,
-    //     fill: { color: "ffffff" },
-    //     line: { color: "#2596be" },
-    //     paraSpaceBefore: 0,
-    //     paraSpaceAfter: 0,
-    //     margin: 2,
-    //     x: 4.0, y: 1, h: 0.3, w: 8.7, color: "000000", fontSize: 12, fit: 'shrink', valign: 'top', bold: true,
-    //   });
-    //
-    //
-    //   slide.addText('Description', {
-    //     shape: pres.ShapeType.rect,
-    //     fill: { color: "#2596be" },
-    //     line: { color: "#2596be" },
-    //     paraSpaceBefore: 0,
-    //     paraSpaceAfter: 0,
-    //     margin: 2,
-    //     x: 0.4, y: 1.4, h: 0.3, w: 12.3, color: "000000", fontSize: 12, fit: 'shrink', valign: 'top', bold: true,
-    //   });
-    //
-    //   slide.addText(process.description, {
-    //     shape: pres.ShapeType.rect,
-    //     fill: { color: "ffffff" },
-    //     line: { color: "#2596be" },
-    //     margin: 2,
-    //     x: 0.4, y: 1.7, h: 3.0, w: 12.3, color: "000000", fontSize: 12, fit: 'shrink', valign: 'top'
-    //   });
-    //
-    //
-    //   slide.addText('API Calls', {
-    //     shape: pres.ShapeType.rect,
-    //     fill: { color: "#2596be" },
-    //     line: { color: "#2596be" },
-    //     paraSpaceBefore: 0,
-    //     paraSpaceAfter: 0,
-    //     margin: 2,
-    //     x: 0.4, y: 4.8, h: 0.3, w: 12.3, color: "000000", fontSize: 12, fit: 'shrink', valign: 'top', bold: true,
-    //   });
-    //
-    //   let apiCallText = '';
-    //   for (const apiCallId of process.apiCallIds) {
-    //     const apiCall = this.apiCallMap.get(apiCallId);
-    //     apiCallText += apiCall.name + ': ' + apiCall.input + ' -> ' + apiCall.output + '\n';
-    //   }
-    //
-    //   slide.addText(apiCallText, {
-    //     shape: pres.ShapeType.rect,
-    //     fill: { color: "ffffff" },
-    //     line: { color: "#2596be" },
-    //     margin: 2,
-    //     x: 0.4, y: 5.1, h: 1.5, w: 12.3, color: "000000", fontSize: 12, fit: 'shrink', valign: 'top'
-    //   });
-    //
-    //
-    // });
-    //
-    //
-    //
-    // pres.writeFile({fileName: process.name + '.pptx'});
-
-  }
 }
 
 
@@ -789,6 +675,7 @@ class ProcessBox {
   depth: number;
   childBoxes: ProcessBox[];
   roleLayer: number;
+  role: string;
 }
 
 class Edge {
