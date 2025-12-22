@@ -2,7 +2,10 @@
   <div class="card-body p-0 p-0">
     <table class="w-100">
       <tr>
-        <td class="p-2 w-100 bg-light"><a routerLink="/process/edit/{{processWithStep.process?.id}}">{{processWithStep.process?.name}}</a></td>
+        <td class="p-2 w-100 bg-light">
+          <a *ngIf="processWithStep.process" routerLink="/process/edit/{{processWithStep.process?.id}}">{{processWithStep.process?.name}}</a>
+          <span *ngIf="processWithStep.apiCall">{{processWithStep.apiCall?.name}}</span>
+        </td>
         <td class="bg-light text-center pl-1 pr-1">
           <div class="dropdown">
             <button class="btn btn-sm btn-link" type="button" data-toggle="dropdown" aria-expanded="false">
@@ -17,12 +20,13 @@
       </tr>
       <tr>
         <td class="pl-2 small text-gray-700">
-          <span>{{processWithStep.process?.description}}</span>
-          <span *ngIf="!processWithStep?.process?.description" class="font-italic small">No description available</span>
+          <span *ngIf="processWithStep.process">{{processWithStep.process?.description}}</span>
+          <span *ngIf="processWithStep.apiCall">{{processWithStep.apiCall?.description}}</span>
+          <span *ngIf="!processWithStep?.process?.description && !processWithStep?.apiCall?.description" class="font-italic small">No description available</span>
         </td>
         <td rowspan="2" class="text-nowrap">
-          <i *ngIf="processWithStep?.process?.apiCallIds?.length > 0" class="fas fa-wave-square mr-1" title="{{processWithStep?.process?.apiCallIds?.length}} API Call(s)"></i>
-          <i *ngIf="processWithStep?.process?.steps?.length > 0" class="fas fa-sitemap mr-1" title="{{processWithStep?.process?.steps?.length}} Process Step(s)"></i>
+          <i *ngIf="processWithStep.apiCall" class="fas fa-wave-square mr-1" title="API Call"></i>
+          <i *ngIf="processWithStep.process" class="fas fa-sitemap mr-1" title="Subprocess"></i>
 
           <i *ngIf="processWithStep.process?.status === 0" class="text-warning fas fa-exclamation-triangle mr-1"></i>
           <i *ngIf="processWithStep.process?.status === 1" class="text-success fas fa-check-circle mr-1"></i>

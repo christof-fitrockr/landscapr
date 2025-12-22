@@ -1,11 +1,13 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {ProcessService} from '../services/process.service';
+import {ApiCallService} from '../services/api-call.service';
 import {Process, ProcessWithStep, Step, StepSuccessor} from '../models/process';
+import {ApiCall} from '../models/api-call';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {ActivatedRoute, Router} from '@angular/router';
 import {first, map, switchMap, tap} from 'rxjs/operators';
 import {ToastrService} from 'ngx-toastr';
-import {noop, Observable, Observer, of, Subscription} from 'rxjs';
+import {forkJoin, noop, Observable, Observer, of, Subscription} from 'rxjs';
 import {TypeaheadMatch} from 'ngx-bootstrap/typeahead';
 import {CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop';
 
@@ -19,18 +21,21 @@ export class ProcessEditSubprocessComponent implements OnInit, OnDestroy {
 
   // New: catalog (all processes) + filter
   allProcesses: Process[] = [];
+  allApiCalls: ApiCall[] = [];
   catalogFilter = '';
   catalogCollapsed = true;
 
   subProcessForm: FormGroup;
+  apiCallForm: FormGroup;
   process: Process;
   private processId: string;
   subProcesses: ProcessWithStep[];
   availableSubProcesses: Process[];
+  availableApiCalls: ApiCall[];
   private subscription: Subscription;
 
 
-  constructor(private processService: ProcessService, private formBuilder: FormBuilder, private route: ActivatedRoute, private router: Router, private toastr: ToastrService) {
+  constructor(private processService: ProcessService, private apiCallService: ApiCallService, private formBuilder: FormBuilder, private route: ActivatedRoute, private router: Router, private toastr: ToastrService) {
   }
 
   typeaheadOnSelect(e: TypeaheadMatch): void {
@@ -44,11 +49,21 @@ export class ProcessEditSubprocessComponent implements OnInit, OnDestroy {
       description: [''],
     });
 
+    this.apiCallForm = this.formBuilder.group({
+      name: ['', Validators.required],
+      description: [''],
+    });
+
     this.refresh();
 
     // Load all processes for the catalog
     this.processService.all().pipe(first()).subscribe(list => {
       this.allProcesses = list || [];
+    });
+
+    // Load all api calls for the catalog
+    this.apiCallService.all().pipe(first()).subscribe(list => {
+      this.allApiCalls = list || [];
     });
 
     this.suggestions$ = new Observable((observer: Observer<string | undefined>) => observer.next(this.search)).pipe(
@@ -74,25 +89,34 @@ export class ProcessEditSubprocessComponent implements OnInit, OnDestroy {
     this.subscription.unsubscribe();
   }
 
-  get filteredCatalog(): Process[] {
-    let list = this.allProcesses || [];
+  get filteredCatalog(): any[] {
+    let processList = this.allProcesses || [];
+    let apiCallList = this.allApiCalls || [];
+
     // Exclude the current process itself
     if (this.processId) {
-      list = list.filter(p => p.id !== this.processId);
+      processList = processList.filter(p => p.id !== this.processId);
     }
-    // Optionally exclude already added subprocesses to avoid duplicates in the UI
+    // Optionally exclude already added steps to avoid duplicates in the UI
     if (this.process && this.process.steps && this.process.steps.length) {
-      const used = new Set(this.process.steps.map(s => s.processReference));
-      list = list.filter(p => !used.has(p.id));
+      const usedProcesses = new Set(this.process.steps.map(s => s.processReference));
+      const usedApiCalls = new Set(this.process.steps.map(s => s.apiCallReference));
+      processList = processList.filter(p => !usedProcesses.has(p.id));
+      apiCallList = apiCallList.filter(a => !usedApiCalls.has(a.id));
     }
+
     const term = (this.catalogFilter || '').toLowerCase().trim();
     if (term) {
-      list = list.filter(p =>
+      processList = processList.filter(p =>
         (p.name || '').toLowerCase().includes(term) ||
         (p.description || '').toLowerCase().includes(term)
       );
+      apiCallList = apiCallList.filter(a =>
+        (a.name || '').toLowerCase().includes(term) ||
+        (a.description || '').toLowerCase().includes(term)
+      );
     }
-    return list;
+    return [...processList, ...apiCallList].sort((a, b) => (a.name || '').localeCompare(b.name || ''));
   }
 
   private refresh() {
@@ -101,38 +125,34 @@ export class ProcessEditSubprocessComponent implements OnInit, OnDestroy {
       this.processService.byId(this.processId).pipe(first()).subscribe(process => {
         this.process = process;
 
-        const processIdMap = new Map<string, Process>();
-        const ids = [];
-        if(this.process.steps) {
-          for (let item of this.process.steps) {
-            ids.push(item.processReference);
-          }
+        if (this.process.steps) {
+          const processIds = this.process.steps.filter(s => !!s.processReference).map(s => s.processReference);
+          const apiCallIds = this.process.steps.filter(s => !!s.apiCallReference).map(s => s.apiCallReference);
 
-          const chunkSize = 10;
-          this.availableSubProcesses = [];
-          for (let i = 0; i < ids.length; i += chunkSize) {
-            const idChunk = ids.slice(i, i + chunkSize);
-            // do whatever
-            this.processService.byIds(idChunk).pipe(first()).subscribe(results => {
-              for (let process of results) {
-                this.availableSubProcesses.push(process);
-                processIdMap.set(process.id, process);
+          forkJoin({
+            processes: processIds.length > 0 ? this.processService.byIds(processIds).pipe(first()) : of([]),
+            apiCalls: apiCallIds.length > 0 ? this.apiCallService.byIds(apiCallIds).pipe(first()) : of([])
+          }).subscribe(({processes, apiCalls}) => {
+            const processMap = new Map(processes.map(p => [p.id, p]));
+            const apiCallMap = new Map(apiCalls.map(a => [a.id, a]));
+
+            this.availableSubProcesses = processes;
+            this.availableApiCalls = apiCalls;
+
+            this.subProcesses = this.process.steps.map(step => {
+              const pws = new ProcessWithStep();
+              pws.stepDetails = step;
+              if (step.processReference && processMap.has(step.processReference)) {
+                pws.process = processMap.get(step.processReference) as Process;
+              } else if (step.apiCallReference && apiCallMap.has(step.apiCallReference)) {
+                pws.apiCall = apiCallMap.get(step.apiCallReference) as ApiCall;
               }
-
-              this.subProcesses = [];
-              for (let item of this.process.steps) {
-                const processWithStep = new ProcessWithStep();
-                processWithStep.stepDetails = item;
-                if (processIdMap.has(item.processReference)) {
-                  processWithStep.process = processIdMap.get(item.processReference);
-                  this.subProcesses.push(processWithStep);
-                }
-              }
-
-            });
-          }
+              return pws;
+            }).filter(pws => !!pws.process || !!pws.apiCall);
+          });
+        } else {
+          this.subProcesses = [];
         }
-
       });
     } else {
       this.process = new Process();
@@ -161,6 +181,21 @@ export class ProcessEditSubprocessComponent implements OnInit, OnDestroy {
     }
   }
 
+  createApiCall() {
+    Object.keys(this.apiCallForm.controls).forEach(field => {
+      const control = this.apiCallForm.get(field);
+      control.markAsTouched({ onlySelf: true });
+    });
+
+    if (this.apiCallForm.valid) {
+      let apiCall = new ApiCall();
+      apiCall = Object.assign(apiCall, this.apiCallForm.value);
+      this.apiCallService.create(apiCall).pipe(first()).subscribe(docRef => {
+        this.addApiCall(docRef.id);
+      });
+    }
+  }
+
   private addSubProcess(id: string) {
     if(!this.process.steps) {
       this.process.steps = [];
@@ -168,20 +203,30 @@ export class ProcessEditSubprocessComponent implements OnInit, OnDestroy {
 
     const step = new Step();
     step.processReference = id;
-    // if(this.process?.steps?.length > 0) {
-    //   step.successor = [new StepSuccessor()];
-    //   step.successor[0].processReference = this.process.steps[this.process.steps.length - 1].processReference;
-    // }
 
+    this.process.steps.push( step);
+    this.onUpdate();
+  }
+
+  private addApiCall(id: string) {
+    if(!this.process.steps) {
+      this.process.steps = [];
+    }
+
+    const step = new Step();
+    step.apiCallReference = id;
 
     this.process.steps.push( step);
     this.onUpdate();
   }
 
 
-  delete(processId: string) {
+  delete(pws: ProcessWithStep) {
     if (this.process.steps !== null) {
-      const index = this.process.steps.findIndex(item => item.processReference === processId);
+      const index = this.process.steps.findIndex(item =>
+        (pws.process && item.processReference === pws.process.id) ||
+        (pws.apiCall && item.apiCallReference === pws.apiCall.id)
+      );
       if (index >= 0) {
         this.process.steps.splice(index, 1);
         this.onUpdate();
@@ -196,20 +241,30 @@ export class ProcessEditSubprocessComponent implements OnInit, OnDestroy {
        this.updateList(event.container.data);
      } else {
        // Dragged from catalog to steps list
-       const dragged: Process = event.item.data as Process;
+       const dragged = event.item.data;
        if (!dragged) {
          return;
        }
        if (!this.process.steps) {
          this.process.steps = [];
        }
-       const exists = this.process.steps.some(s => s.processReference === dragged.id);
+
+       const isProcess = 'status' in dragged; // Process has status, ApiCall doesn't necessarily or we check type
+       const exists = this.process.steps.some(s =>
+         (isProcess && s.processReference === dragged.id) ||
+         (!isProcess && s.apiCallReference === dragged.id)
+       );
+
        if (exists) {
-         this.toastr.info('Process already added as a step');
+         this.toastr.info('Step already added');
          return;
        }
        const newStep = new Step();
-       newStep.processReference = dragged.id;
+       if (isProcess) {
+         newStep.processReference = dragged.id;
+       } else {
+         newStep.apiCallReference = dragged.id;
+       }
        // Insert at the dropped position if valid, else push at the end
        const insertAt = typeof event.currentIndex === 'number' ? event.currentIndex : this.process.steps.length;
        if (insertAt >= 0 && insertAt <= this.process.steps.length) {
@@ -232,7 +287,8 @@ export class ProcessEditSubprocessComponent implements OnInit, OnDestroy {
   updateProcessStep(processWithStep: ProcessWithStep) {
 
     for(let step of this.process.steps) {
-      if(step.processReference === processWithStep.stepDetails.processReference) {
+      if((processWithStep.process && step.processReference === processWithStep.process.id) ||
+         (processWithStep.apiCall && step.apiCallReference === processWithStep.apiCall.id)) {
         step.successors = processWithStep.stepDetails.successors;
         break;
       }

@@ -224,11 +224,30 @@ export class SwimlaneViewComponent implements OnInit, AfterViewInit, OnChanges {
       const childBoxes = new Map<string, ProcessBox>();
       for (let step of process.steps) {
         if(step.processReference) {
-          console.debug('Childs of id ' + id + ' with name ' + process.name + ' not found.');
           const childBox = this.createGraph(canvas, step.processReference, x + processBox.w, layer + 1);
           childBoxes.set(step.processReference, childBox);
           processBox.w += childBox.w;
           processBox.w += 60; // Gap
+        } else if (step.apiCallReference) {
+          const apiCall = this.apiCallMap.get(step.apiCallReference);
+          if (apiCall) {
+            const subTitle = this.getSubTitle(apiCall);
+            const childBox = this.createFunctionGraph(cx, apiCall, x + processBox.w, layer + 1);
+            childBox.subTitle = subTitle;
+            childBoxes.set(step.apiCallReference, childBox);
+            processBox.w += childBox.w;
+            processBox.w += 60;
+
+            const inEdge = new Edge();
+            inEdge.startId = processBox.id;
+            inEdge.endId = childBox.id;
+
+            const outEdge = new Edge();
+            outEdge.startId = childBox.id;
+            outEdge.endId = processBox.id;
+
+            this.edges.push(inEdge, outEdge);
+          }
         }
       }
 
@@ -236,68 +255,25 @@ export class SwimlaneViewComponent implements OnInit, AfterViewInit, OnChanges {
         if (step.successors) {
           for (let successor of step.successors) {
             const edge = new Edge();
-            edge.startId = childBoxes.get(step.processReference).id;
-            if(childBoxes.has(successor.processReference)) {
-              edge.endId = childBoxes.get(successor.processReference).id;
+            const startKey = step.processReference || step.apiCallReference;
+            const endKey = successor.processReference || successor.apiCallReference;
+
+            if (childBoxes.has(startKey) && childBoxes.has(endKey)) {
+              edge.startId = childBoxes.get(startKey).id;
+              edge.endId = childBoxes.get(endKey).id;
               edge.title = successor.edgeTitle;
-              this.edges.push(edge)
-            } else {
-              console.error('Step "' + process.name + '": Could not found reference to "' + successor.processReference + '"');
+              this.edges.push(edge);
             }
           }
         }
       }
+      if (processBox.w > 0) {
         processBox.w -= 60;
+      }
     }
 
 
     processBox.id = this.processOrder.length;
-
-    let functionW = 0;
-    if(process.apiCallIds && (!process.steps || process.steps.length === 0)) {
-
-
-
-      for(let apiCallId of process.apiCallIds) {
-        let apiCall = this.apiCallMap.get(apiCallId)
-
-
-        functionW += this.canvasService.calcFunctionWidth(cx, 0, apiCall.name, this.getSubTitle(apiCall));
-        functionW += 60;
-      }
-      functionW -= 60;
-
-      if((functionW + processBox.w) > processBox.w) {
-        processBox.w = functionW + processBox.w;
-        let currentX = x;
-        for(let apiCallId of process.apiCallIds) {
-          let apiCall = this.apiCallMap.get(apiCallId)
-          const subTitle = this.getSubTitle(apiCall);
-          const w = this.canvasService.calcFunctionWidth(cx, 0, apiCall.name, subTitle)
-          const childBox = this.createFunctionGraph(cx, apiCall, currentX + (processBox.w/2) - functionW/2, layer + 1);
-          childBox.subTitle = subTitle;
-          currentX += childBox.w;
-          currentX += 60;
-
-          const inEdge = new Edge();
-          inEdge.startId = processBox.id;
-          inEdge.endId = childBox.id;
-
-          const outEdge = new Edge();
-          outEdge.startId = childBox.id;
-          outEdge.endId = processBox.id;
-
-          this.edges.push(inEdge, outEdge);
-
-        }
-      } else {
-        let startX = (processBox.w - functionW) / 2
-        for(let apiCallId of process.apiCallIds) {
-          this.createFunctionGraph(cx, this.apiCallMap.get(apiCallId), startX + functionW, layer + 1);
-        }
-      }
-    }
-
 
     this.processBoxMap.set(processBox.id, processBox);
     this.processOrder.push(processBox);

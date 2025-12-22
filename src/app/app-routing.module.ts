@@ -28,6 +28,7 @@ import {SystemViewComponent} from './system/system-view.component';
 import {SystemEditComponent} from './system/system-edit.component';
 import {SystemEditBaseComponent} from './system/system-edit-base.component';
 import {SystemEditImplementsComponent} from './system/system-edit-implements.component';
+import {SystemEditApiComponent} from './system/system-edit-api.component';
 import {CapabilityEditImplementedByComponent} from './capability/capability-edit-implemented-by.component';
 import {ApiCallEditImplementedInComponent} from './apiCall/api-call-edit-implemented-in.component';
 import {ProcessEditUsedByComponent} from './process/process-edit-used-by.component';
@@ -111,6 +112,7 @@ const routes: Routes = [
           { path: '', redirectTo: 'base', pathMatch: 'full' },
           { path: 'base', component: SystemEditBaseComponent, canActivate: [AuthGuard] },
           { path: 'usage', component: SystemEditImplementsComponent, canActivate: [AuthGuard] },
+          { path: 'apis', component: SystemEditApiComponent, canActivate: [AuthGuard] },
 
         ] },
       { path: 'create', component: SystemEditBaseComponent, canActivate: [AuthGuard] },

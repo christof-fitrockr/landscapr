@@ -50,14 +50,14 @@ export class ProcessService {
       for (const app of apps) {
         if(app.steps) {
           for (const step of app.steps) {
-            if (step.processReference === processId) {
+            if (step.processReference === processId || step.apiCallReference === processId) {
               result.push(app);
               break;
             }
             if (step.successors) {
               let found = false;
               for (const succ of step.successors) {
-                if (succ.processReference === processId) {
+                if (succ.processReference === processId || succ.apiCallReference === processId) {
                   result.push(app);
                   found = true;
                   break;
@@ -118,8 +118,22 @@ export class ProcessService {
       const apps = ProcessService.load();
       const result: Process[] = [];
       for (const app of apps) {
-        if(app.apiCallIds && app.apiCallIds.indexOf(apiCallId) >= 0) {
+        if (app.apiCallIds && app.apiCallIds.indexOf(apiCallId) >= 0) {
           result.push(app);
+          continue;
+        }
+        if (app.steps) {
+          let found = false;
+          for (const step of app.steps) {
+            if (step.apiCallReference === apiCallId) {
+              result.push(app);
+              found = true;
+              break;
+            }
+          }
+          if (found) {
+            continue;
+          }
         }
       }
       obs.next(result);

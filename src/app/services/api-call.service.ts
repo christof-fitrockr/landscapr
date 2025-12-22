@@ -88,6 +88,19 @@ export class ApiCallService {
     });
   }
 
+  byImplementation(systemId: string): Observable<ApiCall[]> {
+    return new Observable<ApiCall[]>(obs => {
+      const apps = ApiCallService.load();
+      const result: ApiCall[] = [];
+      for (const app of apps) {
+        if (app.implementedBy && app.implementedBy.indexOf(systemId) >= 0) {
+          result.push(app);
+        }
+      }
+      obs.next(result);
+    });
+  }
+
   create(apiCall: ApiCall): Observable<ApiCall> {
     return new Observable<ApiCall>(obs => {
       const apps = ApiCallService.load();

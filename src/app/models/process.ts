@@ -1,4 +1,5 @@
 import { Comment } from './comment';
+import {ApiCall} from './api-call';
 
 export class Process {
   id: string;
@@ -28,6 +29,7 @@ export enum Role {
 
 export class ProcessWithStep {
   process: Process;
+  apiCall: ApiCall;
   stepDetails: Step;
 }
 
@@ -38,12 +40,14 @@ export enum Status {
 
 export class Step {
   processReference: string;
+  apiCallReference: string;
   successors: StepSuccessor[];
 }
 
 export class StepSuccessor {
   edgeTitle: string;
   processReference: string;
+  apiCallReference: string;
 }
 
 export class Api {

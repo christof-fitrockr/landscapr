@@ -39,6 +39,7 @@ import {CapabilityEditComponent} from './capability/capability-edit.component';
 import {CapabilityEditBaseComponent} from './capability/capability-edit-base.component';
 import {SystemEditComponent} from './system/system-edit.component';
 import {SystemEditImplementsComponent} from './system/system-edit-implements.component';
+import {SystemEditApiComponent} from './system/system-edit-api.component';
 import {SystemListComponent} from './system/system-list.component';
 import {SystemViewComponent} from './system/system-view.component';
 import {SystemEditBaseComponent} from './system/system-edit-base.component';
@@ -48,6 +49,7 @@ import {CapabilityOverviewComponent} from './components/capability-overview.comp
 import {SystemOverviewComponent} from './components/system-overview.component';
 import {ApiCallEditImplementedInComponent} from './apiCall/api-call-edit-implemented-in.component';
 import { CapabilityMapComponent } from './capability/capability-map.component';
+import {CapabilityTreeNodeComponent} from './capability/capability-tree-node.component';
 import {ProcessEditUsedByComponent} from './process/process-edit-used-by.component';
 import {ApiCallOverviewComponent} from './components/api-call-overview.component';
 import {SwimlaneViewComponent} from './swimlaneView/swimlane-view.component';
@@ -55,7 +57,6 @@ import {ApiCallCapabilityFilterPipe} from './pipes/api-call-capability-filter.pi
 import {ApiCallFilterPipe} from './pipes/api-call-filter.pipe';
 import {ProcessFilterPipe} from './pipes/process-filter.pipe';
 import {SystemFilterPipe} from './pipes/system-filter.pipe';
-import {CapabilityFilterPipe} from './pipes/capability-filter.pipe';
 import {DndDirective} from './helpers/dnd.directive';
 import {ProcessJourneyComponent} from './process/process-journey.component';
 import {PrivacyPolicyComponent} from './privacyPolicy/privacy-policy.component';
@@ -117,7 +118,6 @@ import { CommentsPanelComponent } from './components/comments-panel/comments-pan
     ProcessFilterPipe,
     ApiCallCapabilityFilterPipe,
     SystemFilterPipe,
-    CapabilityFilterPipe,
 
     DndDirective,
 
@@ -138,6 +138,7 @@ import { CommentsPanelComponent } from './components/comments-panel/comments-pan
     CapabilityEditBaseComponent,
     CapabilityEditApiCallComponent,
     CapabilityEditImplementedByComponent,
+    CapabilityTreeNodeComponent,
     CapabilityListComponent,
     CapabilityViewComponent,
     CapabilityOverviewComponent,
@@ -145,6 +146,7 @@ import { CommentsPanelComponent } from './components/comments-panel/comments-pan
     SystemEditComponent,
     SystemEditBaseComponent,
     SystemEditImplementsComponent,
+    SystemEditApiComponent,
     SystemListComponent,
     SystemViewComponent,
     SystemOverviewComponent,

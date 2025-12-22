@@ -30,7 +30,7 @@
           <div cdkDropList [id]="'stepsList'" class="steps-dropzone" [cdkDropListData]="subProcesses" [cdkDropListConnectedTo]="['catalogList']" (cdkDropListDropped)="drop($event)">
 
             <div *ngIf="!subProcesses || !subProcesses.length" class="empty-hint">
-              Drop processes here to add them as steps
+              Drop processes or functions here to add them as steps
             </div>
 
             <div class="process-card mt-1" *ngFor="let item of subProcesses" cdkDrag>
@@ -42,6 +42,7 @@
                 <app-process-overview
                          [processWithStep]="item"
                          [processes]="availableSubProcesses"
+                         [apiCalls]="availableApiCalls"
                          (updateEmitter)="updateProcessStep($event)"
                          [repoId]="repoId"
                          (deleteEmitter)="delete($event)"></app-process-overview>
@@ -51,7 +52,7 @@
 
           <div class="card mt-2">
             <div class="card-header d-flex align-items-center justify-content-between py-2">
-              <span class="font-weight-bold small">Available processes</span>
+              <span class="font-weight-bold small">Available processes & functions</span>
               <button type="button" class="btn btn-sm btn-link" (click)="catalogCollapsed = !catalogCollapsed" [attr.aria-expanded]="!catalogCollapsed" aria-controls="catalogBody">
                 <i class="fas" [ngClass]="catalogCollapsed ? 'fa-chevron-down' : 'fa-chevron-up'"></i>
               </button>
@@ -60,13 +61,17 @@
               <input [(ngModel)]="catalogFilter"
                      [ngModelOptions]="{standalone: true}"
                      class="form-control mb-2"
-                     placeholder="Filter processes...">
+                     placeholder="Filter catalog...">
 
               <div cdkDropList [id]="'catalogList'" [cdkDropListData]="filteredCatalog" [cdkDropListConnectedTo]="['stepsList']" class="catalog-list">
                 <div class="card mb-1 p-2 catalog-item d-flex align-items-center flex-row" *ngFor="let proc of filteredCatalog" cdkDrag [cdkDragData]="proc">
                   <div class="cdk-drag-handle mr-2" title="Drag to add"><i class="fas fa-grip-lines"></i></div>
                   <div class="catalog-text">
-                    <div class="small font-weight-bold m-0">{{proc.name}}</div>
+                    <div class="small font-weight-bold m-0">
+                      <i *ngIf="proc.apiCallReference === undefined" class="fas fa-sitemap mr-1" title="Subprocess"></i>
+                      <i *ngIf="proc.apiCallReference !== undefined" class="fas fa-wave-square mr-1" title="API Call"></i>
+                      {{proc.name}}
+                    </div>
                     <div class="text-muted small m-0" *ngIf="proc.description">{{proc.description}}</div>
                   </div>
                 </div>
@@ -75,7 +80,8 @@
           </div>
 
           <div class="text-center mt-2">
-            <button type="button" class="btn btn-outline-primary" title="Add new process" data-toggle="modal" data-target="#addProcess"><i class="fas fa-plus-circle"></i> Create new Process</button>
+            <button type="button" class="btn btn-outline-primary mr-1" title="Add new process" data-toggle="modal" data-target="#addProcess"><i class="fas fa-plus-circle"></i> Create new Process</button>
+            <button type="button" class="btn btn-outline-primary ml-1" title="Add new function" data-toggle="modal" data-target="#addApiCall"><i class="fas fa-plus-circle"></i> Create new Function</button>
           </div>
         </div>
       </div>
@@ -122,4 +128,43 @@
         </div>
       </div>
     </div>
+</div>
+
+<div class="modal fade" id="addApiCall" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
+    <div class="modal-content">
+      <div class="modal-header border-bottom-0">
+        <h5 class="modal-title">Add new function</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+
+
+        <form [formGroup]="apiCallForm" (ngSubmit)="onUpdate()">
+
+          <div class="form-group row">
+            <label for="apiCallName" class="col-sm-2 col-form-label">Name</label>
+            <div class="col-sm-10">
+              <input type="text" formControlName="name" class="form-control" id="apiCallName">
+              <div *ngIf="apiCallForm && apiCallForm?.get('name').invalid && (apiCallForm?.get('name').dirty || apiCallForm?.get('name').touched)" class="is-invalid text-xs text-danger mt-1">Name is required</div>
+            </div>
+          </div>
+          <div class="form-group row">
+            <label for="apiCallDescription" class="col-sm-2 col-form-label">Description</label>
+            <div class="col-sm-10">
+              <textarea rows="3" type="text" formControlName="description" class="form-control" id="apiCallDescription"></textarea>
+            </div>
+          </div>
+
+        </form>
+
+      </div>
+      <div class="modal-footer border-top-0 d-flex justify-content-center">
+        <button class="btn btn-primary" data-dismiss="modal" (click)="createApiCall()">Create</button>
+        <button class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+      </div>
+    </div>
+  </div>
 </div>

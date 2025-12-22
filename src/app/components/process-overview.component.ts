@@ -1,5 +1,6 @@
 import {Component, EventEmitter, Input, Output} from '@angular/core';
 import {Process, ProcessWithStep, StepSuccessor} from '../models/process';
+import {ApiCall} from '../models/api-call';
 
 
 @Component({
@@ -11,8 +12,9 @@ export class ProcessOverviewComponent  {
 
   @Input() processWithStep: ProcessWithStep;
   @Input() processes: Process[];
+  @Input() apiCalls: ApiCall[];
   @Output() updateEmitter = new EventEmitter<ProcessWithStep>();
-  @Output() deleteEmitter = new EventEmitter<string>();
+  @Output() deleteEmitter = new EventEmitter<ProcessWithStep>();
   @Input() repoId: string;
 
 
@@ -20,7 +22,7 @@ export class ProcessOverviewComponent  {
 
 
   delete() {
-    this.deleteEmitter.emit(this.processWithStep.process.id);
+    this.deleteEmitter.emit(this.processWithStep);
   }
 
   addSuccessor() {

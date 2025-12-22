@@ -3,8 +3,8 @@
     <ul class="nav justify-content-center">
       <li class="nav-item" *ngIf="processId"><a routerLink="flow" routerLinkActive="active" class="nav-link gray">Flow</a></li>
       <li class="nav-item"><a routerLink="base" routerLinkActive="active" class="nav-link gray" aria-current="page">Base</a></li>
-      <li class="nav-item" *ngIf="processId"><a routerLink="subprocesses" routerLinkActive="active" class="nav-link gray">Subprocess</a></li>
-      <li class="nav-item" *ngIf="processId"><a routerLink="functions" routerLinkActive="active" class="nav-link gray">Functions</a></li>
+      <li class="nav-item" *ngIf="processId"><a routerLink="subprocesses" routerLinkActive="active" class="nav-link gray">Subprocesses & Functions</a></li>
+      <li class="nav-item" *ngIf="processId"><a routerLink="functions" routerLinkActive="active" class="nav-link gray" [style.display]="'none'">Functions</a></li>
       <li class="nav-item" *ngIf="processId"><a routerLink="usedBy" routerLinkActive="active" class="nav-link gray">Used by</a></li>
       <li class="nav-item" *ngIf="processId">
         <a class="nav-link gray pointer" (click)="showCommentsPanel = !showCommentsPanel" [class.active]="showCommentsPanel">
