@@ -1,0 +1,43 @@
+<div class="api-group-node" *ngIf="shouldShowGroup()">
+  <!-- Group Row -->
+  <div class="d-flex align-items-center py-2 hover-bg-light border-bottom pointer" (click)="toggleExpand()">
+    <div style="width: 25px" class="text-center">
+      <i class="fas fa-sm" [class.fa-chevron-down]="isExpanded" [class.fa-chevron-right]="!isExpanded"></i>
+    </div>
+    <div class="flex-grow-1 font-weight-bold">
+      {{ group.name }} <span class="badge badge-light ml-2">{{ group.items.length }}</span>
+    </div>
+  </div>
+
+  <!-- Items -->
+  <div *ngIf="isExpanded">
+    <div *ngFor="let apiCall of group.items">
+      <div class="d-flex align-items-center py-1 hover-bg-light border-bottom" *ngIf="shouldShowItem(apiCall)">
+        <div style="width: 25px"></div>
+        <div class="d-flex align-items-center flex-grow-1">
+          <div class="mr-2 text-nowrap">
+            <a class="black mr-2" routerLink="/apiCall/edit/{{apiCall?.id}}"><i class="fas fa-edit"></i></a>
+            <a class="black" style="cursor: pointer" (click)="prepareDelete(apiCall)" data-toggle="modal" data-target="#confirmDeleteApiCall"><i class="fas fa-trash" title="Delete API Call"></i></a>
+          </div>
+          <div class="flex-grow-1">
+            <a class="black font-weight-bold" routerLink="/apiCall/edit/{{apiCall?.id}}">{{apiCall.name}}</a>
+            <i *ngIf="orphanIds.includes(apiCall.id)" class="ml-2 text-warning fas fa-unlink" title="Orphan: Not referenced by any Process"></i>
+          </div>
+        </div>
+        <div class="text-right text-muted small" style="width: 80px">
+          {{apiCall.usedByCount || 0}}
+        </div>
+        <div class="text-right text-muted small" style="width: 80px">
+          {{apiCall.implementedInCount || 0}}
+        </div>
+        <div class="w-25 small text-muted ml-2">
+          {{apiCall.tags}}
+        </div>
+        <div class="ml-2 text-right" style="width: 30px">
+          <i *ngIf="apiCall?.status === 0" class="text-warning fas fa-exclamation-triangle" title="Draft"></i>
+          <i *ngIf="apiCall?.status === 1" class="text-success fas fa-check-circle" title="Validated"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,13 @@
+.hover-bg-light:hover {
+  background-color: #f8f9fc;
+}
+
+.system-node {
+  .black {
+    color: #3a3b45;
+    &:hover {
+      color: #4e73df;
+      text-decoration: none;
+    }
+  }
+}
