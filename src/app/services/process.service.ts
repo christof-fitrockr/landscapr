@@ -50,11 +50,21 @@ export class ProcessService {
       for (const app of apps) {
         if(app.steps) {
           for (const step of app.steps) {
+            if (step.processReference === processId) {
+              result.push(app);
+              break;
+            }
             if (step.successors) {
+              let found = false;
               for (const succ of step.successors) {
                 if (succ.processReference === processId) {
                   result.push(app);
+                  found = true;
+                  break;
                 }
+              }
+              if (found) {
+                break;
               }
             }
           }

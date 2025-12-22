@@ -21,7 +21,9 @@ export class ProcessEditApiCallsComponent implements OnInit {
 
   apiCallForm: FormGroup;
   apiCalls: ApiCall[];
+  allApiCalls: ApiCall[];
   repoId: string;
+  modalSearch: string = '';
 
 
   constructor(private processService: ProcessService, private apiCallService: ApiCallService, private formBuilder: FormBuilder,
@@ -44,6 +46,7 @@ export class ProcessEditApiCallsComponent implements OnInit {
     });
 
     this.refresh();
+    this.apiCallService.all().pipe(first()).subscribe(all => this.allApiCalls = all);
 
     this.suggestions$ = new Observable((observer: Observer<string | undefined>) => observer.next(this.search)).pipe(
       switchMap((query: string) => {
@@ -87,6 +90,7 @@ export class ProcessEditApiCallsComponent implements OnInit {
     this.processService.update(this.processId, this.process).pipe(first()).subscribe(() => {
       this.toastr.info('Process updated successfully');
       this.refresh();
+      this.apiCallService.all().pipe(first()).subscribe(all => this.allApiCalls = all);
     });
   }
 
@@ -111,11 +115,12 @@ export class ProcessEditApiCallsComponent implements OnInit {
     }
     this.process.apiCallIds.push( id);
     this.onUpdate();
+    this.apiCallService.all().pipe(first()).subscribe(all => this.allApiCalls = all);
   }
 
-  moveUp(processId: string) {
+  moveUp(apiCallId: string) {
     if (this.process.apiCallIds !== null) {
-      const index = this.process.apiCallIds.findIndex(item => item === processId);
+      const index = this.process.apiCallIds.findIndex(item => item === apiCallId);
       if (index >= 1) {
         this.process.apiCallIds.splice(index - 1, 0, this.process.apiCallIds.splice(index, 1)[0]);
         this.onUpdate();
@@ -123,9 +128,9 @@ export class ProcessEditApiCallsComponent implements OnInit {
     }
   }
 
-  moveDown(processId: string) {
+  moveDown(apiCallId: string) {
     if (this.process.apiCallIds !== null) {
-      const index = this.process.apiCallIds.findIndex(item => item === processId);
+      const index = this.process.apiCallIds.findIndex(item => item === apiCallId);
       if (index >= 0 && index < this.process.apiCallIds.length - 1) {
         this.process.apiCallIds.splice(index + 1, 0, this.process.apiCallIds.splice(index, 1)[0]);
         this.onUpdate();
@@ -133,9 +138,9 @@ export class ProcessEditApiCallsComponent implements OnInit {
     }
   }
 
-  delete(processId: string) {
+  delete(apiCallId: string) {
     if (this.process.apiCallIds !== null) {
-      const index = this.process.apiCallIds.findIndex(item => item === processId);
+      const index = this.process.apiCallIds.findIndex(item => item === apiCallId);
       if (index >= 0) {
         this.process.apiCallIds.splice(index, 1);
         this.onUpdate();

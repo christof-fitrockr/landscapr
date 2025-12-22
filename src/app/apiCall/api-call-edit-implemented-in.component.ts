@@ -23,6 +23,14 @@ export class ApiCallEditImplementedInComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.apiCallId = this.route.parent.snapshot.paramMap.get('id');
+    this.refresh();
+
+    this.subscription = this.route.parent.paramMap.subscribe(obs => {
+      this.repoId = obs.get('repoId');
+    });
+  }
+
+  private refresh() {
     this.apiCallService.byId(this.apiCallId).pipe(first()).subscribe(apiCall => {
       this.apiCall = apiCall;
       const uniqueSystemIds = [...new Set(this.apiCall.implementedBy || [])];
@@ -38,10 +46,18 @@ export class ApiCallEditImplementedInComponent implements OnInit, OnDestroy {
         });
       }
     });
+  }
 
-    this.subscription = this.route.parent.paramMap.subscribe(obs => {
-      this.repoId = obs.get('repoId');
-    });
+  delete(systemId: string) {
+    if (this.apiCall && this.apiCall.implementedBy) {
+      const index = this.apiCall.implementedBy.indexOf(systemId);
+      if (index > -1) {
+        this.apiCall.implementedBy.splice(index, 1);
+        this.apiCallService.update(this.apiCallId, this.apiCall).pipe(first()).subscribe(() => {
+          this.refresh();
+        });
+      }
+    }
   }
 
   ngOnDestroy() {

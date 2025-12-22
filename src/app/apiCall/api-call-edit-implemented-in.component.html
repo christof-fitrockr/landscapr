@@ -18,8 +18,8 @@
     </div>
 
     <div class="card-body">
-      <div *ngFor="let system of implementedIn">
-        <app-system-overview [system]="system" [readOnly]="true"></app-system-overview>
+      <div *ngFor="let system of implementedIn" class="mb-1">
+        <app-system-overview [system]="system" (deleteEmitter)="delete($event)"></app-system-overview>
       </div>
     </div>
   </div>
