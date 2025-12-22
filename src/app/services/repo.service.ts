@@ -1,5 +1,5 @@
 import {Injectable} from '@angular/core';
-import {Observable} from 'rxjs';
+import {Observable, Subject} from 'rxjs';
 import {CapabilityService} from './capability.service';
 import {ProcessService} from './process.service';
 import {ApiCallService} from './api-call.service';
@@ -11,6 +11,8 @@ import { JourneyService } from './journey.service';
   providedIn: 'root',
 })
 export class RepoService {
+
+  public dataChanges = new Subject<void>();
 
   getCurrentData(): { processes: any[]; apiCalls: any[]; capabilities: any[]; applications: any[]; journeys: any[] } {
     const processesRaw = localStorage.getItem(ProcessService.STORAGE_KEY);
@@ -109,5 +111,6 @@ export class RepoService {
     localStorage.setItem(ApiCallService.STORAGE_KEY, JSON.stringify(parsedData.apiCalls))
     localStorage.setItem(ProcessService.STORAGE_KEY, JSON.stringify(parsedData.processes))
     localStorage.setItem(JourneyService.STORAGE_KEY, JSON.stringify(parsedData.journeys))
+    this.dataChanges.next();
   }
 }

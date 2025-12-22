@@ -10,6 +10,8 @@ import { BsModalService } from 'ngx-bootstrap/modal';
 import { GithubActionsDialogComponent } from './components/github-actions-dialog.component';
 import { SyncStatusService, SyncStatus } from './services/sync-status.service';
 import { version } from '../environments/version';
+import { FileSystemService } from './services/file-system.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-root',
@@ -26,11 +28,20 @@ export class AppComponent implements OnInit {
   constructor(private authenticationService: AuthenticationService,
               private repoService: RepoService, private fileSaverService: FileSaverService, public themeService: ThemeService,
               private modalService: BsModalService,
-              public syncStatusService: SyncStatusService) { }
+              public syncStatusService: SyncStatusService,
+              public fileSystemService: FileSystemService,
+              private router: Router) { }
 
   ngOnInit() {
     this.dataAvailable = this.repoService.dataAvailable();
     this.status$ = this.syncStatusService.status$;
+    this.repoService.dataChanges.subscribe(() => {
+      this.dataAvailable = this.repoService.dataAvailable();
+      const currentUrl = this.router.url;
+      this.router.navigateByUrl('/', { skipLocationChange: true }).then(() => {
+        this.router.navigate([currentUrl]);
+      });
+    });
   }
 
   download() {

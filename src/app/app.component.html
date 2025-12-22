@@ -36,6 +36,11 @@
         <li class="nav-item">
           <a class="nav-link" routerLinkActive="active" routerLink="/repositories">Repositories</a>
         </li>
+        <li class="nav-item d-flex align-items-center ms-2" *ngIf="fileSystemService.isSupported">
+          <button class="btn btn-outline-light btn-sm me-2" (click)="fileSystemService.open()">Open</button>
+          <button class="btn btn-outline-light btn-sm me-2" (click)="fileSystemService.saveAs()">Save As</button>
+          <span *ngIf="fileSystemService.hasFileOpen" class="badge bg-success ms-1">Auto-saving on</span>
+        </li>
         <li class="nav-item d-flex align-items-center" *ngIf="status$ | async as st">
           <ng-container *ngIf="st.state !== 'IN_SYNC' && st.state !== 'UNKNOWN'">
             <span class="sync-badge mr-2 ml-2" [ngClass]="{
