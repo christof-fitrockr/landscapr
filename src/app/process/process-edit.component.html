@@ -6,8 +6,20 @@
       <li class="nav-item" *ngIf="processId"><a routerLink="subprocesses" routerLinkActive="active" class="nav-link gray">Subprocess</a></li>
       <li class="nav-item" *ngIf="processId"><a routerLink="functions" routerLinkActive="active" class="nav-link gray">Functions</a></li>
       <li class="nav-item" *ngIf="processId"><a routerLink="usedBy" routerLinkActive="active" class="nav-link gray">Used by</a></li>
+      <li class="nav-item" *ngIf="processId">
+        <a class="nav-link gray pointer" (click)="showCommentsPanel = !showCommentsPanel" [class.active]="showCommentsPanel">
+          <i class="fas fa-comment-alt"></i> Comments
+        </a>
+      </li>
       </ul>
   </div>
 
   <router-outlet></router-outlet>
+
+  <app-comments-panel *ngIf="showCommentsPanel"
+                      [comments]="process?.comments"
+                      title="Process Comments"
+                      (commentsChange)="updateProcessComments($event)"
+                      (close)="showCommentsPanel = false">
+  </app-comments-panel>
 </div>

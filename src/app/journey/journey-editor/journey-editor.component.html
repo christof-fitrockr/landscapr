@@ -20,6 +20,11 @@
             <button class="btn btn-secondary" [ngClass]="{'active': activeTool==='connector'}" (click)="setTool('connector')" title="Connector">
               <i class="fas fa-project-diagram"></i>
             </button>
+            <div class="btn-group ml-2">
+              <button class="btn btn-outline-secondary" (click)="showCommentsPanel = !showCommentsPanel" [class.active]="showCommentsPanel" title="Comments">
+                <i class="fas fa-comment-alt"></i>
+              </button>
+            </div>
           </div>
           <div class="ml-2" *ngIf="activeTool==='process'">
             <div class="input-group input-group-sm align-items-stretch">
@@ -195,5 +200,12 @@
     </div>
 
   </div>
+
+  <app-comments-panel *ngIf="showCommentsPanel"
+                      [comments]="journey?.comments"
+                      title="Journey Comments"
+                      (commentsChange)="updateJourneyComments($event)"
+                      (close)="showCommentsPanel = false">
+  </app-comments-panel>
 </div>
 

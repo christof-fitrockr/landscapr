@@ -1,0 +1,58 @@
+<div class="comments-panel shadow-lg">
+  <div class="panel-header d-flex justify-content-between align-items-center bg-gray-800 text-white p-3">
+    <h5 class="m-0">{{title || 'Comments'}}</h5>
+    <button type="button" class="btn btn-sm btn-link text-white" (click)="close.emit()">
+      <i class="fas fa-times"></i>
+    </button>
+  </div>
+
+  <div class="panel-body p-3 overflow-auto flex-fill">
+    <div class="new-comment mb-4">
+      <div class="form-group">
+        <textarea class="form-control" rows="3" placeholder="Write a comment..." [(ngModel)]="newCommentText"></textarea>
+      </div>
+      <div class="text-right">
+        <button class="btn btn-primary btn-sm" [disabled]="!newCommentText.trim()" (click)="addComment()">
+          Add Comment
+        </button>
+      </div>
+    </div>
+
+    <div class="comments-list">
+      <div *ngIf="!comments || comments.length === 0" class="text-center text-muted mt-5">
+        <p>No comments yet.</p>
+      </div>
+
+      <div class="comment-item card mb-2" *ngFor="let comment of comments">
+        <div class="card-body p-2">
+          <div class="d-flex justify-content-between align-items-center mb-1">
+            <div>
+              <strong class="mr-2">{{comment.username}}</strong>
+              <small class="text-muted">{{comment.timestamp | date:'short'}}</small>
+            </div>
+            <div class="actions">
+              <button class="btn btn-link btn-xs text-secondary p-0 mr-2" title="Edit" (click)="startEdit(comment)">
+                <i class="fas fa-pencil-alt"></i>
+              </button>
+              <button class="btn btn-link btn-xs text-danger p-0" title="Delete" (click)="deleteComment(comment)">
+                <i class="fas fa-trash"></i>
+              </button>
+            </div>
+          </div>
+
+          <div *ngIf="editingCommentId !== comment.id" class="comment-text">
+            {{comment.text}}
+          </div>
+
+          <div *ngIf="editingCommentId === comment.id" class="edit-box mt-2">
+            <textarea class="form-control mb-2" rows="2" [(ngModel)]="editingText"></textarea>
+            <div class="text-right">
+              <button class="btn btn-secondary btn-xs mr-1" (click)="cancelEdit()">Cancel</button>
+              <button class="btn btn-success btn-xs" (click)="saveEdit(comment)">Save</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

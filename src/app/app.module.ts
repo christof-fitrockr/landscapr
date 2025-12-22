@@ -83,10 +83,12 @@ import { AppSidePanelComponent } from './components/app-side-panel.component';
 import { ProcessFlowNodeComponent } from './process/process-flow-node.component';
 import { ProcessFlowViewComponent } from './process/process-flow-view.component';
 import {LicensesComponent} from './licenses/licenses.component';
+import { CommentsPanelComponent } from './components/comments-panel/comments-panel.component';
 
 
 @NgModule({
   declarations: [
+    CommentsPanelComponent,
     GithubDialogComponent,
     SaveGithubDialogComponent,
     GithubActionsDialogComponent,

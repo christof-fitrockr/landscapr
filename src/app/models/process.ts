@@ -1,3 +1,5 @@
+import { Comment } from './comment';
+
 export class Process {
   id: string;
   repoId: string;
@@ -12,6 +14,7 @@ export class Process {
   apiCallIds: string[];
   favorite: boolean;
   implementedBy: string[];
+  comments?: Comment[];
 }
 
 export enum Role {

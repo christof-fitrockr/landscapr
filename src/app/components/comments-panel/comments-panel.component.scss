@@ -1,0 +1,29 @@
+:host {
+  display: block;
+}
+
+.comments-panel {
+  position: fixed;
+  top: 60px; /* Adjust based on navbar height */
+  right: 0;
+  bottom: 0;
+  width: 350px;
+  background-color: #f8f9fa;
+  z-index: 1050; /* Above most things */
+  display: flex;
+  flex-direction: column;
+  border-left: 1px solid #dee2e6;
+}
+
+.panel-body {
+  flex: 1;
+}
+
+.btn-xs {
+  padding: 0.1rem 0.3rem;
+  font-size: 0.8rem;
+}
+
+.comment-text {
+  white-space: pre-wrap;
+}
