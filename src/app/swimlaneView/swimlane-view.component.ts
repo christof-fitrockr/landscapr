@@ -62,9 +62,6 @@ export class SwimlaneViewComponent implements OnInit, AfterViewInit, OnChanges {
   Role = Role;
   Status = Status;
   ApiImplementationStatus = ApiImplementationStatus;
-  dynamicRoles: string[] = [];
-
-  private roleColors = ROLE_COLORS;
 
 
   constructor(private activatedRoute: ActivatedRoute, private router: Router, private processService: ProcessService, private systemService: ApplicationService,
@@ -122,13 +119,11 @@ export class SwimlaneViewComponent implements OnInit, AfterViewInit, OnChanges {
 
   private draw(canvas: ElementRef<HTMLCanvasElement>, clipX?: number, clipY?: number, clipW?: number, clipH?: number) {
     this.nextProcessId = 0;
-    this.dynamicRoles = [];
     this.processOrder = [];
     this.functionOrder = [];
     this.processBoxMap.clear();
     this.functionBoxMap.clear();
     this.edges = [];
-    this.collectRoles(this.processId);
     this.createGraph(canvas, this.processId, 50, 0);
     this.resize(canvas, clipX, clipY, clipW, clipH);
     if (!clipX && !clipY) {
@@ -167,11 +162,6 @@ export class SwimlaneViewComponent implements OnInit, AfterViewInit, OnChanges {
     // Minimum padding
     if (this.offsetY < 50) this.offsetY = 50;
     if (this.offsetX < 50) this.offsetX = 50;
-  }
-
-  private collectRoles(id: string) {
-    // Role swimlanes are removed, but we might still keep dynamicRoles empty or remove usage
-    this.dynamicRoles = [];
   }
 
   private createGraph(canvas: ElementRef<HTMLCanvasElement>, id: string, x = 0, layer = 0): ProcessBox {
