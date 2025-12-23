@@ -25,7 +25,30 @@
   flex: 1;
   position: relative;
   overflow: hidden;
-  background-color: #fafafa;
+  background-color: var(--canvas-bg);
+
+  // Light theme defaults (will be inherited if no .dark-theme on body)
+  --canvas-bg: #fafafa;
+  --grid-color-small: #e5e5e5;
+  --grid-color-large: #d6d6d6;
+  --arrow-color: #999;
+  --node-fill: #ffffff;
+  --node-stroke: #6c757d;
+  --node-text: #495057;
+  --group-fill: rgba(108, 117, 125, 0.08);
+  --group-stroke: #adb5bd;
+}
+
+:host-context(.dark-theme) .canvas-wrapper {
+  --canvas-bg: #1a1a1a;
+  --grid-color-small: #333333;
+  --grid-color-large: #444444;
+  --arrow-color: #666;
+  --node-fill: #2d2d2d;
+  --node-stroke: #888;
+  --node-text: #e0e0e0;
+  --group-fill: rgba(255, 255, 255, 0.05);
+  --group-stroke: #555;
 }
 
 svg.canvas {
@@ -37,20 +60,20 @@ svg.canvas {
 }
 
 svg .node.process {
-  fill: #ffffff;
-  stroke: #6c757d;
+  fill: var(--node-fill);
+  stroke: var(--node-stroke);
   stroke-width: 2;
 }
 
 svg .node.decision {
-  fill: #ffffff;
-  stroke: #6c757d;
+  fill: var(--node-fill);
+  stroke: var(--node-stroke);
   stroke-width: 2;
 }
 
 svg .node.group {
-  fill: rgba(108, 117, 125, 0.08);
-  stroke: #adb5bd;
+  fill: var(--group-fill);
+  stroke: var(--group-stroke);
   stroke-dasharray: 4 4;
 }
 
@@ -61,7 +84,7 @@ svg .node.selected {
 
 svg .edges .edge {
   fill: none;
-  stroke: #999;
+  stroke: var(--arrow-color);
   stroke-width: 2;
   marker-end: url(#arrowhead);
 }
@@ -78,7 +101,7 @@ svg defs marker#arrowhead {
 
 .group-label {
   font-size: 12px;
-  fill: #495057;
+  fill: var(--node-text);
 }
 
 .legend {
@@ -88,12 +111,12 @@ svg defs marker#arrowhead {
 /* Decision label below diamond */
 svg .decision-label {
   font-size: 11px;
-  fill: #495057;
+  fill: var(--node-text);
 }
 
 /* Resize handles */
 svg .resize-handle {
-  fill: #ffffff;
+  fill: var(--node-fill);
   stroke: #007bff;
   stroke-width: 2;
   cursor: pointer;
@@ -106,7 +129,7 @@ svg .handle-e, svg .handle-w { cursor: ew-resize; }
 
 /* Endpoint handles */
 svg .endpoint-handle {
-  fill: #ffffff;
+  fill: var(--node-fill);
   stroke: #007bff;
   stroke-width: 2;
   cursor: move;
@@ -151,7 +174,7 @@ svg .edge-label {
   left: 0;
   right: 0;
   bottom: 0;
-  background: white;
+  background: var(--canvas-bg);
   z-index: 1000;
   display: flex;
   flex-direction: column;

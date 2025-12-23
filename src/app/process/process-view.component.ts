@@ -16,6 +16,7 @@ import { ApplicationService } from '../services/application.service';
 import { Subscription } from 'rxjs';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { DeleteConfirmationDialogComponent } from '../components/delete-confirmation-dialog.component';
+import { ExportModalComponent } from '../components/export-modal.component';
 
 @Component({selector: 'app-process-view', styleUrls: ['./process-view.component.scss'], templateUrl: './process-view.component.html'})
 export class ProcessViewComponent implements OnInit, OnChanges, OnDestroy {
@@ -229,8 +230,21 @@ export class ProcessViewComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   updateProcessComments(comments: Comment[]) {
-    if (!this.process) return;
     this.process.comments = comments;
     this.processService.update(this.process.id, this.process).subscribe();
+  }
+
+  exportToPpt() {
+    if (!this.process || !this.child) return;
+
+    const canvasData = this.child.getCanvasImage();
+    const initialState = {
+      currentProcess: {
+        entity: this.process,
+        image: canvasData.image,
+        boxes: canvasData.boxes
+      }
+    };
+    this.modalService.show(ExportModalComponent, { initialState, class: 'modal-lg' });
   }
 }

@@ -6,6 +6,8 @@ import {
   OnChanges,
   OnDestroy,
   OnInit,
+  Output,
+  EventEmitter,
   SimpleChanges,
   ViewChild
 } from '@angular/core';
@@ -23,13 +25,14 @@ import { jsPDF } from "jspdf";
 import {Comment} from '../models/comment';
 import {AuthenticationService} from '../services/authentication.service';
 import {v4 as uuidv4} from 'uuid';
+import {ThemeService} from '../services/theme.service';
 
 @Component({
   selector: 'app-swimlane-view',
   templateUrl: './swimlane-view.component.html',
   styleUrls: ['./swimlane-view.component.scss']
 })
-export class SwimlaneViewComponent implements OnInit, AfterViewInit, OnChanges {
+export class SwimlaneViewComponent implements OnInit, AfterViewInit, OnChanges, OnDestroy {
 
   @ViewChild('canvas') public canvas: ElementRef<HTMLCanvasElement>;
   @ViewChild('hiddenCanvas') public hiddenCanvas: ElementRef<HTMLCanvasElement>;
@@ -37,6 +40,7 @@ export class SwimlaneViewComponent implements OnInit, AfterViewInit, OnChanges {
 
   @Input() repoId: string;
   @Input() processId: string;
+  @Output() drawn = new EventEmitter<void>();
 
   private processMap = new Map<string, Process>();
   private apiCallMap = new Map<string, ApiCall>();
@@ -65,7 +69,8 @@ export class SwimlaneViewComponent implements OnInit, AfterViewInit, OnChanges {
 
 
   constructor(private activatedRoute: ActivatedRoute, private router: Router, private processService: ProcessService, private systemService: ApplicationService,
-              private canvasService: CanvasService, private apiCallService: ApiCallService, private authService: AuthenticationService) {
+              private canvasService: CanvasService, private apiCallService: ApiCallService, private authService: AuthenticationService,
+              private themeService: ThemeService) {
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -85,14 +90,22 @@ export class SwimlaneViewComponent implements OnInit, AfterViewInit, OnChanges {
       this.processId = this.activatedRoute.snapshot.paramMap.get('id');
     }
 
+    this.subscription = this.themeService.darkMode$.subscribe(() => {
+      if (this.canvas && this.processMap.size > 0) {
+        this.drawGraph(this.canvas);
+      }
+    });
+
     // this.subscription = this.activatedRoute.parent.paramMap.subscribe(obs => {
     //   this.repoId = obs.get('repoId');
     // });
   }
 
-  // ngOnDestroy() {
-  //   this.subscription.unsubscribe();
-  // }
+  ngOnDestroy() {
+    if (this.subscription) {
+      this.subscription.unsubscribe();
+    }
+  }
 
 
   ngAfterViewInit() {
@@ -130,6 +143,7 @@ export class SwimlaneViewComponent implements OnInit, AfterViewInit, OnChanges {
       this.centerGraph(canvas);
     }
     this.drawGraph(canvas, clipX, clipY, clipW, clipH);
+    this.drawn.emit();
   }
 
   @HostListener('window:resize')
@@ -469,7 +483,10 @@ export class SwimlaneViewComponent implements OnInit, AfterViewInit, OnChanges {
     const swimlaneWidth = width + 50;
 
     cx.save();
-    cx.clearRect(0, 0, elem.nativeElement.width, elem.nativeElement.height);
+
+    // Fill white background for export (transparency can be an issue in PPT)
+    cx.fillStyle = 'white';
+    cx.fillRect(0, 0, elem.nativeElement.width, elem.nativeElement.height);
 
     if(clipX >= 0 && clipY >= 0 && clipW >= 0 && clipH >= 0) {
       cx.translate(-clipX, 0);
@@ -617,6 +634,51 @@ export class SwimlaneViewComponent implements OnInit, AfterViewInit, OnChanges {
     });
     pdf.addImage(this.hiddenCanvas.nativeElement.toDataURL("image/png"), 'png', 0, 0, this.hiddenCanvas.nativeElement.width, this.hiddenCanvas.nativeElement.height);
     pdf.save(process.name + ".pdf");
+  }
+
+  getCanvasImage(): { image: string, boxes: { x: number, y: number, w: number, h: number }[] } {
+    const oldZoom = this.zoomFactor;
+    const oldOffsetX = this.offsetX;
+    const oldOffsetY = this.offsetY;
+
+    this.zoomFactor = 1.0; // Capture at 1:1 scale
+
+    // Reset state before drawing to hidden canvas
+    this.nextProcessId = 0;
+    this.processOrder = [];
+    this.functionOrder = [];
+    this.processBoxMap.clear();
+    this.functionBoxMap.clear();
+    this.edges = [];
+
+    this.createGraph(this.hiddenCanvas, this.processId, 50, 0);
+    this.resize(this.hiddenCanvas);
+    this.centerGraph(this.hiddenCanvas);
+    this.drawGraph(this.hiddenCanvas);
+
+    const boxes: { x: number, y: number, w: number, h: number }[] = [];
+    for (const box of this.processOrder) {
+      boxes.push({ x: box.x + this.offsetX, y: box.depth * 100 + this.offsetY, w: box.w, h: 50 });
+    }
+
+    let maxDepth = -1;
+    for (let b of this.processBoxMap.values()) {
+      maxDepth = Math.max(maxDepth, b.depth);
+    }
+    const apiY = (maxDepth + 1) * 100 + 140 - 50 - 15;
+    for (const box of this.functionBoxMap.values()) {
+      boxes.push({ x: box.x + this.offsetX, y: apiY + this.offsetY, w: box.w, h: 50 });
+    }
+
+    const data = this.hiddenCanvas.nativeElement.toDataURL("image/png");
+
+    // Restore state and redraw visible canvas
+    this.zoomFactor = oldZoom;
+    this.offsetX = oldOffsetX;
+    this.offsetY = oldOffsetY;
+    this.draw(this.canvas);
+
+    return { image: data, boxes };
   }
 
 }

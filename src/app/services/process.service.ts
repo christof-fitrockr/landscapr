@@ -26,6 +26,7 @@ export class ProcessService {
   all(): Observable<Process[]> {
     return new Observable<Process[]>(obs => {
       obs.next(ProcessService.load());
+      obs.complete();
     });
   }
 
@@ -40,6 +41,7 @@ export class ProcessService {
         }
       }
       obs.next(result);
+      obs.complete();
     });
   }
 
@@ -71,6 +73,7 @@ export class ProcessService {
         }
       }
       obs.next(result);
+      obs.complete();
     });
   }
 
@@ -81,6 +84,8 @@ export class ProcessService {
       for (const app of apps) {
         if(app.id === id) {
           obs.next(app);
+          obs.complete();
+          return;
         }
       }
       obs.error();
@@ -97,6 +102,7 @@ export class ProcessService {
         }
       }
       obs.next(result);
+      obs.complete();
     });
   }
 
@@ -110,6 +116,7 @@ export class ProcessService {
         }
       }
       obs.next(result);
+      obs.complete();
     });
   }
 
@@ -137,6 +144,7 @@ export class ProcessService {
         }
       }
       obs.next(result);
+      obs.complete();
     });
   }
 
@@ -148,6 +156,7 @@ export class ProcessService {
       apps.push(process)
       ProcessService.store(apps);
       obs.next(process);
+      obs.complete();
     });
   }
 
@@ -160,6 +169,8 @@ export class ProcessService {
           apps[i] = process;
           ProcessService.store(apps);
           obs.next(process);
+          obs.complete();
+          return;
         }
       }
       obs.error();
@@ -175,6 +186,8 @@ export class ProcessService {
           apps.splice(i, 1);
           ProcessService.store(apps);
           obs.next();
+          obs.complete();
+          return;
         }
       }
       obs.error();

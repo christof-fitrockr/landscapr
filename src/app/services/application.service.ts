@@ -28,6 +28,7 @@ export class ApplicationService {
   all(repoId: string): Observable<Application[]> {
     return new Observable<Application[]>(obs => {
       obs.next(ApplicationService.load());
+      obs.complete();
     });
   }
 
@@ -38,6 +39,7 @@ export class ApplicationService {
 
         if(app.id === id) {
           obs.next(app);
+          obs.complete();
           return;
         }
       }
@@ -55,6 +57,7 @@ export class ApplicationService {
         }
       }
       obs.next(result);
+      obs.complete();
     });
   }
 
@@ -68,6 +71,7 @@ export class ApplicationService {
         }
       }
       obs.next(result);
+      obs.complete();
     });
   }
 
@@ -78,6 +82,7 @@ export class ApplicationService {
       apps.push(system)
       ApplicationService.store(apps);
       obs.next(system);
+      obs.complete();
     });
   }
 
@@ -90,6 +95,7 @@ export class ApplicationService {
           apps[i] = system;
           ApplicationService.store(apps);
           obs.next(system);
+          obs.complete();
           return;
         }
       }
@@ -106,6 +112,7 @@ export class ApplicationService {
           apps.splice(i, 1);
           ApplicationService.store(apps);
           obs.next();
+          obs.complete();
           return;
         }
       }

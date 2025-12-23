@@ -29,15 +29,15 @@ export enum Role {
 }
 
 export const ROLE_COLORS: {[key: string]: string} = {
-  'Customer': '#bfdbfe',           // Blue 200
-  'Vehicle': '#fed7aa',            // Orange 200
-  'ServiceWithCustomer': '#bbf7d0', // Green 200
-  'Service with Customer': '#bbf7d0', // Green 200
-  'Service': '#fbcfe8',            // Pink 200
-  'Workshop': '#e9d5ff',           // Purple 200
-  'Parts': '#fef08a',              // Yellow 200
-  'Processing': '#ddd6fe',         // Violet 200
-  'Unassigned': '#e5e7eb'          // Gray 200
+  'Customer': 'var(--role-customer)',
+  'Vehicle': 'var(--role-vehicle)',
+  'ServiceWithCustomer': 'var(--role-service-with-customer)',
+  'Service with Customer': 'var(--role-service-with-customer)',
+  'Service': 'var(--role-service)',
+  'Workshop': 'var(--role-workshop)',
+  'Parts': 'var(--role-parts)',
+  'Processing': 'var(--role-processing)',
+  'Unassigned': 'var(--role-unassigned)'
 };
 
 export function getRoleColor(role: any): string {

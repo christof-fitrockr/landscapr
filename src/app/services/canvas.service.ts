@@ -1,9 +1,10 @@
 import {Injectable} from '@angular/core';
-import {ProcessStep} from '../models/process';
+import {ProcessStep, Role} from '../models/process';
+import {ThemeService} from './theme.service';
 
 // Modern Color Palette & Styles
-const PALETTE = {
-  text: '#374151',           // Gray 700 - Softer than black
+const LIGHT_PALETTE = {
+  text: '#374151',           // Gray 700
   swimlaneOdd: '#ffffff',    // White
   swimlaneEven: '#f9fafb',   // Gray 50
   swimlaneBorder: '#e5e7eb', // Gray 200
@@ -13,6 +14,19 @@ const PALETTE = {
   functionBorder: '#fde68a', // Amber 200
   shadow: 'rgba(0, 0, 0, 0.1)',
   arrow: '#4b5563'           // Gray 600
+};
+
+const DARK_PALETTE = {
+  text: '#e5e7eb',           // Gray 200
+  swimlaneOdd: '#1f2937',    // Gray 800
+  swimlaneEven: '#111827',   // Gray 900
+  swimlaneBorder: '#374151', // Gray 700
+  processFill: '#1e3a8a',    // Blue 900
+  processBorder: '#3b82f6',  // Blue 500
+  functionFill: '#78350f',   // Amber 900
+  functionBorder: '#d97706', // Amber 600
+  shadow: 'rgba(0, 0, 0, 0.3)',
+  arrow: '#9ca3af'           // Gray 400
 };
 
 const SHADOW_BLUR = 4;
@@ -29,6 +43,20 @@ const PROCESS_EDGE = 15;
   providedIn: 'root',
 })
 export class CanvasService {
+    constructor(private themeService: ThemeService) {}
+
+    private get palette() {
+        return this.themeService.isDarkMode() ? DARK_PALETTE : LIGHT_PALETTE;
+    }
+
+    private resolveColor(color: string): string {
+        if (color && color.startsWith('var(')) {
+            const varName = color.substring(4, color.length - 1);
+            const value = getComputedStyle(document.body).getPropertyValue(varName).trim();
+            return value || color;
+        }
+        return color;
+    }
 
     calcFunctionWidth(cx: CanvasRenderingContext2D, x: number, functionName: string, systemName: string): number {
         cx.save();
@@ -62,7 +90,7 @@ export class CanvasService {
         const h = BOX_HEIGHT;
 
         // Shadow
-        cx.shadowColor = PALETTE.shadow;
+        cx.shadowColor = this.palette.shadow;
         cx.shadowBlur = SHADOW_BLUR;
         cx.shadowOffsetX = SHADOW_OFFSET;
         cx.shadowOffsetY = SHADOW_OFFSET;
@@ -71,12 +99,12 @@ export class CanvasService {
         // Check if color is the default white/yellow from old code, if so replace with new palette
         let fillStyle = color;
         if (color === '#ffffff' || color === '#e0e050') {
-             fillStyle = PALETTE.functionFill;
+             fillStyle = this.palette.functionFill;
         } else {
-             fillStyle = color; // Keep specific overrides if any
+             fillStyle = this.resolveColor(color); // Keep specific overrides if any
         }
         cx.fillStyle = fillStyle;
-        cx.strokeStyle = PALETTE.functionBorder;
+        cx.strokeStyle = this.palette.functionBorder;
 
         // Function Box - Rounded Rect
         cx.beginPath();
@@ -91,7 +119,7 @@ export class CanvasService {
         cx.shadowOffsetX = 0;
         cx.shadowOffsetY = 0;
 
-        cx.fillStyle = PALETTE.text;
+        cx.fillStyle = this.palette.text;
         cx.font = FUN_FONT;
         cx.fillText(functionName, x + w / 2, y + h / 3);
         cx.font = SYS_FONT;
@@ -115,20 +143,20 @@ export class CanvasService {
         // Modernize Color
         let fillStyle = color;
         if (color === '#ffffff') {
-            fillStyle = PALETTE.processFill;
+            fillStyle = this.palette.processFill;
         } else {
-            fillStyle = color;
+            fillStyle = this.resolveColor(color);
         }
 
         cx.fillStyle = fillStyle;
-        cx.strokeStyle = PALETTE.processBorder;
+        cx.strokeStyle = this.palette.processBorder;
 
         if (isDraft) {
             cx.setLineDash([5, 5]);
         }
 
         // Shadow
-        cx.shadowColor = PALETTE.shadow;
+        cx.shadowColor = this.palette.shadow;
         cx.shadowBlur = SHADOW_BLUR;
         cx.shadowOffsetX = SHADOW_OFFSET;
         cx.shadowOffsetY = SHADOW_OFFSET;
@@ -149,14 +177,14 @@ export class CanvasService {
         cx.shadowOffsetX = 0;
         cx.shadowOffsetY = 0;
 
-        cx.fillStyle = PALETTE.text;
+        cx.fillStyle = this.palette.text;
         cx.font = FUN_FONT;
         // Adjust text position slightly if needed
         cx.fillText(processStepName, x + w / 2, y + h / 2);
 
         if (isDraft) {
             cx.font = 'italic 10px sans-serif';
-            cx.fillStyle = '#666';
+            cx.fillStyle = this.themeService.isDarkMode() ? '#9ca3af' : '#666';
             cx.textAlign = 'left';
             cx.textBaseline = 'top';
             cx.fillText('DRAFT', x + 5, y + 5);
@@ -164,7 +192,7 @@ export class CanvasService {
 
         if (indicator) {
             cx.font = SYS_FONT;
-            cx.fillStyle = PALETTE.text;
+            cx.fillStyle = this.palette.text;
             cx.textAlign = 'right';
             cx.textBaseline = 'bottom';
             cx.fillText(indicator, x + w - 5, y + h - 2);
@@ -191,20 +219,20 @@ export class CanvasService {
 
         // Background color: Use provided color, or default to zebra striping
         if (color) {
-            cx.fillStyle = color;
+            cx.fillStyle = this.resolveColor(color);
         } else {
-            cx.fillStyle = (index % 2 === 0) ? PALETTE.swimlaneEven : PALETTE.swimlaneOdd;
+            cx.fillStyle = (index % 2 === 0) ? this.palette.swimlaneEven : this.palette.swimlaneOdd;
         }
         cx.fillRect(x, y, w, h);
 
-        cx.strokeStyle = PALETTE.swimlaneBorder;
+        cx.strokeStyle = this.palette.swimlaneBorder;
         cx.beginPath();
         cx.moveTo(x , y);
         cx.lineTo(x , y + h);
         cx.lineTo(x + w, y + h);
         cx.stroke();
 
-        cx.fillStyle = PALETTE.text; // Modern text color
+        cx.fillStyle = this.palette.text; // Modern text color
         cx.font = FUN_FONT;
         // Adjust text position
         cx.fillText(description, x + 10, y + h - 15);
@@ -219,7 +247,7 @@ export class CanvasService {
 
   drawLine(cx: CanvasRenderingContext2D, fromX: number, fromY: number, toX: number, toY: number, description: string) {
     cx.save();
-    cx.strokeStyle = PALETTE.arrow;
+    cx.strokeStyle = this.palette.arrow;
     cx.beginPath();
     cx.moveTo(fromX, fromY);
     cx.lineTo(toX, toY);
@@ -230,8 +258,8 @@ export class CanvasService {
   drawArrowWithHeight(cx: CanvasRenderingContext2D, fromX: number, fromY: number, toX: number, toY: number, height: number, description: string) {
 
     cx.save();
-    cx.strokeStyle = PALETTE.arrow;
-    cx.fillStyle = PALETTE.arrow;
+    cx.strokeStyle = this.palette.arrow;
+    cx.fillStyle = this.palette.arrow;
 
     const headlen = 10; // length of head in pixels
     const dx = toX - fromX;
@@ -262,7 +290,7 @@ export class CanvasService {
     // cx.rotate(dy > 0 ? -angle : angle);
     cx.translate(-(fromX + dx / 2), -(fromY + dy / 2));
 
-    cx.fillStyle = PALETTE.text;
+    cx.fillStyle = this.palette.text;
 
     cx.textAlign = 'center';
     cx.textBaseline = 'middle';
@@ -276,8 +304,8 @@ export class CanvasService {
 
     drawArrow(cx: CanvasRenderingContext2D, fromX: number, fromY: number, toX: number, toY: number, description: string) {
         cx.save();
-        cx.strokeStyle = PALETTE.arrow;
-        cx.fillStyle = PALETTE.arrow;
+        cx.strokeStyle = this.palette.arrow;
+        cx.fillStyle = this.palette.arrow;
 
         const headlen = 10; // length of head in pixels
         const dx = toX - fromX;
@@ -314,7 +342,7 @@ export class CanvasService {
         cx.rotate(dy > 0 ? -angle : angle);
         cx.translate(-(fromX + dx / 2), -(fromY + dy / 2));
 
-        cx.fillStyle = PALETTE.text;
+        cx.fillStyle = this.palette.text;
 
         cx.textAlign = 'center';
         cx.textBaseline = 'middle';

@@ -9,6 +9,7 @@ import { NewProcessModalComponent } from './new-process-modal.component';
 import { Journey, JourneyLayout, JourneyLayoutEdge, JourneyLayoutNode } from '../../models/journey.model';
 import { JourneyService } from '../../services/journey.service';
 import { Comment } from '../../models/comment';
+import { ExportModalComponent } from '../../components/export-modal.component';
 
 // Basic types for nodes and edges
 export type ToolType = 'select' | 'process' | 'decision' | 'group' | 'connector';
@@ -977,5 +978,117 @@ export class JourneyEditorComponent implements OnInit {
     if (!this.journey) return;
     this.journey.comments = comments;
     this.journeyService.update(this.journey.id, this.journey).subscribe();
+  }
+
+  async exportToPpt() {
+    if (this.nodes.length === 0) return;
+
+    // 1. Calculate bounding box of all nodes to capture everything
+    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+    this.nodes.forEach(n => {
+      minX = Math.min(minX, n.x);
+      minY = Math.min(minY, n.y);
+      maxX = Math.max(maxX, n.x + n.width);
+      maxY = Math.max(maxY, n.y + n.height);
+    });
+
+    // Add some padding
+    const padding = 50;
+    minX -= padding;
+    minY -= padding;
+    maxX += padding;
+    maxY += padding;
+
+    const width = maxX - minX;
+    const height = maxY - minY;
+
+    // 2. Clone the SVG and prepare it for serialization
+    const originalSvg = this.svgEl.nativeElement;
+    const clonedSvg = originalSvg.cloneNode(true) as SVGSVGElement;
+
+    // Remove the pan/zoom transform from the cloned SVG's main group
+    // In the template, it's the first <g> after <defs> and <rect> (grid)
+    // The pan/zoom group is usually the first <g> after the background rect
+    const contentGroup = clonedSvg.querySelector('g[transform]') || clonedSvg.querySelector('g');
+    if (contentGroup) {
+      // We want to capture the whole world space, so we remove the pan/zoom transform
+      // But we need to keep the nodes' own transforms.
+      contentGroup.setAttribute('transform', 'translate(0,0) scale(1)');
+    }
+
+    // Set viewBox to the bounding box we calculated
+    clonedSvg.setAttribute('viewBox', `${minX} ${minY} ${width} ${height}`);
+    clonedSvg.setAttribute('width', width.toString());
+    clonedSvg.setAttribute('height', height.toString());
+
+    // 3. Inline computed styles to resolve CSS variables
+    const resolveStyles = (source: Element, target: Element) => {
+      const computed = window.getComputedStyle(source);
+      const props = ['fill', 'stroke', 'stroke-width', 'stroke-dasharray', 'font-family', 'font-size', 'color'];
+      for (const prop of props) {
+        const val = computed.getPropertyValue(prop);
+        if (val && !val.includes('var(')) {
+          (target as HTMLElement).style.setProperty(prop, val);
+        }
+      }
+      for (let i = 0; i < source.children.length; i++) {
+        if (source.children[i] && target.children[i]) {
+          resolveStyles(source.children[i], target.children[i]);
+        }
+      }
+    };
+
+    // We need to traverse the original SVG (which is in DOM) to get computed styles
+    // and apply them to the clone.
+    resolveStyles(originalSvg, clonedSvg);
+
+    const serializer = new XMLSerializer();
+    let source = serializer.serializeToString(clonedSvg);
+
+    // Add namespaces if missing
+    if (!source.match(/^<svg[^>]+xmlns="http\:\/\/www\.w3\.org\/2000\/svg"/)) {
+      source = source.replace(/^<svg/, '<svg xmlns="http://www.w3.org/2000/svg"');
+    }
+    if (!source.match(/^<svg[^>]+xmlns\:xlink="http\:\/\/www\.w3\.org\/1999\/xlink"/)) {
+      source = source.replace(/^<svg/, '<svg xmlns:xlink="http://www.w3.org/1999/xlink"');
+    }
+
+    source = '<?xml version="1.0" standalone="no"?>\r\n' + source;
+    const url = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(source);
+
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      // Use the bounding box size for the canvas
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d');
+      if (ctx) {
+        ctx.fillStyle = 'white';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(img, 0, 0);
+        const pngData = canvas.toDataURL("image/png");
+        const boxes = this.nodes.map(n => ({
+          x: n.x - minX,
+          y: n.y - minY,
+          w: n.width,
+          h: n.height
+        }));
+
+        const initialState = {
+          currentJourney: {
+            entity: this.journey || {
+              id: this.journeyId,
+              name: this.journeyName,
+              description: ''
+            } as Journey,
+            image: pngData,
+            boxes: boxes
+          }
+        };
+        this.modalService.show(ExportModalComponent, { initialState, class: 'modal-lg' });
+      }
+    };
+    img.src = url;
   }
 }

@@ -34,6 +34,7 @@ export class ApiCallService {
   all(): Observable<ApiCall[]> {
     return new Observable<ApiCall[]>(obs => {
       obs.next(ApiCallService.load());
+      obs.complete();
     });
   }
 
@@ -43,6 +44,7 @@ export class ApiCallService {
       for (const app of apps) {
         if(app.id === id) {
           obs.next(app);
+          obs.complete();
           return;
         }
       }
@@ -60,6 +62,7 @@ export class ApiCallService {
         }
       }
       obs.next(result);
+      obs.complete();
     });
   }
 
@@ -73,6 +76,7 @@ export class ApiCallService {
         }
       }
       obs.next(result);
+      obs.complete();
     });
   }
 
@@ -86,6 +90,7 @@ export class ApiCallService {
         }
       }
       obs.next(result);
+      obs.complete();
     });
   }
 
@@ -99,6 +104,7 @@ export class ApiCallService {
         }
       }
       obs.next(result);
+      obs.complete();
     });
   }
 
@@ -109,6 +115,7 @@ export class ApiCallService {
       apps.push(apiCall)
       ApiCallService.store(apps);
       obs.next(apiCall);
+      obs.complete();
     });
   }
 
@@ -121,6 +128,7 @@ export class ApiCallService {
           apps[i] = apiCall;
           ApiCallService.store(apps);
           obs.next(apiCall);
+          obs.complete();
           return;
         }
       }
@@ -137,6 +145,7 @@ export class ApiCallService {
           apps.splice(i, 1);
           ApiCallService.store(apps);
           obs.next();
+          obs.complete();
           return;
         }
       }

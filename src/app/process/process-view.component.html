@@ -5,8 +5,8 @@
 
       <div class="btn-toolbar justify-content-lg-start" role="toolbar" aria-label="Toolbar with button groups">
         <div class="btn-group mr-2" role="group" aria-label="First group">
-
           <button type="button" class="btn btn-secondary" title="Download as PDF" (click)="downloadPdf()"><i class="fas fa-file-pdf"></i></button>
+          <button type="button" class="btn btn-secondary" title="Export to PPT" (click)="exportToPpt()"><i class="fas fa-file-powerpoint"></i></button>
           <button type="button" class="btn btn-secondary" title="Zoom In" (click)="zoomIn()"><i class="fas fa-search-plus"></i></button>
           <button type="button" class="btn btn-secondary" title="Zoom Out" (click)="zoomOut()"><i class="fas fa-search-minus"></i></button>
           <button type="button" class="btn btn-secondary" title="Flow Tree View" (click)="toggleFlowView()" [class.active]="showFlowView"><i class="fas fa-sitemap"></i></button>

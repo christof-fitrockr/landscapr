@@ -1,0 +1,27 @@
+.scrollable-list {
+  max-height: 200px;
+  overflow-y: auto;
+  border: 1px solid #eee;
+  border-radius: 4px;
+}
+
+.card-header {
+  border-bottom: 0;
+}
+
+.btn-link:hover {
+  text-decoration: none;
+}
+
+.btn-xs {
+  padding: 0.1rem 0.3rem;
+  font-size: 0.75rem;
+}
+
+.text-purple {
+    color: #6F42C1;
+}
+
+.custom-control-label {
+    cursor: pointer;
+}

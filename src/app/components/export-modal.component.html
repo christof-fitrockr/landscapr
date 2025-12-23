@@ -1,0 +1,137 @@
+<div class="modal-header bg-primary text-white">
+  <h4 class="modal-title pull-left">Export to PowerPoint</h4>
+  <button type="button" class="close pull-right text-white" aria-label="Close" (click)="bsModalRef.hide()">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+<div class="modal-body">
+  <div *ngIf="loading" class="text-center p-5">
+    <div class="spinner-border text-primary" role="status">
+      <span class="sr-only">Loading...</span>
+    </div>
+  </div>
+
+  <div *ngIf="!loading">
+    <p class="mb-4">Select the entities you want to include in the PowerPoint presentation. Each selected item will have its own slide or chapter.</p>
+
+    <div class="accordion" id="exportAccordion">
+      <!-- Journeys -->
+      <div class="card mb-2 shadow-sm">
+        <div class="card-header bg-light d-flex justify-content-between align-items-center py-2">
+          <button class="btn btn-link text-dark font-weight-bold p-0" type="button" data-toggle="collapse" data-target="#collapseJourneys">
+            <i class="fas fa-map mr-2 text-primary"></i> Journeys ({{journeys.length}})
+          </button>
+          <div class="btn-group btn-group-sm">
+            <button class="btn btn-outline-secondary btn-xs" (click)="selectAll('journeys', true)">All</button>
+            <button class="btn btn-outline-secondary btn-xs" (click)="selectAll('journeys', false)">None</button>
+          </div>
+        </div>
+        <div id="collapseJourneys" class="collapse show" data-parent="#exportAccordion">
+          <div class="card-body scrollable-list p-2">
+            <div *ngFor="let item of journeys" class="custom-control custom-checkbox ml-2 mb-1">
+              <input type="checkbox" class="custom-control-input" [id]="'j' + item.entity.id" [(ngModel)]="item.selected">
+              <label class="custom-control-label small" [for]="'j' + item.entity.id">{{item.entity.name}}</label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Processes -->
+      <div class="card mb-2 shadow-sm">
+        <div class="card-header bg-light d-flex justify-content-between align-items-center py-2">
+          <button class="btn btn-link text-dark font-weight-bold p-0 collapsed" type="button" data-toggle="collapse" data-target="#collapseProcesses">
+            <i class="fas fa-project-diagram mr-2 text-success"></i> Processes ({{processes.length}})
+          </button>
+          <div class="btn-group btn-group-sm">
+            <button class="btn btn-outline-secondary btn-xs" (click)="selectAll('processes', true)">All</button>
+            <button class="btn btn-outline-secondary btn-xs" (click)="selectAll('processes', false)">None</button>
+          </div>
+        </div>
+        <div id="collapseProcesses" class="collapse" data-parent="#exportAccordion">
+          <div class="card-body scrollable-list p-2">
+            <div *ngFor="let item of processes" class="custom-control custom-checkbox ml-2 mb-1">
+              <input type="checkbox" class="custom-control-input" [id]="'p' + item.entity.id" [(ngModel)]="item.selected">
+              <label class="custom-control-label small" [for]="'p' + item.entity.id">{{item.entity.name}}</label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- APIs -->
+      <div class="card mb-2 shadow-sm">
+        <div class="card-header bg-light d-flex justify-content-between align-items-center py-2">
+          <button class="btn btn-link text-dark font-weight-bold p-0 collapsed" type="button" data-toggle="collapse" data-target="#collapseApis">
+            <i class="fas fa-plug mr-2 text-info"></i> APIs ({{apis.length}})
+          </button>
+          <div class="btn-group btn-group-sm">
+            <button class="btn btn-outline-secondary btn-xs" (click)="selectAll('apis', true)">All</button>
+            <button class="btn btn-outline-secondary btn-xs" (click)="selectAll('apis', false)">None</button>
+          </div>
+        </div>
+        <div id="collapseApis" class="collapse" data-parent="#exportAccordion">
+          <div class="card-body scrollable-list p-2">
+            <div *ngFor="let item of apis" class="custom-control custom-checkbox ml-2 mb-1">
+              <input type="checkbox" class="custom-control-input" [id]="'a' + item.entity.id" [(ngModel)]="item.selected">
+              <label class="custom-control-label small" [for]="'a' + item.entity.id">{{item.entity.name}}</label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Capabilities -->
+      <div class="card mb-2 shadow-sm">
+        <div class="card-header bg-light d-flex justify-content-between align-items-center py-2">
+          <button class="btn btn-link text-dark font-weight-bold p-0 collapsed" type="button" data-toggle="collapse" data-target="#collapseCaps">
+            <i class="fas fa-briefcase mr-2 text-purple"></i> Capabilities ({{capabilities.length}})
+          </button>
+          <div class="btn-group btn-group-sm">
+            <button class="btn btn-outline-secondary btn-xs" (click)="selectAll('capabilities', true)">All</button>
+            <button class="btn btn-outline-secondary btn-xs" (click)="selectAll('capabilities', false)">None</button>
+          </div>
+        </div>
+        <div id="collapseCaps" class="collapse" data-parent="#exportAccordion">
+          <div class="card-body scrollable-list p-2">
+            <div *ngFor="let item of capabilities" class="custom-control custom-checkbox ml-2 mb-1">
+              <input type="checkbox" class="custom-control-input" [id]="'c' + item.entity.id" [(ngModel)]="item.selected">
+              <label class="custom-control-label small" [for]="'c' + item.entity.id">{{item.entity.name}}</label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Systems -->
+      <div class="card mb-2 shadow-sm">
+        <div class="card-header bg-light d-flex justify-content-between align-items-center py-2">
+          <button class="btn btn-link text-dark font-weight-bold p-0 collapsed" type="button" data-toggle="collapse" data-target="#collapseSystems">
+            <i class="fas fa-server mr-2 text-warning"></i> Systems ({{systems.length}})
+          </button>
+          <div class="btn-group btn-group-sm">
+            <button class="btn btn-outline-secondary btn-xs" (click)="selectAll('systems', true)">All</button>
+            <button class="btn btn-outline-secondary btn-xs" (click)="selectAll('systems', false)">None</button>
+          </div>
+        </div>
+        <div id="collapseSystems" class="collapse" data-parent="#exportAccordion">
+          <div class="card-body scrollable-list p-2">
+            <div *ngFor="let item of systems" class="custom-control custom-checkbox ml-2 mb-1">
+              <input type="checkbox" class="custom-control-input" [id]="'s' + item.entity.id" [(ngModel)]="item.selected">
+              <label class="custom-control-label small" [for]="'s' + item.entity.id">{{item.entity.name}}</label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Hidden renderer for headless image generation -->
+<div style="position: absolute; left: -10000px; top: -10000px; width: 2000px; height: 2000px; overflow: hidden; visibility: hidden;">
+  <app-swimlane-view #renderer [processId]="renderingProcessId" (drawn)="onDrawn()"></app-swimlane-view>
+</div>
+
+<div class="modal-footer bg-light">
+  <button type="button" class="btn btn-secondary" (click)="bsModalRef.hide()">Cancel</button>
+  <button type="button" class="btn btn-primary px-4" (click)="export()" [disabled]="exporting || loading">
+    <span *ngIf="exporting" class="spinner-border spinner-border-sm mr-2"></span>
+    <i *ngIf="!exporting" class="fas fa-file-powerpoint mr-2"></i> Generate PPT
+  </button>
+</div>

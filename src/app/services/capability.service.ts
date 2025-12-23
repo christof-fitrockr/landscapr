@@ -75,6 +75,7 @@ export class CapabilityService {
       } else {
         obs.next(apps);
       }
+      obs.complete();
     });
   }
 
@@ -87,6 +88,7 @@ export class CapabilityService {
       const byId = CapabilityService.mapById(apps);
       const roots = apps.filter(c => !c.parentId || !byId.has(c.parentId));
       obs.next(roots);
+      obs.complete();
     });
   }
 
@@ -94,7 +96,7 @@ export class CapabilityService {
     return new Observable<Capability[]>(obs => {
       const apps = CapabilityService.load();
       const self = apps.find(a => a.id === id);
-      if (!self) { obs.next([]); return; }
+      if (!self) { obs.next([]); obs.complete(); return; }
       let children: Capability[] = [];
       if (self.childrenIds && self.childrenIds.length) {
         const byId = CapabilityService.mapById(apps);
@@ -103,6 +105,7 @@ export class CapabilityService {
         children = apps.filter(a => a.parentId === id);
       }
       obs.next(children);
+      obs.complete();
     });
   }
 
@@ -112,6 +115,7 @@ export class CapabilityService {
       for (const app of apps) {
         if (app.id === id) {
           obs.next(app);
+          obs.complete();
           return;
         }
       }
@@ -129,6 +133,7 @@ export class CapabilityService {
         }
       }
       obs.next(result);
+      obs.complete();
     });
   }
 
@@ -142,6 +147,7 @@ export class CapabilityService {
         }
       }
       obs.next(result);
+      obs.complete();
     });
   }
 
@@ -155,6 +161,7 @@ export class CapabilityService {
         }
       }
       obs.next(result);
+      obs.complete();
     });
   }
 
@@ -184,6 +191,7 @@ export class CapabilityService {
 
       CapabilityService.store(apps);
       obs.next(capability);
+      obs.complete();
     });
   }
 
@@ -223,6 +231,7 @@ export class CapabilityService {
 
       CapabilityService.store(apps);
       obs.next(apps[existingIndex]);
+      obs.complete();
     });
   }
 
@@ -251,6 +260,7 @@ export class CapabilityService {
       apps.splice(idx, 1);
       CapabilityService.store(apps);
       obs.next();
+      obs.complete();
     });
   }
 }
