@@ -96,19 +96,17 @@
           </td>
           <td class="text-center">
             <ng-container [ngSwitch]="rec.status">
-              <div *ngSwitchCase="'conflict'">
+              <div *ngSwitchCase="'same'" class="text-muted">—</div>
+              <div *ngSwitchDefault>
                 <div class="form-check">
-                  <label class="form-check-label mr-2">
-                    <input type="radio" class="form-check-input" [name]="activeTab + '_' + rec.key" [checked]="choices[activeTab][rec.key] === 'repo'" (change)="pick(activeTab, rec.key, 'repo')"> Repo
+                  <label class="form-check-label mr-2" [class.text-muted]="!rec.repoItem">
+                    <input type="radio" class="form-check-input" [name]="activeTab + '_' + rec.key" [checked]="choices[activeTab][rec.key] === 'repo'" (change)="pick(activeTab, rec.key, 'repo')" [disabled]="!rec.repoItem && choices[activeTab][rec.key] === 'repo'"> Repo
                   </label>
-                  <label class="form-check-label">
-                    <input type="radio" class="form-check-input" [name]="activeTab + '_' + rec.key" [checked]="choices[activeTab][rec.key] === 'local'" (change)="pick(activeTab, rec.key, 'local')"> Local
+                  <label class="form-check-label" [class.text-muted]="!rec.localItem">
+                    <input type="radio" class="form-check-input" [name]="activeTab + '_' + rec.key" [checked]="choices[activeTab][rec.key] === 'local'" (change)="pick(activeTab, rec.key, 'local')" [disabled]="!rec.localItem && choices[activeTab][rec.key] === 'local'"> Local
                   </label>
                 </div>
               </div>
-              <div *ngSwitchCase="'onlyRepo'" class="text-muted">Repo</div>
-              <div *ngSwitchCase="'onlyLocal'" class="text-muted">Local</div>
-              <div *ngSwitchCase="'same'" class="text-muted">—</div>
             </ng-container>
           </td>
         </tr>

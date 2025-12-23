@@ -80,10 +80,14 @@ export class RepoService {
           const parsedData = JSON.parse(content);
           this.applyParsedData(parsedData);
           obs.next();
+          obs.complete();
         } catch (err) {
-          throw err;
+          obs.error(err);
         }
       }
+      fileReader.onerror = (err) => {
+        obs.error(err);
+      };
       fileReader.readAsText(document);
     });
 
@@ -95,8 +99,9 @@ export class RepoService {
         const parsedData = typeof content === 'string' ? JSON.parse(content) : content;
         this.applyParsedData(parsedData as any);
         obs.next();
+        obs.complete();
       } catch (err) {
-        throw err;
+        obs.error(err);
       }
     });
   }

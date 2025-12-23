@@ -93,11 +93,9 @@ export class MergeService {
             // prefer local to maintain unsaved refs like UI-only props
             return rec.localItem ?? rec.repoItem;
           case 'onlyRepo':
-            return rec.repoItem;
           case 'onlyLocal':
-            return rec.localItem;
           case 'conflict':
-            const pick = (choices[section as keyof AllItemChoices] as ItemChoicesPerSection)?.[rec.key] || 'local';
+            const pick = (choices[section as keyof AllItemChoices] as ItemChoicesPerSection)?.[rec.key] || (rec.status === 'onlyRepo' ? 'repo' : 'local');
             return pick === 'repo' ? rec.repoItem : rec.localItem;
         }
       }).filter(Boolean);

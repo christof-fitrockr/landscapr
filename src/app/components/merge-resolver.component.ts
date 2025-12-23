@@ -55,7 +55,7 @@ export class MergeResolverComponent {
             // no explicit choice needed
             break;
           case 'onlyRepo':
-            map[rec.key] = 'repo';
+            map[rec.key] = this.requireCommitMessage ? 'local' : 'repo';
             break;
           case 'onlyLocal':
             map[rec.key] = 'local';
@@ -97,7 +97,7 @@ export class MergeResolverComponent {
   bulk(section: keyof LandscaprData, side: 'repo' | 'local'): void {
     const map = (this.choices[section] as ItemChoicesPerSection);
     for (const rec of (this.diffs![section].items || [])) {
-      if (rec.status === 'conflict') {
+      if (rec.status !== 'same') {
         map[rec.key] = side;
       }
     }
