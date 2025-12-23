@@ -18,7 +18,7 @@ export class ProcessEditBaseComponent implements OnInit, OnDestroy {
   systems$: Observable<Application[]>;
   private repoId: string;
   private subscription: Subscription;
-  roles: string[] = ['Customer', 'Vehicle', 'Service with Customer', 'Service', 'Workshop', 'Parts'];
+  roles: string[] = ['Customer', 'Vehicle', 'Service with Customer', 'Service', 'Workshop', 'Parts', 'Processing'];
 
 
   constructor(private processService: ProcessService, private systemService: ApplicationService,

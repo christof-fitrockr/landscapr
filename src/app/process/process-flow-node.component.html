@@ -1,10 +1,10 @@
 <div class="process-node">
-  <div class="node-header p-2 mb-2 bg-light border rounded d-flex align-items-center">
+  <div class="node-header p-2 mb-2 border rounded d-flex align-items-center" [style.background-color]="getRoleColor(process?.role)">
     <button class="btn btn-sm btn-link p-0 mr-2" (click)="toggleExpand()">
       <i class="fas" [class.fa-chevron-down]="isExpanded" [class.fa-chevron-right]="!isExpanded"></i>
     </button>
     <strong>{{ process?.name || 'Loading...' }}</strong>
-    <span *ngIf="process?.description" class="text-muted small ml-2">{{ process.description }}</span>
+    <span *ngIf="process?.description" class="text-muted small ml-2 description-text">{{ process.description }}</span>
     <button *ngIf="process" class="btn btn-sm btn-link p-0 ml-auto" (click)="openProcessEdit($event, process.id)" title="Open in edit mode">
       <i class="fas fa-external-link-alt text-gray-500"></i>
     </button>

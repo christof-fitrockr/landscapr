@@ -93,6 +93,13 @@
                 </div>
               </div>
 
+              <div class="form-group row" *ngIf="subProcessForm.get('description').value">
+                  <label class="col-sm-2 col-form-label small text-muted">Preview</label>
+                  <div class="col-sm-10">
+                      <div class="description-text small text-muted bg-light p-2 rounded">{{subProcessForm.get('description').value}}</div>
+                  </div>
+              </div>
+
             </form>
 
         </div>
@@ -132,6 +139,13 @@
             </div>
           </div>
 
+          <div class="form-group row" *ngIf="apiCallForm.get('description').value">
+              <label class="col-sm-2 col-form-label small text-muted">Preview</label>
+              <div class="col-sm-10">
+                  <div class="description-text small text-muted bg-light p-2 rounded">{{apiCallForm.get('description').value}}</div>
+              </div>
+          </div>
+
         </form>
 
       </div>
@@ -148,33 +162,39 @@
   <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
     <div class="modal-content">
       <div class="modal-header border-bottom-0">
-        <h5 class="modal-title">Add existing process</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        <input [(ngModel)]="processFilter"
-               [ngModelOptions]="{standalone: true}"
-               class="form-control mb-3"
-               placeholder="Filter processes...">
-
-        <div class="list-group">
-          <button type="button"
-                  *ngFor="let proc of filteredProcesses"
-                  (click)="addSubProcess(proc.id)"
-                  data-dismiss="modal"
-                  class="list-group-item list-group-item-action flex-column align-items-start">
-            <div class="d-flex w-100 justify-content-between">
-              <h6 class="mb-1 font-weight-bold"><i class="fas fa-sitemap mr-1"></i> {{proc.name}}</h6>
-            </div>
-            <p class="mb-1 small text-muted" *ngIf="proc.description">{{proc.description}}</p>
-          </button>
-          <div *ngIf="!filteredProcesses.length" class="text-center text-muted p-3">
-            No processes found matching the filter.
-          </div>
+        <h6 class="modal-title">Select Process</h6>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
         </div>
-      </div>
+        <div class="modal-body">
+            <div class="input-group mb-3">
+                <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fas fa-search"></i></span>
+                </div>
+                <input type="text" class="form-control" placeholder="Search processes..." [(ngModel)]="processFilter" [ngModelOptions]="{standalone: true}">
+            </div>
+
+            <div style="max-height: 60vh; overflow-y: auto;">
+                <table class="table table-sm table-hover">
+                    <tbody>
+                        <app-process-tree-node
+                                *ngFor="let proc of filteredProcesses"
+                                [process]="proc"
+                                [allProcesses]="allProcesses"
+                                [level]="0"
+                                [filter]="processFilter"
+                                [selectMode]="true"
+                                (select)="addSubProcess($event.id)">
+                        </app-process-tree-node>
+                    </tbody>
+                </table>
+                <div *ngIf="!filteredProcesses.length" class="text-center py-5">
+                    <i class="fas fa-search fa-3x text-gray-300 mb-3"></i>
+                    <p class="text-gray-500">No processes found matching your search.</p>
+                </div>
+            </div>
+        </div>
       <div class="modal-footer border-top-0">
         <button class="btn btn-secondary" data-dismiss="modal">Cancel</button>
       </div>
@@ -185,31 +205,31 @@
 <div class="modal fade" id="selectApiCall" tabindex="-1" role="dialog" aria-labelledby="selectApiCallLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
     <div class="modal-content">
-      <div class="modal-header border-bottom-0">
-        <h5 class="modal-title">Add existing function</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+        <div class="modal-header border-bottom-0">
+          <h5 class="modal-title">Select Function</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
       <div class="modal-body">
-        <input [(ngModel)]="apiCallFilter"
-               [ngModelOptions]="{standalone: true}"
-               class="form-control mb-3"
-               placeholder="Filter functions...">
+        <div class="input-group mb-3">
+          <div class="input-group-prepend">
+            <span class="input-group-text"><i class="fas fa-search"></i></span>
+          </div>
+          <input type="text" class="form-control" placeholder="Search API Calls..." [(ngModel)]="apiCallFilter" [ngModelOptions]="{standalone: true}">
+        </div>
 
-        <div class="list-group">
-          <button type="button"
-                  *ngFor="let api of filteredApiCalls"
-                  (click)="addApiCall(api.id)"
-                  data-dismiss="modal"
-                  class="list-group-item list-group-item-action flex-column align-items-start">
-            <div class="d-flex w-100 justify-content-between">
-              <h6 class="mb-1 font-weight-bold"><i class="fas fa-wave-square mr-1"></i> {{api.name}}</h6>
-            </div>
-            <p class="mb-1 small text-muted" *ngIf="api.description">{{api.description}}</p>
-          </button>
-          <div *ngIf="!filteredApiCalls.length" class="text-center text-muted p-3">
-            No functions found matching the filter.
+        <div style="max-height: 60vh; overflow-y: auto;">
+          <app-api-call-tree-node
+            *ngFor="let group of allApiCalls | apiCallFilter:apiCallFilter | apiCallGroup"
+            [group]="group"
+            [searchText]="apiCallFilter"
+            [selectMode]="true"
+            (select)="addApiCall($event.id)">
+          </app-api-call-tree-node>
+          <div *ngIf="(allApiCalls | apiCallFilter:apiCallFilter).length === 0" class="text-center py-5">
+            <i class="fas fa-search fa-3x text-gray-300 mb-3"></i>
+            <p class="text-gray-500">No API calls found matching your search.</p>
           </div>
         </div>
       </div>

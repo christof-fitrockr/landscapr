@@ -25,6 +25,14 @@
               <i class="fas fa-project-diagram"></i>
             </button>
             <div class="btn-group ml-2">
+              <button class="btn btn-secondary" (click)="undo()" [disabled]="!canUndo()" title="Undo (Ctrl+Z)">
+                <i class="fas fa-undo"></i>
+              </button>
+              <button class="btn btn-secondary" (click)="redo()" [disabled]="!canRedo()" title="Redo (Ctrl+Y)">
+                <i class="fas fa-redo"></i>
+              </button>
+            </div>
+            <div class="btn-group ml-2">
               <button class="btn btn-outline-secondary" (click)="showCommentsPanel = !showCommentsPanel" [class.active]="showCommentsPanel" title="Comments">
                 <i class="fas fa-comment-alt"></i>
               </button>
@@ -132,6 +140,15 @@
                         (dblclick)="onEdgeDblClick(e, $event)" />
                   <!-- Visible edge -->
                   <path [attr.d]="edgePath(e)" class="edge" [ngClass]="{'selected': e.selected}" [attr.marker-end]="'url(#arrowhead)'" />
+
+                  <!-- Endpoint handles when selected -->
+                  <g *ngIf="e.selected">
+                    <circle [attr.cx]="edgeEndpoints(e).p1.x" [attr.cy]="edgeEndpoints(e).p1.y" r="4" class="endpoint-handle"
+                            (mousedown)="onEndpointHandleMouseDown(e, 'from', $event)"></circle>
+                    <circle [attr.cx]="edgeEndpoints(e).p2.x" [attr.cy]="edgeEndpoints(e).p2.y" r="4" class="endpoint-handle"
+                            (mousedown)="onEndpointHandleMouseDown(e, 'to', $event)"></circle>
+                  </g>
+
                   <text *ngIf="e.label"
                         [attr.x]="edgeLabelPosition(e).x"
                         [attr.y]="edgeLabelPosition(e).y"
@@ -148,8 +165,12 @@
                   <g *ngIf="n.type !== 'group'" [attr.transform]="'translate(' + n.x + ',' + n.y + ')'"><!-- non-group node -->
                     <ng-container [ngSwitch]="n.type">
                       <g *ngSwitchCase="'process'" (dblclick)="onProcessDblClick(n, $event)">
-                        <rect [attr.width]="n.width" [attr.height]="n.height" rx="8" ry="8" class="node process" [ngClass]="{'selected': n.selected}"></rect>
+                        <rect [attr.width]="n.width" [attr.height]="n.height" rx="8" ry="8" class="node process"
+                              [ngClass]="{'selected': n.selected, 'draft': isProcessDraft(n)}"
+                              [attr.fill]="getNodeColor(n)"
+                              [attr.stroke-dasharray]="isProcessDraft(n) ? '5,5' : 'none'"></rect>
                         <text [attr.x]="n.width/2" [attr.y]="n.height/2" dominant-baseline="middle" text-anchor="middle">{{n.label}}</text>
+                        <text *ngIf="isProcessDraft(n)" [attr.x]="5" [attr.y]="5" font-size="8" font-style="italic" dominant-baseline="hanging" text-anchor="start" fill="#666">DRAFT</text>
 
                         <!-- Resize handles when selected -->
                         <g *ngIf="n.selected">

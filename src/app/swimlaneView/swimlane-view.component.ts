@@ -12,7 +12,7 @@ import {
 import {ProcessService} from '../services/process.service';
 import {ActivatedRoute, Router} from '@angular/router';
 import {first} from 'rxjs/operators';
-import {Process, Role, Status} from '../models/process';
+import {Process, Role, Status, ROLE_COLORS, getRoleColor} from '../models/process';
 import {CanvasService} from '../services/canvas.service';
 import {ApiCallService} from '../services/api-call.service';
 import {ApiCall, ApiImplementationStatus} from '../models/api-call';
@@ -63,6 +63,8 @@ export class SwimlaneViewComponent implements OnInit, AfterViewInit, OnChanges {
   Status = Status;
   ApiImplementationStatus = ApiImplementationStatus;
   dynamicRoles: string[] = [];
+
+  private roleColors = ROLE_COLORS;
 
 
   constructor(private activatedRoute: ActivatedRoute, private router: Router, private processService: ProcessService, private systemService: ApplicationService,
@@ -146,14 +148,14 @@ export class SwimlaneViewComponent implements OnInit, AfterViewInit, OnChanges {
   private centerGraph(canvas: ElementRef<HTMLCanvasElement>) {
     if (this.processOrder.length === 0) return;
 
-    let maxDepth = 0;
+    let maxDepth = -1;
     for (let box of this.processBoxMap.values()) {
       maxDepth = Math.max(maxDepth, box.depth);
     }
 
     const lastElement = this.processOrder[this.processOrder.length - 1];
     const graphWidth = (lastElement.x + lastElement.w);
-    const graphHeight = (maxDepth + this.dynamicRoles.length + 1) * 100 + 100;
+    const graphHeight = (maxDepth + 1) * 100 + 140;
 
     const canvasWidth = canvas.nativeElement.width;
     const canvasHeight = canvas.nativeElement.height;
@@ -168,23 +170,8 @@ export class SwimlaneViewComponent implements OnInit, AfterViewInit, OnChanges {
   }
 
   private collectRoles(id: string) {
-    const process = this.processMap.get(id);
-    if (!process) return;
-
-    if (process.role !== undefined && process.role !== null && process.role !== '') {
-      const roleName = typeof process.role === 'number' ? Role[process.role] : process.role;
-      if (roleName && !this.dynamicRoles.includes(roleName)) {
-        this.dynamicRoles.push(roleName);
-      }
-    }
-
-    if (process.steps) {
-      for (const step of process.steps) {
-        if (step.processReference) {
-          this.collectRoles(step.processReference);
-        }
-      }
-    }
+    // Role swimlanes are removed, but we might still keep dynamicRoles empty or remove usage
+    this.dynamicRoles = [];
   }
 
   private createGraph(canvas: ElementRef<HTMLCanvasElement>, id: string, x = 0, layer = 0): ProcessBox {
@@ -222,9 +209,7 @@ export class SwimlaneViewComponent implements OnInit, AfterViewInit, OnChanges {
     processBox.depth = layer;
     processBox.roleLayer = -1;
     processBox.role = typeof process.role === 'number' ? Role[process.role] : process.role;
-    if(!process.steps || process.steps.length === 0) {
-      const roleName = processBox.role;
-      processBox.roleLayer = this.dynamicRoles.indexOf(roleName);
+    if (!process.steps || process.steps.length === 0) {
       processBox.w = this.canvasService.calcFunctionWidth(cx, 0, process.name, '');
     }
 
@@ -380,14 +365,14 @@ export class SwimlaneViewComponent implements OnInit, AfterViewInit, OnChanges {
     const x = (event.clientX - rect.left - this.offsetX) / this.zoomFactor;
     const y = (event.clientY - rect.top - this.offsetY) / this.zoomFactor;
 
-    let maxDepth = 0;
-    for(let box of this.processBoxMap.values()) {
+    let maxDepth = -1;
+    for (let box of this.processBoxMap.values()) {
       maxDepth = Math.max(maxDepth, box.depth);
     }
 
     // Check process boxes
     for (let box of this.processOrder) {
-      const boxY = SwimlaneViewComponent.getYForBox(box, maxDepth);
+      const boxY = box.depth * 100;
       if (x >= box.x && x <= box.x + box.w && y >= boxY && y <= boxY + 50) {
         if (this.selectedItem === box) return; // Already selected
         this.selectedItem = box;
@@ -399,9 +384,9 @@ export class SwimlaneViewComponent implements OnInit, AfterViewInit, OnChanges {
     }
 
     // Check api boxes
-    const apiLaneIdx = maxDepth + this.dynamicRoles.length;
+    const apiLaneIdx = maxDepth + 1;
     for (let box of this.functionBoxMap.values()) {
-      const boxY = (apiLaneIdx) * 100 + 25;
+      const boxY = (apiLaneIdx) * 100 + 140 - 50 - 15; // Bottom alignment: laneY + laneHeight - boxHeight - padding
       if (x >= box.x && x <= box.x + box.w && y >= boxY && y <= boxY + 50) { // Height is 50 for functions (BOX_HEIGHT)
         if (this.selectedItem === box) return; // Already selected
         this.selectedItem = box;
@@ -476,8 +461,8 @@ export class SwimlaneViewComponent implements OnInit, AfterViewInit, OnChanges {
 
   private drawGraph(elem: ElementRef<HTMLCanvasElement>, clipX = -1, clipY = -1, clipW = -1, clipH = -1) {
     const cx = elem.nativeElement.getContext('2d');
-      let maxDepth = 0;
-    for(let box of this.processBoxMap.values()) {
+      let maxDepth = -1;
+    for (let box of this.processBoxMap.values()) {
       maxDepth = Math.max(maxDepth, box.depth);
     }
 
@@ -507,26 +492,24 @@ export class SwimlaneViewComponent implements OnInit, AfterViewInit, OnChanges {
 
 
       let idx = 0;
-      while(idx < maxDepth) {
+      while(idx <= maxDepth) {
         this.canvasService.drawSwimlane(cx, 0, idx*100, swimlaneWidth, 90, 'P' + idx, idx)
         idx++;
       }
 
-      for (const role of this.dynamicRoles) {
-        this.canvasService.drawSwimlane(cx, 0, idx * 100, swimlaneWidth, 90, role, idx++);
-      }
       this.canvasService.drawSwimlane(cx, 0, idx * 100, swimlaneWidth, 140, 'API', idx);
 
       for(let box of this.processOrder) {
-        if (box.roleLayer >= 0) {
-          this.canvasService.drawProcessStep(cx, box.x, (maxDepth * 100) + box.roleLayer * 100, box.w, 50, box.title, '#a0f0f0', box.role)
-        } else {
-          this.canvasService.drawProcessStep(cx, box.x, box.depth * 100, box.w, 50, box.title, '#e0e0e0', box.role)
-        }
+        const boxY = box.depth * 100;
+        const process = this.processMap.get(box.processId);
+        const boxColor = process ? getRoleColor(process.role) : '#ffffff';
+        const isDraft = process ? process.status === Status.Draft : false;
+
+        this.canvasService.drawProcessStep(cx, box.x, boxY, box.w, 50, box.title, boxColor, box.role, isDraft)
       }
 
       for(let box of this.functionBoxMap.values()) {
-          this.canvasService.drawFunction(cx, box.x, (idx)*100 + 25, box.title, box.subTitle, '#e0e050', box.w)
+          this.canvasService.drawFunction(cx, box.x, (idx)*100 + 140 - 50 - 15, box.title, box.subTitle, '#e0e050', box.w)
       }
 
 
@@ -543,9 +526,9 @@ export class SwimlaneViewComponent implements OnInit, AfterViewInit, OnChanges {
           if(endIdx === startIdx + 1) {
             // this.canvasService.drawArrow(cx,
             //   startBox.x + startBox.w + 12,
-            //   SwimlaneViewComponent.getYForBox(startBox, maxDepth) + 25,
+            //   box.depth * 100 + 25,
             //   endBox.x + 12,
-            //   SwimlaneViewComponent.getYForBox(endBox, maxDepth) + 25, '');
+            //   endBox.depth * 100 + 25, '');
           } else {
             let idx = Math.min(startIdx, endIdx);
             let end = Math.max(startIdx, endIdx);
@@ -556,15 +539,13 @@ export class SwimlaneViewComponent implements OnInit, AfterViewInit, OnChanges {
               idx++;
             }
 
-            if(startBox.roleLayer > 0 && endBox.roleLayer > 0) {
 
-              this.canvasService.drawArrowWithHeight(cx,
-                startBox.x + startBox.w / 2 + 12,
-                SwimlaneViewComponent.getYForBox(startBox, maxDepth),
-                endBox.x + endBox.w / 2 + 12,
-                SwimlaneViewComponent.getYForBox(endBox, maxDepth),
-                yCorr * 10, edge.title);
-            }
+            this.canvasService.drawArrowWithHeight(cx,
+              startBox.x + startBox.w / 2 + 12,
+              startBox.depth * 100,
+              endBox.x + endBox.w / 2 + 12,
+              endBox.depth * 100,
+              yCorr * 10, edge.title);
 
           }
 
@@ -573,14 +554,14 @@ export class SwimlaneViewComponent implements OnInit, AfterViewInit, OnChanges {
           // Function In
           let startBox = this.processBoxMap.get(edge.startId);
           let endBox = this.functionBoxMap.get(edge.endId);
-          this.canvasService.drawArrow(cx, endBox.x + endBox.w/4, SwimlaneViewComponent.getYForBox(startBox, maxDepth) + 50,
-            endBox.x + endBox.w/4, (idx)*100 + 25, edge.title);
+          this.canvasService.drawArrow(cx, endBox.x + endBox.w/4, startBox.depth * 100 + 50,
+            endBox.x + endBox.w/4, (idx)*100 + 140 - 50 - 15, edge.title);
         } else if(this.functionBoxMap.has(edge.startId) && this.processBoxMap.has(edge.endId)) {
           // Function Out
           let startBox = this.functionBoxMap.get(edge.startId);
           let endBox = this.processBoxMap.get(edge.endId);
-          this.canvasService.drawArrow(cx, startBox.x + 3*startBox.w/4, (idx)*100 + 25,
-            startBox.x + 3*startBox.w/4, SwimlaneViewComponent.getYForBox(endBox, maxDepth) + 50, edge.title);
+          this.canvasService.drawArrow(cx, startBox.x + 3*startBox.w/4, (idx)*100 + 140 - 50 - 15,
+            startBox.x + 3*startBox.w/4, endBox.depth * 100 + 50, edge.title);
         }
       }
 
@@ -589,9 +570,6 @@ export class SwimlaneViewComponent implements OnInit, AfterViewInit, OnChanges {
   }
 
   private static getYForBox(box: ProcessBox, maxDepth: number) {
-      if (box.roleLayer >= 0) {
-        return (maxDepth * 100) + box.roleLayer * 100;
-      }
     return box.depth * 100;
   }
 
@@ -611,13 +589,13 @@ export class SwimlaneViewComponent implements OnInit, AfterViewInit, OnChanges {
 
     const lastElement = this.processOrder[this.processOrder.length - 1];
 
-    let maxDepth = 0;
-    for(let box of this.processBoxMap.values()) {
+    let maxDepth = -1;
+    for (let box of this.processBoxMap.values()) {
       maxDepth = Math.max(maxDepth, box.depth);
     }
 
     const fullWidth = (lastElement.x + lastElement.w) * this.zoomFactor + 100;
-    const fullHeight = (maxDepth + this.dynamicRoles.length + 1) * 100 * this.zoomFactor + 100;
+    const fullHeight = (maxDepth + 1) * 100 * this.zoomFactor + 140 * this.zoomFactor + 100;
 
     this.width = fullWidth;
     this.height = fullHeight;

@@ -20,8 +20,8 @@
       </tr>
       <tr>
         <td class="pl-2 small text-gray-700">
-          <span *ngIf="processWithStep.process">{{processWithStep.process?.description}}</span>
-          <span *ngIf="processWithStep.apiCall">{{processWithStep.apiCall?.description}}</span>
+          <span *ngIf="processWithStep.process" class="description-text">{{processWithStep.process?.description}}</span>
+          <span *ngIf="processWithStep.apiCall" class="description-text">{{processWithStep.apiCall?.description}}</span>
           <span *ngIf="!processWithStep?.process?.description && !processWithStep?.apiCall?.description" class="font-italic small">No description available</span>
         </td>
         <td rowspan="2" class="text-nowrap">

@@ -8,6 +8,7 @@
       <div class="btn-toolbar justify-content-lg-start" role="toolbar" aria-label="Toolbar with button groups">
         <div class="btn-group mr-2" role="group" aria-label="First group">
           <a class="btn btn-secondary" title="List" routerLink="/system"><i class="fas fa-list"></i></a>
+          <button type="button" class="btn btn-primary" title="Link API" data-toggle="modal" data-target="#selectApiCall"><i class="fas fa-link"></i></button>
         </div>
       </div>
 
@@ -24,10 +25,55 @@
     <div class="card-body">
 
       <div class="mt-1" *ngFor="let item of apis">
-        <app-api-call-overview [repoId]="repoId" [apiCall]="item" [readOnly]="true"></app-api-call-overview>
+        <div class="row align-items-center">
+          <div class="col">
+            <app-api-call-overview [repoId]="repoId" [apiCall]="item" [readOnly]="true"></app-api-call-overview>
+          </div>
+          <div class="col-auto">
+            <button class="btn btn-sm btn-outline-danger" (click)="unlinkApi(item.id)" title="Unlink API"><i class="fas fa-unlink"></i></button>
+          </div>
+        </div>
       </div>
 
 
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="selectApiCall" tabindex="-1" role="dialog" aria-labelledby="selectApiCallLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
+    <div class="modal-content">
+      <div class="modal-header border-bottom-0">
+        <h5 class="modal-title">Select API Call</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="input-group mb-3">
+          <div class="input-group-prepend">
+            <span class="input-group-text"><i class="fas fa-search"></i></span>
+          </div>
+          <input type="text" class="form-control" placeholder="Search API Calls..." [(ngModel)]="modalSearch">
+        </div>
+
+        <div style="max-height: 60vh; overflow-y: auto;">
+          <app-api-call-tree-node
+            *ngFor="let group of allApiCalls | apiCallFilter:modalSearch | apiCallGroup"
+            [group]="group"
+            [searchText]="modalSearch"
+            [selectMode]="true"
+            (select)="linkApi($event.id)">
+          </app-api-call-tree-node>
+          <div *ngIf="(allApiCalls | apiCallFilter:modalSearch)?.length === 0" class="text-center py-5">
+            <i class="fas fa-search fa-3x text-gray-300 mb-3"></i>
+            <p class="text-gray-500">No API calls found matching your search.</p>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer border-top-0">
+        <button class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+      </div>
     </div>
   </div>
 </div>

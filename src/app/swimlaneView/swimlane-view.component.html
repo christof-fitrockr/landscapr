@@ -31,7 +31,7 @@
     </div>
     <div class="side-panel-body p-3 overflow-auto" *ngIf="selectedItem">
       <div *ngIf="selectedProcess">
-        <p><strong>Description:</strong> {{selectedProcess.description}}</p>
+        <p class="description-text"><strong>Description:</strong> {{selectedProcess.description}}</p>
         <p><strong>Role:</strong> {{Role[selectedProcess.role]}}</p>
         <p><strong>Status:</strong> {{Status[selectedProcess.status]}}</p>
         <div *ngIf="selectedProcess.apiCallIds?.length > 0">
@@ -87,7 +87,7 @@
         </div>
       </div>
       <div *ngIf="selectedApiCall">
-        <p><strong>Description:</strong> {{selectedApiCall.description}}</p>
+        <p class="description-text"><strong>Description:</strong> {{selectedApiCall.description}}</p>
         <p><strong>Status:</strong> {{ApiImplementationStatus[selectedApiCall.implementationStatus]}}</p>
         <p><strong>Input:</strong> {{selectedApiCall.input}}</p>
         <p><strong>Output:</strong> {{selectedApiCall.output}}</p>

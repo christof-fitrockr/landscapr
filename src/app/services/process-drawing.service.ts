@@ -1,5 +1,5 @@
 import {Injectable} from '@angular/core';
-import {FunctionCall, Process, ProcessModel, ProcessStep} from '../models/process';
+import {FunctionCall, Process, ProcessModel, ProcessStep, getRoleColor} from '../models/process';
 import {CanvasService} from './canvas.service';
 
 const SWIMLANE_HEIGHT = 150;
@@ -71,7 +71,7 @@ export class ProcessDrawingService {
             stepColor = drawingDetails.stepColor;
 
             totalWidth = totalWidth + Math.max(xOffset, 200) + 2* FUNCTION_PADDING;
-            this.drawProcessStep(cx, process, 'aswp', processX, Math.max(drawingDetails.totalWidth + 2* FUNCTION_PADDING, 200), step, step.color);
+            this.drawProcessStep(cx, process, 'aswp', processX, Math.max(drawingDetails.totalWidth + 2* FUNCTION_PADDING, 200), step, step.color, false);
         });
     }
 
@@ -124,8 +124,9 @@ export class ProcessDrawingService {
         return {totalWidth, stepColor};
     }
 
-    private drawProcessStep(cx: CanvasRenderingContext2D, process: ProcessModel, laneId: string, x: number, w: number, step: ProcessStep, color: string = '#ffffff') {
-        this.canvasService.drawProcessStep(cx, x, this.getLaneMidX(process, laneId) - BOX_HEIGHT / 2, w, BOX_HEIGHT, step.name, color, '');
+    private drawProcessStep(cx: CanvasRenderingContext2D, process: ProcessModel, laneId: string, x: number, w: number, step: ProcessStep, color: string = '#ffffff', isDraft: boolean = false) {
+        const fillColor = color === '#ffffff' ? getRoleColor(laneId) : color;
+        this.canvasService.drawProcessStep(cx, x, this.getLaneMidX(process, laneId) - BOX_HEIGHT / 2, w, BOX_HEIGHT, step.name, fillColor, '', isDraft);
     }
 
     private getLaneMidX(process: ProcessModel, laneId: string): number {

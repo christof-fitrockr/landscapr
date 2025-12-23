@@ -18,6 +18,8 @@ export interface JourneyLayoutEdge {
   from: string;
   to: string;
   label?: string;
+  fromOffset?: { x: number; y: number };
+  toOffset?: { x: number; y: number };
 }
 
 export interface JourneyLayout {

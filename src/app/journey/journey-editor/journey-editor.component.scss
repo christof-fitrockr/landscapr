@@ -104,6 +104,14 @@ svg .handle-ne, svg .handle-sw { cursor: nesw-resize; }
 svg .handle-n, svg .handle-s { cursor: ns-resize; }
 svg .handle-e, svg .handle-w { cursor: ew-resize; }
 
+/* Endpoint handles */
+svg .endpoint-handle {
+  fill: #ffffff;
+  stroke: #007bff;
+  stroke-width: 2;
+  cursor: move;
+}
+
 /* ng-select integration in toolbar */
 .process-select {
   display: flex;

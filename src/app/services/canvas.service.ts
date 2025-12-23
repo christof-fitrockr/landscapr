@@ -105,7 +105,7 @@ export class CanvasService {
         return w;
     }
 
-    drawProcessStep(cx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, processStepName: string, color: string = '#ffffff', indicator: string = '') {
+    drawProcessStep(cx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, processStepName: string, color: string = '#ffffff', indicator: string = '', isDraft: boolean = false) {
         cx.save();
         cx.textAlign = 'center';
         cx.textBaseline = 'middle';
@@ -114,7 +114,7 @@ export class CanvasService {
 
         // Modernize Color
         let fillStyle = color;
-        if (color === '#a0f0f0' || color === '#e0e0e0' || color === '#ffffff') {
+        if (color === '#ffffff') {
             fillStyle = PALETTE.processFill;
         } else {
             fillStyle = color;
@@ -123,6 +123,10 @@ export class CanvasService {
         cx.fillStyle = fillStyle;
         cx.strokeStyle = PALETTE.processBorder;
 
+        if (isDraft) {
+            cx.setLineDash([5, 5]);
+        }
+
         // Shadow
         cx.shadowColor = PALETTE.shadow;
         cx.shadowBlur = SHADOW_BLUR;
@@ -130,11 +134,14 @@ export class CanvasService {
         cx.shadowOffsetY = SHADOW_OFFSET;
 
         // Shape: Rounded Rectangle (Pill-like)
-        cx.lineWidth = 1;
+        cx.lineWidth = 2; // Slightly thicker for visibility
         cx.beginPath();
         this.roundRect(cx, x, y, w, h, CORNER_RADIUS);
         cx.fill();
         cx.stroke();
+
+        // Reset dashed line
+        cx.setLineDash([]);
 
         // Reset shadow
         cx.shadowColor = 'transparent';
@@ -147,8 +154,17 @@ export class CanvasService {
         // Adjust text position slightly if needed
         cx.fillText(processStepName, x + w / 2, y + h / 2);
 
+        if (isDraft) {
+            cx.font = 'italic 10px sans-serif';
+            cx.fillStyle = '#666';
+            cx.textAlign = 'left';
+            cx.textBaseline = 'top';
+            cx.fillText('DRAFT', x + 5, y + 5);
+        }
+
         if (indicator) {
             cx.font = SYS_FONT;
+            cx.fillStyle = PALETTE.text;
             cx.textAlign = 'right';
             cx.textBaseline = 'bottom';
             cx.fillText(indicator, x + w - 5, y + h - 2);
@@ -170,11 +186,15 @@ export class CanvasService {
       cx.closePath();
     }
 
-    drawSwimlane(cx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, description: string, index: number = 0) {
+    drawSwimlane(cx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, description: string, index: number = 0, color?: string) {
         cx.save();
 
-        // Zebra Striping
-        cx.fillStyle = (index % 2 === 0) ? PALETTE.swimlaneEven : PALETTE.swimlaneOdd;
+        // Background color: Use provided color, or default to zebra striping
+        if (color) {
+            cx.fillStyle = color;
+        } else {
+            cx.fillStyle = (index % 2 === 0) ? PALETTE.swimlaneEven : PALETTE.swimlaneOdd;
+        }
         cx.fillRect(x, y, w, h);
 
         cx.strokeStyle = PALETTE.swimlaneBorder;

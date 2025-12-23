@@ -24,7 +24,25 @@ export enum Role {
   ServiceWithCustomer = 2,
   Service= 3,
   Workshop = 4,
-  Parts = 5
+  Parts = 5,
+  Processing = 6
+}
+
+export const ROLE_COLORS: {[key: string]: string} = {
+  'Customer': '#bfdbfe',           // Blue 200
+  'Vehicle': '#fed7aa',            // Orange 200
+  'ServiceWithCustomer': '#bbf7d0', // Green 200
+  'Service with Customer': '#bbf7d0', // Green 200
+  'Service': '#fbcfe8',            // Pink 200
+  'Workshop': '#e9d5ff',           // Purple 200
+  'Parts': '#fef08a',              // Yellow 200
+  'Processing': '#ddd6fe',         // Violet 200
+  'Unassigned': '#e5e7eb'          // Gray 200
+};
+
+export function getRoleColor(role: any): string {
+  const roleName = typeof role === 'number' ? Role[role] : role;
+  return ROLE_COLORS[roleName] || ROLE_COLORS['Unassigned'];
 }
 
 export class ProcessWithStep {

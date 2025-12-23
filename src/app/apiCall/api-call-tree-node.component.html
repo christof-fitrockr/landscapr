@@ -12,31 +12,39 @@
   <!-- Items -->
   <div *ngIf="isExpanded">
     <div *ngFor="let apiCall of group.items">
-      <div class="d-flex align-items-center py-1 hover-bg-light border-bottom" *ngIf="shouldShowItem(apiCall)">
+      <div class="d-flex align-items-center py-1 hover-bg-light border-bottom" *ngIf="shouldShowItem(apiCall)"
+           [class.pointer]="selectMode" (click)="selectMode ? onSelect(apiCall) : null">
         <div style="width: 25px"></div>
         <div class="d-flex align-items-center flex-grow-1">
-          <div class="mr-2 text-nowrap">
+          <div class="mr-2 text-nowrap" *ngIf="!selectMode">
             <a class="black mr-2" routerLink="/apiCall/edit/{{apiCall?.id}}"><i class="fas fa-edit"></i></a>
             <a class="black" style="cursor: pointer" (click)="prepareDelete(apiCall)" data-toggle="modal" data-target="#confirmDeleteApiCall"><i class="fas fa-trash" title="Delete API Call"></i></a>
           </div>
           <div class="flex-grow-1">
-            <a class="black font-weight-bold" routerLink="/apiCall/edit/{{apiCall?.id}}">{{apiCall.name}}</a>
+            <span *ngIf="selectMode" class="font-weight-bold">{{apiCall.name}}</span>
+            <a *ngIf="!selectMode" class="black font-weight-bold" routerLink="/apiCall/edit/{{apiCall?.id}}">{{apiCall.name}}</a>
             <i *ngIf="orphanIds.includes(apiCall.id)" class="ml-2 text-warning fas fa-unlink" title="Orphan: Not referenced by any Process"></i>
           </div>
         </div>
-        <div class="text-right text-muted small" style="width: 80px">
+        <div class="text-right text-muted small" style="width: 80px" *ngIf="!selectMode">
           {{apiCall.usedByCount || 0}}
         </div>
-        <div class="text-right text-muted small" style="width: 80px">
+        <div class="text-right text-muted small" style="width: 80px" *ngIf="!selectMode">
           {{apiCall.implementedInCount || 0}}
         </div>
         <div class="w-25 small text-muted ml-2">
           {{apiCall.tags}}
         </div>
-        <div class="ml-2 text-right" style="width: 30px">
+        <div class="ml-2 text-right" style="width: 30px" *ngIf="!selectMode">
           <i *ngIf="apiCall?.status === 0" class="text-warning fas fa-exclamation-triangle" title="Draft"></i>
           <i *ngIf="apiCall?.status === 1" class="text-success fas fa-check-circle" title="Validated"></i>
         </div>
+        <div class="ml-2 text-right" style="width: 30px" *ngIf="selectMode">
+          <i class="fas fa-plus text-primary"></i>
+        </div>
+      </div>
+      <div class="description-text small text-muted pl-4 py-1 border-bottom" *ngIf="apiCall.description">
+        {{apiCall.description}}
       </div>
     </div>
   </div>

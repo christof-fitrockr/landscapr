@@ -5,38 +5,62 @@ import { Process } from '../models/process';
   name: 'processFilter'
 })
 export class ProcessFilterPipe implements PipeTransform {
-  // Filters processes. By default it only returns processes that have subprocesses (steps.length > 0),
-  // and optionally applies a text search on the process name or tags.
-  transform(items: Process[], searchText?: string, onlyWithSubprocesses: boolean = true, showOrphansOnly: boolean = false, orphanIds: string[] = []): Process[] {
+  // Filters processes. Optionally applies a text search on the process name or tags.
+  // If a search text is provided, it also checks descendants and returns the process if any descendant matches.
+  transform(items: Process[], allProcesses: Process[], searchText?: string, showOrphansOnly: boolean = false, orphanIds: string[] = []): Process[] {
     if (!Array.isArray(items)) {
       return [];
     }
 
-    let result = items;
+    const hasSearch = searchText && searchText.trim().length > 0;
+    const q = hasSearch ? searchText.toLowerCase() : '';
 
-    // Filter by orphan status if enabled
-    if (showOrphansOnly) {
-      result = result.filter(p => orphanIds.includes(p.id));
+    return items.filter(item => this.isVisible(item, allProcesses, q, showOrphansOnly, orphanIds));
+  }
+
+  private isVisible(item: Process, allProcesses: Process[], q: string, showOrphansOnly: boolean, orphanIds: string[]): boolean {
+    const matchesSearch = !q ||
+      item?.name?.toLowerCase().includes(q) ||
+      (Array.isArray(item?.tags) && item.tags.join(' ').toLowerCase().includes(q));
+
+    const matchesOrphan = !showOrphansOnly || orphanIds.includes(item.id);
+
+    if (matchesSearch && matchesOrphan) {
+      return true;
     }
 
-    // Default: show only processes that have subprocesses (steps)
-    // IMPORTANT: If showing orphans, we might want to ignore the subprocess filter or keep it.
-    // The requirement implies showing orphans regardless of subprocess status, but usually filters are additive.
-    // However, orphans might be drafts without steps.
-    // Let's keep it additive but respect the user's choice on onlyWithSubprocesses.
-    if (onlyWithSubprocesses) {
-      result = result.filter(p => Array.isArray(p?.steps) && p.steps.length > 0);
+    // Even if it doesn't match, show it if any of its children match (recursively)
+    const childIds = this.getChildIds(item);
+    if (childIds.length > 0 && allProcesses) {
+      return childIds.some(id => {
+        const child = allProcesses.find(p => p.id === id);
+        if (child) {
+          return this.isVisible(child, allProcesses, q, showOrphansOnly, orphanIds);
+        }
+        return false;
+      });
     }
 
-    // Optional: apply text filter
-    if (searchText && searchText.trim().length > 0) {
-      const q = searchText.toLowerCase();
-      result = result.filter(el =>
-        el?.name?.toLowerCase().includes(q) ||
-        (Array.isArray(el?.tags) && el.tags.join(' ').toLowerCase().includes(q))
-      );
-    }
+    return false;
+  }
 
-    return result;
+  private getChildIds(process: Process): string[] {
+    if (!process || !process.steps) {
+      return [];
+    }
+    const ids: string[] = [];
+    process.steps.forEach(step => {
+      if (step.processReference) {
+        ids.push(step.processReference);
+      }
+      if (step.successors) {
+        step.successors.forEach(succ => {
+          if (succ.processReference) {
+            ids.push(succ.processReference);
+          }
+        });
+      }
+    });
+    return ids;
   }
 }

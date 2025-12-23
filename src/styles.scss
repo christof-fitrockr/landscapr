@@ -142,6 +142,10 @@ $gray-900: #3a3b45 !default;
   background-color: $gray-900 !important;
 }
 
+.description-text {
+  white-space: pre-wrap;
+}
+
 a.active, a.active:hover, a.active:active, a.active:visited { color: white !important;text-decoration: underline !important; }
 a.white, a.white:hover, a.white:active, a.white:visited { color: white; }
 a.gray, a.gray:hover, a.gray:active, a.gray:visited { color: $gray-500; }

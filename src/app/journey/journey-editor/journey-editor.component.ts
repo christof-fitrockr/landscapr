@@ -1,6 +1,6 @@
 import { Component, ElementRef, HostListener, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { Process, Status } from '../../models/process';
+import {Process, Status, getRoleColor} from '../../models/process';
 import { ProcessService } from '../../services/process.service';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { ProcessQuickViewModalComponent } from './process-quick-view-modal.component';
@@ -50,6 +50,8 @@ export interface Edge {
   to: string;   // node id
   label?: string;
   selected?: boolean;
+  fromOffset?: { x: number; y: number };
+  toOffset?: { x: number; y: number };
 }
 
 @Component({
@@ -84,6 +86,10 @@ export class JourneyEditorComponent implements OnInit {
   nodes: CanvasNode[] = [];
   edges: Edge[] = [];
 
+  // Undo/Redo history
+  private undoStack: JourneyLayout[] = [];
+  private redoStack: JourneyLayout[] = [];
+
   // Pan & zoom
   zoom = 1; // scale
   panX = 0;
@@ -108,6 +114,11 @@ export class JourneyEditorComponent implements OnInit {
   private resizeStartMouseX = 0;
   private resizeStartMouseY = 0;
   private resizeStartRect: { x: number; y: number; w: number; h: number } | null = null;
+
+  // Moving edge endpoints
+  private isMovingEndpoint = false;
+  private movingEdgeId: string | null = null;
+  private movingEndpointType: 'from' | 'to' | null = null;
 
   // Connector drawing state
   private pendingEdgeSourceId: string | null = null;
@@ -212,7 +223,14 @@ export class JourneyEditorComponent implements OnInit {
       return { id: n.id, type: 'group', x: n.x, y: n.y, width: n.width, height: n.height, label: n.label || 'Group' } as GroupNode;
     });
     this.nodes.forEach(n => n.selected = false);
-    this.edges = (layout.edges || []).map(e => ({ id: e.id, from: e.from, to: e.to, label: e.label }));
+    this.edges = (layout.edges || []).map(e => ({
+      id: e.id,
+      from: e.from,
+      to: e.to,
+      label: e.label,
+      fromOffset: e.fromOffset,
+      toOffset: e.toOffset
+    }));
 
     // Persist migration back into the journey layout if any decision node was resized
     if (changed) {
@@ -231,7 +249,14 @@ export class JourneyEditorComponent implements OnInit {
       height: n.height,
       processId: (n.type === 'process') ? (n as ProcessNode).processId : undefined
     }));
-    const edges: JourneyLayoutEdge[] = this.edges.map(e => ({ id: e.id, from: e.from, to: e.to, label: e.label }));
+    const edges: JourneyLayoutEdge[] = this.edges.map(e => ({
+      id: e.id,
+      from: e.from,
+      to: e.to,
+      label: e.label,
+      fromOffset: e.fromOffset,
+      toOffset: e.toOffset
+    }));
     return { nodes, edges, panX: this.panX, panY: this.panY, zoom: this.zoom };
   }
 
@@ -250,6 +275,43 @@ export class JourneyEditorComponent implements OnInit {
     }, 400);
   }
 
+  // History management
+  private pushStateToHistory() {
+    const layout = this.buildLayout();
+    // Simple limit to stack size
+    if (this.undoStack.length > 50) {
+      this.undoStack.shift();
+    }
+    this.undoStack.push(layout);
+    this.redoStack = [];
+  }
+
+  undo() {
+    if (this.undoStack.length === 0) return;
+    const current = this.buildLayout();
+    this.redoStack.push(current);
+    const prev = this.undoStack.pop()!;
+    this.applyLayout(prev);
+    this.scheduleSave();
+  }
+
+  redo() {
+    if (this.redoStack.length === 0) return;
+    const current = this.buildLayout();
+    this.undoStack.push(current);
+    const next = this.redoStack.pop()!;
+    this.applyLayout(next);
+    this.scheduleSave();
+  }
+
+  canUndo(): boolean {
+    return this.undoStack.length > 0;
+  }
+
+  canRedo(): boolean {
+    return this.redoStack.length > 0;
+  }
+
   // Mouse interactions on canvas
   onCanvasMouseDown(event: MouseEvent) {
     const svg = this.svgEl.nativeElement;
@@ -266,6 +328,7 @@ export class JourneyEditorComponent implements OnInit {
         const hit = this.handleSelectDown(pt.x, pt.y);
         // Start dragging selected nodes with left mouse button when clicking on a selected node
         if (event.button === 0 && hit && hit.selected) {
+          this.pushStateToHistory();
           this.isDraggingNodes = true;
           this.dragStartMouseX = pt.x;
           this.dragStartMouseY = pt.y;
@@ -281,13 +344,16 @@ export class JourneyEditorComponent implements OnInit {
           this.selectedProcessId = this.processes[0].id;
         }
         if (this.selectedProcessId) {
+          this.pushStateToHistory();
           this.placeProcessNode(pt.x, pt.y, this.selectedProcessId);
         }
         break;
       case 'decision':
+        this.pushStateToHistory();
         this.placeDecisionNode(pt.x, pt.y);
         break;
       case 'group':
+        this.pushStateToHistory();
         this.placeGroupNode(pt.x, pt.y);
         break;
       case 'connector':
@@ -341,6 +407,27 @@ export class JourneyEditorComponent implements OnInit {
       return;
     }
 
+    const pt = this.getSvgPoint(event);
+
+    if (this.isMovingEndpoint) {
+      const edge = this.edges.find(e => e.id === this.movingEdgeId);
+      if (edge && this.movingEndpointType) {
+        const nodeId = this.movingEndpointType === 'from' ? edge.from : edge.to;
+        const node = this.nodes.find(n => n.id === nodeId);
+        if (node) {
+          const bp = this.borderPoint(node, pt);
+          const offset = { x: bp.x - node.x, y: bp.y - node.y };
+          if (this.movingEndpointType === 'from') {
+            edge.fromOffset = offset;
+          } else {
+            edge.toOffset = offset;
+          }
+          this.scheduleSave();
+        }
+      }
+      return;
+    }
+
     // Dragging selected nodes (in world space)
     if (this.isDraggingNodes) {
       const pt = this.getSvgPoint(event);
@@ -381,6 +468,12 @@ export class JourneyEditorComponent implements OnInit {
       this.scheduleSave();
     }
     if (wasPanning) {
+      this.scheduleSave();
+    }
+    if (this.isMovingEndpoint) {
+      this.isMovingEndpoint = false;
+      this.movingEdgeId = null;
+      this.movingEndpointType = null;
       this.scheduleSave();
     }
   }
@@ -528,6 +621,7 @@ export class JourneyEditorComponent implements OnInit {
     if (!this.pendingEdgeSourceId) {
       this.pendingEdgeSourceId = node.id;
     } else if (this.pendingEdgeSourceId && node.id !== this.pendingEdgeSourceId) {
+      this.pushStateToHistory();
       const edge: Edge = { id: this.newId('e'), from: this.pendingEdgeSourceId, to: node.id };
       this.edges.push(edge);
       this.pendingEdgeSourceId = null;
@@ -549,6 +643,7 @@ export class JourneyEditorComponent implements OnInit {
     event.stopPropagation();
     // Only allow with left button
     if (event.button !== 0) return;
+    this.pushStateToHistory();
     this.isResizing = true;
     this.resizeHandle = handle;
     this.resizeNodeId = node.id;
@@ -580,6 +675,10 @@ export class JourneyEditorComponent implements OnInit {
       const selectedNodes = this.nodes.filter(n => n.selected);
       const selectedEdges = this.edges.filter(e => e.selected);
 
+      if (selectedNodes.length > 0 || selectedEdges.length > 0) {
+        this.pushStateToHistory();
+      }
+
       if (selectedNodes.length > 0) {
         const ids = new Set(selectedNodes.map(n => n.id));
         this.nodes = this.nodes.filter(n => !ids.has(n.id));
@@ -593,6 +692,21 @@ export class JourneyEditorComponent implements OnInit {
 
       if (selectedNodes.length > 0 || selectedEdges.length > 0) {
         this.scheduleSave();
+      }
+    }
+
+    // Undo/Redo shortcuts
+    if (ev.ctrlKey || ev.metaKey) {
+      if (ev.key === 'z') {
+        ev.preventDefault();
+        if (ev.shiftKey) {
+          this.redo();
+        } else {
+          this.undo();
+        }
+      } else if (ev.key === 'y') {
+        ev.preventDefault();
+        this.redo();
       }
     }
   }
@@ -645,10 +759,24 @@ export class JourneyEditorComponent implements OnInit {
     const from = this.nodes.find(n => n.id === e.from);
     const to = this.nodes.find(n => n.id === e.to);
     if (!from || !to) return { p1: { x: 0, y: 0 }, p2: { x: 0, y: 0 } };
+
     const cFrom = this.nodeCenter(from);
     const cTo = this.nodeCenter(to);
-    const p1 = this.borderPoint(from, cTo);
-    const p2 = this.borderPoint(to, cFrom);
+
+    let p1: { x: number; y: number };
+    if (e.fromOffset) {
+      p1 = { x: from.x + e.fromOffset.x, y: from.y + e.fromOffset.y };
+    } else {
+      p1 = this.borderPoint(from, cTo);
+    }
+
+    let p2: { x: number; y: number };
+    if (e.toOffset) {
+      p2 = { x: to.x + e.toOffset.x, y: to.y + e.toOffset.y };
+    } else {
+      p2 = this.borderPoint(to, cFrom);
+    }
+
     return { p1, p2 };
   }
 
@@ -727,8 +855,11 @@ export class JourneyEditorComponent implements OnInit {
       comp.label = e.label || '';
       comp.saved.subscribe((newLabel: string) => {
         const trimmed = (newLabel || '').trim();
-        e.label = trimmed;
-        this.scheduleSave();
+        if (trimmed !== e.label) {
+          this.pushStateToHistory();
+          e.label = trimmed;
+          this.scheduleSave();
+        }
       });
     }
   }
@@ -742,6 +873,15 @@ export class JourneyEditorComponent implements OnInit {
     // Select only this edge and deselect nodes
     this.nodes.forEach(n => n.selected = false);
     this.edges.forEach(ed => ed.selected = (ed.id === e.id));
+  }
+
+  onEndpointHandleMouseDown(e: Edge, type: 'from' | 'to', event: MouseEvent) {
+    event.stopPropagation();
+    event.preventDefault();
+    this.pushStateToHistory();
+    this.isMovingEndpoint = true;
+    this.movingEdgeId = e.id;
+    this.movingEndpointType = type;
   }
 
   setTool(tool: ToolType) {
@@ -767,10 +907,32 @@ export class JourneyEditorComponent implements OnInit {
     if (comp) {
       comp.label = node.label || '';
       comp.saved.subscribe((newLabel: string) => {
-        node.label = newLabel || node.label || '';
-        this.scheduleSave();
+        const trimmed = (newLabel || '').trim();
+        if (trimmed !== node.label) {
+          this.pushStateToHistory();
+          node.label = trimmed || 'Condition';
+          this.scheduleSave();
+        }
       });
     }
+  }
+
+  getNodeColor(node: CanvasNode): string {
+    if (node.type === 'process' && (node as ProcessNode).processId) {
+      const process = this.processes.find(p => p.id === (node as ProcessNode).processId);
+      if (process) {
+        return getRoleColor(process.role);
+      }
+    }
+    return '#ffffff';
+  }
+
+  isProcessDraft(node: CanvasNode): boolean {
+    if (node.type === 'process' && (node as ProcessNode).processId) {
+      const process = this.processes.find(p => p.id === (node as ProcessNode).processId);
+      return process ? process.status === Status.Draft : false;
+    }
+    return false;
   }
 
   // Open group rename editor on double click
@@ -782,8 +944,12 @@ export class JourneyEditorComponent implements OnInit {
     if (comp) {
       comp.label = node.label || '';
       comp.saved.subscribe((newLabel: string) => {
-        node.label = (newLabel || '').trim() || node.label || 'Group';
-        this.scheduleSave();
+        const trimmed = (newLabel || '').trim();
+        if (trimmed !== node.label) {
+          this.pushStateToHistory();
+          node.label = trimmed || 'Group';
+          this.scheduleSave();
+        }
       });
     }
   }

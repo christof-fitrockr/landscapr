@@ -33,13 +33,16 @@
     <div class="text-end">
 
       <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-        <li class="nav-item">
-          <a class="nav-link" routerLinkActive="active" routerLink="/repositories">Repositories</a>
-        </li>
         <li class="nav-item d-flex align-items-center ms-2">
           <button *ngIf="fileSystemService.isSupported" class="btn btn-outline-light btn-sm me-2" (click)="fileSystemService.open()">Open</button>
           <button class="btn btn-outline-light btn-sm me-2" (click)="fileSystemService.saveAs()">Save As</button>
-          <span *ngIf="fileSystemService.hasFileOpen" class="badge bg-success ms-1">Auto-saving on</span>
+          <button *ngIf="fileSystemService.hasFileOpen" class="btn btn-sm me-2"
+                  [ngClass]="fileSystemService.isAutoSaveEnabled ? 'btn-success' : 'btn-outline-secondary'"
+                  (click)="fileSystemService.toggleAutoSave()"
+                  title="Toggle Auto-save">
+            <i class="fas" [ngClass]="fileSystemService.isAutoSaveEnabled ? 'fa-sync fa-spin' : 'fa-pause'"></i>
+            {{fileSystemService.isAutoSaveEnabled ? 'Auto-save on' : 'Auto-save off'}}
+          </button>
         </li>
         <li class="nav-item d-flex align-items-center" *ngIf="status$ | async as st">
           <ng-container *ngIf="st.state !== 'IN_SYNC' && st.state !== 'UNKNOWN'">
@@ -47,11 +50,7 @@
                 'sync-badge-warning': st.state === 'LOCAL_NEWER' || st.state === 'REMOTE_NEWER',
                 'sync-badge-danger': st.state === 'DIVERGED'
               }" [title]="st.state === 'LOCAL_NEWER' ? 'Local changes not on GitHub' : (st.state === 'REMOTE_NEWER' ? 'Updates available from GitHub' : 'Local and remote have diverged')">
-<!--              <i class="fas" [ngClass]="{-->
-<!--                'fa-upload': st.state === 'LOCAL_NEWER',-->
-<!--                'fa-download': st.state === 'REMOTE_NEWER',-->
-<!--                'fa-exchange-alt': st.state === 'DIVERGED'-->
-<!--              }"></i>-->
+
               <span class="label pt-1 pb-1">&nbsp;Sync&nbsp;</span>
             <button *ngIf="st.state === 'LOCAL_NEWER' || st.state === 'DIVERGED'" class="btn btn-sm btn-outline-light border-0 me-2" (click)="syncStatusService.push()" title="Save local version to GitHub">
               <i class="fas fa-upload"></i>
@@ -63,12 +62,17 @@
           </ng-container>
         </li>
         <li class="nav-item">
-          <button class="btn btn-link nav-link" (click)="logout()"><i class="fas fa-sign-out-alt"></i></button>
-        </li>
-        <li class="nav-item">
           <button class="btn btn-link nav-link" (click)="themeService.setDarkMode(!themeService.isDarkMode())">
             <i class="fas" [ngClass]="themeService.isDarkMode() ? 'fa-sun' : 'fa-moon'"></i>
           </button>
+        </li>
+        <li class="nav-item">
+          <button class="btn btn-link nav-link" routerLink="/repositories" routerLinkActive="active" title="Repositories">
+            <i class="fas fa-database"></i>
+          </button>
+        </li>
+        <li class="nav-item">
+          <button class="btn btn-link nav-link" (click)="logout()"><i class="fas fa-sign-out-alt"></i></button>
         </li>
       </ul>
 

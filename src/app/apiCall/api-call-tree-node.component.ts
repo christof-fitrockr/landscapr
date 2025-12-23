@@ -11,8 +11,10 @@ export class ApiCallTreeNodeComponent implements OnInit {
   @Input() searchText: string;
   @Input() orphanIds: string[] = [];
   @Input() showOrphansOnly = false;
+  @Input() selectMode = false;
 
   @Output() delete = new EventEmitter<ApiCall>();
+  @Output() select = new EventEmitter<ApiCall>();
 
   isExpanded = false;
 
@@ -35,6 +37,10 @@ export class ApiCallTreeNodeComponent implements OnInit {
     const matchesOrphan = !this.showOrphansOnly || this.orphanIds.includes(apiCall.id);
 
     return matchesSearch && matchesOrphan;
+  }
+
+  onSelect(apiCall: ApiCall) {
+    this.select.emit(apiCall);
   }
 
   prepareDelete(apiCall: ApiCall) {

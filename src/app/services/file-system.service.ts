@@ -12,6 +12,7 @@ export class FileSystemService {
   private fileHandle: any;
   private lastSavedContent: string = '';
   private autoSaveInterval: any;
+  public isAutoSaveEnabled: boolean = true;
 
   constructor(
     private repoService: RepoService,
@@ -42,10 +43,20 @@ export class FileSystemService {
         const file = await this.fileHandle.getFile();
         const content = await file.text();
 
+        if (!content || content.trim() === '') {
+          this.toastr.error('The selected file is empty.');
+          return;
+        }
+
         this.repoService.uploadJsonContent(content).pipe(first()).subscribe(() => {
           this.lastSavedContent = content;
-          this.startAutoSave();
+          if (this.isAutoSaveEnabled) {
+            this.startAutoSave();
+          }
           this.toastr.success('File opened successfully');
+        }, (err) => {
+          console.error('Failed to upload JSON content:', err);
+          this.toastr.error('Error opening file: Invalid JSON content');
         });
 
       } catch (err) {
@@ -75,7 +86,9 @@ export class FileSystemService {
 
         this.fileHandle = handle;
         this.saveCurrentState();
-        this.startAutoSave();
+        if (this.isAutoSaveEnabled) {
+          this.startAutoSave();
+        }
 
       } catch (err) {
         if (err.name === 'AbortError') {
@@ -99,13 +112,35 @@ export class FileSystemService {
       clearInterval(this.autoSaveInterval);
     }
 
+    if (!this.isAutoSaveEnabled) return;
+
     this.autoSaveInterval = setInterval(() => {
       this.checkAndSave();
     }, 2000);
   }
 
+  private stopAutoSave() {
+    if (this.autoSaveInterval) {
+      clearInterval(this.autoSaveInterval);
+      this.autoSaveInterval = null;
+    }
+  }
+
+  public toggleAutoSave() {
+    this.isAutoSaveEnabled = !this.isAutoSaveEnabled;
+    if (this.isAutoSaveEnabled) {
+      if (this.hasFileOpen) {
+        this.startAutoSave();
+        this.toastr.info('Auto-save enabled');
+      }
+    } else {
+      this.stopAutoSave();
+      this.toastr.info('Auto-save disabled');
+    }
+  }
+
   private checkAndSave() {
-    if (!this.fileHandle) return;
+    if (!this.fileHandle || !this.isAutoSaveEnabled) return;
 
     this.repoService.downloadAsJson().pipe(first()).subscribe(blob => {
       const reader = new FileReader();
@@ -122,12 +157,22 @@ export class FileSystemService {
 
   private async writeToFile(content: string) {
     try {
+      if (this.fileHandle && (await this.fileHandle.queryPermission({ mode: 'readwrite' })) !== 'granted') {
+        if ((await this.fileHandle.requestPermission({ mode: 'readwrite' })) !== 'granted') {
+          throw new Error('Write permission not granted');
+        }
+      }
       const writable = await this.fileHandle.createWritable();
       await writable.write(content);
       await writable.close();
     } catch (err) {
       console.error('Auto-save failed:', err);
-      this.toastr.error('Auto-save failed');
+      if (err.name === 'NotAllowedError') {
+        this.toastr.error('Auto-save failed: Permission denied. Please click "Save As" to re-establish connection if this persists.');
+        this.stopAutoSave();
+      } else {
+        this.toastr.error('Auto-save failed');
+      }
     }
   }
 

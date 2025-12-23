@@ -2,7 +2,7 @@ import { Component, Input, OnInit } from '@angular/core';
 import { ProcessService } from '../services/process.service';
 import { ApiCallService } from '../services/api-call.service';
 import { FlowViewService } from './flow-view.service';
-import { Process } from '../models/process';
+import { Process, getRoleColor } from '../models/process';
 import { ApiCall } from '../models/api-call';
 import { first } from 'rxjs/operators';
 
@@ -12,6 +12,7 @@ import { first } from 'rxjs/operators';
   styleUrls: ['./process-flow-node.component.scss']
 })
 export class ProcessFlowNodeComponent implements OnInit {
+  getRoleColor = getRoleColor;
   @Input() processId: string;
   @Input() process: Process; // Optional, if already loaded
 

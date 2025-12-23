@@ -96,11 +96,15 @@ export class RepoService {
   uploadJsonContent(content: string | object): Observable<void> {
     return new Observable<void>(obs => {
       try {
+        if (!content) {
+          throw new Error('No content provided');
+        }
         const parsedData = typeof content === 'string' ? JSON.parse(content) : content;
         this.applyParsedData(parsedData as any);
         obs.next();
         obs.complete();
       } catch (err) {
+        console.error('Error parsing JSON content:', err, 'Content:', content);
         obs.error(err);
       }
     });

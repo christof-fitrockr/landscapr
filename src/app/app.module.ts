@@ -31,6 +31,7 @@ import {ImprintComponent} from './imprint/imprint.component';
 import {DisclaimerComponent} from './disclaimer/disclaimer.component';
 import {HashLocationStrategy, LocationStrategy} from '@angular/common';
 import {ProcessTableComponent} from './components/process-table.component';
+import {ProcessTreeNodeComponent} from './components/process-tree-node.component';
 import {CapabilityViewComponent} from './capability/capability-view.component';
 import {CapabilityEditApiCallComponent} from './capability/capability-edit-api-call.component';
 import {CapabilityListComponent} from './capability/capability-list.component';
@@ -108,6 +109,7 @@ import { CommentsPanelComponent } from './components/comments-panel/comments-pan
     ProcessFlowViewComponent,
     AppSidePanelComponent,
     ProcessTableComponent,
+    ProcessTreeNodeComponent,
     ProcessEditUsedByComponent,
 
     DashboardComponent,
