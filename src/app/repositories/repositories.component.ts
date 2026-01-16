@@ -83,7 +83,7 @@ export class RepositoriesComponent implements OnInit {
     this.selectedFilePath = null;
 
     this.loadingFiles = true;
-    this.files$ = this.githubService.getRepoContents(this.owner, repo.name, '');
+    this.files$ = this.githubService.getRepoContents(repo.owner.login, repo.name, '');
     // When observable resolves, Angular will render. We just turn off spinner shortly after by subscribing once.
     this.files$.pipe(first()).subscribe(files => {
       this.loadingFiles = false;
@@ -108,7 +108,7 @@ export class RepositoriesComponent implements OnInit {
   // Load from selected GitHub file into local app storage
   loadFromGithub(): void {
     if (!this.selectedRepo || !this.selectedFilePath) { return; }
-    this.githubService.getFileContent(this.owner, this.selectedRepo.name, this.selectedFilePath)
+    this.githubService.getFileContent(this.selectedRepo.owner.login, this.selectedRepo.name, this.selectedFilePath)
       .pipe(first())
       .subscribe(fileContent => {
         try {
@@ -145,7 +145,7 @@ export class RepositoriesComponent implements OnInit {
   saveToGithub(): void {
     if (!this.selectedRepo || !this.selectedFilePath) { return; }
     this.saving = true;
-    const owner = this.owner;
+    const owner = this.selectedRepo.owner.login;
     const repo = this.selectedRepo.name;
     const path = this.selectedFilePath;
 
