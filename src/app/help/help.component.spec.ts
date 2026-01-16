@@ -13,7 +13,7 @@ describe('HelpComponent', () => {
       imports: [
         HttpClientTestingModule,
         MarkdownModule.forRoot()
-
+      ]
     })
     .compileComponents();
 
