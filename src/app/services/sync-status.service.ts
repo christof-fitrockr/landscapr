@@ -77,7 +77,7 @@ export class SyncStatusService {
         const remoteHash = this.hash(JSON.stringify(remoteData));
 
         let state: SyncState = 'IN_SYNC';
-        if (lastSha && lastLocalHash) {
+        if (lastSha !== undefined && lastSha !== '' && lastLocalHash !== undefined && lastLocalHash !== '') {
           const shaChanged = remoteSha !== lastSha;
           const localChanged = localHash !== lastLocalHash;
           if (!shaChanged && !localChanged) state = 'IN_SYNC';

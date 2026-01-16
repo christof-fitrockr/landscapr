@@ -33,7 +33,7 @@
     <div class="text-end">
 
       <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-        <li class="nav-item d-flex align-items-center ms-2">
+<!--        <li class="nav-item d-flex align-items-center ms-2">
           <button *ngIf="fileSystemService.isSupported" class="btn btn-outline-light btn-sm me-2" (click)="fileSystemService.open()">Open</button>
           <button class="btn btn-outline-light btn-sm me-2" (click)="fileSystemService.saveAs()">Save As</button>
           <button *ngIf="fileSystemService.hasFileOpen" class="btn btn-sm me-2"
@@ -43,7 +43,7 @@
             <i class="fas" [ngClass]="fileSystemService.isAutoSaveEnabled ? 'fa-sync fa-spin' : 'fa-pause'"></i>
             {{fileSystemService.isAutoSaveEnabled ? 'Auto-save on' : 'Auto-save off'}}
           </button>
-        </li>
+        </li>-->
         <li class="nav-item d-flex align-items-center" *ngIf="status$ | async as st">
           <ng-container *ngIf="st.state !== 'IN_SYNC' && st.state !== 'UNKNOWN'">
             <span class="sync-badge mr-2 ml-2" [ngClass]="{
