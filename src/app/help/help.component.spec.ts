@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
+import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { MarkdownModule } from 'ngx-markdown';
 import { HelpComponent } from './help.component';
 
 describe('HelpComponent', () => {
@@ -8,7 +9,11 @@ describe('HelpComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ HelpComponent ]
+      declarations: [ HelpComponent ],
+      imports: [
+        HttpClientTestingModule,
+        MarkdownModule.forRoot()
+
     })
     .compileComponents();
 
