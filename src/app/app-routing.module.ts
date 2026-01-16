@@ -39,10 +39,12 @@ import { JourneyEditBaseComponent } from './journey/journey-edit-base.component'
 import { RepositoriesComponent } from './repositories/repositories.component';
 import { ApiGroupMapComponent } from './components/api-group-map.component';
 import {LicensesComponent} from './licenses/licenses.component';
+import {HelpComponent} from './help/help.component';
 
 const routes: Routes = [
 
   { path: 'dashboard', component: DashboardComponent, canActivate: [AuthGuard] },
+  { path: 'help', component: HelpComponent},
   { path: 'journeys', canActivate: [AuthGuard], children: [
       { path: '', redirectTo: 'list', pathMatch: 'full' },
       { path: 'list', component: JourneyListComponent, canActivate: [AuthGuard] },

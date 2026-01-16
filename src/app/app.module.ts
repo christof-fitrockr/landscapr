@@ -87,12 +87,14 @@ import { ProcessFlowViewComponent } from './process/process-flow-view.component'
 import {LicensesComponent} from './licenses/licenses.component';
 import { CommentsPanelComponent } from './components/comments-panel/comments-panel.component';
 import { ExportModalComponent } from './components/export-modal.component';
+import {HelpComponent} from './help/help.component';
 
 
 @NgModule({
   declarations: [
     ExportModalComponent,
     CommentsPanelComponent,
+    HelpComponent,
     GithubDialogComponent,
     SaveGithubDialogComponent,
     GithubActionsDialogComponent,
