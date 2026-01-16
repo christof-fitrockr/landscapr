@@ -3,7 +3,7 @@ import {CapabilityService} from '../services/capability.service';
 import {Capability} from '../models/capability';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {ActivatedRoute, Router} from '@angular/router';
-import {first, map, switchMap, tap} from 'rxjs/operators';
+import {catchError, first, map, switchMap, tap} from 'rxjs/operators';
 import {ToastrService} from 'ngx-toastr';
 import {forkJoin, noop, Observable, Observer, of, Subscription} from 'rxjs';
 import {TypeaheadMatch} from 'ngx-bootstrap/typeahead';
@@ -74,16 +74,19 @@ export class CapabilityEditImplementedByComponent implements OnInit, OnDestroy {
       this.capabilityService.byId(this.capabilityId).pipe(first()).subscribe(capability => {
         this.capability = capability;
 
-        // todo seqquential
-        if(this.capability.implementedBy) {
-          this.systems = [];
-          this.capability.implementedBy.forEach(item => {
-            if(item) {
-              this.systemService.byId(item).pipe(first()).subscribe(result => {
-                this.systems.push(result);
-              })
-            }
+        if (this.capability.implementedBy && this.capability.implementedBy.length > 0) {
+          const requests = this.capability.implementedBy
+            .filter(item => !!item)
+            .map(item => this.systemService.byId(item).pipe(
+              first(),
+              catchError(() => of(null))
+            ));
+
+          forkJoin(requests).subscribe(results => {
+            this.systems = results.filter(sys => sys !== null);
           });
+        } else {
+          this.systems = [];
         }
 
       });
