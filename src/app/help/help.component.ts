@@ -10,8 +10,8 @@ import { catchError } from 'rxjs/operators';
 })
 export class HelpComponent implements OnInit {
 
-
   topics = [
+    { id: 'howto-workflow', title: 'How To: Workflow', file: 'assets/help/howto-workflow.md' },
     { id: 'dashboard', title: 'Dashboard', file: 'assets/help/dashboard.md' },
     { id: 'journeys', title: 'Journeys', file: 'assets/help/journeys.md' },
     { id: 'process', title: 'Process', file: 'assets/help/process.md' },
