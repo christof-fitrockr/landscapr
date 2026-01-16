@@ -10,6 +10,7 @@ import { catchError } from 'rxjs/operators';
 })
 export class HelpComponent implements OnInit {
 
+
   topics = [
     { id: 'dashboard', title: 'Dashboard', file: 'assets/help/dashboard.md' },
     { id: 'journeys', title: 'Journeys', file: 'assets/help/journeys.md' },
