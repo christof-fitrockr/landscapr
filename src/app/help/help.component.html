@@ -1,0 +1,22 @@
+<div class="container-fluid mt-4">
+  <div class="row">
+    <div class="col-md-3">
+      <div class="list-group mb-4">
+        <button *ngFor="let topic of topics"
+                type="button"
+                class="list-group-item list-group-item-action"
+                [class.active]="topic === selectedTopic"
+                (click)="selectTopic(topic)">
+          {{ topic.title }}
+        </button>
+      </div>
+    </div>
+    <div class="col-md-9">
+      <div class="card shadow mb-4">
+        <div class="card-body markdown-body">
+            <markdown [data]="content$ | async"></markdown>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
