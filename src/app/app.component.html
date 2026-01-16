@@ -62,6 +62,11 @@
           </ng-container>
         </li>
         <li class="nav-item">
+          <button class="btn btn-link nav-link" routerLink="/help" routerLinkActive="active" title="Help">
+            <i class="fas fa-question-circle"></i>
+          </button>
+        </li>
+        <li class="nav-item">
           <button class="btn btn-link nav-link" (click)="themeService.setDarkMode(!themeService.isDarkMode())">
             <i class="fas" [ngClass]="themeService.isDarkMode() ? 'fa-sun' : 'fa-moon'"></i>
           </button>
