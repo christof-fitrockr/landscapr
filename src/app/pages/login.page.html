@@ -1,67 +1,37 @@
-<div id="login-main" class="m-0 p-0 container-fluid vh-100 col-12">
-  <div class="row m-0 p-0 h-100 justify-content-center align-items-center col-12">
+<div id="login-main" class="m-0 p-0 container-fluid vh-100 col-12 d-flex justify-content-center align-items-center">
+  <div class="col-12 col-md-6 col-lg-4">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <form *ngIf="!loading" [formGroup]="loginForm" (ngSubmit)="onSubmit()">
 
-    <div id="image-div" class="d-none d-md-block col-md-8 m-0 p-0 h-100">
-    </div>
-    <div class="col-12 col-md-4">
-
-      <form *ngIf="!loading" class="h-100 justify-content-center" [formGroup]="loginForm" (ngSubmit)="onSubmit()">
-
-          <div class="col-12 text-center">
-            <img class="mb-4 img-fluid" src="/assets/img.png" >
+          <div class="text-center mb-4">
+            <img class="img-fluid" src="/assets/img.png" alt="Logo" style="max-height: 100px;">
           </div>
-          <div class="col-12 text-left">
+
+          <div class="text-center mb-4">
             <h5>Login</h5>
+            <p class="text-muted small">An invitation code is needed to access the page.</p>
             <p *ngIf="errorMessage" class="text-danger">{{errorMessage}}</p>
           </div>
 
-          <div class="col-12">
-
-            <div class="form-group">
-              <label for="username">Email</label>
-              <input id="username" type="text" formControlName="email" class="form-control" [ngClass]="{ 'is-invalid': submitted && f.email.errors }" />
-              <div *ngIf="submitted && f.email.errors" class="invalid-feedback">
-                <div *ngIf="f.email.errors.required">Email is required</div>
-              </div>
+          <div class="form-group">
+            <label for="loginCode">Invitation Code</label>
+            <input id="loginCode" type="password" formControlName="loginCode" class="form-control" [ngClass]="{ 'is-invalid': submitted && f.loginCode.errors }" />
+            <div *ngIf="submitted && f.loginCode.errors" class="invalid-feedback">
+              <div *ngIf="f.loginCode.errors.required">Invitation Code is required</div>
             </div>
-
           </div>
 
-          <div class="col-12">
-
-            <div class="form-group">
-              <label for="password">Password</label>
-              <input id="password" type="password" formControlName="password" class="form-control" [ngClass]="{ 'is-invalid': submitted && f.password.errors }" />
-              <div *ngIf="submitted && f.password.errors" class="invalid-feedback">
-                <div *ngIf="f.password.errors.required">Password is required</div>
-              </div>
-            </div>
-
+          <div class="form-group mt-4">
+            <button [disabled]="loading" class="btn btn-primary w-100">Login</button>
           </div>
 
+        </form>
 
-          <div class="col-12">
-
-            <div class="form-group">
-              <button [disabled]="loading" class="btn btn-primary w-100 mt-4">Login</button>
-            </div>
-
-          </div>
-
-
-      </form>
-
-      <div class="fa-3x text-center p-5" *ngIf="loading">
-        <i class="fas fa-spinner fa-pulse"></i>
+        <div class="text-center p-5" *ngIf="loading">
+          <i class="fas fa-spinner fa-pulse fa-3x"></i>
+        </div>
       </div>
     </div>
-
-
-
-
   </div>
 </div>
-
-
-
-
