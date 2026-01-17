@@ -20,6 +20,7 @@ import { ConfirmationDialogComponent } from '../components/confirmation-dialog.c
 export class RepositoriesComponent implements OnInit {
 
   private static readonly STORAGE_SELECTED_REPO = 'repositories.selectedRepo';
+  private static readonly STORAGE_SELECTED_REPO_OWNER = 'repositories.selectedRepoOwner';
   private static readonly STORAGE_SELECTED_FILE = 'repositories.selectedFilePath';
   private static readonly STORAGE_PREFIX_BRANCH = 'repositories.currentBranch.';
 
@@ -88,6 +89,7 @@ export class RepositoriesComponent implements OnInit {
   selectRepo(repo: any): void {
     this.selectedRepo = repo;
     localStorage.setItem(RepositoriesComponent.STORAGE_SELECTED_REPO, repo?.name ?? '');
+    localStorage.setItem(RepositoriesComponent.STORAGE_SELECTED_REPO_OWNER, repo?.owner?.login ?? '');
     this.selectedFilePath = null;
     this.branches = [];
     this.isRepoCollapsed = false;
