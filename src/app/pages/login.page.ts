@@ -32,8 +32,7 @@ export class LoginPage implements OnInit {
 
   ngOnInit() {
     this.loginForm = this.formBuilder.group({
-      email: ['', Validators.required],
-      password: ['', Validators.required]
+      loginCode: ['', Validators.required]
     });
 
     // get return url from route parameters or default to '/'
@@ -54,7 +53,7 @@ export class LoginPage implements OnInit {
 
     this.errorMessage = undefined;
     this.loading = true;
-    this.authenticationService.login(this.f.email.value, this.f.password.value)
+    this.authenticationService.login(this.f.loginCode.value)
       .pipe(first())
       .subscribe(
         data => {
@@ -63,7 +62,7 @@ export class LoginPage implements OnInit {
           } else {
             switch(data.code) {
               case 'login-failed':
-                this.errorMessage = "Email/Password does not match.";
+                this.errorMessage = "Invitation Code does not match.";
                 break;
               default:
                 this.errorMessage = "Unknown error";

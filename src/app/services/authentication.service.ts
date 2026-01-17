@@ -53,25 +53,28 @@ export class AuthenticationService {
         }
     }
 
-    login(email: string, password: string) {
+    login(loginCode: string) {
 
       return new Observable<User>(obs => {
-        if(email === "support@landscapr.de" && "landscapr4adm1n!") {
+        if(loginCode === "landscapr4adm1n!") {
           const authResponse = new User();
           authResponse.token = '3lkjnvdöcop0' + uuidv4();
           authResponse.admin = true;
           authResponse.success = true;
-          authResponse.displayName = "support@landscapr.de";
-          authResponse.username = "support@landscapr.de";
+          authResponse.displayName = "Guest";
+          authResponse.username = "Guest";
           // store authResponse details and jwt token in local storage to keep authResponse logged in between page refreshes
           localStorage.setItem('currentUser', JSON.stringify(authResponse));
           this.currentUserSubject.next(authResponse);
-console.log("Test");
           obs.next(authResponse);
           return;
         }
 
-        obs.error();
+        const failedResponse = new User();
+        failedResponse.success = false;
+        failedResponse.code = 'login-failed';
+        obs.next(failedResponse);
+        obs.complete();
 
       });
 
