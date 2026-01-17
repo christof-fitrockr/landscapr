@@ -1,0 +1,20 @@
+<div class="modal-header">
+  <h5 class="modal-title">Create Pull Request</h5>
+  <button type="button" class="close" aria-label="Close" (click)="cancel()">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+<div class="modal-body">
+  <div class="form-group">
+    <label for="prTitle">Title</label>
+    <input type="text" class="form-control" id="prTitle" [(ngModel)]="title" placeholder="feat: new feature">
+  </div>
+  <div class="form-group">
+    <label for="prBody">Description</label>
+    <textarea class="form-control" id="prBody" rows="5" [(ngModel)]="body" placeholder="Describe your changes..."></textarea>
+  </div>
+</div>
+<div class="modal-footer">
+  <button type="button" class="btn btn-secondary" (click)="cancel()">Cancel</button>
+  <button type="button" class="btn btn-primary" [disabled]="!title" (click)="submit()">Create Pull Request</button>
+</div>

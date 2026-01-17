@@ -18,6 +18,8 @@ export class SaveGithubDialogComponent implements OnInit {
   owner: string;
   fileName: string;
   onClose: Subject<any>;
+  private static readonly STORAGE_PREFIX_BRANCH = 'repositories.currentBranch.';
+
 
   // Branching state
   isNewBranch: boolean = false;
@@ -26,6 +28,8 @@ export class SaveGithubDialogComponent implements OnInit {
   newBranchName: string;
   createPr: boolean = true;
   prTitle: string;
+
+  isMainBranchProtected: boolean = false;
 
   constructor(
     public bsModalRef: BsModalRef,
@@ -53,9 +57,23 @@ export class SaveGithubDialogComponent implements OnInit {
     this.files$ = this.githubService.getRepoContents(this.owner, repo.name, '');
     this.githubService.getBranches(this.owner, repo.name).subscribe(branches => {
       this.branches = branches;
-      const defaultBranch = branches.find(b => b.name === repo.default_branch) || branches[0];
-      this.selectedBranch = defaultBranch ? defaultBranch.name : '';
-      this.baseBranch = this.selectedBranch;
+
+      // Load persisted branch logic similar to RepositoriesComponent
+      const savedBranch = localStorage.getItem(SaveGithubDialogComponent.STORAGE_PREFIX_BRANCH + repo.name);
+      const defaultBranchName = repo.default_branch || 'main';
+      const targetBranch = savedBranch || defaultBranchName;
+
+      this.selectedBranch = targetBranch;
+      this.baseBranch = targetBranch;
+
+      // If persisted/selected branch is main, force new branch mode
+      if (targetBranch === defaultBranchName) {
+          this.isMainBranchProtected = true;
+          this.toggleNewBranch(true);
+      } else {
+          this.isMainBranchProtected = false;
+          this.toggleNewBranch(false);
+      }
     });
   }
 
@@ -84,6 +102,11 @@ export class SaveGithubDialogComponent implements OnInit {
   }
 
   save(): void {
+    // If we are creating a new branch, update the persistence for this repo
+    if (this.isNewBranch && this.selectedRepo) {
+        localStorage.setItem(SaveGithubDialogComponent.STORAGE_PREFIX_BRANCH + this.selectedRepo.name, this.newBranchName);
+    }
+
     if (this.onClose) {
       this.onClose.next({
         repo: this.selectedRepo,
