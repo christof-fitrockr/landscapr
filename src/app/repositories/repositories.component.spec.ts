@@ -147,4 +147,53 @@ describe('RepositoriesComponent', () => {
     expect(modalServiceSpy.show).toHaveBeenCalledTimes(2); // PrDialog + Confirmation
     expect(component.createNewBranch).toHaveBeenCalled();
   });
+
+  it('should create a branch and switch to it in startEditMode', () => {
+    component.selectedRepo = { name: 'repo', default_branch: 'main', owner: { login: 'owner' } };
+    component.connectedUser = 'user';
+
+    // Mock getRef to return a SHA
+    githubServiceSpy.getRef.and.returnValue(of({ object: { sha: 'sha123' } }));
+    githubServiceSpy.createBranch.and.returnValue(of({}));
+
+    spyOn(component, 'switchBranch');
+
+    component.startEditMode();
+
+    expect(githubServiceSpy.getRef).toHaveBeenCalledWith('owner', 'repo', 'heads/main');
+    expect(githubServiceSpy.createBranch).toHaveBeenCalled();
+    // Verify branch name format
+    const branchNameArg = githubServiceSpy.createBranch.calls.mostRecent().args[2];
+    expect(branchNameArg).toContain('user-');
+
+    expect(component.branches.some(b => b.name === branchNameArg)).toBeTrue();
+    expect(component.switchBranch).toHaveBeenCalledWith(branchNameArg);
+    expect(toastrServiceSpy.success).toHaveBeenCalled();
+  });
+
+  it('should submit changes and offer to switch to main', () => {
+    component.selectedRepo = { name: 'repo', default_branch: 'main', owner: { login: 'owner' } };
+    component.currentBranch = 'feature';
+    component.connectedUser = 'user';
+
+    // Mock ConfirmationDialog for submission
+    const confirmSubmitRef = { content: { onClose: of(true) } }; // Yes, Submit
+    // Mock ConfirmationDialog for returning to main
+    const confirmReturnRef = { content: { onClose: of(true) } }; // Yes, Return
+
+    modalServiceSpy.show.and.returnValues(confirmSubmitRef as any, confirmReturnRef as any);
+    githubServiceSpy.createPullRequest.and.returnValue(of({}));
+
+    spyOn(component, 'switchToMain');
+
+    component.submitChanges();
+
+    expect(modalServiceSpy.show).toHaveBeenCalledTimes(2);
+    expect(githubServiceSpy.createPullRequest).toHaveBeenCalled();
+    const titleArg = githubServiceSpy.createPullRequest.calls.mostRecent().args[2];
+    expect(titleArg).toContain('Update by user');
+
+    expect(toastrServiceSpy.success).toHaveBeenCalledWith('Changes submitted successfully!');
+    expect(component.switchToMain).toHaveBeenCalled();
+  });
 });

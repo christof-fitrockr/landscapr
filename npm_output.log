@@ -1,0 +1,157 @@
+
+> landscapr@1.0.0 start
+> node set-version.js && ng serve
+
+Wrote version 2026-01-17 11:54:08 to /app/src/environments/version.ts
+- Generating browser application bundles (phase: setup)...
+Processing legacy "View Engine" libraries:
+- ngx-bootstrap/typeahead [es2015/esm2015] (git+ssh://git@github.com/valor-software/ngx-bootstrap.git)
+- ngx-bootstrap/sortable [es2015/esm2015] (git+ssh://git@github.com/valor-software/ngx-bootstrap.git)
+Encourage the library authors to publish an Ivy distribution.
+DEPRECATION WARNING: Using / for division outside of calc() is deprecated and will be removed in Dart Sass 2.0.0.
+
+Recommendation: math.div(20em, 16) or calc(20em / 16)
+
+More info and automated migrator: https://sass-lang.com/d/slash-div
+
+   ╷
+12 │ $fa-fw-width:          (20em / 16);
+   │                         ^^^^^^^^^
+   ╵
+    node_modules/@fortawesome/fontawesome-free/scss/_variables.scss 12:25  @import
+    node_modules/@fortawesome/fontawesome-free/scss/fontawesome.scss 5:9   root stylesheet
+
+DEPRECATION WARNING: Using / for division outside of calc() is deprecated and will be removed in Dart Sass 2.0.0.
+
+Recommendation: math.div(4em, 3) or calc(4em / 3)
+
+More info and automated migrator: https://sass-lang.com/d/slash-div
+
+  ╷
+6 │   font-size: (4em / 3);
+  │               ^^^^^^^
+  ╵
+    node_modules/@fortawesome/fontawesome-free/scss/_larger.scss 6:15     @import
+    node_modules/@fortawesome/fontawesome-free/scss/fontawesome.scss 8:9  root stylesheet
+
+DEPRECATION WARNING: Using / for division outside of calc() is deprecated and will be removed in Dart Sass 2.0.0.
+
+Recommendation: math.div(3em, 4) or calc(3em / 4)
+
+More info and automated migrator: https://sass-lang.com/d/slash-div
+
+  ╷
+7 │   line-height: (3em / 4);
+  │                 ^^^^^^^
+  ╵
+    node_modules/@fortawesome/fontawesome-free/scss/_larger.scss 7:17     @import
+    node_modules/@fortawesome/fontawesome-free/scss/fontawesome.scss 8:9  root stylesheet
+
+DEPRECATION WARNING: Using / for division outside of calc() is deprecated and will be removed in Dart Sass 2.0.0.
+
+Recommendation: math.div($fa-li-width * 5, 4) or calc($fa-li-width * 5 / 4)
+
+More info and automated migrator: https://sass-lang.com/d/slash-div
+
+  ╷
+6 │   margin-left: $fa-li-width * 5/4;
+  │                ^^^^^^^^^^^^^^^^^^
+  ╵
+    node_modules/@fortawesome/fontawesome-free/scss/_list.scss 6:16        @import
+    node_modules/@fortawesome/fontawesome-free/scss/fontawesome.scss 10:9  root stylesheet
+
+✔ Browser application bundle generation complete.
+
+Initial Chunk Files                             | Names         |  Raw Size
+vendor.js                                       | vendor        |   4.92 MB |
+main.js                                         | main          |   1.40 MB |
+scripts.js                                      | scripts       |   1.37 MB |
+styles.css, styles.js                           | styles        | 611.00 kB |
+polyfills.js                                    | polyfills     | 348.96 kB |
+runtime.js                                      | runtime       |  14.14 kB |
+
+| Initial Total |   8.64 MB
+
+Lazy Chunk Files                                | Names         |  Raw Size
+node_modules_canvg_lib_index_es_js.js           | canvg         | 424.04 kB |
+node_modules_html2canvas_dist_html2canvas_js.js | html2canvas   | 390.81 kB |
+node_modules_dompurify_dist_purify_js.js        | dompurify     |  64.19 kB |
+
+Build at: 2026-01-17T11:54:40.276Z - Hash: 38412e98ba1cb16a - Time: 28863ms
+
+Warning: /app/node_modules/canvg/lib/index.es.js depends on 'core-js/modules/es.array.index-of.js'. CommonJS or AMD dependencies can cause optimization bailouts.
+For more info see: https://angular.io/guide/build#configuring-commonjs-dependencies
+
+Warning: /app/node_modules/canvg/lib/index.es.js depends on 'core-js/modules/es.array.iterator.js'. CommonJS or AMD dependencies can cause optimization bailouts.
+For more info see: https://angular.io/guide/build#configuring-commonjs-dependencies
+
+Warning: /app/node_modules/canvg/lib/index.es.js depends on 'core-js/modules/es.array.reduce.js'. CommonJS or AMD dependencies can cause optimization bailouts.
+For more info see: https://angular.io/guide/build#configuring-commonjs-dependencies
+
+Warning: /app/node_modules/canvg/lib/index.es.js depends on 'core-js/modules/es.array.reverse.js'. CommonJS or AMD dependencies can cause optimization bailouts.
+For more info see: https://angular.io/guide/build#configuring-commonjs-dependencies
+
+Warning: /app/node_modules/canvg/lib/index.es.js depends on 'core-js/modules/es.promise.js'. CommonJS or AMD dependencies can cause optimization bailouts.
+For more info see: https://angular.io/guide/build#configuring-commonjs-dependencies
+
+Warning: /app/node_modules/canvg/lib/index.es.js depends on 'core-js/modules/es.regexp.to-string.js'. CommonJS or AMD dependencies can cause optimization bailouts.
+For more info see: https://angular.io/guide/build#configuring-commonjs-dependencies
+
+Warning: /app/node_modules/canvg/lib/index.es.js depends on 'core-js/modules/es.string.ends-with.js'. CommonJS or AMD dependencies can cause optimization bailouts.
+For more info see: https://angular.io/guide/build#configuring-commonjs-dependencies
+
+Warning: /app/node_modules/canvg/lib/index.es.js depends on 'core-js/modules/es.string.includes.js'. CommonJS or AMD dependencies can cause optimization bailouts.
+For more info see: https://angular.io/guide/build#configuring-commonjs-dependencies
+
+Warning: /app/node_modules/canvg/lib/index.es.js depends on 'core-js/modules/es.string.match.js'. CommonJS or AMD dependencies can cause optimization bailouts.
+For more info see: https://angular.io/guide/build#configuring-commonjs-dependencies
+
+Warning: /app/node_modules/canvg/lib/index.es.js depends on 'core-js/modules/es.string.replace.js'. CommonJS or AMD dependencies can cause optimization bailouts.
+For more info see: https://angular.io/guide/build#configuring-commonjs-dependencies
+
+Warning: /app/node_modules/canvg/lib/index.es.js depends on 'core-js/modules/es.string.split.js'. CommonJS or AMD dependencies can cause optimization bailouts.
+For more info see: https://angular.io/guide/build#configuring-commonjs-dependencies
+
+Warning: /app/node_modules/canvg/lib/index.es.js depends on 'core-js/modules/es.string.starts-with.js'. CommonJS or AMD dependencies can cause optimization bailouts.
+For more info see: https://angular.io/guide/build#configuring-commonjs-dependencies
+
+Warning: /app/node_modules/canvg/lib/index.es.js depends on 'core-js/modules/es.string.trim.js'. CommonJS or AMD dependencies can cause optimization bailouts.
+For more info see: https://angular.io/guide/build#configuring-commonjs-dependencies
+
+Warning: /app/node_modules/canvg/lib/index.es.js depends on 'core-js/modules/web.dom-collections.iterator.js'. CommonJS or AMD dependencies can cause optimization bailouts.
+For more info see: https://angular.io/guide/build#configuring-commonjs-dependencies
+
+Warning: /app/node_modules/canvg/lib/index.es.js depends on 'raf'. CommonJS or AMD dependencies can cause optimization bailouts.
+For more info see: https://angular.io/guide/build#configuring-commonjs-dependencies
+
+Warning: /app/node_modules/canvg/lib/index.es.js depends on 'rgbcolor'. CommonJS or AMD dependencies can cause optimization bailouts.
+For more info see: https://angular.io/guide/build#configuring-commonjs-dependencies
+
+Warning: /app/node_modules/jspdf/dist/jspdf.es.min.js depends on 'dompurify'. CommonJS or AMD dependencies can cause optimization bailouts.
+For more info see: https://angular.io/guide/build#configuring-commonjs-dependencies
+
+Warning: /app/node_modules/jspdf/dist/jspdf.es.min.js depends on 'html2canvas'. CommonJS or AMD dependencies can cause optimization bailouts.
+For more info see: https://angular.io/guide/build#configuring-commonjs-dependencies
+
+Warning: /app/node_modules/ngx-filesaver/__ivy_ngcc__/fesm2015/ngx-filesaver.js depends on 'file-saver'. CommonJS or AMD dependencies can cause optimization bailouts.
+For more info see: https://angular.io/guide/build#configuring-commonjs-dependencies
+
+Warning: /app/src/app/services/ppt-export.service.ts depends on 'pptxgenjs'. CommonJS or AMD dependencies can cause optimization bailouts.
+For more info see: https://angular.io/guide/build#configuring-commonjs-dependencies
+
+
+
+** Angular Live Development Server is listening on localhost:4200, open your browser on http://localhost:4200/ **
+
+
+✔ Compiled successfully.
+✔ Browser application bundle generation complete.
+
+Initial Chunk Files | Names   | Raw Size
+runtime.js          | runtime | 14.14 kB |
+
+8 unchanged chunks
+
+Build at: 2026-01-17T11:54:45.267Z - Hash: f94570ee7a897afd - Time: 4512ms
+
+✔ Compiled successfully.

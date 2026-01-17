@@ -72,31 +72,45 @@
                               </li>
                           </ul>
                       </div>
+                      <!-- Hidden manual new branch to enforce guided workflow -->
+                      <!--
                       <button class="btn btn-link ml-2" (click)="createNewBranch()" title="Create New Branch">
                           <i class="fas fa-plus-circle"></i> New Branch
                       </button>
-                      <button class="btn btn-outline-warning btn-sm ml-2"
+                      -->
+                      <button class="btn btn-outline-secondary btn-sm ml-2"
                               *ngIf="currentBranch !== (selectedRepo?.default_branch || 'main')"
                               (click)="switchToMain()"
-                              title="Switch to main branch to view latest status">
-                          <i class="fas fa-home"></i> Switch to Main
+                              title="Discard changes and return to main view">
+                          <i class="fas fa-times"></i> Cancel / Back to Main
                       </button>
                   </div>
-                  <div class="mt-2 text-danger small" *ngIf="currentBranch === selectedRepo.default_branch">
-                      <i class="fas fa-exclamation-triangle"></i> You are on the main branch. Create a new branch to save changes.
+                  <div class="mt-2 text-info small" *ngIf="currentBranch === (selectedRepo?.default_branch || 'main')">
+                      <i class="fas fa-info-circle"></i> You are in View Mode. Start Edit Mode to make changes.
                   </div>
               </div>
               <div class="col-md-6 text-right">
                   <div class="mb-2">
                       <span class="badge badge-light p-2 border">File: {{ selectedFilePath }}</span>
                   </div>
-                  <button class="btn btn-primary btn-sm mr-2" (click)="saveToGithub()" [disabled]="saving">
-                      <span *ngIf="!saving"><i class="fas fa-save"></i> Save Changes</span>
-                      <span *ngIf="saving"><i class="fas fa-spinner fa-spin"></i> Saving...</span>
-                  </button>
-                  <button class="btn btn-success btn-sm" (click)="createPr()" [disabled]="currentBranch === selectedRepo.default_branch">
-                      <i class="fas fa-code-branch"></i> Create Pull Request
-                  </button>
+
+                  <!-- Main Branch Actions -->
+                  <ng-container *ngIf="currentBranch === (selectedRepo?.default_branch || 'main')">
+                      <button class="btn btn-primary btn-lg" (click)="startEditMode()">
+                          <i class="fas fa-pen"></i> Start Edit Mode
+                      </button>
+                  </ng-container>
+
+                  <!-- Feature Branch Actions -->
+                  <ng-container *ngIf="currentBranch !== (selectedRepo?.default_branch || 'main')">
+                      <button class="btn btn-outline-primary btn-sm mr-2" (click)="saveToGithub()" [disabled]="saving">
+                          <span *ngIf="!saving"><i class="fas fa-save"></i> Save Changes</span>
+                          <span *ngIf="saving"><i class="fas fa-spinner fa-spin"></i> Saving...</span>
+                      </button>
+                      <button class="btn btn-success btn-sm" (click)="submitChanges()">
+                          <i class="fas fa-paper-plane"></i> Submit Changes
+                      </button>
+                  </ng-container>
               </div>
           </div>
       </div>

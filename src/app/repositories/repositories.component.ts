@@ -209,6 +209,84 @@ export class RepositoriesComponent implements OnInit {
       }, _ => this.toastr.error('Failed to load file from GitHub (does it exist on this branch?)'));
   }
 
+  generateBranchName(): string {
+    const now = new Date();
+    const dateStr = now.toISOString().slice(0, 10);
+    const timeStr = `${now.getHours().toString().padStart(2, '0')}${now.getMinutes().toString().padStart(2, '0')}`;
+    return `${this.connectedUser}-${dateStr}-${timeStr}`;
+  }
+
+  startEditMode(): void {
+    if (!this.selectedRepo) return;
+    const branchName = this.generateBranchName();
+    const repoOwner = this.selectedRepo.owner.login;
+    const repoName = this.selectedRepo.name;
+    const baseBranch = this.selectedRepo.default_branch || 'main';
+
+    this.toastr.info('Starting edit mode...');
+
+    this.githubService.getRef(repoOwner, repoName, `heads/${baseBranch}`).pipe(
+      switchMap((ref: any) => {
+        const sha = ref.object.sha;
+        return this.githubService.createBranch(repoOwner, repoName, branchName, sha);
+      })
+    ).subscribe(() => {
+      this.toastr.success(`Created branch ${branchName}`);
+      this.branches.push({ name: branchName });
+      this.switchBranch(branchName);
+    }, err => this.toastr.error('Failed to create branch. Try again later.'));
+  }
+
+  submitChanges(): void {
+    if (!this.selectedRepo) return;
+
+    const confirmRef = this.modalService.show(ConfirmationDialogComponent, {
+      initialState: {
+        title: 'Submit Changes',
+        message: 'Are you ready to submit your changes to the main repository? This will create a Pull Request for review.',
+        btnYesText: 'Yes, Submit',
+        btnNoText: 'Cancel'
+      }
+    });
+
+    const content: any = confirmRef.content;
+    if (content && content.onClose) {
+      content.onClose.pipe(first()).subscribe((result: boolean) => {
+        if (result) {
+          this.executeSubmission();
+        }
+      });
+    }
+  }
+
+  executeSubmission(): void {
+    const repoOwner = this.selectedRepo.owner.login;
+    const repoName = this.selectedRepo.name;
+    const title = `Update by ${this.connectedUser} - ${new Date().toLocaleDateString()}`;
+    const body = `Automated submission from Landscapr by ${this.connectedUser}.`;
+
+    this.githubService.createPullRequest(repoOwner, repoName, title, body, this.currentBranch, this.selectedRepo.default_branch || 'main')
+      .subscribe(() => {
+        this.toastr.success('Changes submitted successfully!');
+
+        // Ask to return to main
+        const returnRef = this.modalService.show(ConfirmationDialogComponent, {
+          initialState: {
+            title: 'Submission Complete',
+            message: 'Your changes have been submitted. Would you like to return to the main view?',
+            btnYesText: 'Yes, Return to Main',
+            btnNoText: 'Stay Here'
+          }
+        });
+        const returnContent: any = returnRef.content;
+        if (returnContent && returnContent.onClose) {
+          returnContent.onClose.pipe(first()).subscribe((res: boolean) => {
+            if (res) this.switchToMain();
+          });
+        }
+      }, err => this.toastr.error('Failed to submit changes (Pull Request creation failed).'));
+  }
+
   createPr(): void {
       if (!this.selectedRepo || this.currentBranch === this.selectedRepo.default_branch) return;
       const repoOwner = this.selectedRepo.owner.login;
