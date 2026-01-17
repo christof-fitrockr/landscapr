@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
-import { first } from 'rxjs/operators';
+import { BehaviorSubject, Observable, of } from 'rxjs';
+import { first, map } from 'rxjs/operators';
 import { GithubService } from './github.service';
 import { RepoService } from './repo.service';
 import { MergeService } from './merge.service';
@@ -22,6 +22,7 @@ export interface SyncStatus {
 @Injectable({ providedIn: 'root' })
 export class SyncStatusService {
   private static readonly STORAGE_SELECTED_REPO = 'repositories.selectedRepo';
+  private static readonly STORAGE_SELECTED_REPO_OWNER = 'repositories.selectedRepoOwner';
   private static readonly STORAGE_SELECTED_FILE = 'repositories.selectedFilePath';
   private static readonly STORAGE_LAST_SYNC_SHA = 'repositories.lastSyncedSha';
   private static readonly STORAGE_LAST_SYNC_LOCAL_HASH = 'repositories.lastSyncedLocalHash';
@@ -65,9 +66,10 @@ export class SyncStatusService {
       return;
     }
 
-    // Get owner from API
-    this.githubService.getUser().pipe(first()).subscribe(user => {
-      const owner = user.login;
+    const storedOwner = localStorage.getItem(SyncStatusService.STORAGE_SELECTED_REPO_OWNER);
+    const getOwner$ = storedOwner ? of(storedOwner) : this.githubService.getUser().pipe(map(u => u.login));
+
+    getOwner$.pipe(first()).subscribe(owner => {
       this.githubService.getFileContent(owner, repoName, filePath).pipe(first()).subscribe(file => {
         const remoteSha: string | undefined = file && file.sha ? file.sha : undefined;
         let remoteData: any = {};
@@ -95,7 +97,7 @@ export class SyncStatusService {
         this.statusSubject.next({ state: 'UNKNOWN', repoName, filePath, lastChecked: Date.now(), lastError: 'Failed to fetch remote file' });
       });
     }, _ => {
-      this.statusSubject.next({ state: 'UNKNOWN', repoName, filePath, lastChecked: Date.now(), lastError: 'Failed to fetch user' });
+      this.statusSubject.next({ state: 'UNKNOWN', repoName, filePath, lastChecked: Date.now(), lastError: 'Failed to determine owner' });
     });
   }
 
