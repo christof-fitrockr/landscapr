@@ -6,6 +6,7 @@ import { ToastrService } from 'ngx-toastr';
 import { FileSaverService } from 'ngx-filesaver';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { MergeService } from '../services/merge.service';
+import { AuthenticationService } from '../services/authentication.service';
 import { of } from 'rxjs';
 import { FormsModule } from '@angular/forms';
 
@@ -18,14 +19,16 @@ describe('RepositoriesComponent', () => {
   let fileSaverServiceSpy: jasmine.SpyObj<FileSaverService>;
   let modalServiceSpy: jasmine.SpyObj<BsModalService>;
   let mergeServiceSpy: jasmine.SpyObj<MergeService>;
+  let authServiceSpy: jasmine.SpyObj<AuthenticationService>;
 
   beforeEach(async () => {
-    githubServiceSpy = jasmine.createSpyObj('GithubService', ['getUser', 'getRepos', 'getRepoContents', 'getFileContent', 'createOrUpdateFile', 'setPersonalAccessToken', 'getPersonalAccessToken']);
+    githubServiceSpy = jasmine.createSpyObj('GithubService', ['getUser', 'getRepos', 'getRepoContents', 'getFileContent', 'createOrUpdateFile', 'setPersonalAccessToken', 'getPersonalAccessToken', 'getRef', 'createBranch', 'createPullRequest', 'getBranches']);
     repoServiceSpy = jasmine.createSpyObj('RepoService', ['getCurrentData', 'applyData', 'uploadJsonContent', 'downloadAsJson', 'uploadJson']);
-    toastrServiceSpy = jasmine.createSpyObj('ToastrService', ['success', 'error', 'info']);
+    toastrServiceSpy = jasmine.createSpyObj('ToastrService', ['success', 'error', 'info', 'warning']);
     fileSaverServiceSpy = jasmine.createSpyObj('FileSaverService', ['save']);
     modalServiceSpy = jasmine.createSpyObj('BsModalService', ['show']);
     mergeServiceSpy = jasmine.createSpyObj('MergeService', ['different']);
+    authServiceSpy = jasmine.createSpyObj('AuthenticationService', ['updateUserFromGithub']);
 
     await TestBed.configureTestingModule({
       declarations: [ RepositoriesComponent ],
@@ -36,7 +39,8 @@ describe('RepositoriesComponent', () => {
         { provide: ToastrService, useValue: toastrServiceSpy },
         { provide: FileSaverService, useValue: fileSaverServiceSpy },
         { provide: BsModalService, useValue: modalServiceSpy },
-        { provide: MergeService, useValue: mergeServiceSpy }
+        { provide: MergeService, useValue: mergeServiceSpy },
+        { provide: AuthenticationService, useValue: authServiceSpy }
       ]
     })
     .compileComponents();
@@ -48,6 +52,7 @@ describe('RepositoriesComponent', () => {
     githubServiceSpy.getPersonalAccessToken.and.returnValue('token');
     githubServiceSpy.getUser.and.returnValue(of({ login: 'current-user' }));
     githubServiceSpy.getRepos.and.returnValue(of([]));
+    githubServiceSpy.getBranches.and.returnValue(of([]));
     fixture.detectChanges(); // ngOnInit -> connect
   });
 
@@ -71,7 +76,7 @@ describe('RepositoriesComponent', () => {
     component.loadFromGithub();
 
     // This expectation is what we want to be true, but currently it will fail
-    expect(githubServiceSpy.getFileContent).toHaveBeenCalledWith('other-owner', 'my-repo', 'path/to/file.json');
+    expect(githubServiceSpy.getFileContent).toHaveBeenCalledWith('other-owner', 'my-repo', 'path/to/file.json', 'main');
   });
 
   it('should use repo owner when saving file to github', () => {
@@ -97,6 +102,6 @@ describe('RepositoriesComponent', () => {
     component.saveToGithub();
 
     // This expectation is what we want to be true, but currently it will fail
-    expect(githubServiceSpy.getFileContent).toHaveBeenCalledWith('other-owner', 'my-repo', 'path/to/file.json');
+    expect(githubServiceSpy.getFileContent).toHaveBeenCalledWith('other-owner', 'my-repo', 'path/to/file.json', 'main');
   });
 });

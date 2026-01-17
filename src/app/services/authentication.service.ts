@@ -5,8 +5,9 @@ import {User} from '../models/user';
 
 import {environment} from '../../environments/environment';
 
-import {map} from 'rxjs/operators';
+import {map, first} from 'rxjs/operators';
 import {v4 as uuidv4} from 'uuid';
+import {GithubService} from './github.service';
 
 
 
@@ -15,13 +16,41 @@ export class AuthenticationService {
     private currentUserSubject: BehaviorSubject<User>;
     public currentUser: Observable<User>;
 
-    constructor(private http: HttpClient) {
+    constructor(private http: HttpClient, private githubService: GithubService) {
         this.currentUserSubject = new BehaviorSubject<User>(JSON.parse(localStorage.getItem('currentUser')));
         this.currentUser = this.currentUserSubject.asObservable();
+
+        if (this.currentUserSubject.value) {
+            this.updateUserFromGithub();
+        }
     }
 
     public getCurrentUserValue() {
       return this.currentUserSubject.value;
+    }
+
+    public updateUserFromGithub(githubUser?: any) {
+        if (githubUser) {
+            this.updateUserFields(githubUser);
+        } else {
+            const pat = this.githubService.getPersonalAccessToken();
+            if (pat) {
+                this.githubService.getUser().pipe(first()).subscribe(user => {
+                    this.updateUserFields(user);
+                }, err => console.log('Failed to fetch github user for auth update'));
+            }
+        }
+    }
+
+    private updateUserFields(githubUser: any) {
+        const currentUser = this.currentUserSubject.value;
+        if (currentUser) {
+            currentUser.username = githubUser.login;
+            currentUser.displayName = githubUser.name || githubUser.login;
+
+            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            this.currentUserSubject.next(currentUser);
+        }
     }
 
     login(email: string, password: string) {
