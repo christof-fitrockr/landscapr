@@ -1,28 +1,19 @@
 
-<div class="container-xl">
-  <div class="card shadow mb-4">
+<div class="container-xl mt-4">
 
-    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-
-
-      <div class="btn-toolbar justify-content-lg-start" role="toolbar" aria-label="Toolbar with button groups">
-        <app-process-edit-nav [processId]="processId"></app-process-edit-nav>
-      </div>
-
-      <div class="btn-group justify-content-lg-end" role="group">
-        <div class="m-0 font-weight-bold text-uppercase text-gray-400 text-right">
-          <p class="p-0 m-0">{{process?.name}}</p>
-          <p class="small p-0 m-0">Used by Process</p>
-        </div>
-
-      </div>
-
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="btn-toolbar" role="toolbar">
+      <app-process-edit-nav [processId]="processId"></app-process-edit-nav>
     </div>
+    <div class="text-right">
+      <h2 class="m-0 font-weight-bold text-uppercase text-gray-400">{{process?.name}}</h2>
+      <div class="text-muted small">Used by Process</div>
+    </div>
+  </div>
 
-    <div class="card-body">
-
-      <app-process-table (deleted)="refresh()" [processes]="parentProcesses"></app-process-table>
-
+  <div class="card shadow-sm border-0 mb-4">
+    <div class="card-body p-0">
+      <app-process-table (deleted)="refresh()" [processes]="parentProcesses" [showFilter]="false"></app-process-table>
     </div>
   </div>
 </div>

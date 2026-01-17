@@ -1,27 +1,22 @@
 
-<div class="container-xl">
-  <div class="card shadow mb-4">
+<div class="container-xl mt-4">
 
-    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-
-
-      <div class="btn-toolbar justify-content-lg-start" role="toolbar" aria-label="Toolbar with button groups">
-        <app-system-edit-nav [systemId]="systemId"></app-system-edit-nav>
-        <div class="btn-group mr-2" role="group" aria-label="First group">
-          <button type="button" class="btn btn-primary" title="Link API" data-toggle="modal" data-target="#selectApiCall"><i class="fas fa-link"></i></button>
-        </div>
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="btn-toolbar" role="toolbar">
+      <app-system-edit-nav [systemId]="systemId"></app-system-edit-nav>
+      <div class="btn-group shadow-sm">
+        <button type="button" class="btn btn-outline-primary" title="Link API" data-toggle="modal" data-target="#selectApiCall">
+          <i class="fas fa-link mr-1"></i> Link API
+        </button>
       </div>
-
-      <div class="btn-group justify-content-lg-end" role="group">
-        <div class="m-0 font-weight-bold text-uppercase text-gray-400 text-right">
-          <p class="p-0 m-0">{{system?.name}}</p>
-          <p class="small p-0 m-0">Implements APIs</p>
-        </div>
-
-      </div>
-
     </div>
+    <div class="text-right">
+      <h2 class="m-0 font-weight-bold text-uppercase text-gray-400">{{system?.name}}</h2>
+      <div class="text-muted small">Implements APIs</div>
+    </div>
+  </div>
 
+  <div class="card shadow-sm border-0 mb-4">
     <div class="card-body">
 
       <div class="mt-1" *ngFor="let item of apis">

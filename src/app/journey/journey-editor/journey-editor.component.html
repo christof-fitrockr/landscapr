@@ -1,74 +1,70 @@
-<div class="container-fluid h-100" [class.p-0]="isHeadless">
-  <div class="card shadow mb-4 h-100 flex-column-fill" [class.border-0]="isHeadless" [class.shadow-none]="isHeadless">
+<div class="container-fluid h-100 mt-4" [class.p-0]="isHeadless" [class.mt-0]="isHeadless">
 
-    <div class="card-header py-3 d-flex flex-column" *ngIf="!isHeadless">
-      <div class="d-flex flex-row align-items-center justify-content-between w-100">
-        <div class="btn-toolbar justify-content-lg-start" role="toolbar" aria-label="Editor tools">
-          <app-journey-edit-nav [journeyId]="journeyId"></app-journey-edit-nav>
-          <div class="btn-group mr-2" role="group" aria-label="Tool buttons">
-            <button class="btn btn-secondary" [ngClass]="{'active': activeTool==='select'}" (click)="setTool('select')" title="Select">
-              <i class="fas fa-mouse-pointer"></i>
-            </button>
-            <button class="btn btn-secondary" [ngClass]="{'active': activeTool==='process'}" (click)="setTool('process')" title="Process">
-              <i class="fas fa-cube"></i>
-            </button>
-            <button class="btn btn-secondary" [ngClass]="{'active': activeTool==='decision'}" (click)="setTool('decision')" title="Decision">
-              <i class="fas fa-code-branch"></i>
-            </button>
-            <button class="btn btn-secondary" [ngClass]="{'active': activeTool==='group'}" (click)="setTool('group')" title="Group Box">
-              <i class="fas fa-object-group"></i>
-            </button>
-            <button class="btn btn-secondary" [ngClass]="{'active': activeTool==='connector'}" (click)="setTool('connector')" title="Connector">
-              <i class="fas fa-project-diagram"></i>
-            </button>
-            <div class="btn-group ml-2">
-              <button class="btn btn-secondary" (click)="undo()" [disabled]="!canUndo()" title="Undo (Ctrl+Z)">
-                <i class="fas fa-undo"></i>
-              </button>
-              <button class="btn btn-secondary" (click)="redo()" [disabled]="!canRedo()" title="Redo (Ctrl+Y)">
-                <i class="fas fa-redo"></i>
-              </button>
-            </div>
-            <div class="btn-group ml-2">
-              <button class="btn btn-outline-secondary" (click)="showCommentsPanel = !showCommentsPanel" [class.active]="showCommentsPanel" title="Comments">
-                <i class="fas fa-comment-alt"></i>
-              </button>
-            </div>
-          </div>
-          <div class="ml-2" *ngIf="activeTool==='process'">
-            <div class="input-group input-group-sm align-items-stretch">
-              <div class="input-group-prepend">
-                <span class="input-group-text">Process</span>
-              </div>
-              <div class="process-select">
-                <ng-select
-                  [items]="processes"
-                  bindLabel="name"
-                  bindValue="id"
-                  [(ngModel)]="selectedProcessId"
-                  [clearable]="true"
-                  [searchable]="true"
-                  dropdownPosition="bottom"
-                  appendTo="body"
-                  placeholder="Select process...">
-                </ng-select>
-              </div>
-              <div class="input-group-append">
-                <button class="btn btn-outline-primary" type="button" (click)="openNewProcessModal()">New Process</button>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="text-right">
-          <div class="m-0 font-weight-bold text-uppercase text-gray-400">Journey Editor</div>
-          <div class="small text-muted" *ngIf="journeyName">{{journeyName}}</div>
-        </div>
+  <div class="d-flex justify-content-between align-items-center mb-4" *ngIf="!isHeadless">
+    <div class="btn-toolbar d-flex align-items-center" role="toolbar" aria-label="Editor tools">
+      <app-journey-edit-nav [journeyId]="journeyId"></app-journey-edit-nav>
+      <div class="btn-group shadow-sm mr-2" role="group" aria-label="Tool buttons">
+        <button class="btn btn-outline-secondary" [ngClass]="{'active': activeTool==='select'}" (click)="setTool('select')" title="Select">
+          <i class="fas fa-mouse-pointer"></i>
+        </button>
+        <button class="btn btn-outline-secondary" [ngClass]="{'active': activeTool==='process'}" (click)="setTool('process')" title="Process">
+          <i class="fas fa-cube"></i>
+        </button>
+        <button class="btn btn-outline-secondary" [ngClass]="{'active': activeTool==='decision'}" (click)="setTool('decision')" title="Decision">
+          <i class="fas fa-code-branch"></i>
+        </button>
+        <button class="btn btn-outline-secondary" [ngClass]="{'active': activeTool==='group'}" (click)="setTool('group')" title="Group Box">
+          <i class="fas fa-object-group"></i>
+        </button>
+        <button class="btn btn-outline-secondary" [ngClass]="{'active': activeTool==='connector'}" (click)="setTool('connector')" title="Connector">
+          <i class="fas fa-project-diagram"></i>
+        </button>
       </div>
-      <div class="legend small text-muted mt-2">
-        Tips: Mouse wheel to zoom, right mouse or Shift+drag to pan. Click canvas with a tool to place. Delete key removes selection.
+      <div class="btn-group shadow-sm mr-2">
+        <button class="btn btn-outline-secondary" (click)="undo()" [disabled]="!canUndo()" title="Undo (Ctrl+Z)">
+          <i class="fas fa-undo"></i>
+        </button>
+        <button class="btn btn-outline-secondary" (click)="redo()" [disabled]="!canRedo()" title="Redo (Ctrl+Y)">
+          <i class="fas fa-redo"></i>
+        </button>
+      </div>
+      <div class="btn-group shadow-sm mr-2">
+        <button class="btn btn-outline-secondary" (click)="showCommentsPanel = !showCommentsPanel" [class.active]="showCommentsPanel" title="Comments">
+          <i class="fas fa-comment-alt"></i>
+        </button>
+      </div>
+
+      <div *ngIf="activeTool==='process'">
+        <div class="input-group input-group-sm align-items-stretch shadow-sm">
+          <div class="input-group-prepend">
+            <span class="input-group-text bg-white">Process</span>
+          </div>
+          <div class="process-select">
+            <ng-select
+              [items]="processes"
+              bindLabel="name"
+              bindValue="id"
+              [(ngModel)]="selectedProcessId"
+              [clearable]="true"
+              [searchable]="true"
+              dropdownPosition="bottom"
+              appendTo="body"
+              placeholder="Select process...">
+            </ng-select>
+          </div>
+          <div class="input-group-append">
+            <button class="btn btn-outline-primary" type="button" (click)="openNewProcessModal()">New Process</button>
+          </div>
+        </div>
       </div>
     </div>
+    <div class="text-right">
+      <h2 class="m-0 font-weight-bold text-uppercase text-gray-400">Journey Editor</h2>
+      <div class="text-muted small" *ngIf="journeyName">{{journeyName}}</div>
+    </div>
+  </div>
 
+  <div class="card shadow-sm border-0 mb-4 h-100 flex-column-fill" [class.shadow-none]="isHeadless">
     <div class="card-body p-0 flex-column-fill">
       <div class="journey-editor">
         <div class="canvas-wrapper" (contextmenu)="$event.preventDefault()">

@@ -40,23 +40,59 @@ export class CapabilityMapComponent implements OnInit, AfterViewInit {
   private CHIP_GAP = 8;
 
   private COLORS = {
-    cap: '#e0e0f8',
-    sys: '#d1f7c4',
-    api: '#fce4d6',
-    border: '#666',
-    text: '#000'
+    cap: '#f8fafc',
+    capHeader: '#f1f5f9',
+    sys: '#d1fae5',
+    api: '#ffedd5',
+    border: '#cbd5e1',
+    text: '#1e293b',
+    textMuted: '#64748b'
   };
+
+  private roundRect(cx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number): void {
+    if (w < 2 * r) r = w / 2;
+    if (h < 2 * r) r = h / 2;
+    cx.beginPath();
+    cx.moveTo(x + r, y);
+    cx.arcTo(x + w, y, x + w, y + h, r);
+    cx.arcTo(x + w, y + h, x, y + h, r);
+    cx.arcTo(x, y + h, x, y, r);
+    cx.arcTo(x, y, x + w, y, r);
+    cx.closePath();
+  }
+
+  private roundRectTop(cx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number): void {
+    cx.beginPath();
+    cx.moveTo(x + r, y);
+    cx.lineTo(x + w - r, y);
+    cx.quadraticCurveTo(x + w, y, x + w, y + r);
+    cx.lineTo(x + w, y + h);
+    cx.lineTo(x, y + h);
+    cx.lineTo(x, y + r);
+    cx.quadraticCurveTo(x, y, x + r, y);
+    cx.closePath();
+  }
 
   // Simple rectangular capability box (no process arrow)
   private drawCapBox(cx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, title: string, fill: string = this.COLORS.cap): void {
     cx.save();
+
+    // Shadow
+    cx.shadowColor = 'rgba(0,0,0,0.05)';
+    cx.shadowBlur = 10;
+    cx.shadowOffsetY = 4;
+
     cx.fillStyle = fill;
+    this.roundRect(cx, x, y, w, h, 8);
+    cx.fill();
+
+    cx.shadowColor = 'transparent';
     cx.strokeStyle = this.COLORS.border;
     cx.lineWidth = 1;
-    cx.fillRect(x, y, w, h);
-    cx.strokeRect(x, y, w, h);
+    cx.stroke();
+
     cx.fillStyle = this.COLORS.text;
-    cx.font = '16px sans-serif';
+    cx.font = 'bold 16px sans-serif';
     cx.textAlign = 'center';
     cx.textBaseline = 'middle';
     const tx = x + w / 2;
@@ -134,6 +170,12 @@ export class CapabilityMapComponent implements OnInit, AfterViewInit {
     }
   }
 
+  public goBack(): void {
+    this.currentRootId = null;
+    this.syncUrlWithRoot();
+    this.draw();
+  }
+
   // Click handling
   public onCanvasClick(evt: MouseEvent): void {
     if (!this.canvas) return;
@@ -190,27 +232,15 @@ export class CapabilityMapComponent implements OnInit, AfterViewInit {
     return w;
   }
   private drawChip(cx: CanvasRenderingContext2D, x: number, y: number, text: string, color: string): { w: number; h: number } {
-    const padX = 10; const h = this.CHIP_H; const r = 8;
-    const w = Math.ceil(this.textW(cx, text, '12px sans-serif')) + padX * 2;
+    const padX = 12; const h = this.CHIP_H; const r = h / 2;
+    const w = Math.ceil(this.textW(cx, text, '11px sans-serif')) + padX * 2;
     cx.save();
-    cx.fillStyle = color; cx.strokeStyle = this.COLORS.border;
-    cx.lineWidth = 1;
-    // rounded rect
-    cx.beginPath();
-    cx.moveTo(x + r, y);
-    cx.lineTo(x + w - r, y);
-    cx.quadraticCurveTo(x + w, y, x + w, y + r);
-    cx.lineTo(x + w, y + h - r);
-    cx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
-    cx.lineTo(x + r, y + h);
-    cx.quadraticCurveTo(x, y + h, x, y + h - r);
-    cx.lineTo(x, y + r);
-    cx.quadraticCurveTo(x, y, x + r, y);
-    cx.closePath();
-    cx.fill(); cx.stroke();
+    cx.fillStyle = color;
+    this.roundRect(cx, x, y, w, h, r);
+    cx.fill();
     // text
     cx.fillStyle = this.COLORS.text;
-    cx.font = '12px sans-serif';
+    cx.font = '500 11px sans-serif';
     cx.textAlign = 'center'; cx.textBaseline = 'middle';
     cx.fillText(text, x + w / 2, y + h / 2);
     cx.restore();
@@ -218,12 +248,18 @@ export class CapabilityMapComponent implements OnInit, AfterViewInit {
   }
 
   // Title bar (filled rect with centered title, no border)
-  private drawTitleBar(cx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, title: string, fill: string = this.COLORS.cap): void {
+  private drawTitleBar(cx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, title: string, fill: string = this.COLORS.capHeader, topOnly = true): void {
     cx.save();
     cx.fillStyle = fill;
-    cx.fillRect(x, y, w, h);
+    if (topOnly) {
+      this.roundRectTop(cx, x, y, w, h, 8);
+    } else {
+      this.roundRect(cx, x, y, w, h, 8);
+    }
+    cx.fill();
+
     cx.fillStyle = this.COLORS.text;
-    cx.font = '16px sans-serif';
+    cx.font = 'bold 14px sans-serif';
     cx.textAlign = 'center';
     cx.textBaseline = 'middle';
     cx.fillText(title, x + w / 2, y + h / 2);
@@ -263,7 +299,7 @@ export class CapabilityMapComponent implements OnInit, AfterViewInit {
     const rootW = width - this.OUTER_PADDING_X * 2;
 
     // Draw root title box (full width) as a simple rectangle
-    this.drawCapBox(cx, x0, y0, rootW, this.ROOT_TITLE_H, rootTitle, this.COLORS.cap);
+    this.drawCapBox(cx, x0, y0, rootW, this.ROOT_TITLE_H, rootTitle, this.COLORS.capHeader);
     this.hitRegions.push({ x: x0, y: y0, w: rootW, h: this.ROOT_TITLE_H, type: 'cap', id: root.id });
 
     // Compute and draw Systems/API chips for current root just below the title
@@ -340,11 +376,12 @@ export class CapabilityMapComponent implements OnInit, AfterViewInit {
       cx.save();
       cx.strokeStyle = this.COLORS.border;
       cx.lineWidth = 1;
-      cx.strokeRect(currentX, currentY, boxW, boxH);
+      this.roundRect(cx, currentX, currentY, boxW, boxH, 8);
+      cx.stroke();
       cx.restore();
 
       // Title bar (simple filled rectangle)
-      this.drawTitleBar(cx, currentX, currentY, boxW, this.CHILD_TITLE_H, capTitle, this.COLORS.cap);
+      this.drawTitleBar(cx, currentX, currentY, boxW, this.CHILD_TITLE_H, capTitle, this.COLORS.capHeader);
       this.hitRegions.push({ x: currentX, y: currentY, w: boxW, h: this.CHILD_TITLE_H, type: 'cap', id: child.id });
 
       // Chips area
@@ -412,20 +449,21 @@ export class CapabilityMapComponent implements OnInit, AfterViewInit {
       const titleH = this.CHILD_TITLE_H;
       const childCount = children.length;
       const childContentH = childCount > 0 ? (childCount * this.CHILD_TITLE_H + (childCount - 1) * this.GAP_Y) : 0;
-      const tileH = titleH + (childCount ? this.GAP_Y + childContentH : 0) + this.BOX_PADDING;
+      const tileH = childCount ? (titleH + this.GAP_Y + childContentH + this.BOX_PADDING) : titleH;
 
       // Wrap to next row if needed
-      if (x + tileW > x0 + maxRowW) { x = x0; y += tileH + this.GAP_Y; }
+      if (x + tileW > x0 + maxRowW) { x = x0; y += (tileH + this.GAP_Y); }
 
       // Draw tile outline
       cx.save();
       cx.strokeStyle = this.COLORS.border;
       cx.lineWidth = 1;
-      cx.strokeRect(x, y, tileW, tileH);
+      this.roundRect(cx, x, y, tileW, tileH, 8);
+      cx.stroke();
       cx.restore();
 
       // Title bar of tile (click to open root)
-      this.drawTitleBar(cx, x, y, tileW, titleH, title, this.COLORS.cap);
+      this.drawTitleBar(cx, x, y, tileW, titleH, title, this.COLORS.capHeader, childCount > 0);
       this.hitRegions.push({ x, y, w: tileW, h: titleH, type: 'cap', id: r.id });
 
       // Draw children inside: full width rows
@@ -439,9 +477,10 @@ export class CapabilityMapComponent implements OnInit, AfterViewInit {
         cx.save();
         cx.strokeStyle = this.COLORS.border;
         cx.lineWidth = 1;
-        cx.strokeRect(drawX, drawY, cw, chH);
+        this.roundRect(cx, drawX, drawY, cw, chH, 8);
+        cx.stroke();
         cx.restore();
-        this.drawTitleBar(cx, drawX, drawY, cw, chH, ct, this.COLORS.cap);
+        this.drawTitleBar(cx, drawX, drawY, cw, chH, ct, this.COLORS.capHeader, false);
         this.hitRegions.push({ x: drawX, y: drawY, w: cw, h: chH, type: 'cap', id: ch.id });
 
         drawY += chH + this.GAP_Y;

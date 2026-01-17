@@ -1,4 +1,4 @@
-<div class="btn-group mr-2" role="group" *ngIf="apiCallId">
+<div class="btn-group shadow-sm mr-2" role="group" *ngIf="apiCallId">
   <a class="btn btn-outline-secondary" [routerLink]="['/apiCall', 'list']" routerLinkActive="active" title="List"><i class="fas fa-list"></i></a>
   <a class="btn btn-outline-secondary" [routerLink]="['/apiCall', 'edit', apiCallId, 'base']" routerLinkActive="active" title="Base"><i class="fas fa-info"></i></a>
   <a class="btn btn-outline-secondary" [routerLink]="['/apiCall', 'edit', apiCallId, 'usage']" routerLinkActive="active" title="Used by"><i class="fas fa-project-diagram"></i></a>

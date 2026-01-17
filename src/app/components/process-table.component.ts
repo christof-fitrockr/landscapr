@@ -22,13 +22,12 @@ export class ProcessTableComponent implements OnChanges {
   @Input() orphanIds: string[] = [];
   // UI toggle for the default subprocess filter (checked by default)
   @Input() showOrphansOnly: boolean = false;
+  @Input() filterStatus: number = null;
+  @Input() filterComments: boolean = false;
 
   @Output() deleted = new EventEmitter<void>();
 
   _rootProcesses: Process[] = [];
-
-  filterStatus: number = null;
-  filterComments: boolean = false;
 
   constructor(private processService: ProcessService, private modalService: BsModalService, private toastr: ToastrService) { }
 

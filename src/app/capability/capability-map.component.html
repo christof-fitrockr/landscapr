@@ -1,15 +1,30 @@
-<div class="container-fluid">
-  <div class="d-flex align-items-center justify-content-between p-2">
-    <div>
-      <span class="legend">
-        <span class="legend-swatch cap"></span> Capability
-        <span class="legend-swatch sys ml-3"></span> System
-        <span class="legend-swatch api ml-3"></span> API Call
+<div class="container-xl mt-4">
+  <div class="d-flex align-items-center justify-content-between mb-4">
+    <div class="d-flex align-items-center">
+      <button *ngIf="currentRootId" type="button" class="btn btn-outline-secondary shadow-sm mr-3" title="Back to Overview" (click)="goBack()">
+        <i class="fas fa-arrow-left mr-1"></i> Back
+      </button>
+      <h2 class="m-0 font-weight-bold text-uppercase text-gray-400">Capability Map</h2>
+    </div>
+
+    <div class="d-none d-md-block">
+      <span class="legend shadow-sm bg-white p-2 rounded border">
+        <span class="legend-item"><span class="legend-swatch cap"></span> Capability</span>
+        <span class="legend-item ml-3"><span class="legend-swatch sys"></span> System</span>
+        <span class="legend-item ml-3"><span class="legend-swatch api"></span> API Call</span>
       </span>
     </div>
-    <div class="text-muted small" *ngIf="currentRootId && capById.get(currentRootId)?.name">Root: {{ capById.get(currentRootId)?.name }}</div>
   </div>
-  <div class="card-body overflow-auto" style="overflow-y: auto;">
-    <canvas #canvas class="canvas" (click)="onCanvasClick($event)"></canvas>
+
+  <div class="card shadow-sm mb-4">
+    <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center border-bottom-0" *ngIf="currentRootId && capById.get(currentRootId)?.name">
+      <h5 class="m-0 font-weight-bold text-primary">
+        <i class="fas fa-sitemap mr-2"></i>{{ capById.get(currentRootId)?.name }}
+      </h5>
+      <span class="badge badge-light border">Root Capability</span>
+    </div>
+    <div class="card-body p-0 overflow-auto" style="min-height: 600px;">
+      <canvas #canvas class="canvas" (click)="onCanvasClick($event)"></canvas>
+    </div>
   </div>
 </div>

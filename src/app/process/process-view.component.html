@@ -1,28 +1,29 @@
-<div class="container-fluid">
-  <div class="card mb-4 content">
+<div class="container-fluid mt-4">
 
-    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-
-      <div class="btn-toolbar justify-content-lg-start" role="toolbar" aria-label="Toolbar with button groups">
-        <app-process-edit-nav [processId]="processId"></app-process-edit-nav>
-        <div class="btn-group mr-2" role="group" aria-label="First group">
-          <button type="button" class="btn btn-secondary" title="Download as PDF" (click)="downloadPdf()"><i class="fas fa-file-pdf"></i></button>
-          <button type="button" class="btn btn-secondary" title="Export to PPT" (click)="exportToPpt()"><i class="fas fa-file-powerpoint"></i></button>
-          <button type="button" class="btn btn-secondary" title="Zoom In" (click)="zoomIn()"><i class="fas fa-search-plus"></i></button>
-          <button type="button" class="btn btn-secondary" title="Zoom Out" (click)="zoomOut()"><i class="fas fa-search-minus"></i></button>
-          <button type="button" class="btn btn-secondary" title="Flow Tree View" (click)="toggleFlowView()" [class.active]="showFlowView"><i class="fas fa-sitemap"></i></button>
-          <button type="button" class="btn btn-secondary" title="Toggle Comments" (click)="showCommentsPanel = !showCommentsPanel" [class.active]="showCommentsPanel"><i class="fas fa-comments"></i></button>
-          <button type="button" class="btn btn-danger" title="Delete {{process?.name}}" (click)="delete()"><i class="fas fa-trash"></i></button>
-
-        </div>
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="btn-toolbar" role="toolbar">
+      <app-process-edit-nav [processId]="processId"></app-process-edit-nav>
+      <div class="btn-group shadow-sm mr-2">
+        <button type="button" class="btn btn-outline-secondary" title="Download as PDF" (click)="downloadPdf()"><i class="fas fa-file-pdf"></i></button>
+        <button type="button" class="btn btn-outline-secondary" title="Export to PPT" (click)="exportToPpt()"><i class="fas fa-file-powerpoint"></i></button>
       </div>
-
-      <div class="btn-group justify-content-lg-end" role="group">
-        <h3 class="m-0 font-weight-bold text-uppercase text-gray-400">Process View</h3>
+      <div class="btn-group shadow-sm mr-2">
+        <button type="button" class="btn btn-outline-secondary" title="Zoom In" (click)="zoomIn()"><i class="fas fa-search-plus"></i></button>
+        <button type="button" class="btn btn-outline-secondary" title="Zoom Out" (click)="zoomOut()"><i class="fas fa-search-minus"></i></button>
       </div>
-
+      <div class="btn-group shadow-sm">
+        <button type="button" class="btn btn-outline-secondary" title="Flow Tree View" (click)="toggleFlowView()" [class.active]="showFlowView"><i class="fas fa-sitemap"></i></button>
+        <button type="button" class="btn btn-outline-secondary" title="Toggle Comments" (click)="showCommentsPanel = !showCommentsPanel" [class.active]="showCommentsPanel"><i class="fas fa-comments"></i></button>
+        <button type="button" class="btn btn-outline-danger" title="Delete {{process?.name}}" (click)="delete()"><i class="fas fa-trash"></i></button>
+      </div>
     </div>
+    <div class="text-right">
+      <h2 class="m-0 font-weight-bold text-uppercase text-gray-400">{{process?.name}}</h2>
+      <div class="text-muted small">Process View</div>
+    </div>
+  </div>
 
+  <div class="card shadow-sm border-0 mb-4 content">
     <div class="card-body p-0 m-0">
 
 

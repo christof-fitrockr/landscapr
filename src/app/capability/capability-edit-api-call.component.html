@@ -1,31 +1,21 @@
 
-<div class="container-xl">
-  <div class="card shadow mb-4">
+<div class="container-xl mt-4">
 
-    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-
-
-      <div class="btn-toolbar justify-content-lg-start" role="toolbar" aria-label="Toolbar with button groups">
-        <app-capability-edit-nav [capabilityId]="capabilityId"></app-capability-edit-nav>
-      </div>
-
-      <div class="btn-group justify-content-lg-end" role="group">
-        <div class="m-0 font-weight-bold text-uppercase text-gray-400 text-right">
-          <p class="p-0 m-0">{{capability?.name}}</p>
-          <p class="small p-0 m-0">Assigned Functions</p>
-        </div>
-
-      </div>
-
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="btn-toolbar" role="toolbar">
+      <app-capability-edit-nav [capabilityId]="capabilityId"></app-capability-edit-nav>
     </div>
+    <div class="text-right">
+      <h2 class="m-0 font-weight-bold text-uppercase text-gray-400">{{capability?.name}}</h2>
+      <div class="text-muted small">Assigned Functions</div>
+    </div>
+  </div>
 
+  <div class="card shadow-sm border-0 mb-4">
     <div class="card-body">
-
       <div class="mt-1" *ngFor="let item of usedBy">
         <app-api-call-overview [repoId]="repoId" [apiCall]="item" [readOnly]="true"></app-api-call-overview>
       </div>
-
-
     </div>
   </div>
 </div>

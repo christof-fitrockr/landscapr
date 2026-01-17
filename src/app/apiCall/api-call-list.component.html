@@ -1,63 +1,69 @@
-<div class="container-xl">
-  <div class="card shadow mb-4">
-
-    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-
-      <div class="btn-toolbar justify-content-lg-start" role="toolbar" aria-label="Toolbar with button groups">
-        <div class="btn-group mr-2" role="group" aria-label="First group">
-          <a type="button" class="btn btn-secondary" title="Create" routerLink="../create"><i class="fas fa-plus"></i></a>
-          <button type="button" class="btn btn-secondary" title="Refresh" (click)="refresh()"><i class="fas fa-sync"></i></button>
-        </div>
-        <div class="btn-group mr-2" role="group" aria-label="Second group">
-          <a type="button" class="btn btn-outline-secondary" title="API Group Map" routerLink="/apiCall/groups"><i class="fas fa-project-diagram mr-1"></i> Groups</a>
-          <a type="button" class="btn btn-outline-secondary" title="API Capability Map" routerLink="/apiCall/groups/capabilities"><i class="fas fa-sitemap mr-1"></i> Capabilities</a>
-        </div>
-      </div>
-
-      <div class="btn-group justify-content-lg-end" role="group">
-        <h2 class="m-0 font-weight-bold text-uppercase text-gray-400">API</h2>
-      </div>
-
+<div class="container-xl mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="btn-group">
+      <button type="button" class="btn btn-outline-secondary shadow-sm" title="Refresh" (click)="refresh()">
+        <i class="fas fa-sync"></i>
+      </button>
+      <button type="button" class="btn btn-outline-secondary shadow-sm" title="Create New API" routerLink="../create">
+        <i class="fas fa-plus mr-1"></i>
+      </button>
+      <a class="btn btn-outline-secondary shadow-sm" title="API Group Map" routerLink="/apiCall/groups">
+        <i class="fas fa-project-diagram mr-1"></i> Groups
+      </a>
+      <a class="btn btn-outline-secondary shadow-sm" title="API Capability Map" routerLink="/apiCall/groups/capabilities">
+        <i class="fas fa-sitemap mr-1"></i> Capabilities
+      </a>
     </div>
+    <h2 class="m-0 font-weight-bold text-uppercase text-gray-400">APIs</h2>
+  </div>
 
-    <div class="card-body">
-
-
-      <div class="fa-3x text-center p-5" *ngIf="!apiCalls">
-        <i class="fas fa-spinner fa-pulse"></i>
+  <!-- Search and Filter -->
+  <div class="form-row align-items-center mb-3">
+    <div class="col-md-5 mb-2 mb-md-0">
+      <div class="input-group">
+        <div class="input-group-prepend">
+          <span class="input-group-text bg-white border-right-0"><i class="fas fa-search text-muted"></i></span>
+        </div>
+        <input type="text" class="form-control border-left-0" placeholder="Search APIs by name..." [(ngModel)]="searchText" [ngModelOptions]="{standalone: true}">
       </div>
-
-      <div *ngIf="apiCalls && apiCalls?.length === 0" class="small font-italic">No api calls available. Please <a routerLink="/apiCall/create">create</a> a new one.</div>
-
-      <div *ngIf="apiCalls && apiCalls?.length > 0" class="form-row align-items-center mb-3">
-        <div class="col-auto flex-grow-1">
-          <input type="text" class="form-control" placeholder="Search.." [(ngModel)]="searchText" [ngModelOptions]="{standalone: true}">
-        </div>
-        <div class="col-auto">
-          <div class="btn-group btn-group-sm" role="group">
-            <button type="button" class="btn btn-outline-secondary" [class.active]="filterType === null" (click)="filterType = null">All Types</button>
-            <button type="button" class="btn btn-outline-secondary" [class.active]="filterType === ApiType.System" (click)="filterType = ApiType.System">System</button>
-            <button type="button" class="btn btn-outline-secondary" [class.active]="filterType === ApiType.Business" (click)="filterType = ApiType.Business">Business</button>
-            <button type="button" class="btn btn-outline-secondary" [class.active]="filterType === ApiType.ThirdParty" (click)="filterType = ApiType.ThirdParty">3rd-Party</button>
-            <button type="button" class="btn btn-outline-secondary" [class.active]="filterType === ApiType.Analytics" (click)="filterType = ApiType.Analytics">Analytics</button>
-          </div>
-        </div>
-        <div class="col-auto">
-          <div class="btn-group btn-group-sm" role="group">
-            <button type="button" class="btn btn-outline-secondary" [class.active]="filterStatus === null" (click)="filterStatus = null">All Statuses</button>
-            <button type="button" class="btn btn-outline-secondary" [class.active]="filterStatus === 0" (click)="filterStatus = 0">Draft</button>
-            <button type="button" class="btn btn-outline-secondary" [class.active]="filterStatus === 1" (click)="filterStatus = 1">Validated</button>
-          </div>
-        </div>
-        <div class="col-auto">
-          <div class="form-check">
-            <input id="showOrphansOnly" type="checkbox" class="form-check-input" [(ngModel)]="showOrphansOnly" [ngModelOptions]="{standalone: true}">
-            <label class="form-check-label" for="showOrphansOnly" title="Show only APIs not referenced by any Process">Orphans only</label>
-          </div>
-        </div>
+    </div>
+    <div class="col-md-2 mb-2 mb-md-0">
+      <select class="form-control" [(ngModel)]="filterType" [ngModelOptions]="{standalone: true}">
+        <option [ngValue]="null">All Types</option>
+        <option [ngValue]="ApiType.System">System</option>
+        <option [ngValue]="ApiType.Business">Business</option>
+        <option [ngValue]="ApiType.ThirdParty">3rd-Party</option>
+        <option [ngValue]="ApiType.Analytics">Analytics</option>
+      </select>
+    </div>
+    <div class="col-md-2 mb-2 mb-md-0">
+      <select class="form-control" [(ngModel)]="filterStatus" [ngModelOptions]="{standalone: true}">
+        <option [ngValue]="null">All Statuses</option>
+        <option [ngValue]="0">Draft</option>
+        <option [ngValue]="1">Validated</option>
+      </select>
+    </div>
+    <div class="col-md-3 d-flex align-items-center justify-content-end">
+      <div class="form-check">
+        <input id="showOrphansOnly" type="checkbox" class="form-check-input" [(ngModel)]="showOrphansOnly" [ngModelOptions]="{standalone: true}">
+        <label class="form-check-label small text-muted" for="showOrphansOnly" title="Show only APIs not referenced by any Process">Orphans</label>
       </div>
+    </div>
+  </div>
 
-      <table class="mt-3 tree-table" *ngIf="apiCalls && apiCalls?.length > 0">
+  <div class="fa-3x text-center p-5" *ngIf="!apiCalls">
+    <i class="fas fa-spinner fa-pulse text-primary"></i>
+  </div>
+
+  <div *ngIf="apiCalls && apiCalls.length === 0" class="text-center py-5">
+    <div class="text-muted mb-3"><i class="fas fa-exchange-alt fa-4x opacity-25"></i></div>
+    <div class="h5 text-muted font-italic">No API calls found.</div>
+    <a routerLink="../create" class="btn btn-primary mt-2">Create your first API call</a>
+  </div>
+
+  <div class="card shadow-sm border-0 mb-4" *ngIf="apiCalls && apiCalls.length > 0">
+    <div class="card-body p-0">
+      <table class="tree-table mb-0">
         <thead>
         <tr>
           <th scope="col">Actions</th>

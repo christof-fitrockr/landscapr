@@ -1,26 +1,25 @@
 
-<div class="container-xl">
-  <div class="card shadow mb-4">
+<div class="container-xl mt-4">
 
-    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-
-      <div class="btn-toolbar justify-content-lg-start" role="toolbar" aria-label="Toolbar with button groups">
-        <app-system-edit-nav [systemId]="systemId"></app-system-edit-nav>
-        <div class="btn-group mr-2" role="group" aria-label="First group">
-          <button type="button" class="btn btn-primary" title="Save" (click)="onUpdate()"><i class="fas fa-save"></i></button>
-          <button type="button" class="btn btn-secondary" title="Remove" data-toggle="modal" data-target="#confirmDelete"><i class="fas fa-trash"></i></button>
-        </div>
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="btn-toolbar" role="toolbar">
+      <app-system-edit-nav [systemId]="systemId"></app-system-edit-nav>
+      <div class="btn-group shadow-sm">
+        <button type="button" class="btn btn-outline-primary" title="Save" (click)="onUpdate()">
+          <i class="fas fa-save mr-1"></i> Save
+        </button>
+        <button type="button" class="btn btn-outline-danger" title="Remove" data-toggle="modal" data-target="#confirmDelete" *ngIf="systemId">
+          <i class="fas fa-trash"></i>
+        </button>
       </div>
-
-      <div class="btn-group justify-content-lg-end" role="group">
-        <div class="m-0 font-weight-bold text-uppercase text-gray-400 text-right">
-          <p class="p-0 m-0">{{system?.name}}</p>
-          <p class="small p-0 m-0">Base</p>
-        </div>
-      </div>
-
     </div>
+    <div class="text-right">
+      <h2 class="m-0 font-weight-bold text-uppercase text-gray-400">{{systemId ? system?.name : 'New System'}}</h2>
+      <div class="text-muted small">System Base</div>
+    </div>
+  </div>
 
+  <div class="card shadow-sm border-0 mb-4">
     <div class="card-body">
 
 
@@ -85,14 +84,6 @@
             </div>
           </div>
         </div>
-
-
-        <div class="form-group row">
-          <div class="col-sm-10">
-            <button type="submit" class="btn btn-primary">Save</button>
-          </div>
-        </div>
-
 
       </form>
     </div>

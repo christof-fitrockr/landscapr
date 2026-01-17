@@ -1,7 +1,18 @@
 
-<div class="container-xl">
-  <div class="card shadow mb-4">
-    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between text-warning">
+<div class="container-xl mt-4">
+
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="btn-toolbar" role="toolbar">
+      <app-process-edit-nav [processId]="processId"></app-process-edit-nav>
+    </div>
+    <div class="text-right">
+      <h2 class="m-0 font-weight-bold text-uppercase text-gray-400">{{process?.name}}</h2>
+      <div class="text-muted small">Process Functions (Deprecated)</div>
+    </div>
+  </div>
+
+  <div class="card shadow-sm border-0 mb-4 border-warning">
+    <div class="card-header bg-white py-3 d-flex flex-row align-items-center justify-content-between text-warning border-bottom-0">
       <div>
         <i class="fas fa-exclamation-triangle mr-2"></i>
         This view is deprecated. Please use the <strong>Subprocesses & Functions</strong> tab to manage all steps in a single ordered list.

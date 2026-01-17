@@ -11,6 +11,10 @@ export class ProcessListComponent implements OnInit {
   repoId: string;
   private subscription: Subscription;
   orphanIds: string[] = [];
+  searchText: string = '';
+  filterStatus: number = null;
+  filterComments: boolean = false;
+  showOrphansOnly: boolean = false;
 
   constructor(
     private processService: ProcessService,

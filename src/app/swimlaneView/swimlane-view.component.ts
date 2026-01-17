@@ -65,6 +65,8 @@ export class SwimlaneViewComponent implements OnInit, AfterViewInit, OnChanges, 
   ApiImplementationStatus = ApiImplementationStatus;
 
 
+  noop = () => {};
+
   constructor(private activatedRoute: ActivatedRoute, private router: Router, private processService: ProcessService, private systemService: ApplicationService,
               private canvasService: CanvasService, private apiCallService: ApiCallService, private authService: AuthenticationService) {
   }

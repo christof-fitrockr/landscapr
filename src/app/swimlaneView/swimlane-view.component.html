@@ -1,5 +1,18 @@
-<div class="container-fluid position-relative h-100 overflow-hidden" >
-  <div class="canvas-container h-100 w-100" #canvasContainer>
+<div class="container-fluid position-relative h-100 overflow-hidden d-flex flex-column p-0">
+
+  <div class="d-flex justify-content-between align-items-center mb-4 px-4 pt-4" *ngIf="processId">
+    <div class="btn-toolbar" role="toolbar">
+      <div class="btn-group shadow-sm mr-2">
+        <button class="btn btn-outline-secondary" (click)="onWheel({deltaY: -1, preventDefault: noop})" title="Zoom In"><i class="fas fa-search-plus"></i></button>
+        <button class="btn btn-outline-secondary" (click)="onWheel({deltaY: 1, preventDefault: noop})" title="Zoom Out"><i class="fas fa-search-minus"></i></button>
+      </div>
+    </div>
+    <div class="text-right">
+      <h2 class="m-0 font-weight-bold text-uppercase text-gray-400">Swimlane View</h2>
+    </div>
+  </div>
+
+  <div class="canvas-container flex-grow-1 w-100 position-relative" #canvasContainer>
     <canvas id="canvas" #canvas class="canvas"
             (mousedown)="onMouseDown($event)"
             (mousemove)="onMouseMove($event)"

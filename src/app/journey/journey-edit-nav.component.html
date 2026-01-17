@@ -1,4 +1,4 @@
-<div class="btn-group mr-2" role="group" *ngIf="journeyId">
+<div class="btn-group shadow-sm mr-2" role="group" *ngIf="journeyId">
   <a class="btn btn-outline-secondary" [routerLink]="['/journeys', 'list']" routerLinkActive="active" title="List"><i class="fas fa-list"></i></a>
   <a class="btn btn-outline-secondary" [routerLink]="['/journeys', 'edit', journeyId, 'editor']" routerLinkActive="active" title="Editor"><i class="fas fa-project-diagram"></i></a>
   <a class="btn btn-outline-secondary" [routerLink]="['/journeys', 'edit', journeyId, 'base']" routerLinkActive="active" title="Base"><i class="fas fa-info"></i></a>
