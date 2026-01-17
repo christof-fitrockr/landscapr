@@ -32,10 +32,10 @@ export class AppComponent implements OnInit {
               private router: Router) { }
 
   ngOnInit() {
-    this.dataAvailable = this.repoService.dataAvailable();
+    this.repoService.dataAvailable().subscribe(val => this.dataAvailable = val);
     this.status$ = this.syncStatusService.status$;
     this.repoService.dataChanges.subscribe(() => {
-      this.dataAvailable = this.repoService.dataAvailable();
+      this.repoService.dataAvailable().subscribe(val => this.dataAvailable = val);
       const currentUrl = this.router.url;
       if (currentUrl.startsWith('/repositories')) {
         return;

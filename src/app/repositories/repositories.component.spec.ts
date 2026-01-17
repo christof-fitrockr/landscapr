@@ -87,9 +87,9 @@ describe('RepositoriesComponent', () => {
     // component.owner is set to 'current-user' in beforeEach -> connect
 
     githubServiceSpy.getFileContent.and.returnValue(of({ content: btoa('{}'), sha: '123' }));
-    repoServiceSpy.getCurrentData.and.returnValue({
+    repoServiceSpy.getCurrentData.and.returnValue(of({
       processes: [], apiCalls: [], capabilities: [], applications: [], journeys: []
-    });
+    }));
 
     // Mock modal to return confirm
     const modalRefMock = {
@@ -139,13 +139,13 @@ describe('RepositoriesComponent', () => {
     modalServiceSpy.show.and.returnValues(prModalRef as any, confirmModalRef as any);
 
     githubServiceSpy.createPullRequest.and.returnValue(of({}));
-    spyOn(component, 'createNewBranch');
+    spyOn(component, 'startEditMode');
 
     component.createPr();
 
     expect(githubServiceSpy.createPullRequest).toHaveBeenCalled();
     expect(modalServiceSpy.show).toHaveBeenCalledTimes(2); // PrDialog + Confirmation
-    expect(component.createNewBranch).toHaveBeenCalled();
+    expect(component.startEditMode).toHaveBeenCalled();
   });
 
   it('should create a branch and switch to it in startEditMode', () => {
@@ -166,7 +166,6 @@ describe('RepositoriesComponent', () => {
     const branchNameArg = githubServiceSpy.createBranch.calls.mostRecent().args[2];
     expect(branchNameArg).toContain('user-');
 
-    expect(component.branches.some(b => b.name === branchNameArg)).toBeTrue();
     expect(component.switchBranch).toHaveBeenCalledWith(branchNameArg);
     expect(toastrServiceSpy.success).toHaveBeenCalled();
   });

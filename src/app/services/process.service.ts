@@ -1,10 +1,12 @@
 import {Injectable} from '@angular/core';
 import {Process} from '../models/process';
-import {Observable} from 'rxjs';
+import {Observable, from, throwError, of} from 'rxjs';
+import { map, switchMap } from 'rxjs/operators';
 import {environment} from '../../environments/environment';
 import {HttpClient} from '@angular/common/http';
 import {Application} from '../models/application';
 import {v4 as uuidv4} from 'uuid';
+import { LandscaprDb } from '../db/landscapr-db';
 
 @Injectable({
   providedIn: 'root',
@@ -12,185 +14,90 @@ import {v4 as uuidv4} from 'uuid';
 export class ProcessService {
 
   public static STORAGE_KEY = 'ls_process';
-  private static load(): Process[] {
-    const item = JSON.parse(localStorage.getItem(ProcessService.STORAGE_KEY)) as Process[]
-    if(!item) {
-      return [];
-    }
-    return item;
-  }
 
-  private static store(apps: Process[]): void {
-    localStorage.setItem(ProcessService.STORAGE_KEY, JSON.stringify(apps));
-  }
+  constructor(private db: LandscaprDb) {}
+
   all(): Observable<Process[]> {
-    return new Observable<Process[]>(obs => {
-      obs.next(ProcessService.load());
-      obs.complete();
-    });
+    return from(this.db.processes.toArray());
   }
 
-  allFavorites(repoId: string) {
-    return new Observable<Process[]>(obs => {
-      const apps = ProcessService.load();
-      const result: Process[] = [];
-
-      for (const app of apps) {
-        if(app.favorite) {
-          result.push(app);
-        }
-      }
-      obs.next(result);
-      obs.complete();
-    });
+  allFavorites(repoId: string): Observable<Process[]> {
+    return from(this.db.processes.filter(p => !!p.favorite).toArray());
   }
 
-  allParents(processId: string) {
-    return new Observable<Process[]>(obs => {
-      const apps = ProcessService.load();
-      const result: Process[] = [];
-      for (const app of apps) {
+  allParents(processId: string): Observable<Process[]> {
+     return from(this.db.processes.filter(app => {
         if(app.steps) {
           for (const step of app.steps) {
             if (step.processReference === processId || step.apiCallReference === processId) {
-              result.push(app);
-              break;
+              return true;
             }
             if (step.successors) {
-              let found = false;
               for (const succ of step.successors) {
                 if (succ.processReference === processId || succ.apiCallReference === processId) {
-                  result.push(app);
-                  found = true;
-                  break;
+                  return true;
                 }
-              }
-              if (found) {
-                break;
               }
             }
           }
         }
-      }
-      obs.next(result);
-      obs.complete();
-    });
+        return false;
+     }).toArray());
   }
 
 
   byId(id: string): Observable<Process> {
-    return new Observable<Process>(obs => {
-      const apps = ProcessService.load();
-      for (const app of apps) {
-        if(app.id === id) {
-          obs.next(app);
-          obs.complete();
-          return;
-        }
-      }
-      obs.error();
-    });
+    return from(this.db.processes.get(id)).pipe(
+        switchMap(process => {
+            if (process) return of(process);
+            return throwError(undefined);
+        })
+    );
   }
 
   byIds(ids: string[]): Observable<Process[]> {
-    return new Observable<Process[]>(obs => {
-      const apps = ProcessService.load();
-      const result: Process[] = [];
-      for (const app of apps) {
-        if(ids && ids.indexOf(app.id) >= 0) {
-          result.push(app);
-        }
-      }
-      obs.next(result);
-      obs.complete();
-    });
+    if (!ids || ids.length === 0) return of([]);
+    return from(this.db.processes.where('id').anyOf(ids).toArray());
   }
 
   byName(repoId: string, name: string): Observable<Process[]> {
-    return new Observable<Process[]>(obs => {
-      const apps = ProcessService.load();
-      const result: Process[] = [];
-      for (const app of apps) {
-        if(name === app.name) {
-          result.push(app);
-        }
-      }
-      obs.next(result);
-      obs.complete();
-    });
+    return from(this.db.processes.where('name').equals(name).toArray());
   }
 
-  byApiCall(apiCallId: string) {
-    return new Observable<Process[]>(obs => {
-      const apps = ProcessService.load();
-      const result: Process[] = [];
-      for (const app of apps) {
+  byApiCall(apiCallId: string): Observable<Process[]> {
+    return from(this.db.processes.filter(app => {
         if (app.apiCallIds && app.apiCallIds.indexOf(apiCallId) >= 0) {
-          result.push(app);
-          continue;
+          return true;
         }
         if (app.steps) {
-          let found = false;
           for (const step of app.steps) {
             if (step.apiCallReference === apiCallId) {
-              result.push(app);
-              found = true;
-              break;
+              return true;
             }
           }
-          if (found) {
-            continue;
-          }
         }
-      }
-      obs.next(result);
-      obs.complete();
-    });
+        return false;
+    }).toArray());
   }
 
 
   create(process: Process): Observable<Process> {
-    return new Observable<Process>(obs => {
-      const apps = ProcessService.load();
       process.id = uuidv4();
-      apps.push(process)
-      ProcessService.store(apps);
-      obs.next(process);
-      obs.complete();
-    });
+      return from(this.db.processes.add(process)).pipe(
+          map(() => process)
+      );
   }
 
   update(id: string, process:  Process): Observable<Process> {
-    return new Observable<Process>(obs => {
-      const apps = ProcessService.load();
-      for (let i = 0; i < apps.length; i++){
-        const app = apps[i];
-        if(app.id === id) {
-          apps[i] = process;
-          ProcessService.store(apps);
-          obs.next(process);
-          obs.complete();
-          return;
-        }
-      }
-      obs.error();
-    });
+    return from(this.db.processes.update(id, process)).pipe(
+        switchMap(updated => {
+            if (updated) return of(process);
+            return throwError(undefined);
+        })
+    );
   }
 
   delete(id: string): Observable<void> {
-    return new Observable<void>(obs => {
-      let apps = ProcessService.load();
-      for (let i = 0; i < apps.length; i++){
-        const app = apps[i];
-        if(app.id === id) {
-          apps.splice(i, 1);
-          ProcessService.store(apps);
-          obs.next();
-          obs.complete();
-          return;
-        }
-      }
-      obs.error();
-    });
+    return from(this.db.processes.delete(id));
   }
 }
