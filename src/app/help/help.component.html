@@ -1,20 +1,46 @@
 <div class="container-fluid mt-4">
-  <div class="row">
+
+  <div *ngIf="isLoading" class="d-flex justify-content-center align-items-center" style="height: 50vh;">
+    <div class="text-center">
+      <i class="fas fa-spinner fa-spin fa-3x text-primary mb-3"></i>
+      <h5 class="text-muted">Loading help documentation...</h5>
+    </div>
+  </div>
+
+  <div class="row" *ngIf="!isLoading">
     <div class="col-md-3">
-      <div class="list-group mb-4">
-        <button *ngFor="let topic of topics"
+
+      <div class="input-group mb-3">
+        <div class="input-group-prepend">
+          <span class="input-group-text"><i class="fas fa-search"></i></span>
+        </div>
+        <input type="text" class="form-control" placeholder="Search..." [(ngModel)]="searchTerm" (input)="search()">
+        <div class="input-group-append" *ngIf="searchTerm">
+          <button class="btn btn-outline-secondary" type="button" (click)="clearSearch()">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="list-group mb-4" style="max-height: 80vh; overflow-y: auto;">
+        <button *ngFor="let topic of filteredTopics"
                 type="button"
                 class="list-group-item list-group-item-action"
                 [class.active]="topic === selectedTopic"
                 (click)="selectTopic(topic)">
           {{ topic.title }}
         </button>
+
+        <div *ngIf="filteredTopics.length === 0" class="text-center p-3 text-muted">
+          No matching topics found.
+        </div>
       </div>
     </div>
+
     <div class="col-md-9">
       <div class="card shadow mb-4">
         <div class="card-body markdown-body">
-            <markdown [data]="content$ | async"></markdown>
+            <markdown [data]="selectedTopic?.content"></markdown>
         </div>
       </div>
     </div>
