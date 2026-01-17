@@ -1,12 +1,24 @@
+@use "src/styles/abstracts/variables" as vars;
+
+.text-slate-900 { color: vars.$slate-900; }
+.fw-bold { font-weight: 700 !important; }
+
 .scrollable-list {
-  max-height: 200px;
+  max-height: 250px;
   overflow-y: auto;
-  border: 1px solid #eee;
-  border-radius: 4px;
+  border: 1px solid #f1f5f9;
+  border-radius: 6px;
+  background-color: #f8fafc;
+}
+
+.card {
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  overflow: hidden;
 }
 
 .card-header {
-  border-bottom: 0;
+  border-bottom: 1px solid #f1f5f9;
 }
 
 .btn-link:hover {
@@ -14,14 +26,21 @@
 }
 
 .btn-xs {
-  padding: 0.1rem 0.3rem;
-  font-size: 0.75rem;
+  padding: 0.2rem 0.5rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
 }
 
 .text-purple {
-    color: #6F42C1;
+    color: #8b5cf6;
 }
 
 .custom-control-label {
     cursor: pointer;
+}
+
+.modal-footer {
+    border-top: 1px solid #f1f5f9;
 }

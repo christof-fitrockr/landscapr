@@ -161,4 +161,8 @@ export class ExportModalComponent implements OnInit {
   selectAll(type: string, value: boolean) {
       this[type].forEach(item => item.selected = value);
   }
+
+  getSelectedCount(items: {selected: boolean}[]): number {
+    return items.filter(item => item.selected).length;
+  }
 }

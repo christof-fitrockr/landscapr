@@ -54,7 +54,9 @@ export class ProcessEditBaseComponent implements OnInit, OnDestroy {
     this.refresh();
   }
   ngOnDestroy() {
-    this.subscription.unsubscribe();
+    if (this.subscription) {
+      this.subscription.unsubscribe();
+    }
   }
 
   private refresh() {

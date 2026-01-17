@@ -89,7 +89,7 @@ export class ProcessService {
   }
 
   update(id: string, process:  Process): Observable<Process> {
-    return from(this.db.processes.update(id, process)).pipe(
+    return from(this.db.processes.update(id, process as any)).pipe(
         switchMap(updated => {
             if (updated) return of(process);
             return throwError(undefined);

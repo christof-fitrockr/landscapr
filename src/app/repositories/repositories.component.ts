@@ -76,18 +76,26 @@ export class RepositoriesComponent implements OnInit, OnDestroy {
   }
 
   updateStats(): void {
-    if (!this.repoService.dataAvailable()) {
-      this.stats = null;
-      return;
-    }
-    const data = this.repoService.getCurrentData();
-    this.stats = {
-      journeys: data.journeys?.length || 0,
-      processes: data.processes?.length || 0,
-      apis: data.apiCalls?.length || 0,
-      capabilities: data.capabilities?.length || 0,
-      systems: data.applications?.length || 0
-    };
+    this.repoService.dataAvailable().pipe(
+      first(),
+      switchMap(available => {
+        if (!available) {
+          this.stats = null;
+          return of(null);
+        }
+        return this.repoService.getCurrentData().pipe(first());
+      })
+    ).subscribe(data => {
+      if (data) {
+        this.stats = {
+          journeys: data.journeys?.length || 0,
+          processes: data.processes?.length || 0,
+          apis: data.apiCalls?.length || 0,
+          capabilities: data.capabilities?.length || 0,
+          systems: data.applications?.length || 0
+        };
+      }
+    });
   }
 
   connect(): void {
