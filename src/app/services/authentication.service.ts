@@ -56,7 +56,7 @@ export class AuthenticationService {
     login(loginCode: string) {
 
       return new Observable<User>(obs => {
-        if(loginCode === "landscapr4adm1n!") {
+        if(loginCode === "landscapr4digitalR€belz") {
           const authResponse = new User();
           authResponse.token = '3lkjnvdöcop0' + uuidv4();
           authResponse.admin = true;
