@@ -1,0 +1,30 @@
+<div class="capability-node" *ngIf="shouldShow()">
+  <div class="d-flex align-items-center py-1 hover-bg-light border-bottom">
+    <div [style.width.px]="level * 20" *ngIf="level > 0"></div>
+    <div class="d-flex align-items-center flex-grow-1">
+      <div style="width: 25px" class="text-center">
+        <button *ngIf="capability.children?.length > 0" class="btn btn-sm btn-link p-0 text-dark" (click)="toggleExpand()">
+          <i class="fas fa-sm" [class.fa-chevron-down]="isExpanded" [class.fa-chevron-right]="!isExpanded"></i>
+        </button>
+      </div>
+      <div class="mr-2">
+        <input type="checkbox"
+               [checked]="selectedIds.has(capability.id)"
+               (change)="toggleSelection()">
+      </div>
+      <div class="flex-grow-1">
+        <span class="black font-weight-bold">{{capability.name}}</span>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="isExpanded && capability.children?.length > 0">
+    <app-capability-selector-tree-node
+      *ngFor="let child of capability.children"
+      [capability]="child"
+      [selectedIds]="selectedIds"
+      [searchText]="searchText"
+      [level]="level + 1">
+    </app-capability-selector-tree-node>
+  </div>
+</div>

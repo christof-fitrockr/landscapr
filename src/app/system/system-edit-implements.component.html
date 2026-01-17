@@ -9,6 +9,9 @@
         <div class="btn-group mr-2" role="group" aria-label="First group">
           <a class="btn btn-secondary" title="List" routerLink="/system"><i class="fas fa-list"></i></a>
         </div>
+        <div class="btn-group mr-2" role="group" aria-label="Second group">
+          <button class="btn btn-secondary" title="Add" (click)="openAddModal()"><i class="fas fa-plus"></i></button>
+        </div>
       </div>
 
       <div class="btn-group justify-content-lg-end" role="group">
@@ -24,11 +27,10 @@
     <div class="card-body">
 
       <div class="mt-1" *ngFor="let item of implementedCapabilities">
-        <app-capability-overview [capability]="item" [readOnly]="true"></app-capability-overview>
+        <app-capability-overview [capability]="item" [readOnly]="false" (deleteEmitter)="removeCapability($event)"></app-capability-overview>
       </div>
 
 
     </div>
   </div>
 </div>
-
