@@ -1,0 +1,51 @@
+.btn {
+  font-weight: 500;
+  letter-spacing: 0.025em;
+  text-transform: none;
+  padding: 0.5rem 1rem;
+  transition: all 0.2s ease;
+
+  &:focus {
+    box-shadow: 0 0 0 3px rgba($electric-indigo, 0.3);
+  }
+
+  // Primary Button Modernization
+  &.btn-primary {
+    background: linear-gradient(135deg, $electric-indigo, darken($electric-indigo, 5%));
+    border: none;
+    box-shadow: 0 4px 6px rgba($electric-indigo, 0.3);
+
+    &:hover {
+      background: linear-gradient(135deg, lighten($electric-indigo, 5%), $electric-indigo);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 8px rgba($electric-indigo, 0.4);
+    }
+  }
+
+  // Secondary/Ghost styling
+  &.btn-outline-secondary {
+    border-color: $slate-600;
+    color: $slate-300;
+
+    &:hover {
+      background-color: $slate-800;
+      border-color: $slate-500;
+      color: $white;
+    }
+  }
+
+  // Icon only buttons
+  &.btn-icon {
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+
+    &:hover {
+      background-color: rgba($white, 0.1);
+    }
+  }
+}

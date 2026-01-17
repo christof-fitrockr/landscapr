@@ -1,282 +1,106 @@
 @use '@angular/material' as mat;
 @use 'theme' as theme;
 
+// Apply the light theme by default (Material)
+@include mat.all-component-themes(theme.$light-theme);
+
 :root {
   --navbar-height: 56px;
   --submenu-height: 56px;
-
-  /* Role colors - Light */
-  --role-customer: #bfdbfe;
-  --role-vehicle: #fed7aa;
-  --role-service-with-customer: #bbf7d0;
-  --role-service: #fbcfe8;
-  --role-workshop: #e9d5ff;
-  --role-parts: #fef08a;
-  --role-processing: #ddd6fe;
-  --role-unassigned: #e5e7eb;
 }
 
-.h-100 {
-  height: 100% !important;
+// 1. Configuration and Variables
+@import "styles/abstracts/variables";
+
+// 2. Vendors
+@import "~bootstrap/scss/bootstrap";
+@import "~@ng-select/ng-select/themes/default.theme.css";
+
+// 3. Abstracts (Mixins)
+@import "styles/abstracts/mixins";
+
+// 4. Components
+@import "styles/components/tree-table";
+@import "styles/components/cards";
+@import "styles/components/buttons";
+
+// 5. Global / Base Styles
+html, body {
+  height: 100%;
+  // Background and color are set by Bootstrap variables in _variables.scss
+  font-family: $font-family-sans-serif;
+  -webkit-font-smoothing: antialiased;
 }
 
-.min-h-100 {
-  min-height: 100% !important;
-}
+// Utility classes from original styles.scss
+.h-100 { height: 100% !important; }
+.min-h-100 { min-height: 100% !important; }
+.flex-column-fill { display: flex; flex-direction: column; flex: 1; }
+.flex-grow-1 { flex-grow: 1 !important; }
 
-.flex-column-fill {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-}
+// Navbar overrides for modern look
+.navbar {
+  @include glass-effect(0.8, 12px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 
-.flex-grow-1 {
-  flex-grow: 1 !important;
-}
-
-/* You can add global styles to this file, and also import other style files */
-
-// Apply the light theme by default
-@include mat.all-component-themes(theme.$light-theme);
-
-// Apply the dark theme when the .dark-theme class is present
-.dark-theme {
-  @include mat.all-component-colors(theme.$dark-theme);
-
-  $gray-900: #f8f9fc;
-  $gray-800: #eaecf4;
-  $gray-700: #dddfeb;
-  $gray-600: #d1d3e2;
-  $gray-500: #b7b9cc;
-  $gray-400: #858796;
-  $gray-300: #6e707e;
-  $gray-200: #5a5c69;
-  $gray-100: #3a3b45;
-
-  .text-gray-100 { color: $gray-100 !important; }
-  .text-gray-200 { color: $gray-200 !important; }
-  .text-gray-300 { color: $gray-300 !important; }
-  .text-gray-400 { color: $gray-400 !important; }
-  .text-gray-500 { color: $gray-500 !important; }
-  .text-gray-600 { color: $gray-600 !important; }
-  .text-gray-700 { color: $gray-700 !important; }
-  .text-gray-800 { color: $gray-800 !important; }
-  .text-gray-900 { color: $gray-900 !important; }
-
-  .bg-gray-100 { background-color: $gray-100 !important; }
-  .bg-gray-200 { background-color: $gray-200 !important; }
-  .bg-gray-300 { background-color: $gray-300 !important; }
-  .bg-gray-400 { background-color: $gray-400 !important; }
-  .bg-gray-500 { background-color: $gray-500 !important; }
-  .bg-gray-600 { background-color: $gray-600 !important; }
-  .bg-gray-700 { background-color: $gray-700 !important; }
-  .bg-gray-800 { background-color: $gray-800 !important; }
-  .bg-gray-900 { background-color: $gray-900 !important; }
-
-  a.black { color: white; }
-  a.gray { color: $gray-500; }
-
-  .card {
-    background-color: #1e1e1e;
-    border-color: #333;
-  }
-  .card-header {
-    background-color: #252525;
-    border-bottom-color: #333;
+  .navbar-brand {
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    color: $white;
   }
 
-  .form-control, .form-select {
-    background-color: #2d2d2d;
-    border-color: #444;
-    color: #e0e0e0;
-    &:focus {
-      background-color: #333;
-      border-color: #555;
-      color: #fff;
+  .nav-link {
+    font-weight: 500;
+    transition: color 0.2s;
+
+    &:hover, &.active {
+      color: $primary !important;
     }
   }
+}
 
-  .btn-outline-secondary {
-    color: #b7b9cc;
-    border-color: #5a5c69;
-    &:hover {
-      background-color: #5a5c69;
-      color: #fff;
-    }
+// Dark Mode overrides for ng-select (adapted to new variables)
+.ng-select {
+  .ng-select-container {
+    background-color: $input-bg !important;
+    border-color: $input-border-color !important;
+    color: $input-color !important;
   }
-
-  /* ng-select dark mode */
-  .ng-select {
-    .ng-select-container {
-      background-color: #2d2d2d;
-      border-color: #444;
-      color: #e0e0e0;
-    }
-    .ng-dropdown-panel {
-      background-color: #2d2d2d;
-      border-color: #444;
-      .ng-option {
-        background-color: #2d2d2d;
-        color: #e0e0e0;
-        &.ng-option-marked {
-          background-color: #3f3f3f;
-          color: #fff;
-        }
-        &.ng-option-selected {
-          background-color: #007bff;
-          color: #fff;
-        }
+  .ng-dropdown-panel {
+    background-color: $dropdown-bg !important;
+    border-color: $dropdown-border-color !important;
+    .ng-option {
+      background-color: $dropdown-bg !important;
+      color: $dropdown-link-color !important;
+      &.ng-option-marked {
+        background-color: $dropdown-link-hover-bg !important;
+        color: $dropdown-link-hover-color !important;
+      }
+      &.ng-option-selected {
+        background-color: $primary !important;
+        color: $white !important;
       }
     }
-    .ng-placeholder {
-      color: #858796;
-    }
   }
-
-  /* Modal dark mode */
-  .modal-content {
-    background-color: #1e1e1e;
-    color: #e0e0e0;
-    border-color: #333;
+  .ng-arrow-wrapper .ng-arrow {
+    border-color: $input-placeholder-color transparent transparent !important;
   }
-  .modal-header, .modal-footer {
-    border-color: #333;
+  .ng-placeholder {
+    color: $input-placeholder-color !important;
   }
-  .close {
-    color: #e0e0e0;
-    text-shadow: none;
-    &:hover {
-      color: #fff;
-    }
-  }
-  .input-group-text {
-    background-color: #252525;
-    border-color: #444;
-    color: #e0e0e0;
-  }
-
-  /* Role colors - Dark */
-  --role-customer: #1e40af;
-  --role-vehicle: #9a3412;
-  --role-service-with-customer: #065f46;
-  --role-service: #86198f;
-  --role-workshop: #5b21b6;
-  --role-parts: #854d0e;
-  --role-processing: #5b21b6;
-  --role-unassigned: #374151;
 }
 
-@import "~@ng-select/ng-select/themes/default.theme.css";
-//@import "assets/css/vwag/vwag.min.css";
-
-// Default (light) document background and text color
-html, body {
-  background-color: #ffffff;
-  color: #000000;
+// Modal Overrides
+.modal-content {
+  @include glass-effect(0.95, 20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: $box-shadow-lg;
 }
 
-// Dark mode base colors for the whole document
-.dark-theme {
-  background-color: #121212 !important;
-  color: #e0e0e0;
-}
+// Text Utilities
+.text-xs { font-size: .7rem; }
+.text-lg { font-size: 1.2rem; }
 
-$gray-100: #f8f9fc !default;
-$gray-200: #eaecf4 !default;
-$gray-300: #dddfeb !default;
-$gray-400: #d1d3e2 !default;
-$gray-500: #b7b9cc !default;
-$gray-600: #858796 !default;
-$gray-700: #6e707e !default;
-$gray-800: #5a5c69 !default;
-$gray-900: #3a3b45 !default;
-
-
-.text-xs {
-  font-size: .7rem;
-}
-
-.text-lg {
-  font-size: 1.2rem;
-}
-
-.text-gray-100 {
-  color: $gray-100 !important;
-}
-
-.text-gray-200 {
-  color: $gray-200 !important;
-}
-
-.text-gray-300 {
-  color: $gray-300 !important;
-}
-
-.text-gray-400 {
-  color: $gray-400 !important;
-}
-
-.text-gray-500 {
-  color: $gray-500 !important;
-}
-
-.text-gray-600 {
-  color: $gray-600 !important;
-}
-
-.text-gray-700 {
-  color: $gray-700 !important;
-}
-
-.text-gray-800 {
-  color: $gray-800 !important;
-}
-
-.text-gray-900 {
-  color: $gray-900 !important;
-}
-
-.bg-gray-100 {
-  background-color: $gray-100 !important;
-}
-
-.bg-gray-200 {
-  background-color: $gray-200 !important;
-}
-
-.bg-gray-300 {
-  background-color: $gray-300 !important;
-}
-
-.bg-gray-400 {
-  background-color: $gray-400 !important;
-}
-
-.bg-gray-500 {
-  background-color: $gray-500 !important;
-}
-
-.bg-gray-600 {
-  background-color: $gray-600 !important;
-}
-
-.bg-gray-700 {
-  background-color: $gray-700 !important;
-}
-
-.bg-gray-800 {
-  background-color: $gray-800 !important;
-}
-
-.bg-gray-900 {
-  background-color: $gray-900 !important;
-}
-
-.description-text {
-  white-space: pre-wrap;
-}
-
-a.active, a.active:hover, a.active:active, a.active:visited { color: white !important;text-decoration: underline !important; }
-a.white, a.white:hover, a.white:active, a.white:visited { color: white; }
-a.gray, a.gray:hover, a.gray:active, a.gray:visited { color: $gray-500; }
-a.black, a.black:hover, a.black:active, a.black:visited { color: black; }
+// Link Utilities
+a.black { color: $white; &:hover { color: $primary; } } // Modernized 'black' links to white/primary

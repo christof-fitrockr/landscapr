@@ -25,15 +25,16 @@
   </div>
 </div>
 
-<table class="mt-3 table table-sm table-striped" *ngIf="processes && processes?.length > 0">
+<table class="mt-3 tree-table" *ngIf="processes && processes?.length > 0">
   <thead>
   <tr>
-    <th scope="col"></th>
+    <th scope="col">Role</th>
     <th scope="col" class="w-40">Name</th>
     <th scope="col">Comments</th>
     <th scope="col" class="w-40">Tags</th>
-    <th scope="col"></th>
-    <th scope="col"></th>
+    <th scope="col">Metrics</th>
+    <th scope="col">Status</th>
+    <th scope="col" *ngIf="selectMode"></th>
   </tr>
   </thead>
   <tbody>

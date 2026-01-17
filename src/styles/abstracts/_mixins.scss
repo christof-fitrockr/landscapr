@@ -1,0 +1,19 @@
+@mixin glass-effect($opacity: 0.7, $blur: 10px) {
+  background: rgba($slate-800, $opacity);
+  backdrop-filter: blur($blur);
+  -webkit-backdrop-filter: blur($blur);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+}
+
+@mixin hover-lift {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: $box-shadow-lg;
+  }
+}
+
+@mixin text-glow($color) {
+  text-shadow: 0 0 10px rgba($color, 0.5);
+}
