@@ -1,0 +1,31 @@
+<div class="modal-header">
+  <h4 class="modal-title pull-left">Add Capability</h4>
+  <button type="button" class="close pull-right" aria-label="Close" (click)="decline()">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+<div class="modal-body">
+  <div class="input-group mb-3">
+    <div class="input-group-prepend">
+      <span class="input-group-text"><i class="fas fa-search"></i></span>
+    </div>
+    <input type="text" class="form-control" placeholder="Search capabilities..." [(ngModel)]="searchText">
+  </div>
+
+  <div *ngIf="loading" class="text-center">
+    <i class="fas fa-spinner fa-spin fa-2x"></i>
+  </div>
+
+  <div *ngIf="!loading" class="overflow-auto" style="max-height: 400px;">
+    <app-capability-selector-tree-node
+      *ngFor="let cap of capabilityTree"
+      [capability]="cap"
+      [selectedIds]="selectedIds"
+      [searchText]="searchText">
+    </app-capability-selector-tree-node>
+  </div>
+</div>
+<div class="modal-footer">
+  <button type="button" class="btn btn-default" (click)="decline()">Cancel</button>
+  <button type="button" class="btn btn-primary" (click)="confirm()">Save</button>
+</div>

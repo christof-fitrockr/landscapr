@@ -51,6 +51,7 @@ import {SystemOverviewComponent} from './components/system-overview.component';
 import {ApiCallEditImplementedInComponent} from './apiCall/api-call-edit-implemented-in.component';
 import { CapabilityMapComponent } from './capability/capability-map.component';
 import {CapabilityTreeNodeComponent} from './capability/capability-tree-node.component';
+import {CapabilitySelectorTreeNodeComponent} from './components/capability-selector-tree-node/capability-selector-tree-node.component';
 import {ApiCallTreeNodeComponent} from './apiCall/api-call-tree-node.component';
 import {ProcessEditUsedByComponent} from './process/process-edit-used-by.component';
 import {ApiCallOverviewComponent} from './components/api-call-overview.component';
@@ -69,6 +70,7 @@ import { PrDialogComponent } from './components/pr-dialog.component';
 import { GithubActionsDialogComponent } from './components/github-actions-dialog.component';
 import { MergeResolverComponent } from './components/merge-resolver.component';
 import { DeleteConfirmationDialogComponent } from './components/delete-confirmation-dialog.component';
+import {CapabilitySelectorDialogComponent} from './components/capability-selector-dialog/capability-selector-dialog.component';
 
 import { ThemeService } from './services/theme.service';
 
@@ -104,6 +106,7 @@ import { MarkdownModule } from 'ngx-markdown';
     PrDialogComponent,
     GithubActionsDialogComponent,
     DeleteConfirmationDialogComponent,
+    CapabilitySelectorDialogComponent,
     RepositoriesComponent,
     FileTypePipe,
     ProcessOverviewComponent,
@@ -148,6 +151,7 @@ import { MarkdownModule } from 'ngx-markdown';
     CapabilityEditApiCallComponent,
     CapabilityEditImplementedByComponent,
     CapabilityTreeNodeComponent,
+    CapabilitySelectorTreeNodeComponent,
     ApiCallTreeNodeComponent,
     CapabilityListComponent,
     CapabilityViewComponent,
