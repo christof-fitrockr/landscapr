@@ -1,6 +1,7 @@
 <div class="btn-group mr-2" role="group" *ngIf="processId">
-  <a class="btn btn-secondary" [routerLink]="['/process', 'edit', processId, 'flow']" routerLinkActive="active" title="View"><i class="fas fa-eye"></i></a>
-  <a class="btn btn-secondary" [routerLink]="['/process', 'edit', processId, 'base']" routerLinkActive="active" title="Base"><i class="fas fa-info"></i></a>
-  <a class="btn btn-secondary" [routerLink]="['/process', 'edit', processId, 'subprocesses']" routerLinkActive="active" title="Subprocesses & Functions"><i class="fas fa-sitemap"></i></a>
-  <a class="btn btn-secondary" [routerLink]="['/process', 'edit', processId, 'usedBy']" routerLinkActive="active" title="Used by"><i class="fas fa-link"></i></a>
+  <a class="btn btn-outline-secondary" [routerLink]="['/process', 'list']" routerLinkActive="active" title="List"><i class="fas fa-list"></i></a>
+  <a class="btn btn-outline-secondary" [routerLink]="['/process', 'edit', processId, 'flow']" routerLinkActive="active" title="View"><i class="fas fa-eye"></i></a>
+  <a class="btn btn-outline-secondary" [routerLink]="['/process', 'edit', processId, 'base']" routerLinkActive="active" title="Base"><i class="fas fa-info"></i></a>
+  <a class="btn btn-outline-secondary" [routerLink]="['/process', 'edit', processId, 'subprocesses']" routerLinkActive="active" title="Subprocesses & Functions"><i class="fas fa-sitemap"></i></a>
+  <a class="btn btn-outline-secondary" [routerLink]="['/process', 'edit', processId, 'usedBy']" routerLinkActive="active" title="Used by"><i class="fas fa-link"></i></a>
 </div>
