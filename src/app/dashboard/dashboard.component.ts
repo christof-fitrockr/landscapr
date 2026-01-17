@@ -33,6 +33,10 @@ export class DashboardComponent implements OnInit {
   processes: Process[];
   journeys: Journey[];
 
+  commits: any[] = [];
+  loadingCommits: boolean = false;
+  repoName: string | null = null;
+
   ngOnInit() {
 
     this.subscription = this.route.parent.paramMap.subscribe(obs => {
@@ -47,6 +51,35 @@ export class DashboardComponent implements OnInit {
     });
     this.journeyService.all().pipe(first()).subscribe(js => {
       this.journeys = js || [];
+    });
+    this.loadRecentCommits();
+  }
+
+  loadRecentCommits() {
+    this.repoName = localStorage.getItem('repositories.selectedRepo');
+    if (!this.repoName) {
+      return;
+    }
+
+    this.loadingCommits = true;
+    // We need to find the owner of the repo.
+    this.githubService.getRepos().pipe(first()).subscribe(repos => {
+      const found = repos.find(r => r.name === this.repoName);
+      if (found) {
+        const owner = found.owner.login;
+        this.githubService.getCommits(owner, this.repoName).pipe(first()).subscribe(commits => {
+          this.commits = commits;
+          this.loadingCommits = false;
+        }, err => {
+          this.toastr.error('Failed to load recent commits');
+          this.loadingCommits = false;
+        });
+      } else {
+        // Repo not found in user's list? Maybe valid but not in list?
+        this.loadingCommits = false;
+      }
+    }, err => {
+      this.loadingCommits = false;
     });
   }
 
