@@ -17,12 +17,15 @@ export class ProcessTreeNodeComponent implements OnChanges {
   @Input() repoId: string;
   @Input() orphanIds: string[] = [];
   @Input() filter: string;
+  @Input() filterStatus: number;
+  @Input() filterComments: boolean = false;
   @Input() showOrphansOnly: boolean = false;
   @Input() selectMode: boolean = false;
 
   @Output() deleted = new EventEmitter<void>();
   @Output() prepareDelete = new EventEmitter<Process>();
   @Output() select = new EventEmitter<Process>();
+  @Output() showDescription = new EventEmitter<Process>();
 
   expanded: boolean = false;
   childProcesses: Process[] = [];
@@ -31,9 +34,18 @@ export class ProcessTreeNodeComponent implements OnChanges {
     if (changes.process || changes.allProcesses) {
       this.calculateChildProcesses();
     }
-    if (changes.filter && this.filter && this.filter.trim().length > 0) {
-      this.expanded = this.hasMatchingDescendant(this.process, this.filter.toLowerCase());
+    if (changes.filter || changes.filterStatus || changes.filterComments) {
+      this.expanded = this.shouldBeExpanded();
     }
+  }
+
+  private shouldBeExpanded(): boolean {
+    const hasSearch = this.filter && this.filter.trim().length > 0;
+    const q = hasSearch ? this.filter.toLowerCase() : '';
+    if (hasSearch || (this.filterStatus !== undefined && this.filterStatus !== null) || this.filterComments) {
+      return this.hasMatchingDescendant(this.process, q);
+    }
+    return false;
   }
 
   private hasMatchingDescendant(process: Process, q: string): boolean {
@@ -42,8 +54,15 @@ export class ProcessTreeNodeComponent implements OnChanges {
     }
     const childProcesses = this.getChildProcesses(process);
     return childProcesses.some(child => {
-      const matches = child.name?.toLowerCase().includes(q) ||
+      const matchesSearch = !q ||
+        child.name?.toLowerCase().includes(q) ||
         (Array.isArray(child.tags) && child.tags.join(' ').toLowerCase().includes(q));
+
+      const matchesStatus = (this.filterStatus === undefined || this.filterStatus === null) || child.status === this.filterStatus;
+      const matchesComments = !this.filterComments || (!!child.comments && child.comments.length > 0);
+
+      const matches = matchesSearch && matchesStatus && matchesComments;
+
       return matches || this.hasMatchingDescendant(child, q);
     });
   }
@@ -93,5 +112,9 @@ export class ProcessTreeNodeComponent implements OnChanges {
 
   onSelect(process: Process) {
     this.select.emit(process);
+  }
+
+  onShowDescription(process: Process) {
+    this.showDescription.emit(process);
   }
 }

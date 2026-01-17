@@ -53,7 +53,8 @@ export class ProcessWithStep {
 
 export enum Status {
   Draft,
-  Validated
+  Validated,
+  ReviewNeeded
 }
 
 export class Step {

@@ -1,8 +1,28 @@
 
-<input  *ngIf="processes && processes?.length > 0 && showFilter" type="text" class="input-group form-control" placeholder="Search.." [(ngModel)]="filter" [ngModelOptions]="{standalone: true}">
-<div *ngIf="processes && processes?.length > 0 && showFilter" class="form-check mt-2">
-  <input id="showOrphansOnly" type="checkbox" class="form-check-input" [(ngModel)]="showOrphansOnly" [ngModelOptions]="{standalone: true}" aria-label="Toggle: only show orphan processes">
-  <label class="form-check-label" for="showOrphansOnly" title="Show only processes not referenced by any Journey">Show orphans only</label>
+<div *ngIf="processes && processes?.length > 0 && showFilter" class="form-row align-items-center mb-3">
+  <div class="col-auto flex-grow-1">
+    <input type="text" class="form-control" placeholder="Search.." [(ngModel)]="filter" [ngModelOptions]="{standalone: true}">
+  </div>
+  <div class="col-auto">
+    <select class="form-control" [(ngModel)]="filterStatus" [ngModelOptions]="{standalone: true}">
+      <option [ngValue]="null">All Statuses</option>
+      <option [ngValue]="0">Draft</option>
+      <option [ngValue]="1">Validated</option>
+      <option [ngValue]="2">Review Needed</option>
+    </select>
+  </div>
+  <div class="col-auto">
+    <div class="form-check">
+      <input id="filterComments" type="checkbox" class="form-check-input" [(ngModel)]="filterComments" [ngModelOptions]="{standalone: true}">
+      <label class="form-check-label" for="filterComments">With comments</label>
+    </div>
+  </div>
+  <div class="col-auto">
+    <div class="form-check">
+      <input id="showOrphansOnly" type="checkbox" class="form-check-input" [(ngModel)]="showOrphansOnly" [ngModelOptions]="{standalone: true}" aria-label="Toggle: only show orphan processes">
+      <label class="form-check-label" for="showOrphansOnly" title="Show only processes not referenced by any Journey">Orphans only</label>
+    </div>
+  </div>
 </div>
 
 <table class="mt-3 table table-sm table-striped" *ngIf="processes && processes?.length > 0">
@@ -17,7 +37,7 @@
   </tr>
   </thead>
   <tbody>
-  <ng-container *ngFor="let process of _rootProcesses | processFilter : processes : filter : showOrphansOnly : orphanIds; trackBy: trackByProcessId">
+  <ng-container *ngFor="let process of _rootProcesses | processFilter : processes : filter : showOrphansOnly : orphanIds : filterStatus : filterComments; trackBy: trackByProcessId">
     <app-process-tree-node
       [process]="process"
       [allProcesses]="processes"
@@ -25,9 +45,12 @@
       [repoId]="repoId"
       [orphanIds]="orphanIds"
       [filter]="filter"
+      [filterStatus]="filterStatus"
+      [filterComments]="filterComments"
       [showOrphansOnly]="showOrphansOnly"
       (deleted)="deleted.emit()"
       (prepareDelete)="prepareDelete($event)"
+      (showDescription)="onShowDescription($event)"
     ></app-process-tree-node>
   </ng-container>
   </tbody>
@@ -54,3 +77,25 @@
     </div>
   </div>
 </div>
+
+<!-- Description Modal -->
+<div class="modal fade" [class.show]="processToShowDescription" [style.display]="processToShowDescription ? 'block' : 'none'" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">{{processToShowDescription?.name}}</h5>
+        <button type="button" class="close" (click)="closeDescriptionModal()">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p *ngIf="processToShowDescription?.description" style="white-space: pre-wrap;">{{processToShowDescription?.description}}</p>
+        <p *ngIf="!processToShowDescription?.description" class="text-muted font-italic">No description available.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeDescriptionModal()">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal-backdrop fade show" *ngIf="processToShowDescription"></div>

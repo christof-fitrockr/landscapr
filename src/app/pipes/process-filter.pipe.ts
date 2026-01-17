@@ -7,7 +7,7 @@ import { Process } from '../models/process';
 export class ProcessFilterPipe implements PipeTransform {
   // Filters processes. Optionally applies a text search on the process name or tags.
   // If a search text is provided, it also checks descendants and returns the process if any descendant matches.
-  transform(items: Process[], allProcesses: Process[], searchText?: string, showOrphansOnly: boolean = false, orphanIds: string[] = []): Process[] {
+  transform(items: Process[], allProcesses: Process[], searchText?: string, showOrphansOnly: boolean = false, orphanIds: string[] = [], status?: number, onlyWithComments?: boolean): Process[] {
     if (!Array.isArray(items)) {
       return [];
     }
@@ -15,17 +15,21 @@ export class ProcessFilterPipe implements PipeTransform {
     const hasSearch = searchText && searchText.trim().length > 0;
     const q = hasSearch ? searchText.toLowerCase() : '';
 
-    return items.filter(item => this.isVisible(item, allProcesses, q, showOrphansOnly, orphanIds));
+    return items.filter(item => this.isVisible(item, allProcesses, q, showOrphansOnly, orphanIds, status, onlyWithComments));
   }
 
-  private isVisible(item: Process, allProcesses: Process[], q: string, showOrphansOnly: boolean, orphanIds: string[]): boolean {
+  private isVisible(item: Process, allProcesses: Process[], q: string, showOrphansOnly: boolean, orphanIds: string[], status: number | undefined, onlyWithComments: boolean | undefined): boolean {
     const matchesSearch = !q ||
       item?.name?.toLowerCase().includes(q) ||
       (Array.isArray(item?.tags) && item.tags.join(' ').toLowerCase().includes(q));
 
     const matchesOrphan = !showOrphansOnly || orphanIds.includes(item.id);
 
-    if (matchesSearch && matchesOrphan) {
+    const matchesStatus = (status === undefined || status === null) || item.status === status;
+
+    const matchesComments = !onlyWithComments || (!!item.comments && item.comments.length > 0);
+
+    if (matchesSearch && matchesOrphan && matchesStatus && matchesComments) {
       return true;
     }
 
@@ -35,7 +39,7 @@ export class ProcessFilterPipe implements PipeTransform {
       return childIds.some(id => {
         const child = allProcesses.find(p => p.id === id);
         if (child) {
-          return this.isVisible(child, allProcesses, q, showOrphansOnly, orphanIds);
+          return this.isVisible(child, allProcesses, q, showOrphansOnly, orphanIds, status, onlyWithComments);
         }
         return false;
       });
