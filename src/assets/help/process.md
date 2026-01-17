@@ -2,8 +2,24 @@
 
 Processes define the business logic, workflows, and operational steps that power your organization. They can be broken down into subprocesses and linked to technical functions (API Calls).
 
-## Process List
-The list view displays all defined processes. You can search, filter, and sort. Click a process to edit it.
+## Process List & Filtering
+The list view displays all defined processes. You can use the toolbar to find specific items:
+
+### 1. Text Search (Recursive)
+Type in the search box to find processes by **Name** or **Tag**.
+-   **Recursive Visibility:** If a process matches your search, it will be shown. Additionally, **all its ancestors** (parents, grandparents) will also be shown, ensuring you see the process in its correct context within the hierarchy.
+
+### 2. Status Filter
+Use the dropdown to filter by process status:
+-   **Draft:** Work in progress.
+-   **Validated:** Approved processes.
+-   **Review Needed:** Processes marked for review.
+
+### 3. Comments Filter
+Check **"With comments"** to see only processes that have attached comments.
+
+### 4. Orphans Filter
+Check **"Orphans only"** to see processes that are **not used** in any Journey or as a subprocess. This helps in identifying unused or disconnected data.
 
 ## Process Editor
 The Process Editor is divided into several tabs:
