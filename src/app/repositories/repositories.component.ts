@@ -342,10 +342,13 @@ export class RepositoriesComponent implements OnInit, OnDestroy {
     const owner = this.selectedRepo.owner.login;
     const repo = this.selectedRepo.name;
     const path = this.selectedFilePath;
-    const localData = this.repoService.getCurrentData();
 
-    // Direct Save Flow (Fetch -> Compare -> Commit)
-    this.executeSave(owner, repo, path, localData);
+    this.repoService.getCurrentData().pipe(first()).subscribe(localData => {
+        this.executeSave(owner, repo, path, localData);
+    }, err => {
+        this.toastr.error('Failed to prepare data for saving');
+        this.saving = false;
+    });
   }
 
   executeSave(owner: string, repo: string, path: string, localData: any) {

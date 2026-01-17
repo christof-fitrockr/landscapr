@@ -30,7 +30,7 @@ describe('AuthenticationService', () => {
   });
 
   it('should login successfully with correct code', (done) => {
-    service.login('landscapr4adm1n!').subscribe(user => {
+    service.login('landscapr4digitalR€belz').subscribe(user => {
       expect(user).toBeTruthy();
       expect(user.success).toBeTrue();
       expect(user.username).toBe('Guest');

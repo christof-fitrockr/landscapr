@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, of } from 'rxjs';
-import { first, map } from 'rxjs/operators';
+import { first, map, switchMap } from 'rxjs/operators';
 import { GithubService } from './github.service';
 import { RepoService } from './repo.service';
 import { MergeService } from './merge.service';
@@ -53,51 +53,57 @@ export class SyncStatusService {
       return;
     }
 
-    const localData = this.repoService.getCurrentData();
-    const localHash = this.hash(JSON.stringify(localData));
+    this.repoService.getCurrentData().pipe(first()).subscribe(localData => {
+        const localHash = this.hash(JSON.stringify(localData));
 
-    const lastSha = localStorage.getItem(SyncStatusService.STORAGE_LAST_SYNC_SHA) || undefined;
-    const lastLocalHash = localStorage.getItem(SyncStatusService.STORAGE_LAST_SYNC_LOCAL_HASH) || undefined;
+        const lastSha = localStorage.getItem(SyncStatusService.STORAGE_LAST_SYNC_SHA) || undefined;
+        const lastLocalHash = localStorage.getItem(SyncStatusService.STORAGE_LAST_SYNC_LOCAL_HASH) || undefined;
 
-    const token = this.githubService.getPersonalAccessToken();
-    if (!token) {
-      // Cannot determine without GitHub access
-      this.statusSubject.next({ state: 'UNKNOWN', repoName, filePath, lastChecked: Date.now() });
-      return;
-    }
-
-    const storedOwner = localStorage.getItem(SyncStatusService.STORAGE_SELECTED_REPO_OWNER);
-    const getOwner$ = storedOwner ? of(storedOwner) : this.githubService.getUser().pipe(map(u => u.login));
-
-    getOwner$.pipe(first()).subscribe(owner => {
-      this.githubService.getFileContent(owner, repoName, filePath).pipe(first()).subscribe(file => {
-        const remoteSha: string | undefined = file && file.sha ? file.sha : undefined;
-        let remoteData: any = {};
-        try {
-          remoteData = JSON.parse(atob(file.content));
-        } catch { remoteData = {}; }
-        const remoteHash = this.hash(JSON.stringify(remoteData));
-
-        let state: SyncState = 'IN_SYNC';
-        if (lastSha !== undefined && lastSha !== '' && lastLocalHash !== undefined && lastLocalHash !== '') {
-          const shaChanged = remoteSha !== lastSha;
-          const localChanged = localHash !== lastLocalHash;
-          if (!shaChanged && !localChanged) state = 'IN_SYNC';
-          else if (!shaChanged && localChanged) state = 'LOCAL_NEWER';
-          else if (shaChanged && !localChanged) state = 'REMOTE_NEWER';
-          else state = 'DIVERGED';
-        } else {
-          // Fallback: direct compare remote vs local
-          const different = this.mergeService.different(remoteData, localData);
-          state = different ? 'DIVERGED' : 'IN_SYNC';
+        const token = this.githubService.getPersonalAccessToken();
+        if (!token) {
+          // Cannot determine without GitHub access
+          this.statusSubject.next({ state: 'UNKNOWN', repoName, filePath, lastChecked: Date.now() });
+          return;
         }
 
-        this.statusSubject.next({ state, repoName, filePath, owner, lastChecked: Date.now() });
-      }, _ => {
-        this.statusSubject.next({ state: 'UNKNOWN', repoName, filePath, lastChecked: Date.now(), lastError: 'Failed to fetch remote file' });
-      });
-    }, _ => {
-      this.statusSubject.next({ state: 'UNKNOWN', repoName, filePath, lastChecked: Date.now(), lastError: 'Failed to determine owner' });
+        const storedOwner = localStorage.getItem(SyncStatusService.STORAGE_SELECTED_REPO_OWNER);
+        const getOwner$ = storedOwner ? of(storedOwner) : this.githubService.getUser().pipe(map(u => u.login));
+
+        getOwner$.pipe(first()).subscribe(owner => {
+          this.githubService.getFileContent(owner, repoName, filePath).pipe(first()).subscribe(file => {
+            const remoteSha: string | undefined = file && file.sha ? file.sha : undefined;
+            let remoteData: any = {};
+            try {
+              remoteData = JSON.parse(atob(file.content));
+            } catch { remoteData = {}; }
+            // remoteHash is unused in original? Ah, it is used implicitly? No, wait.
+            // Original: const remoteHash = this.hash(JSON.stringify(remoteData));
+            // But it only used remoteSha vs lastSha.
+            // Ah, wait. "lastLocalHash" logic uses localHash.
+            // "lastSha" logic uses remoteSha.
+            // remoteData is used for mergeService.different fallback.
+
+            let state: SyncState = 'IN_SYNC';
+            if (lastSha !== undefined && lastSha !== '' && lastLocalHash !== undefined && lastLocalHash !== '') {
+              const shaChanged = remoteSha !== lastSha;
+              const localChanged = localHash !== lastLocalHash;
+              if (!shaChanged && !localChanged) state = 'IN_SYNC';
+              else if (!shaChanged && localChanged) state = 'LOCAL_NEWER';
+              else if (shaChanged && !localChanged) state = 'REMOTE_NEWER';
+              else state = 'DIVERGED';
+            } else {
+              // Fallback: direct compare remote vs local
+              const different = this.mergeService.different(remoteData, localData);
+              state = different ? 'DIVERGED' : 'IN_SYNC';
+            }
+
+            this.statusSubject.next({ state, repoName, filePath, owner, lastChecked: Date.now() });
+          }, _ => {
+            this.statusSubject.next({ state: 'UNKNOWN', repoName, filePath, lastChecked: Date.now(), lastError: 'Failed to fetch remote file' });
+          });
+        }, _ => {
+          this.statusSubject.next({ state: 'UNKNOWN', repoName, filePath, lastChecked: Date.now(), lastError: 'Failed to determine owner' });
+        });
     });
   }
 
@@ -111,31 +117,33 @@ export class SyncStatusService {
       try {
         const contentStr = atob(fileContent.content);
         const repoData = JSON.parse(contentStr);
-        const localData = this.repoService.getCurrentData();
-        if (this.mergeService.different(repoData, localData)) {
-          const modalRef = this.modalService.show(MergeResolverComponent, {
-            class: 'modal-xl',
-            initialState: { repoData, localData }
-          });
-          const content: any = modalRef.content;
-          if (content && content.onClose) {
-            content.onClose.pipe(first()).subscribe((merged: any) => {
-              if (merged) {
-                this.repoService.applyData(merged);
-                this.toastr.success('Merged data applied to local storage');
-                this.updateSyncSnapshot(fileContent.sha!, this.hash(JSON.stringify(merged)));
-                this.refresh();
+
+        this.repoService.getCurrentData().pipe(first()).subscribe(localData => {
+            if (this.mergeService.different(repoData, localData)) {
+              const modalRef = this.modalService.show(MergeResolverComponent, {
+                class: 'modal-xl',
+                initialState: { repoData, localData }
+              });
+              const content: any = modalRef.content;
+              if (content && content.onClose) {
+                content.onClose.pipe(first()).subscribe((merged: any) => {
+                  if (merged) {
+                    this.repoService.applyData(merged);
+                    this.toastr.success('Merged data applied to local storage');
+                    this.updateSyncSnapshot(fileContent.sha!, this.hash(JSON.stringify(merged)));
+                    this.refresh();
+                  }
+                });
               }
-            });
-          }
-        } else {
-          // identical -> just apply
-          this.repoService.uploadJsonContent(contentStr).pipe(first()).subscribe(() => {
-            this.toastr.success('Repository content updated from GitHub file');
-            this.updateSyncSnapshot(fileContent.sha!, this.hash(contentStr));
-            this.refresh();
-          });
-        }
+            } else {
+              // identical -> just apply
+              this.repoService.uploadJsonContent(contentStr).pipe(first()).subscribe(() => {
+                this.toastr.success('Repository content updated from GitHub file');
+                this.updateSyncSnapshot(fileContent.sha!, this.hash(contentStr));
+                this.refresh();
+              });
+            }
+        });
       } catch (e) {
         this.toastr.error('Failed to parse GitHub file content');
       }
@@ -148,53 +156,53 @@ export class SyncStatusService {
     const { owner, repoName, filePath } = status;
     if (!owner || !repoName || !filePath) { return; }
 
-    const localData = this.repoService.getCurrentData();
+    this.repoService.getCurrentData().pipe(first()).subscribe(localData => {
+        this.githubService.getFileContent(owner, repoName, filePath).pipe(first()).subscribe(file => {
+          const sha = file && file.sha ? file.sha : undefined;
+          let remoteData: any = {};
+          try { remoteData = JSON.parse(atob(file.content)); } catch { remoteData = {}; }
 
-    this.githubService.getFileContent(owner, repoName, filePath).pipe(first()).subscribe(file => {
-      const sha = file && file.sha ? file.sha : undefined;
-      let remoteData: any = {};
-      try { remoteData = JSON.parse(atob(file.content)); } catch { remoteData = {}; }
-
-      // Always show merge resolver to require commit message
-      const modalRef = this.modalService.show(MergeResolverComponent, {
-        class: 'modal-xl',
-        initialState: { repoData: remoteData, localData, requireCommitMessage: true }
-      });
-      const content: any = modalRef.content;
-      if (content && content.onClose) {
-        content.onClose.pipe(first()).subscribe((result: any) => {
-          if (!result) { return; }
-          const merged = result.data ? result.data : result; // backward compatibility
-          const commitMessage: string | undefined = result.commitMessage;
-          const mergedText = JSON.stringify(merged, null, 2);
-          this.githubService.createOrUpdateFile(owner, repoName, filePath, mergedText, sha, commitMessage).pipe(first()).subscribe(() => {
-            this.toastr.success('File saved successfully');
-            this.updateSyncSnapshot((file && file.sha) || sha || '', this.hash(mergedText));
-            this.refresh();
-          }, _ => this.toastr.error('Failed to save file to GitHub'));
+          // Always show merge resolver to require commit message
+          const modalRef = this.modalService.show(MergeResolverComponent, {
+            class: 'modal-xl',
+            initialState: { repoData: remoteData, localData, requireCommitMessage: true }
+          });
+          const content: any = modalRef.content;
+          if (content && content.onClose) {
+            content.onClose.pipe(first()).subscribe((result: any) => {
+              if (!result) { return; }
+              const merged = result.data ? result.data : result; // backward compatibility
+              const commitMessage: string | undefined = result.commitMessage;
+              const mergedText = JSON.stringify(merged, null, 2);
+              this.githubService.createOrUpdateFile(owner, repoName, filePath, mergedText, sha, commitMessage).pipe(first()).subscribe(() => {
+                this.toastr.success('File saved successfully');
+                this.updateSyncSnapshot((file && file.sha) || sha || '', this.hash(mergedText));
+                this.refresh();
+              }, _ => this.toastr.error('Failed to save file to GitHub'));
+            });
+          }
+        }, _ => {
+          // File does not exist -> still open resolver to enforce commit message
+          const remoteData: any = {};
+          const modalRef = this.modalService.show(MergeResolverComponent, {
+            class: 'modal-xl',
+            initialState: { repoData: remoteData, localData, requireCommitMessage: true }
+          });
+          const content: any = modalRef.content;
+          if (content && content.onClose) {
+            content.onClose.pipe(first()).subscribe((result: any) => {
+              if (!result) { return; }
+              const merged = result.data ? result.data : result;
+              const commitMessage: string | undefined = result.commitMessage;
+              const mergedText = JSON.stringify(merged, null, 2);
+              this.githubService.createOrUpdateFile(owner, repoName, filePath, mergedText, undefined, commitMessage).pipe(first()).subscribe(() => {
+                this.toastr.success('File created successfully');
+                this.updateSyncSnapshot('new', this.hash(mergedText));
+                this.refresh();
+              }, _ => this.toastr.error('Failed to create file on GitHub'));
+            });
+          }
         });
-      }
-    }, _ => {
-      // File does not exist -> still open resolver to enforce commit message
-      const remoteData: any = {};
-      const modalRef = this.modalService.show(MergeResolverComponent, {
-        class: 'modal-xl',
-        initialState: { repoData: remoteData, localData, requireCommitMessage: true }
-      });
-      const content: any = modalRef.content;
-      if (content && content.onClose) {
-        content.onClose.pipe(first()).subscribe((result: any) => {
-          if (!result) { return; }
-          const merged = result.data ? result.data : result;
-          const commitMessage: string | undefined = result.commitMessage;
-          const mergedText = JSON.stringify(merged, null, 2);
-          this.githubService.createOrUpdateFile(owner, repoName, filePath, mergedText, undefined, commitMessage).pipe(first()).subscribe(() => {
-            this.toastr.success('File created successfully');
-            this.updateSyncSnapshot('new', this.hash(mergedText));
-            this.refresh();
-          }, _ => this.toastr.error('Failed to create file on GitHub'));
-        });
-      }
     });
   }
 

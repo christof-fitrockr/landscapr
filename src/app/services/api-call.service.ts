@@ -1,155 +1,85 @@
 import {Injectable} from '@angular/core';
-import {Observable} from 'rxjs';
+import {Observable, from, of, throwError} from 'rxjs';
+import {map, switchMap} from 'rxjs/operators';
 import {ApiCall} from '../models/api-call';
 import {v4 as uuidv4} from 'uuid';
+import { LandscaprDb } from '../db/landscapr-db';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ApiCallService {
 
-
   public static STORAGE_KEY = 'ls_api';
 
-  private static load(): ApiCall[] {
-    const item = JSON.parse(localStorage.getItem(ApiCallService.STORAGE_KEY)) as ApiCall[];
-    if(!item) {
-      return [];
-    }
-    // Backward compatibility/migration: map legacy docLinkUrl to documentation
-    for (const api of item) {
+  constructor(private db: LandscaprDb) {}
+
+  private fixLegacy(api: ApiCall): ApiCall {
       // @ts-ignore
       if ((api as any).documentation == null && (api as any).docLinkUrl) {
         // @ts-ignore
         (api as any).documentation = (api as any).docLinkUrl;
       }
-    }
-    return item;
-  }
-
-  private static store(apps: ApiCall[]): void {
-    localStorage.setItem(ApiCallService.STORAGE_KEY, JSON.stringify(apps));
+      return api;
   }
 
   all(): Observable<ApiCall[]> {
-    return new Observable<ApiCall[]>(obs => {
-      obs.next(ApiCallService.load());
-      obs.complete();
-    });
+    return from(this.db.apiCalls.toArray()).pipe(
+        map(apis => apis.map(api => this.fixLegacy(api)))
+    );
   }
 
   byId(id: string): Observable<ApiCall> {
-    return new Observable<ApiCall>(obs => {
-      const apps = ApiCallService.load();
-      for (const app of apps) {
-        if(app.id === id) {
-          obs.next(app);
-          obs.complete();
-          return;
-        }
-      }
-      obs.error();
-    });
+    return from(this.db.apiCalls.get(id)).pipe(
+        switchMap(api => {
+            if (api) return of(this.fixLegacy(api));
+            return throwError(undefined);
+        })
+    );
   }
 
   byIds(ids: string[]): Observable<ApiCall[]> {
-    return new Observable<ApiCall[]>(obs => {
-      const apps = ApiCallService.load();
-      const result: ApiCall[] = [];
-      for (const app of apps) {
-        if(ids.indexOf(app.id) >= 0) {
-          result.push(app);
-        }
-      }
-      obs.next(result);
-      obs.complete();
-    });
+    if (!ids || ids.length === 0) return of([]);
+    return from(this.db.apiCalls.where('id').anyOf(ids).toArray()).pipe(
+        map(apis => apis.map(api => this.fixLegacy(api)))
+    );
   }
 
   byName(repoId: string, name: string): Observable<ApiCall[]> {
-    return new Observable<ApiCall[]>(obs => {
-      const apps = ApiCallService.load();
-      const result: ApiCall[] = [];
-      for (const app of apps) {
-        if(name === app.name) {
-          result.push(app);
-        }
-      }
-      obs.next(result);
-      obs.complete();
-    });
+    return from(this.db.apiCalls.where('name').equals(name).toArray()).pipe(
+        map(apis => apis.map(api => this.fixLegacy(api)))
+    );
   }
 
   byCapability(repoId: string, capabilityId: string): Observable<ApiCall[]> {
-    return new Observable<ApiCall[]>(obs => {
-      const apps = ApiCallService.load();
-      const result: ApiCall[] = [];
-      for (const app of apps) {
-        if(app.capabilityId === capabilityId) {
-          result.push(app);
-        }
-      }
-      obs.next(result);
-      obs.complete();
-    });
+    return from(this.db.apiCalls.where('capabilityId').equals(capabilityId).toArray()).pipe(
+        map(apis => apis.map(api => this.fixLegacy(api)))
+    );
   }
 
   byImplementation(systemId: string): Observable<ApiCall[]> {
-    return new Observable<ApiCall[]>(obs => {
-      const apps = ApiCallService.load();
-      const result: ApiCall[] = [];
-      for (const app of apps) {
-        if (app.implementedBy && app.implementedBy.indexOf(systemId) >= 0) {
-          result.push(app);
-        }
-      }
-      obs.next(result);
-      obs.complete();
-    });
+    return from(this.db.apiCalls.where('implementedBy').equals(systemId).toArray()).pipe(
+        map(apis => apis.map(api => this.fixLegacy(api)))
+    );
   }
 
   create(apiCall: ApiCall): Observable<ApiCall> {
-    return new Observable<ApiCall>(obs => {
-      const apps = ApiCallService.load();
       apiCall.id = uuidv4();
-      apps.push(apiCall)
-      ApiCallService.store(apps);
-      obs.next(apiCall);
-      obs.complete();
-    });
+      return from(this.db.apiCalls.add(apiCall)).pipe(
+          map(() => apiCall)
+      );
   }
 
   update(id: string, apiCall:  ApiCall): Observable<ApiCall> {
-    return new Observable<ApiCall>(obs => {
-      const apps = ApiCallService.load();
-      for (let i = 0; i < apps.length; i++){
-        const app = apps[i];
-        if(app.id === id) {
-          apps[i] = apiCall;
-          ApiCallService.store(apps);
-          obs.next(apiCall);
-          obs.complete();
-          return;
-        }
-      }
-      obs.error();
-    });
+    return from(this.db.apiCalls.update(id, apiCall as any)).pipe(
+        switchMap(updated => {
+            if (updated) return of(apiCall);
+            return throwError(undefined);
+        })
+    );
   }
 
   delete(id: string): Observable<void> {
-    return new Observable<void>(obs => {
-      let apps = ApiCallService.load();
-      for (let i = 0; i < apps.length; i++){
-        const app = apps[i];
-        if(app.id === id) {
-          apps.splice(i, 1);
-          ApiCallService.store(apps);
-          obs.next();
-          obs.complete();
-          return;
-        }
-      }
-      obs.error();
-    });
+    return from(this.db.apiCalls.delete(id));
   }
 }
