@@ -75,15 +75,17 @@ export class CapabilityEditImplementedByComponent implements OnInit, OnDestroy {
         this.capability = capability;
 
         // todo seqquential
-        if(this.capability.implementedBy) {
-          this.systems = [];
-          this.capability.implementedBy.forEach(item => {
-            if(item) {
-              this.systemService.byId(item).pipe(first()).subscribe(result => {
-                this.systems.push(result);
-              })
-            }
+        if (this.capability.implementedBy && this.capability.implementedBy.length > 0) {
+          this.systemService.byIds(this.capability.implementedBy).pipe(first()).subscribe(results => {
+            const orderMap = new Map(this.capability.implementedBy.map((id, index) => [id, index]));
+            this.systems = results.sort((a, b) => {
+              const indexA = orderMap.get(a.id) ?? Number.MAX_VALUE;
+              const indexB = orderMap.get(b.id) ?? Number.MAX_VALUE;
+              return indexA - indexB;
+            });
           });
+        } else {
+          this.systems = [];
         }
 
       });
