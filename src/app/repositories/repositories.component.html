@@ -53,64 +53,99 @@
   </div>
 
   <!-- Workspace Card (Prominent) -->
-  <div class="card mb-3 shadow-sm" *ngIf="selectedRepo && selectedFilePath">
-      <div class="card-header bg-white">
-          <h5 class="mb-0 text-primary"><i class="fas fa-code-branch"></i> Workspace</h5>
+  <div class="card mb-3 shadow-lg border-0" *ngIf="selectedRepo && selectedFilePath">
+      <div class="card-header bg-light d-flex justify-content-between align-items-center">
+          <h5 class="mb-0 text-dark"><i class="fas fa-laptop-code text-primary me-2"></i> Workspace</h5>
+          <span class="badge badge-info p-2">{{ selectedFilePath }}</span>
       </div>
       <div class="card-body">
-          <div class="row align-items-center">
-              <div class="col-md-6">
-                  <label class="small text-muted text-uppercase font-weight-bold">Current Branch</label>
-                  <div class="d-flex align-items-center">
-                      <div class="dropdown" dropdown>
-                          <button dropdownToggle type="button" class="btn btn-outline-secondary dropdown-toggle btn-lg text-left" style="min-width: 200px">
-                              {{ currentBranch }} <span class="caret"></span>
-                          </button>
-                          <ul *dropdownMenu class="dropdown-menu" role="menu">
-                              <li role="menuitem" *ngFor="let b of branches">
-                                  <a class="dropdown-item" href="javascript:void(0)" (click)="switchBranch(b.name)">{{ b.name }}</a>
-                              </li>
-                          </ul>
+          <div class="row">
+              <!-- Context Section -->
+              <div class="col-lg-5 border-end">
+                  <h6 class="text-uppercase text-muted small mb-3">Context</h6>
+                  <div class="mb-3">
+                      <label class="form-label small fw-bold">Current Branch</label>
+                      <div class="input-group">
+                          <div class="dropdown w-100" dropdown>
+                              <button dropdownToggle type="button" class="btn btn-outline-dark dropdown-toggle w-100 d-flex justify-content-between align-items-center" style="min-height: 45px;">
+                                  <span><i class="fas fa-code-branch me-2"></i> {{ currentBranch }}</span>
+                                  <span class="caret"></span>
+                              </button>
+                              <ul *dropdownMenu class="dropdown-menu w-100 shadow" role="menu">
+                                  <li role="menuitem" *ngFor="let b of branches">
+                                      <a class="dropdown-item" href="javascript:void(0)" (click)="switchBranch(b.name)">
+                                          <i class="fas fa-code-branch me-2 text-muted"></i> {{ b.name }}
+                                      </a>
+                                  </li>
+                              </ul>
+                          </div>
                       </div>
-                      <!-- Hidden manual new branch to enforce guided workflow -->
-                      <!--
-                      <button class="btn btn-link ml-2" (click)="createNewBranch()" title="Create New Branch">
-                          <i class="fas fa-plus-circle"></i> New Branch
-                      </button>
-                      -->
-                      <button class="btn btn-outline-secondary btn-sm ml-2"
-                              *ngIf="currentBranch !== (selectedRepo?.default_branch || 'main')"
-                              (click)="switchToMain()"
-                              title="Discard changes and return to main view">
-                          <i class="fas fa-times"></i> Cancel / Back to Main
-                      </button>
                   </div>
-                  <div class="mt-2 text-info small" *ngIf="currentBranch === (selectedRepo?.default_branch || 'main')">
-                      <i class="fas fa-info-circle"></i> You are in View Mode. Start Edit Mode to make changes.
+
+                  <div class="alert alert-info d-flex align-items-center mb-0" *ngIf="currentBranch === (selectedRepo?.default_branch || 'main')">
+                      <i class="fas fa-eye me-3 fa-lg"></i>
+                      <div>
+                          <strong>View Mode</strong>
+                          <div class="small">You are viewing the main branch. Start Edit Mode to make changes.</div>
+                      </div>
+                  </div>
+                  <div class="alert alert-warning d-flex align-items-center mb-0" *ngIf="currentBranch !== (selectedRepo?.default_branch || 'main')">
+                      <i class="fas fa-edit me-3 fa-lg"></i>
+                      <div>
+                          <strong>Edit Mode</strong>
+                          <div class="small">You are working on a feature branch. Save often!</div>
+                      </div>
                   </div>
               </div>
-              <div class="col-md-6 text-right">
-                  <div class="mb-2">
-                      <span class="badge badge-light p-2 border">File: {{ selectedFilePath }}</span>
-                  </div>
+
+              <!-- Actions Section -->
+              <div class="col-lg-7 d-flex flex-column justify-content-center align-items-center p-4">
 
                   <!-- Main Branch Actions -->
-                  <ng-container *ngIf="currentBranch === (selectedRepo?.default_branch || 'main')">
-                      <button class="btn btn-primary btn-lg" (click)="startEditMode()">
-                          <i class="fas fa-pen"></i> Start Edit Mode
-                      </button>
-                  </ng-container>
+                  <div *ngIf="currentBranch === (selectedRepo?.default_branch || 'main')" class="w-100 text-center">
+                      <h6 class="text-uppercase text-muted small mb-4">Available Actions</h6>
+                      <div class="d-grid gap-3 col-8 mx-auto">
+                          <button class="btn btn-primary btn-lg shadow-sm" (click)="startEditMode()">
+                              <i class="fas fa-pen me-2"></i> Start Edit Mode
+                          </button>
+                          <button class="btn btn-outline-secondary btn-lg" (click)="loadFromGithub()">
+                              <i class="fas fa-sync-alt me-2"></i> Update from Repository
+                          </button>
+                      </div>
+                  </div>
 
                   <!-- Feature Branch Actions -->
-                  <ng-container *ngIf="currentBranch !== (selectedRepo?.default_branch || 'main')">
-                      <button class="btn btn-outline-primary btn-sm mr-2" (click)="saveToGithub()" [disabled]="saving">
-                          <span *ngIf="!saving"><i class="fas fa-save"></i> Save Changes</span>
-                          <span *ngIf="saving"><i class="fas fa-spinner fa-spin"></i> Saving...</span>
-                      </button>
-                      <button class="btn btn-success btn-sm" (click)="submitChanges()">
-                          <i class="fas fa-paper-plane"></i> Submit Changes
-                      </button>
-                  </ng-container>
+                  <div *ngIf="currentBranch !== (selectedRepo?.default_branch || 'main')" class="w-100">
+                       <h6 class="text-uppercase text-muted small mb-4 text-center">Branch Operations</h6>
+                       <div class="row g-3 justify-content-center">
+                           <div class="col-md-5">
+                               <button class="btn btn-outline-primary w-100 h-100 py-3" (click)="saveToGithub()" [disabled]="saving">
+                                   <div *ngIf="!saving" class="d-flex flex-column align-items-center">
+                                       <i class="fas fa-save fa-2x mb-2"></i>
+                                       <span>Save Changes</span>
+                                   </div>
+                                   <div *ngIf="saving" class="d-flex flex-column align-items-center">
+                                       <i class="fas fa-spinner fa-spin fa-2x mb-2"></i>
+                                       <span>Saving...</span>
+                                   </div>
+                               </button>
+                           </div>
+                           <div class="col-md-5">
+                               <button class="btn btn-success w-100 h-100 py-3" (click)="submitChanges()">
+                                   <div class="d-flex flex-column align-items-center">
+                                       <i class="fas fa-paper-plane fa-2x mb-2"></i>
+                                       <span>Submit Changes</span>
+                                   </div>
+                               </button>
+                           </div>
+                       </div>
+                       <div class="mt-4 text-center">
+                           <button class="btn btn-link text-muted text-decoration-none" (click)="switchToMain()">
+                               <i class="fas fa-times-circle me-1"></i> Discard changes and return to Main
+                           </button>
+                       </div>
+                  </div>
+
               </div>
           </div>
       </div>

@@ -94,7 +94,7 @@ describe('RepositoriesComponent', () => {
     // Mock modal to return confirm
     const modalRefMock = {
         content: {
-            onClose: of({ commitMessage: 'msg', data: {} })
+            onClose: of('msg')
         }
     };
     modalServiceSpy.show.and.returnValue(modalRefMock as any);
