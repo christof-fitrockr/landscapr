@@ -6,8 +6,8 @@
 
 
       <div class="btn-toolbar justify-content-lg-start" role="toolbar" aria-label="Toolbar with button groups">
+        <app-system-edit-nav [systemId]="systemId"></app-system-edit-nav>
         <div class="btn-group mr-2" role="group" aria-label="First group">
-          <a class="btn btn-secondary" title="List" routerLink="/system"><i class="fas fa-list"></i></a>
           <button type="button" class="btn btn-primary" title="Link API" data-toggle="modal" data-target="#selectApiCall"><i class="fas fa-link"></i></button>
         </div>
       </div>
@@ -58,7 +58,18 @@
         </div>
 
         <div style="max-height: 60vh; overflow-y: auto;">
-          <table class="table table-sm table-striped table-hover">
+          <table class="mt-3 tree-table">
+            <thead>
+            <tr>
+              <th scope="col">Actions</th>
+              <th scope="col" class="w-100">Name</th>
+              <th scope="col" style="width: 120px">Type</th>
+              <th scope="col" class="text-right" style="width: 80px">Used</th>
+              <th scope="col" class="text-right" style="width: 80px">Impl</th>
+              <th scope="col">Tags</th>
+              <th scope="col" class="text-right" style="width: 30px">Status</th>
+            </tr>
+            </thead>
             <tbody>
             <app-api-call-tree-node
               *ngFor="let group of allApiCalls | apiCallFilter:modalSearch | apiCallGroup"

@@ -4,7 +4,7 @@ import {ApiCall, ApiType} from '../models/api-call';
   name: 'apiCallFilter'
 })
 export class ApiCallFilterPipe implements PipeTransform {
-  transform(items: ApiCall[], searchText: string, showOrphansOnly: boolean = false, orphanIds: string[] = [], filterType: ApiType = null): any[] {
+  transform(items: ApiCall[], searchText: string, showOrphansOnly: boolean = false, orphanIds: string[] = [], filterType: ApiType = null, filterStatus: number = null): any[] {
     if(!items) {
       return [];
     }
@@ -21,6 +21,10 @@ export class ApiCallFilterPipe implements PipeTransform {
 
     if (filterType !== null) {
       result = result.filter(el => el.apiType === filterType);
+    }
+
+    if (filterStatus !== null) {
+      result = result.filter(el => el.status === filterStatus);
     }
 
     return result;

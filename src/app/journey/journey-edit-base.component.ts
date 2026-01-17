@@ -10,7 +10,7 @@ import { JourneyService } from '../services/journey.service';
 export class JourneyEditBaseComponent implements OnInit, OnDestroy {
   journeyForm: FormGroup;
   journey: Journey;
-  private journeyId: string | null = null;
+  journeyId: string | null = null;
   private subscription: Subscription;
 
   constructor(
@@ -23,7 +23,9 @@ export class JourneyEditBaseComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.journeyForm = this.formBuilder.group({
       name: ['', Validators.required],
-      description: ['']
+      description: [''],
+      status: [0],
+      tags: ['']
     });
 
     // subscribe to parent route id (for edit)
@@ -49,7 +51,12 @@ export class JourneyEditBaseComponent implements OnInit, OnDestroy {
       this.journeyService.byId(this.journeyId).pipe(first()).subscribe(j => {
         this.journey = j;
         if (this.journey) {
-          this.journeyForm.patchValue({ name: this.journey.name, description: this.journey.description });
+          this.journeyForm.patchValue({
+            name: this.journey.name,
+            description: this.journey.description,
+            status: this.journey.status || 0,
+            tags: this.journey.tags || ''
+          });
         }
       });
     } else {

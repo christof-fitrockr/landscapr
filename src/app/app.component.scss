@@ -1,3 +1,5 @@
+@use "src/styles/abstracts/variables" as vars;
+
 .main-wrapper {
   display: flex;
   flex-direction: column;
@@ -38,7 +40,7 @@
     width: 183px;
     height: 44px;
     border-radius: 21.5px;
-    background-color: #e9564d;
+    background-color: vars.$royal-blue;
     padding: 8px 16px;
   }
 
@@ -77,10 +79,10 @@
   align-items: center;
   font-weight: 600;
   padding: 0.2rem 0.5rem;
-  border: 1px solid rgba(255, 255, 255, 0.6);
-  color: #fff;
+  border: 1px solid vars.$border-color;
+  color: vars.$slate-600;
   border-radius: 9px;
-  background: rgba(255, 255, 255, 0.05);
+  background: vars.$slate-50;
   text-transform: uppercase;
   font-size: 0.75rem;
   letter-spacing: .02em;
@@ -92,14 +94,16 @@
 
 /* State accents override the default border color to improve affordance */
 .sync-badge-warning {
-  border-color: #ffc107; /* Bootstrap warning */
+  border-color: vars.$warning;
+  color: darken(vars.$warning, 10%);
 }
 
 .sync-badge-danger {
-  border-color: #dc3545; /* Bootstrap danger */
+  border-color: vars.$danger;
+  color: darken(vars.$danger, 10%);
 }
 
 /* Subtle hover to indicate interactivity when buttons are nearby */
 .sync-badge:hover {
-  background: rgba(255, 255, 255, 0.08);
+  background: vars.$slate-100;
 }

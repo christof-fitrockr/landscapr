@@ -1,9 +1,8 @@
 import {Injectable} from '@angular/core';
 import {ProcessStep, Role} from '../models/process';
-import {ThemeService} from './theme.service';
 
 // Modern Color Palette & Styles
-const LIGHT_PALETTE = {
+const PALETTE = {
   text: '#374151',           // Gray 700
   swimlaneOdd: '#ffffff',    // White
   swimlaneEven: '#f9fafb',   // Gray 50
@@ -14,19 +13,6 @@ const LIGHT_PALETTE = {
   functionBorder: '#fde68a', // Amber 200
   shadow: 'rgba(0, 0, 0, 0.1)',
   arrow: '#4b5563'           // Gray 600
-};
-
-const DARK_PALETTE = {
-  text: '#e5e7eb',           // Gray 200
-  swimlaneOdd: '#1f2937',    // Gray 800
-  swimlaneEven: '#111827',   // Gray 900
-  swimlaneBorder: '#374151', // Gray 700
-  processFill: '#1e3a8a',    // Blue 900
-  processBorder: '#3b82f6',  // Blue 500
-  functionFill: '#78350f',   // Amber 900
-  functionBorder: '#d97706', // Amber 600
-  shadow: 'rgba(0, 0, 0, 0.3)',
-  arrow: '#9ca3af'           // Gray 400
 };
 
 const SHADOW_BLUR = 4;
@@ -43,10 +29,10 @@ const PROCESS_EDGE = 15;
   providedIn: 'root',
 })
 export class CanvasService {
-    constructor(private themeService: ThemeService) {}
+    constructor() {}
 
     private get palette() {
-        return this.themeService.isDarkMode() ? DARK_PALETTE : LIGHT_PALETTE;
+        return PALETTE;
     }
 
     private resolveColor(color: string): string {
@@ -184,7 +170,7 @@ export class CanvasService {
 
         if (isDraft) {
             cx.font = 'italic 10px sans-serif';
-            cx.fillStyle = this.themeService.isDarkMode() ? '#9ca3af' : '#666';
+            cx.fillStyle = '#666';
             cx.textAlign = 'left';
             cx.textBaseline = 'top';
             cx.fillText('DRAFT', x + 5, y + 5);

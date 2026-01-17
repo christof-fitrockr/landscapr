@@ -3,11 +3,8 @@
 
     <div class="card-header py-3 d-flex flex-column">
       <div class="d-flex flex-row align-items-center justify-content-between w-100">
-        <div class="btn-toolbar" role="toolbar" aria-label="Editor tools">
-          <div class="btn-group mr-2" role="group" aria-label="First group">
-            <a class="btn btn-secondary" title="Edit" [routerLink]="['/journeys/edit', journeyId, 'base']"><i class="fas fa-edit"></i></a>
-            <a class="btn btn-secondary" title="List" routerLink="/journeys/list"><i class="fas fa-list"></i></a>
-          </div>
+        <div class="btn-toolbar justify-content-lg-start" role="toolbar" aria-label="Editor tools">
+          <app-journey-edit-nav [journeyId]="journeyId"></app-journey-edit-nav>
           <div class="btn-group mr-2" role="group" aria-label="Tool buttons">
             <button class="btn btn-secondary" [ngClass]="{'active': activeTool==='select'}" (click)="setTool('select')" title="Select">
               <i class="fas fa-mouse-pointer"></i>
@@ -214,7 +211,7 @@
         </div>
 
         <div class="swimlane-overlay" *ngIf="selectedProcessIdForSwimlane">
-          <div class="swimlane-overlay-header d-flex justify-content-between align-items-center p-2 bg-dark text-white">
+          <div class="swimlane-overlay-header d-flex justify-content-between align-items-center p-2 bg-dark ">
             <h5 class="mb-0">Process Swimlane View</h5>
             <button type="button" class="btn btn-sm btn-outline-light" (click)="selectedProcessIdForSwimlane = null">
               <i class="fas fa-times"></i> Close

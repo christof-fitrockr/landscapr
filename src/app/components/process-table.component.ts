@@ -1,8 +1,11 @@
 import {Component, EventEmitter, Input, OnChanges, Output} from '@angular/core';
 import {Process} from '../models/process';
-import {ApiCall} from '../models/api-call';
 import {ProcessService} from '../services/process.service';
 import {first} from 'rxjs/operators';
+import {BsModalService} from 'ngx-bootstrap/modal';
+import {ProcessDescriptionModalComponent} from './process-description-modal.component';
+import {ToastrService} from 'ngx-toastr';
+import {DeleteConfirmationDialogComponent} from './delete-confirmation-dialog.component';
 
 
 @Component({
@@ -22,14 +25,12 @@ export class ProcessTableComponent implements OnChanges {
 
   @Output() deleted = new EventEmitter<void>();
 
-  processToDelete: Process;
   _rootProcesses: Process[] = [];
 
   filterStatus: number = null;
   filterComments: boolean = false;
-  processToShowDescription: Process = null;
 
-  constructor(private processService: ProcessService) { }
+  constructor(private processService: ProcessService, private modalService: BsModalService, private toastr: ToastrService) { }
 
   ngOnChanges(changes: any) {
     if (changes.processes) {
@@ -68,25 +69,26 @@ export class ProcessTableComponent implements OnChanges {
     return item.id;
   }
 
-  prepareDelete(process: Process) {
-    this.processToDelete = process;
-  }
-
-  delete() {
-    if (this.processToDelete) {
-      this.processService.delete(this.processToDelete.id).pipe(first()).subscribe(() => {
-        this.deleted.emit();
-        this.processToDelete = null;
-      });
-    }
+  onDelete(process: Process) {
+    const modalRef = this.modalService.show(DeleteConfirmationDialogComponent, { class: 'modal-md' });
+    modalRef.content.itemName = process.name;
+    modalRef.content.onClose.subscribe(result => {
+      if (result) {
+        this.processService.delete(process.id).pipe(first()).subscribe(() => {
+          this.toastr.success('Process deleted');
+          this.deleted.emit();
+        }, error => {
+          this.toastr.error('Error deleting Process');
+        });
+      }
+    });
   }
 
   onShowDescription(process: Process) {
-    this.processToShowDescription = process;
-  }
-
-  closeDescriptionModal() {
-    this.processToShowDescription = null;
+    this.modalService.show(ProcessDescriptionModalComponent, {
+      initialState: { process },
+      class: 'modal-dialog-centered'
+    });
   }
 
 }

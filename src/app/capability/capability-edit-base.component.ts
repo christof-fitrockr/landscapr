@@ -6,6 +6,8 @@ import {ToastrService} from 'ngx-toastr';
 import {CapabilityService} from '../services/capability.service';
 import {Capability} from '../models/capability';
 import {Subscription} from 'rxjs';
+import {BsModalService} from 'ngx-bootstrap/modal';
+import {CapabilitySelectorDialogComponent} from '../components/capability-selector-dialog/capability-selector-dialog.component';
 
 @Component({selector: 'app-capability-edit', templateUrl: './capability-edit-base.component.html', styleUrls: ['./capability-edit-base.component.scss']})
 export class CapabilityEditBaseComponent implements OnInit, OnDestroy {
@@ -13,7 +15,7 @@ export class CapabilityEditBaseComponent implements OnInit, OnDestroy {
   capabilityForm: FormGroup;
   capability: Capability;
   repoId: string;
-  private capabilityId: string;
+  capabilityId: string;
   private subscription: Subscription;
 
   // Parent selector sources
@@ -21,7 +23,8 @@ export class CapabilityEditBaseComponent implements OnInit, OnDestroy {
   parentOptions: Capability[] = [];
 
   constructor(private capabilityService: CapabilityService, private formBuilder: FormBuilder,
-              private route: ActivatedRoute, private router: Router, private toastr: ToastrService) {
+              private route: ActivatedRoute, private router: Router, private toastr: ToastrService,
+              private modalService: BsModalService) {
   }
 
   ngOnInit() {
@@ -88,6 +91,35 @@ export class CapabilityEditBaseComponent implements OnInit, OnDestroy {
       } else {
         this.capability = new Capability();
         this.buildParentOptions();
+      }
+    });
+  }
+
+  getParentName(): string {
+    const parentId = this.capabilityForm.get('parentId').value;
+    if (!parentId) return '(root)';
+    const parent = this.allCaps.find(c => c.id === parentId);
+    return parent ? parent.name : '(root)';
+  }
+
+  selectParent() {
+    const modalRef = this.modalService.show(CapabilitySelectorDialogComponent, {
+      initialState: {
+        repoId: this.repoId,
+        initialSelectedIds: this.capabilityForm.get('parentId').value ? [this.capabilityForm.get('parentId').value] : []
+      },
+      class: 'modal-lg'
+    });
+    modalRef.content.onClose.pipe(first()).subscribe((result: Set<string>) => {
+      if (result && result.size > 0) {
+        const id = Array.from(result)[0];
+        if (id === this.capabilityId) {
+          this.toastr.warning('A capability cannot be its own parent.');
+          return;
+        }
+        this.capabilityForm.get('parentId').setValue(id);
+      } else {
+        this.capabilityForm.get('parentId').setValue(null);
       }
     });
   }

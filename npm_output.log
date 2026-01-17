@@ -2,12 +2,8 @@
 > landscapr@1.0.0 start
 > node set-version.js && ng serve
 
-Wrote version 2026-01-17 11:54:08 to /app/src/environments/version.ts
+Wrote version 2026-01-17 15:03:20 to /app/src/environments/version.ts
 - Generating browser application bundles (phase: setup)...
-Processing legacy "View Engine" libraries:
-- ngx-bootstrap/typeahead [es2015/esm2015] (git+ssh://git@github.com/valor-software/ngx-bootstrap.git)
-- ngx-bootstrap/sortable [es2015/esm2015] (git+ssh://git@github.com/valor-software/ngx-bootstrap.git)
-Encourage the library authors to publish an Ivy distribution.
 DEPRECATION WARNING: Using / for division outside of calc() is deprecated and will be removed in Dart Sass 2.0.0.
 
 Recommendation: math.div(20em, 16) or calc(20em / 16)
@@ -64,20 +60,20 @@ More info and automated migrator: https://sass-lang.com/d/slash-div
 
 Initial Chunk Files                             | Names         |  Raw Size
 vendor.js                                       | vendor        |   4.92 MB |
-main.js                                         | main          |   1.40 MB |
+main.js                                         | main          |   1.41 MB |
 scripts.js                                      | scripts       |   1.37 MB |
-styles.css, styles.js                           | styles        | 611.00 kB |
+styles.css, styles.js                           | styles        | 578.42 kB |
 polyfills.js                                    | polyfills     | 348.96 kB |
 runtime.js                                      | runtime       |  14.14 kB |
 
-| Initial Total |   8.64 MB
+| Initial Total |   8.61 MB
 
 Lazy Chunk Files                                | Names         |  Raw Size
 node_modules_canvg_lib_index_es_js.js           | canvg         | 424.04 kB |
 node_modules_html2canvas_dist_html2canvas_js.js | html2canvas   | 390.81 kB |
 node_modules_dompurify_dist_purify_js.js        | dompurify     |  64.19 kB |
 
-Build at: 2026-01-17T11:54:40.276Z - Hash: 38412e98ba1cb16a - Time: 28863ms
+Build at: 2026-01-17T15:03:52.353Z - Hash: c509529f87833d9c - Time: 28025ms
 
 Warning: /app/node_modules/canvg/lib/index.es.js depends on 'core-js/modules/es.array.index-of.js'. CommonJS or AMD dependencies can cause optimization bailouts.
 For more info see: https://angular.io/guide/build#configuring-commonjs-dependencies
@@ -143,15 +139,5 @@ For more info see: https://angular.io/guide/build#configuring-commonjs-dependenc
 
 ** Angular Live Development Server is listening on localhost:4200, open your browser on http://localhost:4200/ **
 
-
-✔ Compiled successfully.
-✔ Browser application bundle generation complete.
-
-Initial Chunk Files | Names   | Raw Size
-runtime.js          | runtime | 14.14 kB |
-
-8 unchanged chunks
-
-Build at: 2026-01-17T11:54:45.267Z - Hash: f94570ee7a897afd - Time: 4512ms
 
 ✔ Compiled successfully.

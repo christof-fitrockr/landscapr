@@ -20,12 +20,10 @@ import {ApiCallService} from '../services/api-call.service';
 import {ApiCall, ApiImplementationStatus} from '../models/api-call';
 import {Application} from '../models/application';
 import {ApplicationService} from '../services/application.service';
-import {Subscription} from 'rxjs';
 import { jsPDF } from "jspdf";
 import {Comment} from '../models/comment';
 import {AuthenticationService} from '../services/authentication.service';
 import {v4 as uuidv4} from 'uuid';
-import {ThemeService} from '../services/theme.service';
 
 @Component({
   selector: 'app-swimlane-view',
@@ -58,7 +56,6 @@ export class SwimlaneViewComponent implements OnInit, AfterViewInit, OnChanges, 
   private lastMouseY = 0;
   width: number;
   height: number;
-  private subscription: Subscription;
   selectedItem: ProcessBox | null = null;
   selectedProcess: Process | null = null;
   selectedApiCall: ApiCall | null = null;
@@ -69,8 +66,7 @@ export class SwimlaneViewComponent implements OnInit, AfterViewInit, OnChanges, 
 
 
   constructor(private activatedRoute: ActivatedRoute, private router: Router, private processService: ProcessService, private systemService: ApplicationService,
-              private canvasService: CanvasService, private apiCallService: ApiCallService, private authService: AuthenticationService,
-              private themeService: ThemeService) {
+              private canvasService: CanvasService, private apiCallService: ApiCallService, private authService: AuthenticationService) {
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -90,21 +86,12 @@ export class SwimlaneViewComponent implements OnInit, AfterViewInit, OnChanges, 
       this.processId = this.activatedRoute.snapshot.paramMap.get('id');
     }
 
-    this.subscription = this.themeService.darkMode$.subscribe(() => {
-      if (this.canvas && this.processMap.size > 0) {
-        this.drawGraph(this.canvas);
-      }
-    });
-
     // this.subscription = this.activatedRoute.parent.paramMap.subscribe(obs => {
     //   this.repoId = obs.get('repoId');
     // });
   }
 
   ngOnDestroy() {
-    if (this.subscription) {
-      this.subscription.unsubscribe();
-    }
   }
 
 

@@ -2,13 +2,12 @@ import { Component, OnInit } from '@angular/core';
 import { GithubService } from '../services/github.service';
 import { RepoService } from '../services/repo.service';
 import { ToastrService } from 'ngx-toastr';
-import { Observable, EMPTY, of, throwError } from 'rxjs';
+import { Observable, EMPTY, of } from 'rxjs';
 import { first, switchMap, catchError } from 'rxjs/operators';
 import { FileSaverService } from 'ngx-filesaver';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { AuthenticationService } from '../services/authentication.service';
 import { CommitMessageDialogComponent } from '../components/commit-message-dialog.component';
-import { CommitOptionsDialogComponent } from '../components/commit-options-dialog.component';
 import { PrDialogComponent } from '../components/pr-dialog.component';
 import { ConfirmationDialogComponent } from '../components/confirmation-dialog.component';
 
@@ -30,7 +29,6 @@ export class RepositoriesComponent implements OnInit {
   repos$: Observable<any[]> = EMPTY;
   files$: Observable<any[]> = EMPTY;
   pullRequests$: Observable<any[]> = EMPTY;
-  branches: any[] = [];
 
   selectedRepo: any = null;
   selectedFilePath: string | null = null;
@@ -39,7 +37,11 @@ export class RepositoriesComponent implements OnInit {
 
   connecting = false;
   loadingFiles = false;
+  loadingPRs = false;
+  loadingFileContent = false;
   saving = false;
+  submitting = false;
+  startingEditMode = false;
 
   constructor(
     private githubService: GithubService,
@@ -91,7 +93,6 @@ export class RepositoriesComponent implements OnInit {
     localStorage.setItem(RepositoriesComponent.STORAGE_SELECTED_REPO, repo?.name ?? '');
     localStorage.setItem(RepositoriesComponent.STORAGE_SELECTED_REPO_OWNER, repo?.owner?.login ?? '');
     this.selectedFilePath = null;
-    this.branches = [];
     this.isRepoCollapsed = false;
 
     // Load persisted branch or default
@@ -99,11 +100,15 @@ export class RepositoriesComponent implements OnInit {
     this.currentBranch = savedBranch || repo.default_branch || 'main';
 
     this.loadingFiles = true;
+    this.loadingPRs = true;
+
     this.files$ = this.githubService.getRepoContents(repo.owner.login, repo.name, '');
     this.pullRequests$ = this.githubService.getPullRequests(repo.owner.login, repo.name);
 
-    this.githubService.getBranches(repo.owner.login, repo.name).subscribe(branches => {
-      this.branches = branches;
+    this.pullRequests$.pipe(first()).subscribe(_ => {
+      this.loadingPRs = false;
+    }, _ => {
+      this.loadingPRs = false;
     });
 
     this.files$.pipe(first()).subscribe(files => {
@@ -137,45 +142,10 @@ export class RepositoriesComponent implements OnInit {
     }
   }
 
-  createNewBranch(): void {
-      if (!this.selectedRepo) return;
-      const repoOwner = this.selectedRepo.owner.login;
-
-      const modalRef = this.modalService.show(CommitOptionsDialogComponent, {
-          class: 'modal-lg',
-          initialState: {
-              branches: this.branches,
-              currentBranch: this.currentBranch,
-              fileName: this.selectedFilePath || 'repository',
-              isNewBranch: true // Force new branch mode initially
-          }
-      });
-      // We reuse CommitOptionsDialog but we treat it as "Create Branch" dialog
-      const content: any = modalRef.content;
-      if (content && content.onClose) {
-          content.onClose.pipe(first()).subscribe((config: any) => {
-              if (config && config.branchMode === 'new') {
-                  // Create the branch immediately
-                  const { branchName, baseBranch } = config;
-                  this.githubService.getRef(repoOwner, this.selectedRepo.name, `heads/${baseBranch}`).pipe(
-                      switchMap((ref: any) => {
-                          const sha = ref.object.sha;
-                          return this.githubService.createBranch(repoOwner, this.selectedRepo.name, branchName, sha);
-                      })
-                  ).subscribe(() => {
-                      this.toastr.success(`Branch ${branchName} created`);
-                      // Update branch list and switch
-                      this.branches.push({ name: branchName });
-                      this.switchBranch(branchName);
-                  }, err => this.toastr.error('Failed to create branch'));
-              }
-          });
-      }
-  }
-
   loadFromGithub(): void {
     if (!this.selectedRepo || !this.selectedFilePath) { return; }
     const repoOwner = this.selectedRepo.owner.login;
+    this.loadingFileContent = true;
     // Fetch from CURRENT branch
     this.githubService.getFileContent(repoOwner, this.selectedRepo.name, this.selectedFilePath, this.currentBranch)
       .pipe(first())
@@ -184,11 +154,18 @@ export class RepositoriesComponent implements OnInit {
           const contentStr = atob(fileContent.content);
           this.repoService.uploadJsonContent(contentStr).pipe(first()).subscribe(() => {
             this.toastr.success(`Loaded content from ${this.currentBranch}`);
+            this.loadingFileContent = false;
+          }, _ => {
+            this.loadingFileContent = false;
           });
         } catch (e) {
           this.toastr.error('Failed to parse GitHub file content');
+          this.loadingFileContent = false;
         }
-      }, _ => this.toastr.error('Failed to load file from GitHub (does it exist on this branch?)'));
+      }, _ => {
+        this.toastr.error('Failed to load file from GitHub (does it exist on this branch?)');
+        this.loadingFileContent = false;
+      });
   }
 
   generateBranchName(): string {
@@ -205,6 +182,7 @@ export class RepositoriesComponent implements OnInit {
     const repoName = this.selectedRepo.name;
     const baseBranch = this.selectedRepo.default_branch || 'main';
 
+    this.startingEditMode = true;
     this.toastr.info('Starting edit mode...');
 
     this.githubService.getRef(repoOwner, repoName, `heads/${baseBranch}`).pipe(
@@ -213,10 +191,13 @@ export class RepositoriesComponent implements OnInit {
         return this.githubService.createBranch(repoOwner, repoName, branchName, sha);
       })
     ).subscribe(() => {
+      this.startingEditMode = false;
       this.toastr.success(`Created branch ${branchName}`);
-      this.branches.push({ name: branchName });
       this.switchBranch(branchName);
-    }, err => this.toastr.error('Failed to create branch. Try again later.'));
+    }, err => {
+      this.startingEditMode = false;
+      this.toastr.error('Failed to create branch. Try again later.');
+    });
   }
 
   submitChanges(): void {
@@ -247,8 +228,10 @@ export class RepositoriesComponent implements OnInit {
     const title = `Update by ${this.connectedUser} - ${new Date().toLocaleDateString()}`;
     const body = `Automated submission from Landscapr by ${this.connectedUser}.`;
 
+    this.submitting = true;
     this.githubService.createPullRequest(repoOwner, repoName, title, body, this.currentBranch, this.selectedRepo.default_branch || 'main')
       .subscribe(() => {
+        this.submitting = false;
         this.toastr.success('Changes submitted successfully!');
 
         // Ask to return to main
@@ -266,7 +249,10 @@ export class RepositoriesComponent implements OnInit {
             if (res) this.switchToMain();
           });
         }
-      }, err => this.toastr.error('Failed to submit changes (Pull Request creation failed).'));
+      }, err => {
+        this.submitting = false;
+        this.toastr.error('Failed to submit changes (Pull Request creation failed).');
+      });
   }
 
   createPr(): void {
@@ -293,7 +279,7 @@ export class RepositoriesComponent implements OnInit {
                         if (confirmContent && confirmContent.onClose) {
                             confirmContent.onClose.pipe(first()).subscribe((result: boolean) => {
                                 if (result) {
-                                    this.createNewBranch();
+                                    this.startEditMode();
                                 }
                             });
                         }
@@ -317,8 +303,8 @@ export class RepositoriesComponent implements OnInit {
 
     // GUARD: If on main, forbid
     if (this.currentBranch === this.selectedRepo.default_branch) {
-        this.toastr.warning('You cannot save directly to the main branch. Please create a new branch.');
-        this.createNewBranch();
+        this.toastr.warning('You cannot save directly to the main branch. Please start edit mode.');
+        this.startEditMode();
         return;
     }
 

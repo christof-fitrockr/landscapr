@@ -1,36 +1,39 @@
-<tr [class.table-info]="process.comments?.length > 0" [class.pointer]="selectMode" (click)="selectMode ? onSelect(process) : null">
-  <td class="text-nowrap" [style.padding-left.px]="level * 20" [style.border-left]="'4px solid ' + getRoleColor(process.role)">
-    <button *ngIf="childProcesses.length > 0" class="btn btn-sm btn-link p-0 pl-1 text-dark" (click)="toggle(); $event.stopPropagation()" type="button">
+<tr class="tree-row" [style.--depth]="level" [class.table-info]="process.comments?.length > 0" [class.pointer]="selectMode" (click)="selectMode ? onSelect(process) : null">
+  <td class="text-nowrap tree-indent-cell" [style.border-left]="'4px solid ' + getRoleColor(process.role)">
+    <div class="tree-indent-wrapper">
+      <div *ngIf="childProcesses.length > 0" class="toggle-icon pointer" (click)="toggle(); $event.stopPropagation()">
+        <i class="fas fa-sm" [class.fa-chevron-down]="expanded" [class.fa-chevron-right]="!expanded"></i>
+      </div>
+      <div *ngIf="childProcesses.length === 0" class="toggle-icon"></div> <!-- Spacer -->
 
-      <span *ngIf="expanded == true"><i class="fas fa-sm mr-1 fa-chevron-down"></i></span>
-      <span *ngIf="expanded == false"><i class="fas fa-sm mr-1 fa-chevron-right"></i></span>
-    </button>
-    <div *ngIf="childProcesses.length === 0" style="width: 22px; display: inline-block;"></div>
-    <ng-container *ngIf="!selectMode">
-      <a class="black mr-2" routerLink="/process/view/{{process?.id}}"><i class="fas fa-eye" title="View Process"></i></a>
-      <a class="black mr-2" routerLink="/process/edit/{{process?.id}}"><i class="fas fa-edit" title="Edit Process"></i></a>
-      <a class="black mr-2" style="cursor: pointer" (click)="onShowDescription(process); $event.stopPropagation()"><i class="fas fa-info-circle text-info" title="Show Description"></i></a>
-      <a class="black mr-2" style="cursor: pointer" (click)="onPrepareDelete(process); $event.stopPropagation()" data-toggle="modal" data-target="#confirmDeleteProcess"><i class="fas fa-trash" title="Delete Process"></i></a>
-    </ng-container>
+      <ng-container *ngIf="!selectMode">
+        <a class="btn btn-icon btn-sm text-muted" routerLink="/process/view/{{process?.id}}" title="View Process"><i class="fas fa-eye"></i></a>
+        <a class="btn btn-icon btn-sm text-muted" routerLink="/process/edit/{{process?.id}}" title="Edit Process"><i class="fas fa-edit"></i></a>
+        <button class="btn btn-icon btn-sm text-muted" (click)="onShowDescription(process); $event.stopPropagation()" title="Show Description"><i class="fas fa-info-circle"></i></button>
+        <button class="btn btn-icon btn-sm text-muted" (click)="onDelete(process); $event.stopPropagation()" title="Delete Process"><i class="fas fa-trash"></i></button>
+      </ng-container>
+    </div>
   </td>
   <td>
     <span *ngIf="selectMode" class="font-weight-bold">{{process.name}}</span>
-    <a *ngIf="!selectMode" class="black font-weight-bold" routerLink="/process/edit/{{process?.id}}">{{process.name}}</a>
+    <a *ngIf="!selectMode" class="font-weight-bold " routerLink="/process/edit/{{process?.id}}">{{process.name}}</a>
     <i *ngIf="orphanIds.includes(process.id)" class="ml-2 text-warning fas fa-unlink" title="Orphan: Not referenced by any Journey"></i>
   </td>
   <td>
-    <i class="fas fa-comments" [class.text-muted]="!process.comments || process.comments.length === 0" title="{{process.comments?.length || 0}} comment(s)"></i>
-    <span class="ml-1" [class.text-muted]="!process.comments || process.comments.length === 0">{{process.comments?.length || 0}}</span>
+    <div class="d-flex align-items-center">
+      <i class="fas fa-comments mr-2" [class.text-muted]="!process.comments || process.comments.length === 0"></i>
+      <span [class.text-muted]="!process.comments || process.comments.length === 0">{{process.comments?.length || 0}}</span>
+    </div>
   </td>
   <td>{{process?.tags}}</td>
   <td class="text-nowrap pl-1 pr-1">
-    <i *ngIf="process?.apiCallIds?.length > 0" class="fas fa-wave-square" title="{{process?.apiCallIds?.length}} API Call(s)"></i>
-    <i *ngIf="process?.steps?.length > 0" class="fas fa-sitemap" title="{{process?.steps?.length}} Process Step(s)"></i>
+    <span *ngIf="process?.apiCallIds?.length > 0" class="badge badge-secondary mr-1" title="API Calls">{{process?.apiCallIds?.length}} API</span>
+    <span *ngIf="process?.steps?.length > 0" class="badge badge-secondary" title="Steps">{{process?.steps?.length}} Steps</span>
   </td>
   <td class="text-nowrap pl-1 pr-1" *ngIf="!selectMode">
-    <i *ngIf="process?.status === 0" class="ml-1 text-warning fas fa-exclamation-triangle" title="Draft"></i>
-    <i *ngIf="process?.status === 1" class="ml-1 text-success fas fa-check-circle" title="Validated"></i>
-    <i *ngIf="process?.status === 2" class="ml-1 text-info fas fa-glasses" title="Review Needed"></i>
+    <span *ngIf="process?.status === 0" class="badge-modern badge-draft">Draft</span>
+    <span *ngIf="process?.status === 1" class="badge-modern badge-validated">Validated</span>
+    <span *ngIf="process?.status === 2" class="badge-modern badge-review">Review</span>
   </td>
   <td class="text-nowrap pl-1 pr-1 text-right" *ngIf="selectMode" style="width: 30px">
     <i class="fas fa-plus text-primary"></i>
@@ -51,7 +54,7 @@
       [showOrphansOnly]="showOrphansOnly"
       [selectMode]="selectMode"
       (deleted)="onDeleted()"
-      (prepareDelete)="onPrepareDelete($event)"
+      (delete)="onDelete($event)"
       (select)="onSelect($event)"
       (showDescription)="onShowDescription($event)"
     ></app-process-tree-node>

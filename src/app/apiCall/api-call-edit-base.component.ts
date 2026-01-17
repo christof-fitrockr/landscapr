@@ -10,21 +10,25 @@ import {Capability} from '../models/capability';
 import {CapabilityService} from '../services/capability.service';
 import {Application} from '../models/application';
 import {ApplicationService} from '../services/application.service';
+import {BsModalService} from 'ngx-bootstrap/modal';
+import {CapabilitySelectorDialogComponent} from '../components/capability-selector-dialog/capability-selector-dialog.component';
 
 @Component({selector: 'app-function-edit', templateUrl: './api-call-edit-base.component.html', styleUrls: ['./api-call-edit-base.component.scss']})
 export class ApiCallEditBaseComponent implements OnInit, OnDestroy {
 
   apiCallForm: FormGroup;
   apiCall: ApiCall;
-  private apiCallId: string;
+  apiCallId: string;
   capabilities$: Observable<Capability[]>;
+  selectedCapability: Capability | null = null;
   systems$: Observable<Application[]>;
   repoId: string;
   private subscription: Subscription;
 
 
   constructor(private apiCallService: ApiCallService, private capabilityService: CapabilityService, private systemService: ApplicationService,
-              private formBuilder: FormBuilder, private route: ActivatedRoute, private router: Router, private toastr: ToastrService) {
+              private formBuilder: FormBuilder, private route: ActivatedRoute, private router: Router, private toastr: ToastrService,
+              private modalService: BsModalService) {
   }
 
 
@@ -69,10 +73,35 @@ export class ApiCallEditBaseComponent implements OnInit, OnDestroy {
       this.apiCallService.byId(this.apiCallId).pipe(first()).subscribe(apiCall => {
         this.apiCall = apiCall;
         this.apiCallForm.patchValue(this.apiCall);
+        this.updateSelectedCapability(apiCall.capabilityId);
       });
     } else {
       this.apiCall = new ApiCall();
     }
+  }
+
+  private updateSelectedCapability(id: string) {
+    if (!id) { this.selectedCapability = null; return; }
+    this.capabilityService.byId(id).pipe(first()).subscribe(c => {
+      this.selectedCapability = c;
+    });
+  }
+
+  selectCapability() {
+    const modalRef = this.modalService.show(CapabilitySelectorDialogComponent, {
+      initialState: {
+        repoId: this.repoId,
+        initialSelectedIds: this.apiCallForm.get('capabilityId').value ? [this.apiCallForm.get('capabilityId').value] : []
+      },
+      class: 'modal-lg'
+    });
+    modalRef.content.onClose.pipe(first()).subscribe((result: Set<string>) => {
+      if (result && result.size > 0) {
+        const id = Array.from(result)[0];
+        this.apiCallForm.get('capabilityId').setValue(id);
+        this.updateSelectedCapability(id);
+      }
+    });
   }
 
   onUpdate() {

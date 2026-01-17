@@ -4,14 +4,12 @@ import {AuthGuard} from './helpers/auth.guard';
 import {LoginPage} from './pages/login.page';
 import {ProcessListComponent} from './process/process-list.component';
 import {ProcessViewComponent} from './process/process-view.component';
-import {ProcessEditComponent} from './process/process-edit.component';
 import {ProcessEditSubprocessComponent} from './process/process-edit-subprocess.component';
 import {ProcessEditBaseComponent} from './process/process-edit-base.component';
 import {DashboardComponent} from './dashboard/dashboard.component';
 import {ProcessEditApiCallsComponent} from './process/process-edit-api-calls.component';
 import {ApiCallListComponent} from './apiCall/api-call-list.component';
 import {ApiCallViewComponent} from './apiCall/api-call-view.component';
-import {ApiCallEditComponent} from './apiCall/api-call-edit.component';
 import {ApiCallEditBaseComponent} from './apiCall/api-call-edit-base.component';
 import {ApiCallEditUsageComponent} from './apiCall/api-call-edit-usage.component';
 import {ImprintComponent} from './imprint/imprint.component';
@@ -19,12 +17,9 @@ import {DisclaimerComponent} from './disclaimer/disclaimer.component';
 import {PrivacyPolicyComponent} from './privacyPolicy/privacy-policy.component';
 import {CapabilityListComponent} from './capability/capability-list.component';
 import {CapabilityViewComponent} from './capability/capability-view.component';
-import {CapabilityEditComponent} from './capability/capability-edit.component';
 import {CapabilityEditBaseComponent} from './capability/capability-edit-base.component';
 import {CapabilityEditApiCallComponent} from './capability/capability-edit-api-call.component';
 import {SystemListComponent} from './system/system-list.component';
-import {SystemViewComponent} from './system/system-view.component';
-import {SystemEditComponent} from './system/system-edit.component';
 import {SystemEditBaseComponent} from './system/system-edit-base.component';
 import {SystemEditImplementsComponent} from './system/system-edit-implements.component';
 import {SystemEditApiComponent} from './system/system-edit-api.component';
@@ -32,7 +27,6 @@ import {CapabilityEditImplementedByComponent} from './capability/capability-edit
 import {ApiCallEditImplementedInComponent} from './apiCall/api-call-edit-implemented-in.component';
 import {ProcessEditUsedByComponent} from './process/process-edit-used-by.component';
 import {SwimlaneViewComponent} from './swimlaneView/swimlane-view.component';
-import { JourneyEditComponent } from './journey/journey-maintenance/journey-edit.component';
 import { JourneyListComponent } from './journey/journey-list/journey-list.component';
 import { JourneyEditorComponent } from './journey/journey-editor/journey-editor.component';
 import { JourneyEditBaseComponent } from './journey/journey-edit-base.component';
@@ -48,7 +42,7 @@ const routes: Routes = [
   { path: 'journeys', canActivate: [AuthGuard], children: [
       { path: '', redirectTo: 'list', pathMatch: 'full' },
       { path: 'list', component: JourneyListComponent, canActivate: [AuthGuard] },
-      { path: 'edit/:id', component: JourneyEditComponent, canActivate: [AuthGuard], children: [
+      { path: 'edit/:id', canActivate: [AuthGuard], children: [
           { path: '', redirectTo: 'base', pathMatch: 'full' },
           { path: 'base', component: JourneyEditBaseComponent, canActivate: [AuthGuard] },
           { path: 'editor', component: JourneyEditorComponent, canActivate: [AuthGuard] },
@@ -63,7 +57,7 @@ const routes: Routes = [
       { path: 'list', component: ProcessListComponent, canActivate: [AuthGuard] },
       { path: 'view/:id', component: ProcessViewComponent, canActivate: [AuthGuard] },
 
-      { path: 'edit/:id', component: ProcessEditComponent, canActivate: [AuthGuard], children: [
+      { path: 'edit/:id', canActivate: [AuthGuard], children: [
           { path: '', redirectTo: 'base', pathMatch: 'full' },
           { path: 'base', component: ProcessEditBaseComponent, canActivate: [AuthGuard] },
           { path: 'flow', component: ProcessViewComponent, canActivate: [AuthGuard] },
@@ -80,7 +74,7 @@ const routes: Routes = [
       { path: 'groups', component: ApiGroupMapComponent, canActivate: [AuthGuard], data: { mode: 'group' } },
       { path: 'groups/capabilities', component: ApiGroupMapComponent, canActivate: [AuthGuard], data: { mode: 'capability' } },
       { path: 'view/:id', component: ApiCallViewComponent, canActivate: [AuthGuard] },
-      { path: 'edit/:id', component: ApiCallEditComponent, canActivate: [AuthGuard], children: [
+      { path: 'edit/:id', canActivate: [AuthGuard], children: [
           { path: '', redirectTo: 'base', pathMatch: 'full' },
           { path: 'base', component: ApiCallEditBaseComponent, canActivate: [AuthGuard] },
           { path: 'usage', component: ApiCallEditUsageComponent, canActivate: [AuthGuard] },
@@ -93,7 +87,7 @@ const routes: Routes = [
       { path: 'list', component: CapabilityListComponent, canActivate: [AuthGuard] },
       { path: 'view', component: CapabilityViewComponent, canActivate: [AuthGuard] },
       { path: 'view/:root', component: CapabilityViewComponent, canActivate: [AuthGuard] },
-      { path: 'edit/:id', component: CapabilityEditComponent, canActivate: [AuthGuard], children: [
+      { path: 'edit/:id', canActivate: [AuthGuard], children: [
           { path: '', redirectTo: 'base', pathMatch: 'full' },
           { path: 'base', component: CapabilityEditBaseComponent, canActivate: [AuthGuard] },
           { path: 'implementedBy', component: CapabilityEditImplementedByComponent, canActivate: [AuthGuard] },
@@ -105,8 +99,7 @@ const routes: Routes = [
   { path: 'system', canActivate: [AuthGuard], children: [
       { path: '', redirectTo: 'list', pathMatch: 'full' },
       { path: 'list', component: SystemListComponent, canActivate: [AuthGuard] },
-      { path: 'view/:id', component: SystemViewComponent, canActivate: [AuthGuard] },
-      { path: 'edit/:id', component: SystemEditComponent, canActivate: [AuthGuard], children: [
+      { path: 'edit/:id', canActivate: [AuthGuard], children: [
           { path: '', redirectTo: 'base', pathMatch: 'full' },
           { path: 'base', component: SystemEditBaseComponent, canActivate: [AuthGuard] },
           { path: 'usage', component: SystemEditImplementsComponent, canActivate: [AuthGuard] },

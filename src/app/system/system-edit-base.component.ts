@@ -11,7 +11,7 @@ export class SystemEditBaseComponent implements OnInit {
 
   systemForm: FormGroup;
   system: Application;
-  private systemId: string;
+  systemId: string;
 
   constructor(private systemService: ApplicationService, private formBuilder: FormBuilder,
               private route: ActivatedRoute, private router: Router, private toastr: ToastrService) {

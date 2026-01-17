@@ -1,5 +1,5 @@
 
-<nav  class="navbar navbar-expand-lg fixed-top navbar-dark bg-dark" aria-label="Main navigation">
+<nav  class="navbar navbar-expand-lg fixed-top navbar-light bg-white" aria-label="Main navigation">
   <div class="container-fluid">
     <a class="navbar-brand" href="#">Landscapr</a>
     <button class="navbar-toggler p-0 border-0" type="button" id="navbarSideCollapse" aria-label="Toggle navigation">
@@ -19,7 +19,7 @@
           <a class="nav-link" routerLinkActive="active" routerLink="/process">Process</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" routerLinkActive="active" routerLink="/apiCall">Api Call</a>
+          <a class="nav-link" routerLinkActive="active" routerLink="/apiCall">Api</a>
         </li>
         <li class="nav-item">
           <a class="nav-link" routerLinkActive="active" routerLink="/capability">Capability</a>
@@ -52,28 +52,23 @@
               }" [title]="st.state === 'LOCAL_NEWER' ? 'Local changes not on GitHub' : (st.state === 'REMOTE_NEWER' ? 'Updates available from GitHub' : 'Local and remote have diverged')">
 
               <span class="label pt-1 pb-1">&nbsp;Sync&nbsp;</span>
-            <button *ngIf="st.state === 'LOCAL_NEWER' || st.state === 'DIVERGED'" class="btn btn-sm btn-outline-light border-0 me-2" (click)="syncStatusService.push()" title="Save local version to GitHub">
+            <button *ngIf="st.state === 'LOCAL_NEWER' || st.state === 'DIVERGED'" class="btn btn-sm btn-outline-dark border-0 me-2" (click)="syncStatusService.push()" title="Save local version to GitHub">
               <i class="fas fa-upload"></i>
             </button>
-            <button *ngIf="st.state === 'REMOTE_NEWER' || st.state === 'DIVERGED'" class="btn btn-sm btn-outline-light border-0 ms-2" (click)="syncStatusService.pull()" title="Load changes from GitHub">
+            <button *ngIf="st.state === 'REMOTE_NEWER' || st.state === 'DIVERGED'" class="btn btn-sm btn-outline-dark border-0 ms-2" (click)="syncStatusService.pull()" title="Load changes from GitHub">
               <i class="fas fa-download"></i>
             </button>
             </span>
           </ng-container>
         </li>
         <li class="nav-item">
-          <button class="btn btn-link nav-link" routerLink="/help" routerLinkActive="active" title="Help">
-            <i class="fas fa-question-circle"></i>
-          </button>
-        </li>
-        <li class="nav-item">
-          <button class="btn btn-link nav-link" (click)="themeService.setDarkMode(!themeService.isDarkMode())">
-            <i class="fas" [ngClass]="themeService.isDarkMode() ? 'fa-sun' : 'fa-moon'"></i>
-          </button>
-        </li>
-        <li class="nav-item">
           <button class="btn btn-link nav-link" routerLink="/repositories" routerLinkActive="active" title="Repositories">
             <i class="fas fa-database"></i>
+          </button>
+        </li>
+        <li class="nav-item">
+          <button class="btn btn-link nav-link" routerLink="/help" routerLinkActive="active" title="Help">
+            <i class="fas fa-question-circle"></i>
           </button>
         </li>
         <li class="nav-item">

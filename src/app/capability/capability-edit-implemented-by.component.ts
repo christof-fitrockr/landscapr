@@ -14,7 +14,7 @@ import {ApiCallService} from '../services/api-call.service';
 @Component({templateUrl: './capability-edit-implemented-by.component.html'})
 export class CapabilityEditImplementedByComponent implements OnInit, OnDestroy {
 
-  private capabilityId: string;
+  capabilityId: string;
   capability: Capability;
   search?: string;
   suggestions$?: Observable<Application[]>;
@@ -25,6 +25,7 @@ export class CapabilityEditImplementedByComponent implements OnInit, OnDestroy {
   systemTree: any[] = [];
   searchText = '';
   showOrphansOnly = false;
+  filterStatus: number = null;
   orphanIds: string[] = [];
   private subscription: Subscription;
 

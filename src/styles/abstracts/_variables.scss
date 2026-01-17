@@ -1,0 +1,80 @@
+// Color Palette - Neutral / Slate
+$white: #ffffff;
+$black: #000000;
+
+$slate-50: #f8fafc;
+$slate-100: #f1f5f9;
+$slate-200: #e2e8f0;
+$slate-300: #cbd5e1;
+$slate-400: #94a3b8;
+$slate-500: #64748b;
+$slate-600: #475569;
+$slate-700: #334155;
+$slate-800: #1e293b;
+$slate-900: #0f172a;
+$slate-950: #020617;
+
+// Accent Color
+$royal-blue: #2563eb; // A nice, more blueish primary color
+$royal-blue-hover: #1d4ed8;
+
+// Bootstrap Variable Overrides
+$primary: $royal-blue;
+$secondary: $slate-600;
+$success: #059669;
+$info: #0284c7;
+$warning: #d97706;
+$danger: #dc2626;
+$light: $slate-50;
+$dark: $slate-900;
+
+$body-bg: #fafafa;
+$body-color: $slate-800;
+
+$font-family-sans-serif: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+
+// Components
+$border-color: $slate-200; // Global border color override
+$border-radius: 0.75rem;
+$border-radius-lg: 1rem;
+$border-radius-sm: 0.5rem;
+
+$box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+$box-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+$box-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+
+$enable-shadows: true;
+$enable-gradients: true;
+
+// Cards
+$card-bg: $white;
+$card-border-color: $slate-200;
+$card-cap-bg: $slate-50;
+
+// Tables
+$table-bg: transparent;
+$table-accent-bg: rgba($slate-100, 0.5);
+$table-hover-bg: rgba($royal-blue, 0.05);
+$table-border-color: $slate-200;
+$table-color: $body-color;
+
+// Forms
+$input-bg: $white;
+$input-disabled-bg: $slate-100;
+$input-color: $slate-900;
+$input-border-color: $slate-300;
+$input-focus-border-color: $royal-blue;
+$input-placeholder-color: $slate-400;
+
+// Dropdowns
+$dropdown-bg: $white;
+$dropdown-border-color: $slate-200;
+$dropdown-link-color: $slate-700;
+$dropdown-link-hover-color: $slate-900;
+$dropdown-link-hover-bg: $slate-100;
+
+// Modals
+$modal-content-bg: $white;
+$modal-content-border-color: $slate-200;
+$modal-header-border-color: $slate-100;
+$modal-footer-border-color: $slate-100;

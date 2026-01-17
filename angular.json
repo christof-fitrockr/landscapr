@@ -30,7 +30,6 @@
             ],
             "styles": [
               "node_modules/ngx-toastr/toastr.css",
-              "node_modules/bootstrap/dist/css/bootstrap.min.css",
               "node_modules/@fortawesome/fontawesome-free/scss/fontawesome.scss",
               "src/styles.scss"
             ],
@@ -39,6 +38,18 @@
               "node_modules/bootstrap/dist/js/bootstrap.bundle.min.js",
               "node_modules/@fortawesome/fontawesome-free/js/all.js"
             ],
+            "allowedCommonJsDependencies": [
+              "canvg",
+              "raf",
+              "rgbcolor",
+              "jspdf",
+              "dompurify",
+              "html2canvas",
+              "ngx-filesaver",
+              "file-saver",
+              "pptxgenjs",
+              "core-js"
+            ]
           },
           "configurations": {
             "production": {

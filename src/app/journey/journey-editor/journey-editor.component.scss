@@ -27,7 +27,6 @@
   overflow: hidden;
   background-color: var(--canvas-bg);
 
-  // Light theme defaults (will be inherited if no .dark-theme on body)
   --canvas-bg: #fafafa;
   --grid-color-small: #e5e5e5;
   --grid-color-large: #d6d6d6;
@@ -37,18 +36,6 @@
   --node-text: #495057;
   --group-fill: rgba(108, 117, 125, 0.08);
   --group-stroke: #adb5bd;
-}
-
-:host-context(.dark-theme) .canvas-wrapper {
-  --canvas-bg: #1a1a1a;
-  --grid-color-small: #333333;
-  --grid-color-large: #444444;
-  --arrow-color: #666;
-  --node-fill: #2d2d2d;
-  --node-stroke: #888;
-  --node-text: #e0e0e0;
-  --group-fill: rgba(255, 255, 255, 0.05);
-  --group-stroke: #555;
 }
 
 svg.canvas {

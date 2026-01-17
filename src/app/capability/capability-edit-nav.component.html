@@ -1,0 +1,6 @@
+<div class="btn-group mr-2" role="group" *ngIf="capabilityId">
+  <a class="btn btn-outline-secondary" [routerLink]="['/capability', 'list']" routerLinkActive="active" title="List"><i class="fas fa-list"></i></a>
+  <a class="btn btn-outline-secondary" [routerLink]="['/capability', 'edit', capabilityId, 'base']" routerLinkActive="active" title="Base"><i class="fas fa-info"></i></a>
+  <a class="btn btn-outline-secondary" [routerLink]="['/capability', 'edit', capabilityId, 'implementedBy']" routerLinkActive="active" title="Implemented by"><i class="fas fa-server"></i></a>
+  <a class="btn btn-outline-secondary" [routerLink]="['/capability', 'edit', capabilityId, 'usage']" routerLinkActive="active" title="Assigned Functions"><i class="fas fa-plug"></i></a>
+</div>

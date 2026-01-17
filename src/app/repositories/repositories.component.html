@@ -24,7 +24,10 @@
                     </div>
                 </div>
                 <div class="repo-list border rounded" style="max-height: 200px; overflow-y: auto;">
-                    <ul class="list-group list-group-flush">
+                    <div *ngIf="connecting" class="p-3 text-center text-muted">
+                        <i class="fas fa-spinner fa-spin me-2"></i>Loading repositories...
+                    </div>
+                    <ul class="list-group list-group-flush" *ngIf="!connecting">
                         <li class="list-group-item repo-item list-group-item-action" *ngFor="let r of (repos$ | async)" (click)="selectRepo(r)" [class.active]="selectedRepo?.name===r.name" style="cursor: pointer">
                           <i class="fab fa-github"></i> {{r.name}}
                         </li>
@@ -44,7 +47,10 @@
                     </ul>
                 </div>
                 <div class="mt-2 d-flex justify-content-between">
-                     <button class="btn btn-sm btn-outline-primary" (click)="loadFromGithub()" [disabled]="!selectedFilePath" title="Load selected GitHub file"><i class="fas fa-download"></i> Load</button>
+                     <button class="btn btn-sm btn-outline-primary" (click)="loadFromGithub()" [disabled]="!selectedFilePath || loadingFileContent" title="Load selected GitHub file">
+                         <i class="fas" [ngClass]="loadingFileContent ? 'fa-spinner fa-spin' : 'fa-download'"></i>
+                         {{ loadingFileContent ? ' Loading...' : ' Load' }}
+                     </button>
                      <div class="small text-muted align-self-center">{{ selectedFilePath || 'No file selected' }}</div>
                 </div>
             </div>
@@ -52,123 +58,123 @@
     </div>
   </div>
 
-  <!-- Workspace Card (Prominent) -->
-  <div class="card mb-3 shadow-lg border-0" *ngIf="selectedRepo && selectedFilePath">
-      <div class="card-header bg-light d-flex justify-content-between align-items-center">
-          <h5 class="mb-0 text-dark"><i class="fas fa-laptop-code text-primary me-2"></i> Workspace</h5>
-          <span class="badge badge-info p-2">{{ selectedFilePath }}</span>
+  <!-- Workspace Card (Compact Redesign) -->
+  <div class="card mb-4 shadow-sm" *ngIf="selectedRepo && selectedFilePath">
+    <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
+      <h5 class="mb-0 fw-bold text-slate-900">
+        <i class="fas fa-laptop-code text-primary me-2"></i> Workspace
+      </h5>
+
+      <div class="d-flex align-items-center">
+        <!-- Main Branch Actions -->
+        <ng-container *ngIf="currentBranch === (selectedRepo?.default_branch || 'main')">
+          <button class="btn btn-sm btn-primary me-2" (click)="startEditMode()" [disabled]="startingEditMode">
+            <i class="fas" [ngClass]="startingEditMode ? 'fa-spinner fa-spin' : 'fa-pen-nib'"></i>
+            {{ startingEditMode ? ' Starting...' : ' Start Edit Mode' }}
+          </button>
+        </ng-container>
+
+        <!-- Feature Branch Actions -->
+        <ng-container *ngIf="currentBranch !== (selectedRepo?.default_branch || 'main')">
+          <button class="btn btn-sm btn-outline-primary me-2 shadow-sm" (click)="saveToGithub()" [disabled]="saving">
+            <i class="fas" [ngClass]="saving ? 'fa-spinner fa-spin' : 'fa-cloud-upload-alt'"></i>
+            {{ saving ? ' Saving...' : ' Save Changes' }}
+          </button>
+          <button class="btn btn-sm btn-success me-2 shadow-sm" (click)="submitChanges()" [disabled]="submitting">
+            <i class="fas" [ngClass]="submitting ? 'fa-spinner fa-spin' : 'fa-paper-plane'"></i>
+            {{ submitting ? ' Submitting...' : ' Submit Changes' }}
+          </button>
+        </ng-container>
+
+        <!-- Shared Actions -->
+        <button class="btn btn-sm btn-outline-slate me-2 shadow-sm" (click)="loadFromGithub()" [disabled]="loadingFileContent">
+          <i class="fas" [ngClass]="loadingFileContent ? 'fa-spinner fa-spin' : 'fa-sync-alt'"></i>
+          {{ loadingFileContent ? ' Updating...' : ' Update from Repo' }}
+        </button>
+
+        <!-- Discard (Only in Edit Mode) -->
+        <button *ngIf="currentBranch !== (selectedRepo?.default_branch || 'main')"
+                class="btn btn-sm btn-link text-danger text-decoration-none" (click)="switchToMain()">
+          <i class="fas fa-times-circle me-1"></i> Discard
+        </button>
       </div>
-      <div class="card-body">
-          <div class="row">
-              <!-- Context Section -->
-              <div class="col-lg-5 border-end">
-                  <h6 class="text-uppercase text-muted small mb-3">Context</h6>
-                  <div class="mb-3">
-                      <label class="form-label small fw-bold">Current Branch</label>
-                      <div class="input-group">
-                          <div class="dropdown w-100" dropdown>
-                              <button dropdownToggle type="button" class="btn btn-outline-dark dropdown-toggle w-100 d-flex justify-content-between align-items-center" style="min-height: 45px;">
-                                  <span><i class="fas fa-code-branch me-2"></i> {{ currentBranch }}</span>
-                                  <span class="caret"></span>
-                              </button>
-                              <ul *dropdownMenu class="dropdown-menu w-100 shadow" role="menu">
-                                  <li role="menuitem" *ngFor="let b of branches">
-                                      <a class="dropdown-item" href="javascript:void(0)" (click)="switchBranch(b.name)">
-                                          <i class="fas fa-code-branch me-2 text-muted"></i> {{ b.name }}
-                                      </a>
-                                  </li>
-                              </ul>
-                          </div>
-                      </div>
-                  </div>
+    </div>
 
-                  <div class="alert alert-info d-flex align-items-center mb-0" *ngIf="currentBranch === (selectedRepo?.default_branch || 'main')">
-                      <i class="fas fa-eye me-3 fa-lg"></i>
-                      <div>
-                          <strong>View Mode</strong>
-                          <div class="small">You are viewing the main branch. Start Edit Mode to make changes.</div>
-                      </div>
-                  </div>
-                  <div class="alert alert-warning d-flex align-items-center mb-0" *ngIf="currentBranch !== (selectedRepo?.default_branch || 'main')">
-                      <i class="fas fa-edit me-3 fa-lg"></i>
-                      <div>
-                          <strong>Edit Mode</strong>
-                          <div class="small">You are working on a feature branch. Save often!</div>
-                      </div>
-                  </div>
-              </div>
-
-              <!-- Actions Section -->
-              <div class="col-lg-7 d-flex flex-column justify-content-center align-items-center p-4">
-
-                  <!-- Main Branch Actions -->
-                  <div *ngIf="currentBranch === (selectedRepo?.default_branch || 'main')" class="w-100 text-center">
-                      <h6 class="text-uppercase text-muted small mb-4">Available Actions</h6>
-                      <div class="d-grid gap-3 col-8 mx-auto">
-                          <button class="btn btn-primary shadow-sm" (click)="startEditMode()">
-                              <i class="fas fa-pen me-2"></i> Start Edit Mode
-                          </button>
-                          <button class="btn btn-outline-secondary" (click)="loadFromGithub()">
-                              <i class="fas fa-sync-alt me-2"></i> Update from Repository
-                          </button>
-                      </div>
-                  </div>
-
-                  <!-- Feature Branch Actions -->
-                  <div *ngIf="currentBranch !== (selectedRepo?.default_branch || 'main')" class="w-100">
-                       <h6 class="text-uppercase text-muted small mb-4 text-center">Branch Operations</h6>
-                       <div class="row g-3 justify-content-center">
-                           <div class="col-md-5">
-                               <button class="btn btn-outline-primary w-100 h-100 py-3" (click)="saveToGithub()" [disabled]="saving">
-                                   <div *ngIf="!saving" class="d-flex flex-column align-items-center">
-                                       <i class="fas fa-save fa-2x mb-2"></i>
-                                       <span>Save Changes</span>
-                                   </div>
-                                   <div *ngIf="saving" class="d-flex flex-column align-items-center">
-                                       <i class="fas fa-spinner fa-spin fa-2x mb-2"></i>
-                                       <span>Saving...</span>
-                                   </div>
-                               </button>
-                           </div>
-                           <div class="col-md-5">
-                               <button class="btn btn-success w-100 h-100 py-3" (click)="submitChanges()">
-                                   <div class="d-flex flex-column align-items-center">
-                                       <i class="fas fa-paper-plane fa-2x mb-2"></i>
-                                       <span>Submit Changes</span>
-                                   </div>
-                               </button>
-                           </div>
-                       </div>
-                       <div class="mt-4 text-center">
-                           <button class="btn btn-link text-muted text-decoration-none" (click)="switchToMain()">
-                               <i class="fas fa-times-circle me-1"></i> Discard changes and return to Main
-                           </button>
-                       </div>
-                  </div>
-
-              </div>
+    <div class="card-body bg-light py-3 border-top">
+      <div class="row">
+        <div class="col-md-6">
+          <div class="d-flex align-items-center mb-2">
+            <span class="text-muted small text-uppercase fw-bold me-3" style="min-width: 80px;">Branch</span>
+            <div class="d-flex align-items-center">
+              <span class="py-1 px-2 border rounded bg-white shadow-sm small fw-bold">
+                <i class="fas fa-code-branch me-2 text-primary"></i> {{ currentBranch }}
+                <span *ngIf="currentBranch === (selectedRepo?.default_branch || 'main')" class="badge bg-light text-slate-500 border ms-2 fw-normal">default</span>
+              </span>
+            </div>
           </div>
+          <div class="d-flex align-items-center">
+            <span class="text-muted small text-uppercase fw-bold me-3" style="min-width: 80px;">File</span>
+            <code class="text-primary fw-bold small">{{ selectedFilePath }}</code>
+          </div>
+        </div>
+        <div class="col-md-6 border-md-start">
+          <div class="d-flex align-items-center mb-2">
+            <span class="text-muted small text-uppercase fw-bold me-3" style="min-width: 80px;">Mode</span>
+            <span class="badge"
+              [class.bg-info-soft]="currentBranch === (selectedRepo?.default_branch || 'main')"
+              [class.text-info]="currentBranch === (selectedRepo?.default_branch || 'main')"
+              [class.bg-warning-soft]="currentBranch !== (selectedRepo?.default_branch || 'main')"
+              [class.text-warning]="currentBranch !== (selectedRepo?.default_branch || 'main')">
+              {{ currentBranch === (selectedRepo?.default_branch || 'main') ? 'VIEW' : 'EDIT' }}
+            </span>
+            <span class="ms-3 small text-slate-500">
+              <ng-container *ngIf="currentBranch === (selectedRepo?.default_branch || 'main')">
+                Viewing main branch
+              </ng-container>
+              <ng-container *ngIf="currentBranch !== (selectedRepo?.default_branch || 'main')">
+                Active feature branch
+              </ng-container>
+            </span>
+          </div>
+          <div class="d-flex align-items-center">
+            <span class="text-muted small text-uppercase fw-bold me-3" style="min-width: 80px;">Status</span>
+            <span class="small text-slate-500 font-italic">
+              <ng-container *ngIf="currentBranch === (selectedRepo?.default_branch || 'main')">
+                Start Edit Mode to make changes.
+              </ng-container>
+              <ng-container *ngIf="currentBranch !== (selectedRepo?.default_branch || 'main')">
+                Unsaved changes will be lost if you switch branches.
+              </ng-container>
+            </span>
+          </div>
+        </div>
       </div>
+    </div>
   </div>
 
   <!-- Open Pull Requests -->
-  <div class="card mb-3 shadow-sm" *ngIf="selectedRepo && (pullRequests$ | async) as prs">
+  <div class="card mb-3 shadow-sm" *ngIf="selectedRepo">
       <div class="card-header bg-white">
           <h5 class="mb-0 text-secondary"><i class="fas fa-code-branch"></i> Open Pull Requests</h5>
       </div>
       <div class="card-body p-0">
-          <div *ngIf="prs.length === 0" class="p-3 text-muted">No open pull requests.</div>
-          <ul class="list-group list-group-flush" *ngIf="prs.length > 0">
-              <li class="list-group-item d-flex justify-content-between align-items-center" *ngFor="let pr of prs">
-                  <div>
-                      <a [href]="pr.html_url" target="_blank" rel="noopener noreferrer" class="font-weight-bold">{{ pr.title }}</a>
-                      <div class="small text-muted">
-                          #{{ pr.number }} opened by {{ pr.user.login }}
+          <div *ngIf="loadingPRs" class="p-3 text-center text-muted">
+              <i class="fas fa-spinner fa-spin me-2"></i>Loading pull requests...
+          </div>
+          <ng-container *ngIf="!loadingPRs">
+              <div *ngIf="(pullRequests$ | async)?.length === 0" class="p-3 text-muted">No open pull requests.</div>
+              <ul class="list-group list-group-flush" *ngIf="(pullRequests$ | async) as prs">
+                  <li class="list-group-item d-flex justify-content-between align-items-center" *ngFor="let pr of prs">
+                      <div>
+                          <a [href]="pr.html_url" target="_blank" rel="noopener noreferrer" class="fw-bold">{{ pr.title }}</a>
+                          <div class="small text-muted">
+                              #{{ pr.number }} opened by {{ pr.user.login }}
+                          </div>
                       </div>
-                  </div>
-                  <a [href]="pr.html_url" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-outline-secondary"><i class="fas fa-external-link-alt"></i></a>
-              </li>
-          </ul>
+                      <a [href]="pr.html_url" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-outline-secondary"><i class="fas fa-external-link-alt"></i></a>
+                  </li>
+              </ul>
+          </ng-container>
       </div>
   </div>
 

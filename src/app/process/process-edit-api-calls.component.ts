@@ -13,7 +13,7 @@ import {ApiCallService} from '../services/api-call.service';
 @Component({templateUrl: './process-edit-api-calls.component.html'})
 export class ProcessEditApiCallsComponent implements OnInit {
 
-  private processId: string;
+  processId: string;
   process: Process;
 
   search?: string;

@@ -1,0 +1,107 @@
+.tree-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 0.25rem; // Add spacing between rows for floating effect
+
+  th {
+    border-top: none;
+    border-bottom: 1px solid $slate-200;
+    color: $slate-500;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    padding: 0.25rem;
+    letter-spacing: 0.05em;
+  }
+
+  td {
+    border: none;
+    vertical-align: middle;
+    padding: 0.25rem;
+    background-color: $white;
+    border-bottom: 1px solid $slate-100;
+
+    &:first-child {
+      border-top-left-radius: $border-radius-sm;
+      border-bottom-left-radius: $border-radius-sm;
+    }
+
+    &:last-child {
+      border-top-right-radius: $border-radius-sm;
+      border-bottom-right-radius: $border-radius-sm;
+    }
+  }
+}
+
+.tree-row {
+  transition: all 0.2s ease;
+  cursor: pointer;
+  height: 48px;
+
+  &:hover {
+    td {
+      background-color: $slate-50;
+      color: $primary;
+    }
+  }
+
+  // Indentation Logic
+  // --depth should be passed via [style.--depth]="level"
+  .tree-indent-cell {
+    vertical-align: middle;
+    // Base padding + (depth * multiplier)
+    padding-left: calc(var(--depth, 0) * 1.5rem + 0.5rem) !important;
+
+    .tree-indent-wrapper {
+      display: flex;
+      align-items: center;
+    }
+
+    .toggle-icon {
+      width: 24px;
+      height: 24px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 4px;
+      margin-right: 0.5rem;
+      color: $slate-400;
+      transition: all 0.2s;
+
+      &:hover {
+        background-color: rgba($primary, 0.1);
+        color: $primary;
+      }
+    }
+  }
+}
+
+// Status Badges
+.badge-modern {
+  padding: 0.35em 0.65em;
+  font-size: 0.75em;
+  font-weight: 700;
+  line-height: 1;
+  text-align: center;
+  white-space: nowrap;
+  vertical-align: baseline;
+  border-radius: 9999px;
+
+  &.badge-draft {
+    background-color: rgba($warning, 0.1);
+    color: darken($warning, 10%);
+    border: 1px solid rgba($warning, 0.2);
+  }
+
+  &.badge-validated {
+    background-color: rgba($success, 0.1);
+    color: darken($success, 10%);
+    border: 1px solid rgba($success, 0.2);
+  }
+
+  &.badge-review {
+    background-color: rgba($info, 0.1);
+    color: darken($info, 10%);
+    border: 1px solid rgba($info, 0.2);
+  }
+}

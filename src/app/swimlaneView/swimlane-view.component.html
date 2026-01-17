@@ -12,9 +12,9 @@
   </div>
 
   <div class="side-panel shadow-lg" [class.open]="selectedItem">
-    <div class="side-panel-header d-flex justify-content-between align-items-center bg-gray-800 text-white p-3">
+    <div class="side-panel-header d-flex justify-content-between align-items-center bg-gray-800  p-3">
       <h5 class="mb-0">{{selectedItem?.title || 'Properties'}}</h5>
-      <button type="button" class="btn btn-sm btn-link text-white" (click)="selectedItem = null">
+      <button type="button" class="btn btn-sm btn-link " (click)="selectedItem = null">
         <i class="fas fa-times"></i>
       </button>
     </div>

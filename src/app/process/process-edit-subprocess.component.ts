@@ -29,7 +29,7 @@ export class ProcessEditSubprocessComponent implements OnInit, OnDestroy {
   subProcessForm: FormGroup;
   apiCallForm: FormGroup;
   process: Process;
-  private processId: string;
+  processId: string;
   subProcesses: ProcessWithStep[];
   availableSubProcesses: Process[];
   availableApiCalls: ApiCall[];

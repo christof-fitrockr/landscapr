@@ -5,7 +5,6 @@ import {FileSaverService} from 'ngx-filesaver';
 import {first} from 'rxjs/operators';
 import {EMPTY, Observable} from 'rxjs';
 import {Upload} from './helpers/upload';
-import {ThemeService} from './services/theme.service';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { GithubActionsDialogComponent } from './components/github-actions-dialog.component';
 import { SyncStatusService, SyncStatus } from './services/sync-status.service';
@@ -26,7 +25,7 @@ export class AppComponent implements OnInit {
   status$: Observable<SyncStatus> = EMPTY;
 
   constructor(private authenticationService: AuthenticationService,
-              private repoService: RepoService, private fileSaverService: FileSaverService, public themeService: ThemeService,
+              private repoService: RepoService, private fileSaverService: FileSaverService,
               private modalService: BsModalService,
               public syncStatusService: SyncStatusService,
               public fileSystemService: FileSystemService,
