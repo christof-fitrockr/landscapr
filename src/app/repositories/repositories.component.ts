@@ -11,6 +11,7 @@ import { AuthenticationService } from '../services/authentication.service';
 import { MergeResolverComponent } from '../components/merge-resolver.component';
 import { CommitOptionsDialogComponent } from '../components/commit-options-dialog.component';
 import { PrDialogComponent } from '../components/pr-dialog.component';
+import { ConfirmationDialogComponent } from '../components/confirmation-dialog.component';
 
 @Component({
   selector: 'app-repositories',
@@ -218,10 +219,37 @@ export class RepositoriesComponent implements OnInit {
                   this.githubService.createPullRequest(repoOwner, this.selectedRepo.name, res.title, res.body, this.currentBranch, this.selectedRepo.default_branch)
                     .subscribe(() => {
                         this.toastr.success('Pull Request Created');
+
+                        // Offer to create a new branch immediately
+                        const confirmRef = this.modalService.show(ConfirmationDialogComponent, {
+                            initialState: {
+                                title: 'New Branch?',
+                                message: 'Pull Request created successfully. Would you like to create a new branch for your next task?',
+                                btnYesText: 'Yes, Create Branch',
+                                btnNoText: 'No, Stay Here'
+                            }
+                        });
+                        const confirmContent: any = confirmRef.content;
+                        if (confirmContent && confirmContent.onClose) {
+                            confirmContent.onClose.pipe(first()).subscribe((result: boolean) => {
+                                if (result) {
+                                    this.createNewBranch();
+                                }
+                            });
+                        }
                     }, err => this.toastr.error('Failed to create PR'));
               }
           });
       }
+  }
+
+  switchToMain(): void {
+    if (this.selectedRepo) {
+      const defaultBranch = this.selectedRepo.default_branch || 'main';
+      if (this.currentBranch !== defaultBranch) {
+        this.switchBranch(defaultBranch);
+      }
+    }
   }
 
   saveToGithub(): void {

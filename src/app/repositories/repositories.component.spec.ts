@@ -105,4 +105,46 @@ describe('RepositoriesComponent', () => {
     // This expectation is what we want to be true, but currently it will fail
     expect(githubServiceSpy.getFileContent).toHaveBeenCalledWith('other-owner', 'my-repo', 'path/to/file.json', 'main');
   });
+
+  it('should switch to main branch when switchToMain is called', () => {
+    component.selectedRepo = { name: 'repo', default_branch: 'master', owner: { login: 'owner' } };
+    component.currentBranch = 'feature';
+    spyOn(component, 'switchBranch'); // spy on the method to verify call
+
+    component.switchToMain();
+
+    expect(component.switchBranch).toHaveBeenCalledWith('master');
+  });
+
+  it('should not switch if already on default branch', () => {
+    component.selectedRepo = { name: 'repo', default_branch: 'master', owner: { login: 'owner' } };
+    component.currentBranch = 'master';
+    spyOn(component, 'switchBranch');
+
+    component.switchToMain();
+
+    expect(component.switchBranch).not.toHaveBeenCalled();
+  });
+
+  it('should prompt for new branch after creating PR', () => {
+    component.selectedRepo = { name: 'repo', default_branch: 'main', owner: { login: 'owner' } };
+    component.currentBranch = 'feature';
+
+    // Mock PrDialog
+    const prModalRef = { content: { onClose: of({ title: 't', body: 'b' }) } };
+    // Mock ConfirmationDialog
+    const confirmModalRef = { content: { onClose: of(true) } };
+
+    // We need modalService.show to return different things based on calls
+    modalServiceSpy.show.and.returnValues(prModalRef as any, confirmModalRef as any);
+
+    githubServiceSpy.createPullRequest.and.returnValue(of({}));
+    spyOn(component, 'createNewBranch');
+
+    component.createPr();
+
+    expect(githubServiceSpy.createPullRequest).toHaveBeenCalled();
+    expect(modalServiceSpy.show).toHaveBeenCalledTimes(2); // PrDialog + Confirmation
+    expect(component.createNewBranch).toHaveBeenCalled();
+  });
 });
