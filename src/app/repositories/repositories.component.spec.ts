@@ -22,7 +22,7 @@ describe('RepositoriesComponent', () => {
   let authServiceSpy: jasmine.SpyObj<AuthenticationService>;
 
   beforeEach(async () => {
-    githubServiceSpy = jasmine.createSpyObj('GithubService', ['getUser', 'getRepos', 'getRepoContents', 'getFileContent', 'createOrUpdateFile', 'setPersonalAccessToken', 'getPersonalAccessToken', 'getRef', 'createBranch', 'createPullRequest', 'getBranches']);
+    githubServiceSpy = jasmine.createSpyObj('GithubService', ['getUser', 'getRepos', 'getRepoContents', 'getFileContent', 'createOrUpdateFile', 'setPersonalAccessToken', 'getPersonalAccessToken', 'getRef', 'createBranch', 'createPullRequest', 'getBranches', 'getPullRequests']);
     repoServiceSpy = jasmine.createSpyObj('RepoService', ['getCurrentData', 'applyData', 'uploadJsonContent', 'downloadAsJson', 'uploadJson']);
     toastrServiceSpy = jasmine.createSpyObj('ToastrService', ['success', 'error', 'info', 'warning']);
     fileSaverServiceSpy = jasmine.createSpyObj('FileSaverService', ['save']);
@@ -59,11 +59,12 @@ describe('RepositoriesComponent', () => {
   it('should use repo owner instead of current user when selecting repo', () => {
     const repo = { name: 'my-repo', owner: { login: 'other-owner' } };
     githubServiceSpy.getRepoContents.and.returnValue(of([]));
+    githubServiceSpy.getPullRequests.and.returnValue(of([]));
 
     component.selectRepo(repo);
 
-    // This expectation is what we want to be true, but currently it will fail
     expect(githubServiceSpy.getRepoContents).toHaveBeenCalledWith('other-owner', 'my-repo', '');
+    expect(githubServiceSpy.getPullRequests).toHaveBeenCalledWith('other-owner', 'my-repo');
   });
 
   it('should use repo owner when loading file from github', () => {

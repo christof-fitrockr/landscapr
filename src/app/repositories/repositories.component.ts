@@ -24,10 +24,11 @@ export class RepositoriesComponent implements OnInit {
   private static readonly STORAGE_PREFIX_BRANCH = 'repositories.currentBranch.';
 
   pat: string = '';
-  owner: string = ''; // Authenticated user
+  connectedUser: string = ''; // Authenticated user
 
   repos$: Observable<any[]> = EMPTY;
   files$: Observable<any[]> = EMPTY;
+  pullRequests$: Observable<any[]> = EMPTY;
   branches: any[] = [];
 
   selectedRepo: any = null;
@@ -62,7 +63,7 @@ export class RepositoriesComponent implements OnInit {
     this.connecting = true;
     this.githubService.setPersonalAccessToken(this.pat);
     this.githubService.getUser().pipe(first()).subscribe(user => {
-      this.owner = user.login;
+      this.connectedUser = user.login;
       this.authService.updateUserFromGithub(user);
       this.repos$ = this.githubService.getRepos();
 
@@ -98,6 +99,7 @@ export class RepositoriesComponent implements OnInit {
 
     this.loadingFiles = true;
     this.files$ = this.githubService.getRepoContents(repo.owner.login, repo.name, '');
+    this.pullRequests$ = this.githubService.getPullRequests(repo.owner.login, repo.name);
 
     this.githubService.getBranches(repo.owner.login, repo.name).subscribe(branches => {
       this.branches = branches;
