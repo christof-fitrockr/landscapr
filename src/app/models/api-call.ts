@@ -19,7 +19,7 @@ export class ApiCall {
   output: string;
 
   tags: string[];
-  implementationType: ApiImplementationType
+  apiType: ApiType
   status: DataStatus;
 }
 
@@ -30,10 +30,11 @@ export enum DataStatus {
 }
 
 
-export enum ApiImplementationType {
-  Internal,
-  External,
-  Mixed
+export enum ApiType {
+  System = 0,
+  Business = 1,
+  ThirdParty = 2,
+  Analytics = 3
 }
 
 export enum ApiImplementationStatus {

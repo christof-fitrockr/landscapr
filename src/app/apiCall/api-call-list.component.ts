@@ -1,7 +1,7 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {first} from 'rxjs/operators';
 import {ApiCallService} from '../services/api-call.service';
-import {ApiCall} from '../models/api-call';
+import {ApiCall, ApiType} from '../models/api-call';
 import {Subscription, forkJoin} from 'rxjs';
 import {ActivatedRoute} from '@angular/router';
 import {ProcessService} from '../services/process.service';
@@ -22,6 +22,8 @@ export class ApiCallListComponent implements OnInit, OnDestroy {
   showOrphansOnly: boolean = false;
   orphanIds: string[] = [];
   apiCallToDelete: ApiCall;
+  filterType: ApiType = null;
+  ApiType = ApiType;
   private subscription: Subscription;
 
   ngOnInit() {

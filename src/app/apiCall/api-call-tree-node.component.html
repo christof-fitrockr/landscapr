@@ -1,51 +1,80 @@
-<div class="api-group-node" *ngIf="shouldShowGroup()">
+<ng-container *ngIf="shouldShowGroup()">
   <!-- Group Row -->
-  <div class="d-flex align-items-center py-2 hover-bg-light border-bottom pointer" (click)="toggleExpand()">
-    <div style="width: 25px" class="text-center">
-      <i class="fas fa-sm" [class.fa-chevron-down]="isExpanded" [class.fa-chevron-right]="!isExpanded"></i>
-    </div>
-    <div class="flex-grow-1 font-weight-bold">
-      {{ group.name }} <span class="badge badge-light ml-2">{{ group.items.length }}</span>
-    </div>
-  </div>
+  <tr class="api-group-node hover-bg-light border-bottom pointer" (click)="toggleExpand()">
+    <td colspan="8" class="py-2">
+      <div class="d-flex align-items-center">
+        <div style="width: 25px" class="text-center">
+          <i class="fas fa-sm" [class.fa-chevron-down]="isExpanded" [class.fa-chevron-right]="!isExpanded"></i>
+        </div>
+        <div class="flex-grow-1 font-weight-bold">
+          {{ group.name }} <span class="badge badge-light ml-2">{{ group.items.length }}</span>
+        </div>
+      </div>
+    </td>
+  </tr>
 
   <!-- Items -->
-  <div *ngIf="isExpanded">
-    <div *ngFor="let apiCall of group.items">
-      <div class="d-flex align-items-center py-1 hover-bg-light border-bottom" *ngIf="shouldShowItem(apiCall)"
-           [class.pointer]="selectMode" (click)="selectMode ? onSelect(apiCall) : null">
-        <div style="width: 25px"></div>
-        <div class="d-flex align-items-center flex-grow-1">
-          <div class="mr-2 text-nowrap" *ngIf="!selectMode">
+  <ng-container *ngIf="isExpanded">
+    <ng-container *ngFor="let apiCall of group.items">
+      <tr class="hover-bg-light border-bottom" *ngIf="shouldShowItem(apiCall)"
+          [class.pointer]="selectMode" (click)="selectMode ? onSelect(apiCall) : null">
+
+        <!-- 1. Spacer -->
+        <td style="width: 25px"></td>
+
+        <!-- 2. Actions or Spacer -->
+        <td style="width: 52px" class="text-nowrap pl-0">
+          <div *ngIf="!selectMode" class="d-flex align-items-center">
             <a class="black mr-2" routerLink="/apiCall/edit/{{apiCall?.id}}"><i class="fas fa-edit"></i></a>
             <a class="black" style="cursor: pointer" (click)="prepareDelete(apiCall)" data-toggle="modal" data-target="#confirmDeleteApiCall"><i class="fas fa-trash" title="Delete API Call"></i></a>
           </div>
-          <div class="flex-grow-1">
-            <span *ngIf="selectMode" class="font-weight-bold">{{apiCall.name}}</span>
-            <a *ngIf="!selectMode" class="black font-weight-bold" routerLink="/apiCall/edit/{{apiCall?.id}}">{{apiCall.name}}</a>
-            <i *ngIf="orphanIds.includes(apiCall.id)" class="ml-2 text-warning fas fa-unlink" title="Orphan: Not referenced by any Process"></i>
-          </div>
-        </div>
-        <div class="text-right text-muted small" style="width: 80px" *ngIf="!selectMode">
-          {{apiCall.usedByCount || 0}}
-        </div>
-        <div class="text-right text-muted small" style="width: 80px" *ngIf="!selectMode">
-          {{apiCall.implementedInCount || 0}}
-        </div>
-        <div class="w-25 small text-muted ml-2">
+        </td>
+
+        <!-- 3. Name -->
+        <td>
+          <span *ngIf="selectMode" class="font-weight-bold">{{apiCall.name}}</span>
+          <a *ngIf="!selectMode" class="black font-weight-bold" routerLink="/apiCall/edit/{{apiCall?.id}}">{{apiCall.name}}</a>
+          <i *ngIf="orphanIds.includes(apiCall.id)" class="ml-2 text-warning fas fa-unlink" title="Orphan: Not referenced by any Process"></i>
+        </td>
+
+        <!-- 4. Type -->
+        <td style="width: 120px" class="small text-muted align-middle">
+          {{ apiCall.apiType | apiType }}
+        </td>
+
+        <!-- 5. Used -->
+        <td class="text-right text-muted small align-middle" style="width: 80px">
+          <ng-container *ngIf="!selectMode">{{apiCall.usedByCount || 0}}</ng-container>
+        </td>
+
+        <!-- 6. Impl -->
+        <td class="text-right text-muted small align-middle" style="width: 80px">
+          <ng-container *ngIf="!selectMode">{{apiCall.implementedInCount || 0}}</ng-container>
+        </td>
+
+        <!-- 7. Tags -->
+        <td style="width: 25%" class="small text-muted align-middle">
           {{apiCall.tags}}
-        </div>
-        <div class="ml-2 text-right" style="width: 30px" *ngIf="!selectMode">
-          <i *ngIf="apiCall?.status === 0" class="text-warning fas fa-exclamation-triangle" title="Draft"></i>
-          <i *ngIf="apiCall?.status === 1" class="text-success fas fa-check-circle" title="Validated"></i>
-        </div>
-        <div class="ml-2 text-right" style="width: 30px" *ngIf="selectMode">
-          <i class="fas fa-plus text-primary"></i>
-        </div>
-      </div>
-      <div class="description-text small text-muted pl-4 py-1 border-bottom" *ngIf="apiCall.description">
-        {{apiCall.description}}
-      </div>
-    </div>
-  </div>
-</div>
+        </td>
+
+        <!-- 8. Status -->
+        <td style="width: 30px" class="text-right align-middle">
+          <div *ngIf="!selectMode">
+            <i *ngIf="apiCall?.status === 0" class="text-warning fas fa-exclamation-triangle" title="Draft"></i>
+            <i *ngIf="apiCall?.status === 1" class="text-success fas fa-check-circle" title="Validated"></i>
+          </div>
+          <div *ngIf="selectMode">
+            <i class="fas fa-plus text-primary"></i>
+          </div>
+        </td>
+      </tr>
+
+      <!-- Description Row (if present) -->
+      <tr *ngIf="shouldShowItem(apiCall) && apiCall.description">
+        <td colspan="8" class="small text-muted pl-5 py-1 border-bottom bg-light">
+          {{apiCall.description}}
+        </td>
+      </tr>
+    </ng-container>
+  </ng-container>
+</ng-container>
