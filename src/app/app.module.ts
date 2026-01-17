@@ -70,6 +70,7 @@ import { PrDialogComponent } from './components/pr-dialog.component';
 import { GithubActionsDialogComponent } from './components/github-actions-dialog.component';
 import { MergeResolverComponent } from './components/merge-resolver.component';
 import { DeleteConfirmationDialogComponent } from './components/delete-confirmation-dialog.component';
+import { ConfirmationDialogComponent } from './components/confirmation-dialog.component';
 import {CapabilitySelectorDialogComponent} from './components/capability-selector-dialog/capability-selector-dialog.component';
 
 import { ThemeService } from './services/theme.service';
@@ -107,6 +108,7 @@ import { MarkdownModule } from 'ngx-markdown';
     PrDialogComponent,
     GithubActionsDialogComponent,
     DeleteConfirmationDialogComponent,
+    ConfirmationDialogComponent,
     CapabilitySelectorDialogComponent,
     RepositoriesComponent,
     FileTypePipe,
