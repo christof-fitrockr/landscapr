@@ -1,4 +1,4 @@
-import { Component, ElementRef, HostListener, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, HostListener, OnInit, ViewChild, Input, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import {Process, Status, getRoleColor} from '../../models/process';
 import { ProcessService } from '../../services/process.service';
@@ -60,10 +60,13 @@ export interface Edge {
   templateUrl: './journey-editor.component.html',
   styleUrls: ['./journey-editor.component.scss']
 })
-export class JourneyEditorComponent implements OnInit {
+export class JourneyEditorComponent implements OnInit, OnChanges {
+  @Input() journeyId: string | null = null;
+  @Input() isHeadless: boolean = false;
+  @Output() drawn = new EventEmitter<void>();
+
   @ViewChild('svgEl', { static: true }) svgEl: ElementRef<SVGSVGElement>;
 
-  journeyId: string | null = null;
   journey: Journey | null = null;
   journeyName: string | null = null;
 
@@ -164,32 +167,49 @@ export class JourneyEditorComponent implements OnInit {
     private modalService: BsModalService
   ) {}
 
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['journeyId'] && this.journeyId) {
+      this.refresh();
+    }
+  }
+
   ngOnInit(): void {
     this.processService.all().subscribe(list => {
       this.processes = list || [];
     });
 
-    this.route.paramMap.subscribe(params => {
-      let id = params.get('id');
-      if (!id) {
-        id = this.route.parent?.snapshot.paramMap.get('id') || null;
-      }
-      this.journeyId = id;
-      if (id) {
-        this.journeyService.byId(id).subscribe(j => {
-          this.journey = j;
-          this.journeyName = j?.name || null;
-          if (j?.layout) {
-            this.applyLayout(j.layout);
-          } else {
-            // reset to defaults for new/empty journeys
-            this.nodes = [];
-            this.edges = [];
-            this.panX = 0; this.panY = 0; this.zoom = 1;
-          }
-        });
-      }
-    });
+    if (this.journeyId) {
+      this.refresh();
+    } else {
+      this.route.paramMap.subscribe(params => {
+        let id = params.get('id');
+        if (!id) {
+          id = this.route.parent?.snapshot.paramMap.get('id') || null;
+        }
+        this.journeyId = id;
+        if (id) {
+          this.refresh();
+        }
+      });
+    }
+  }
+
+  private refresh() {
+    if (this.journeyId) {
+      this.journeyService.byId(this.journeyId).subscribe(j => {
+        this.journey = j;
+        this.journeyName = j?.name || null;
+        if (j?.layout) {
+          this.applyLayout(j.layout);
+        } else {
+          // reset to defaults for new/empty journeys
+          this.nodes = [];
+          this.edges = [];
+          this.panX = 0; this.panY = 0; this.zoom = 1;
+        }
+        setTimeout(() => this.drawn.emit(), 100);
+      });
+    }
   }
 
   private applyLayout(layout: JourneyLayout) {
@@ -980,8 +1000,11 @@ export class JourneyEditorComponent implements OnInit {
     this.journeyService.update(this.journey.id, this.journey).subscribe();
   }
 
-  async exportToPpt() {
-    if (this.nodes.length === 0) return;
+  async exportToPpt(callback?: (data: any) => void) {
+    if (this.nodes.length === 0) {
+      if (callback) callback({ image: null, boxes: [] });
+      return;
+    }
 
     // 1. Calculate bounding box of all nodes to capture everything
     let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
@@ -1074,6 +1097,11 @@ export class JourneyEditorComponent implements OnInit {
           w: n.width,
           h: n.height
         }));
+
+        if (callback) {
+          callback({ image: pngData, boxes: boxes });
+          return;
+        }
 
         const initialState = {
           currentJourney: {

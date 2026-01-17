@@ -126,6 +126,7 @@
 <!-- Hidden renderer for headless image generation -->
 <div style="position: absolute; left: -10000px; top: -10000px; width: 2000px; height: 2000px; overflow: hidden; visibility: hidden;">
   <app-swimlane-view #renderer [processId]="renderingProcessId" (drawn)="onDrawn()"></app-swimlane-view>
+  <app-journey-editor #journeyRenderer [journeyId]="renderingJourneyId" [isHeadless]="true" (drawn)="onJourneyDrawn()"></app-journey-editor>
 </div>
 
 <div class="modal-footer bg-light">

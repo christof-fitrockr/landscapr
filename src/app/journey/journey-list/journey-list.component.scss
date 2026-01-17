@@ -1,4 +1,32 @@
+@use "src/styles/abstracts/variables" as vars;
+
 :host {
     display: block;
     min-height: 100%;
+}
+
+.text-slate-400 { color: vars.$slate-400; }
+.text-slate-500 { color: vars.$slate-500; }
+.text-slate-600 { color: vars.$slate-600; }
+.text-slate-700 { color: vars.$slate-700; }
+.text-slate-800 { color: vars.$slate-800; }
+.text-slate-900 { color: vars.$slate-900; }
+
+.fw-bold {
+  font-weight: 700 !important;
+}
+
+.journey-card {
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+  border: none;
+
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+  }
+}
+
+.badge-success-light {
+  background-color: #d1fae5;
+  color: #065f46;
 }

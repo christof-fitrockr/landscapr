@@ -13,6 +13,7 @@ import { Capability } from '../models/capability';
 import { Application } from '../models/application';
 import { forkJoin } from 'rxjs';
 import { SwimlaneViewComponent } from '../swimlaneView/swimlane-view.component';
+import { JourneyEditorComponent } from '../journey/journey-editor/journey-editor.component';
 
 @Component({
   selector: 'app-export-modal',
@@ -21,13 +22,16 @@ import { SwimlaneViewComponent } from '../swimlaneView/swimlane-view.component';
 })
 export class ExportModalComponent implements OnInit {
   @ViewChild('renderer') renderer: SwimlaneViewComponent;
+  @ViewChild('journeyRenderer') journeyRenderer: JourneyEditorComponent;
 
   // Input from caller
   currentJourney: {entity: Journey, image?: string, boxes?: any[]};
   currentProcess: {entity: Process, image?: string, boxes?: any[]};
 
   renderingProcessId: string | null = null;
+  renderingJourneyId: string | null = null;
   private renderResolve: ((data: {image: string, boxes: any[]}) => void) | null = null;
+  private journeyRenderResolve: ((data: {image: string, boxes: any[]}) => void) | null = null;
 
   journeys: {selected: boolean, entity: Journey}[] = [];
   processes: {selected: boolean, entity: Process}[] = [];
@@ -74,12 +78,18 @@ export class ExportModalComponent implements OnInit {
   async export() {
     this.exporting = true;
 
-    const selectedJourneys = this.journeys.filter(j => j.selected).map(j => {
+    const selectedJourneysData: {entity: Journey, image?: string, boxes?: any[]}[] = [];
+    const selectedJourneys = this.journeys.filter(j => j.selected);
+
+    for (const j of selectedJourneys) {
         if (this.currentJourney && j.entity.id === this.currentJourney.entity.id) {
-            return this.currentJourney;
+            selectedJourneysData.push(this.currentJourney);
+        } else {
+            const data = await this.renderJourney(j.entity.id);
+            selectedJourneysData.push({ entity: j.entity, image: data.image, boxes: data.boxes });
+            this.renderingJourneyId = null;
         }
-        return { entity: j.entity };
-    });
+    }
 
     const selectedProcessesData: {entity: Process, image?: string, boxes?: any[]}[] = [];
     const selectedProcesses = this.processes.filter(p => p.selected);
@@ -95,7 +105,7 @@ export class ExportModalComponent implements OnInit {
     }
 
     await this.pptExportService.generatePpt({
-      journeys: selectedJourneys,
+      journeys: selectedJourneysData,
       processes: selectedProcessesData,
       apis: this.apis.filter(a => a.selected).map(a => a.entity),
       capabilities: this.capabilities.filter(c => c.selected).map(c => c.entity),
@@ -115,6 +125,15 @@ export class ExportModalComponent implements OnInit {
     });
   }
 
+  private renderJourney(journeyId: string): Promise<{image: string, boxes: any[]}> {
+    return new Promise((resolve) => {
+      this.renderingJourneyId = journeyId;
+      this.journeyRenderResolve = (data) => {
+        resolve(data);
+      };
+    });
+  }
+
   onDrawn() {
     if (this.renderResolve) {
       const resolve = this.renderResolve;
@@ -123,6 +142,19 @@ export class ExportModalComponent implements OnInit {
         const data = this.renderer.getCanvasImage();
         resolve(data);
       }, 100); // Small delay to ensure canvas is ready
+    }
+  }
+
+  onJourneyDrawn() {
+    if (this.journeyRenderResolve) {
+      const resolve = this.journeyRenderResolve;
+      this.journeyRenderResolve = null;
+      // Journey editor uses SVG capturing, we need a method to call
+      setTimeout(() => {
+        this.journeyRenderer.exportToPpt((data: any) => {
+            resolve(data);
+        });
+      }, 200);
     }
   }
 

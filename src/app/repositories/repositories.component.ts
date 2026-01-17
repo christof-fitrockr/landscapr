@@ -1,8 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { GithubService } from '../services/github.service';
 import { RepoService } from '../services/repo.service';
 import { ToastrService } from 'ngx-toastr';
-import { Observable, EMPTY, of } from 'rxjs';
+import { Observable, EMPTY, of, Subscription } from 'rxjs';
 import { first, switchMap, catchError } from 'rxjs/operators';
 import { FileSaverService } from 'ngx-filesaver';
 import { BsModalService } from 'ngx-bootstrap/modal';
@@ -10,13 +10,14 @@ import { AuthenticationService } from '../services/authentication.service';
 import { CommitMessageDialogComponent } from '../components/commit-message-dialog.component';
 import { PrDialogComponent } from '../components/pr-dialog.component';
 import { ConfirmationDialogComponent } from '../components/confirmation-dialog.component';
+import { ExportModalComponent } from '../components/export-modal.component';
 
 @Component({
   selector: 'app-repositories',
   templateUrl: './repositories.component.html',
   styleUrls: ['./repositories.component.scss']
 })
-export class RepositoriesComponent implements OnInit {
+export class RepositoriesComponent implements OnInit, OnDestroy {
 
   private static readonly STORAGE_SELECTED_REPO = 'repositories.selectedRepo';
   private static readonly STORAGE_SELECTED_REPO_OWNER = 'repositories.selectedRepoOwner';
@@ -43,6 +44,9 @@ export class RepositoriesComponent implements OnInit {
   submitting = false;
   startingEditMode = false;
 
+  stats: { journeys: number, processes: number, apis: number, capabilities: number, systems: number } | null = null;
+  private dataSubscription: Subscription;
+
   constructor(
     private githubService: GithubService,
     private repoService: RepoService,
@@ -58,6 +62,32 @@ export class RepositoriesComponent implements OnInit {
       this.pat = savedPat;
       this.connect();
     }
+
+    this.dataSubscription = this.repoService.dataChanges.subscribe(() => {
+      this.updateStats();
+    });
+    this.updateStats();
+  }
+
+  ngOnDestroy(): void {
+    if (this.dataSubscription) {
+      this.dataSubscription.unsubscribe();
+    }
+  }
+
+  updateStats(): void {
+    if (!this.repoService.dataAvailable()) {
+      this.stats = null;
+      return;
+    }
+    const data = this.repoService.getCurrentData();
+    this.stats = {
+      journeys: data.journeys?.length || 0,
+      processes: data.processes?.length || 0,
+      apis: data.apiCalls?.length || 0,
+      capabilities: data.capabilities?.length || 0,
+      systems: data.applications?.length || 0
+    };
   }
 
   connect(): void {
@@ -366,5 +396,9 @@ export class RepositoriesComponent implements OnInit {
     this.repoService.uploadJson(file).pipe(first()).subscribe(() => {
       this.toastr.success('Upload completed');
     }, _ => this.toastr.error('Upload failed'));
+  }
+
+  exportToPpt(): void {
+    this.modalService.show(ExportModalComponent, { class: 'modal-lg' });
   }
 }

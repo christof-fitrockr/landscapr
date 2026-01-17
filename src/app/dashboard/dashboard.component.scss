@@ -1,4 +1,17 @@
+@use "src/styles/abstracts/variables" as vars;
+
 :host {
     display: block;
     min-height: 100%;
+}
+
+.text-slate-400 { color: vars.$slate-400; }
+.text-slate-500 { color: vars.$slate-500; }
+.text-slate-600 { color: vars.$slate-600; }
+.text-slate-700 { color: vars.$slate-700; }
+.text-slate-800 { color: vars.$slate-800; }
+.text-slate-900 { color: vars.$slate-900; }
+
+.fw-bold {
+  font-weight: 700 !important;
 }

@@ -3,7 +3,7 @@
   <div class="card mb-3">
     <div class="card-header d-flex justify-content-between align-items-center" (click)="isRepoCollapsed = !isRepoCollapsed" style="cursor: pointer">
       <span>
-        <i class="fas" [ngClass]="isRepoCollapsed ? 'fa-chevron-right' : 'fa-chevron-down'"></i>
+        <i class="fas mr-2" [ngClass]="isRepoCollapsed ? 'fa-chevron-right' : 'fa-chevron-down'"></i>
         Repository: <strong>{{ selectedRepo ? selectedRepo.name : 'None' }}</strong>
       </span>
       <span *ngIf="connectedUser" class="text-muted small">Connected as {{connectedUser}}</span>
@@ -58,11 +58,71 @@
     </div>
   </div>
 
+
+  <!-- Statistics Card -->
+  <div class="card mb-4 shadow-sm" *ngIf="selectedRepo && selectedFilePath && stats">
+    <div class="card-header bg-white py-3">
+      <h5 class="mb-0 fw-bold text-slate-900">
+        <i class="fas fa-chart-pie mr-2"></i> Repository Statistics
+      </h5>
+    </div>
+    <div class="card-body bg-light py-3 border-top">
+      <div class="row">
+        <div class="col-md-2 col-sm-4 col-6 mb-2">
+          <div class="card h-100 border-0 shadow-sm">
+            <div class="card-body text-center p-2">
+              <i class="fas fa-map-signs text-primary mb-1"></i>
+              <h4 class="fw-bold mb-0 text-slate-900">{{ stats.journeys }}</h4>
+              <div class="text-muted small text-uppercase fw-bold" style="font-size: 0.65rem;">Journeys</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-2 col-sm-4 col-6 mb-2">
+          <div class="card h-100 border-0 shadow-sm">
+            <div class="card-body text-center p-2">
+              <i class="fas fa-project-diagram text-info mb-1"></i>
+              <h4 class="fw-bold mb-0 text-slate-900">{{ stats.processes }}</h4>
+              <div class="text-muted small text-uppercase fw-bold" style="font-size: 0.65rem;">Processes</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3 col-sm-6 col-6 mb-2">
+          <div class="card h-100 border-0 shadow-sm">
+            <div class="card-body text-center p-2">
+              <i class="fas fa-plug text-warning mb-1"></i>
+              <h4 class="fw-bold mb-0 text-slate-900">{{ stats.apis }}</h4>
+              <div class="text-muted small text-uppercase fw-bold" style="font-size: 0.65rem;">APIs</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3 col-sm-6 col-6 mb-2">
+          <div class="card h-100 border-0 shadow-sm">
+            <div class="card-body text-center p-2">
+              <i class="fas fa-briefcase text-secondary mb-1"></i>
+              <h4 class="fw-bold mb-0 text-slate-900">{{ stats.capabilities }}</h4>
+              <div class="text-muted small text-uppercase fw-bold" style="font-size: 0.65rem;">Capabilities</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-2 col-sm-12 col-12 mb-2">
+          <div class="card h-100 border-0 shadow-sm">
+            <div class="card-body text-center p-2">
+              <i class="fas fa-server text-danger mb-1"></i>
+              <h4 class="fw-bold mb-0 text-slate-900">{{ stats.systems }}</h4>
+              <div class="text-muted small text-uppercase fw-bold" style="font-size: 0.65rem;">Systems</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
   <!-- Workspace Card (Compact Redesign) -->
   <div class="card mb-4 shadow-sm" *ngIf="selectedRepo && selectedFilePath">
     <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
       <h5 class="mb-0 fw-bold text-slate-900">
-        <i class="fas fa-laptop-code text-primary me-2"></i> Workspace
+        <i class="fas fa-laptop-code mr-2"></i> Workspace
       </h5>
 
       <div class="d-flex align-items-center">
@@ -155,7 +215,7 @@
   <!-- Open Pull Requests -->
   <div class="card mb-3 shadow-sm" *ngIf="selectedRepo">
       <div class="card-header bg-white">
-          <h5 class="mb-0 text-secondary"><i class="fas fa-code-branch"></i> Open Pull Requests</h5>
+          <h5 class="mb-0 text-secondary"><i class="fas fa-code-branch mr-2"></i> Open Pull Requests</h5>
       </div>
       <div class="card-body p-0">
           <div *ngIf="loadingPRs" class="p-3 text-center text-muted">
@@ -184,6 +244,9 @@
           <span class="text-muted small">Local Data Operations</span>
           <div>
             <input id="uploadJsonInput" #uploadJsonInput type="file" accept="application/json" class="d-none" (change)="uploadDocument($event.target.files)">
+            <button class="btn btn-sm btn-outline-primary me-2" (click)="exportToPpt()" title="Export all data to PowerPoint">
+              <i class="fas fa-file-powerpoint"></i> Export PPT
+            </button>
             <button class="btn btn-sm btn-outline-secondary me-2" (click)="download()" title="Download current data as JSON">
               <i class="fas fa-file-download"></i> Download Local
             </button>

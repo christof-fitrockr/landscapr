@@ -1,64 +1,88 @@
-<div class="container-xl">
-  <div class="card shadow mb-4">
+<div class="container-xl mt-4">
 
-    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-
-      <div class="btn-toolbar justify-content-lg-start" role="toolbar" aria-label="Toolbar with button groups">
-        <div class="btn-group mr-2" role="group" aria-label="First group">
-          <a type="button" class="btn btn-secondary" title="Create" routerLink="../create"><i class="fas fa-plus"></i></a>
-          <button type="button" class="btn btn-secondary" title="Refresh" (click)="refresh()"><i class="fas fa-sync"></i></button>
-        </div>
-      </div>
-
-      <div class="btn-group justify-content-lg-end" role="group">
-        <h2 class="m-0 font-weight-bold text-uppercase text-gray-400">Journeys</h2>
-      </div>
-
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="btn-group">
+      <button type="button" class="btn btn-outline-secondary shadow-sm" title="Refresh" (click)="refresh()">
+        <i class="fas fa-sync"></i>
+      </button>
+      <button type="button" class="btn btn-outline-secondary shadow-sm" title="Create New Journey" routerLink="../create">
+        <i class="fas fa-plus mr-1"></i>
+      </button>
     </div>
-
-    <div class="card-body">
-
-      <div class="fa-3x text-center p-5" *ngIf="!journeys">
-        <i class="fas fa-spinner fa-pulse"></i>
-      </div>
-
-      <div *ngIf="journeys && journeys?.length > 0" class="form-row align-items-center mb-3">
-        <div class="col-auto flex-grow-1">
-          <input type="text" class="form-control" placeholder="Search.." [(ngModel)]="searchText" [ngModelOptions]="{standalone: true}">
-        </div>
-        <div class="col-auto">
-          <select class="form-control" [(ngModel)]="filterStatus" [ngModelOptions]="{standalone: true}">
-            <option [ngValue]="null">All Statuses</option>
-            <option [ngValue]="0">Draft</option>
-            <option [ngValue]="1">Validated</option>
-          </select>
-        </div>
-      </div>
-
-      <div *ngIf="journeys && journeys?.length === 0" class="small font-italic">No journeys available. Please <a routerLink="../create">create</a> a new one.</div>
-
-      <table class="mt-3 tree-table" *ngIf="journeys && journeys?.length > 0">
-        <thead>
-          <tr>
-            <th scope="col">Actions</th>
-            <th scope="col" class="w-100">Name</th>
-            <th scope="col" class="text-right" style="width: 100px">Comments</th>
-            <th scope="col" style="width: 150px">Tags</th>
-            <th scope="col" class="text-right" style="width: 30px">Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          <app-journey-tree-node
-            *ngFor="let journey of journeys"
-            [journey]="journey"
-            [searchText]="searchText"
-            [filterStatus]="filterStatus"
-            (deleteEmitter)="onDelete($event)"
-            (showDescriptionEmitter)="onShowDescription($event)">
-          </app-journey-tree-node>
-        </tbody>
-      </table>
-    </div>
-
+    <h2 class="m-0 font-weight-bold text-uppercase text-gray-400">Journeys</h2>
   </div>
+
+  <!-- Search and Filter -->
+  <div class="form-row align-items-center mb-3">
+    <div class="col-md-8 mb-2 mb-md-0">
+      <div class="input-group">
+        <div class="input-group-prepend">
+          <span class="input-group-text bg-white border-right-0"><i class="fas fa-search text-muted"></i></span>
+        </div>
+        <input type="text" class="form-control border-left-0" placeholder="Search journeys by name or description..." [(ngModel)]="searchText" [ngModelOptions]="{standalone: true}">
+      </div>
+    </div>
+    <div class="col-md-4">
+      <select class="form-control" [(ngModel)]="filterStatus" [ngModelOptions]="{standalone: true}">
+        <option [ngValue]="null">All Statuses</option>
+        <option [ngValue]="0">Draft</option>
+        <option [ngValue]="1">Validated</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="fa-3x text-center p-5" *ngIf="!journeys">
+    <i class="fas fa-spinner fa-pulse text-primary"></i>
+  </div>
+
+  <div *ngIf="journeys && filteredJourneys.length === 0" class="text-center py-5">
+    <div class="text-muted mb-3"><i class="fas fa-map-signs fa-4x opacity-25"></i></div>
+    <div class="h5 text-muted font-italic">No journeys found.</div>
+    <a *ngIf="journeys.length === 0" routerLink="../create" class="btn btn-primary mt-2">Create your first journey</a>
+  </div>
+
+  <div class="row" *ngIf="journeys && filteredJourneys.length > 0">
+    <div class="col-xl-4 col-md-6 mb-4" *ngFor="let journey of filteredJourneys">
+      <div class="card h-100 shadow-sm journey-card">
+        <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center border-bottom-0">
+          <h3 class="m-0 fw-bold text-slate-900 text-truncate" [title]="journey.name">
+            <i class="fas fa-map-signs mr-2 text-primary"></i>{{journey.name}}
+          </h3>
+          <span *ngIf="journey?.status === 0" class="badge-modern badge-draft">Draft</span>
+          <span *ngIf="journey?.status === 1" class="badge-modern badge-validated">Validated</span>
+        </div>
+        <div class="card-body">
+          <p class="card-text text-muted small mb-3" style="height: 3.2em; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;">
+            {{journey.description || 'No description available.'}}
+          </p>
+
+          <div class="d-flex justify-content-between align-items-center">
+            <div class="small text-muted" title="Comments">
+              <i class="fas fa-comments mr-1"></i> {{journey.comments?.length || 0}}
+            </div>
+            <div class="small text-muted text-truncate ml-2" *ngIf="journey.tags && journey.tags.length > 0">
+               <i class="fas fa-tags mr-1"></i> {{journey.tags}}
+            </div>
+          </div>
+        </div>
+        <div class="card-footer bg-white border-top-0 pt-0 pb-3">
+          <div class="btn-group w-100">
+            <a class="btn btn-outline-secondary btn-sm" [routerLink]="['/journeys/edit', journey.id, 'editor']" title="Open in Editor">
+              <i class="text-primary fas fa-project-diagram mr-1"></i> View
+            </a>
+            <a class="btn btn-outline-secondary btn-sm" [routerLink]="['/journeys/edit', journey.id, 'base']" title="Edit Journey">
+              <i class="fas fa-edit"></i>
+            </a>
+            <button class="btn btn-outline-secondary btn-sm" (click)="onShowDescription(journey)" title="Details">
+              <i class="fas fa-info-circle"></i>
+            </button>
+            <button class="btn btn-outline-secondary btn-sm" (click)="onDelete(journey)" title="Delete">
+              <i class="text-danger fas fa-trash"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
 </div>

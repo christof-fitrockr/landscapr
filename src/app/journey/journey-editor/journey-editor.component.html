@@ -1,7 +1,7 @@
-<div class="container-fluid h-100">
-  <div class="card shadow mb-4 h-100 flex-column-fill">
+<div class="container-fluid h-100" [class.p-0]="isHeadless">
+  <div class="card shadow mb-4 h-100 flex-column-fill" [class.border-0]="isHeadless" [class.shadow-none]="isHeadless">
 
-    <div class="card-header py-3 d-flex flex-column">
+    <div class="card-header py-3 d-flex flex-column" *ngIf="!isHeadless">
       <div class="d-flex flex-row align-items-center justify-content-between w-100">
         <div class="btn-toolbar justify-content-lg-start" role="toolbar" aria-label="Editor tools">
           <app-journey-edit-nav [journeyId]="journeyId"></app-journey-edit-nav>
@@ -32,9 +32,6 @@
             <div class="btn-group ml-2">
               <button class="btn btn-outline-secondary" (click)="showCommentsPanel = !showCommentsPanel" [class.active]="showCommentsPanel" title="Comments">
                 <i class="fas fa-comment-alt"></i>
-              </button>
-              <button class="btn btn-outline-secondary" (click)="exportToPpt()" title="Export to PowerPoint">
-                <i class="fas fa-file-powerpoint"></i>
               </button>
             </div>
           </div>

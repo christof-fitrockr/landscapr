@@ -34,6 +34,19 @@ export class JourneyListComponent implements OnInit {
     });
   }
 
+  get filteredJourneys(): Journey[] {
+    if (!this.journeys) return [];
+    return this.journeys.filter(journey => {
+      const matchesSearch = !this.searchText ||
+        journey.name?.toLowerCase().includes(this.searchText.toLowerCase()) ||
+        journey.description?.toLowerCase().includes(this.searchText.toLowerCase());
+
+      const matchesStatus = this.filterStatus === null || journey.status === this.filterStatus;
+
+      return matchesSearch && matchesStatus;
+    });
+  }
+
   onDelete(journey: Journey): void {
     const modalRef = this.modalService.show(DeleteConfirmationDialogComponent, { class: 'modal-md' });
     modalRef.content.itemName = journey.name;

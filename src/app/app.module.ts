@@ -74,7 +74,6 @@ import {CapabilitySelectorDialogComponent} from './components/capability-selecto
 
 import { ModalModule } from 'ngx-bootstrap/modal';
 import { JourneyListComponent } from './journey/journey-list/journey-list.component';
-import { JourneyTreeNodeComponent } from './journey/journey-list/journey-tree-node.component';
 import { JourneyEditorComponent } from './journey/journey-editor/journey-editor.component';
 import { ProcessQuickViewModalComponent } from './journey/journey-editor/process-quick-view-modal.component';
 import { ProcessDescriptionModalComponent } from './components/process-description-modal.component';
@@ -181,7 +180,6 @@ import { MarkdownModule } from 'ngx-markdown';
     JourneyEditBaseComponent,
     JourneyEditNavComponent,
     JourneyListComponent,
-    JourneyTreeNodeComponent,
     JourneyEditorComponent,
     ProcessQuickViewModalComponent,
     ConditionEditModalComponent,
