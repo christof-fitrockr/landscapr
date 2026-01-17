@@ -1,8 +1,8 @@
 import {Component, OnInit} from '@angular/core';
 import {ProcessService} from '../services/process.service';
 import {Process} from '../models/process';
-import {first} from 'rxjs/operators';
-import {Subscription} from 'rxjs';
+import {first, switchMap, catchError} from 'rxjs/operators';
+import {Subscription, of} from 'rxjs';
 import {ActivatedRoute} from '@angular/router';
 import { BsModalService, BsModalRef } from 'ngx-bootstrap/modal';
 import { GithubDialogComponent } from '../components/github-dialog.component';
@@ -32,6 +32,8 @@ export class DashboardComponent implements OnInit {
 
   processes: Process[];
   journeys: Journey[];
+  commits: any[];
+  selectedRepoName: string;
 
   ngOnInit() {
 
@@ -39,6 +41,24 @@ export class DashboardComponent implements OnInit {
       this.repoId = obs.get('repoId');
       this.refresh()
     });
+
+    this.selectedRepoName = localStorage.getItem('repositories.selectedRepo');
+    if (this.selectedRepoName) {
+      this.githubService.getUser().pipe(
+        switchMap(user => {
+          if (user && user.login) {
+            return this.githubService.getCommits(user.login, this.selectedRepoName);
+          }
+          return of([]);
+        }),
+        catchError(err => {
+          console.error(err);
+          return of([]);
+        })
+      ).subscribe(commits => {
+        this.commits = commits;
+      });
+    }
   }
 
   refresh() {

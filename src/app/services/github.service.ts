@@ -80,6 +80,10 @@ export class GithubService {
     });
   }
 
+  getCommits(owner: string, repo: string): Observable<any[]> {
+    return this.http.get<any[]>(`${this.GITHUB_API_URL}/repos/${owner}/${repo}/commits?per_page=10`, { headers: this.getAuthorizationHeaders() });
+  }
+
   private getAuthorizationHeaders(): HttpHeaders {
     const token = this.getPersonalAccessToken();
     if (token) {
