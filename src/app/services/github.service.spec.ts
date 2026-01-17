@@ -111,4 +111,16 @@ describe('GithubService', () => {
     expect(req.request.method).toBe('GET');
     req.flush(dummyCommits);
   });
+
+  it('should get pull requests', () => {
+    const dummyPRs = [{ id: 1, title: 'PR 1' }];
+    service.getPullRequests('owner', 'repo').subscribe(prs => {
+      expect(prs.length).toBe(1);
+      expect(prs).toEqual(dummyPRs);
+    });
+
+    const req = httpMock.expectOne('https://api.github.com/repos/owner/repo/pulls?state=open');
+    expect(req.request.method).toBe('GET');
+    req.flush(dummyPRs);
+  });
 });

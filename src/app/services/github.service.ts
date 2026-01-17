@@ -46,6 +46,12 @@ export class GithubService {
     });
   }
 
+  getPullRequests(owner: string, repo: string): Observable<any[]> {
+    return this.http.get<any[]>(`${this.GITHUB_API_URL}/repos/${owner}/${repo}/pulls?state=open`, {
+      headers: this.getAuthorizationHeaders()
+    });
+  }
+
   getRef(owner: string, repo: string, ref: string): Observable<any> {
     return this.http.get<any>(`${this.GITHUB_API_URL}/repos/${owner}/${repo}/git/ref/${ref}`, { headers: this.getAuthorizationHeaders() });
   }
