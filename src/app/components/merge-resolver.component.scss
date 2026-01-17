@@ -100,3 +100,26 @@
 .nav-tabs .nav-link.active {
   color: #000 !important;
 }
+
+/* Simple Mode */
+.simple-mode-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 200px;
+}
+
+/* Table View */
+.diff-table-row {
+  border-bottom: 1px solid #eee;
+  padding: 2px 0;
+  font-family: SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace;
+  font-size: 12px;
+}
+.diff-table-row:last-child {
+  border-bottom: none;
+}
+.diff-table-row .diff-key {
+  font-weight: bold;
+}

@@ -32,7 +32,13 @@ export class MergeResolverComponent {
 
   // View options
   highlightedView: boolean = true;
-  showChangedOnly: boolean = false;
+  showChangedOnly: boolean = true;
+  viewMode: 'tree' | 'table' = 'tree';
+
+  // Simple mode state
+  isSimpleMode: boolean = false;
+  totalConflicts: number = 0;
+  totalUpdates: number = 0; // additions or removals or updates without conflict
 
   // Commit message
   commitMessage: string = '';
@@ -46,10 +52,20 @@ export class MergeResolverComponent {
     const repo = this.repoData || {};
     const local = this.localData || {};
     this.diffs = this.mergeService.computeDiffs(repo, local);
+
+    let conflictCount = 0;
+    let updateCount = 0;
+
     // Defaults: same -> either (prefer local), onlyRepo -> repo, onlyLocal -> local, conflict -> local
     (['processes','apiCalls','capabilities','applications','journeys'] as (keyof LandscaprData)[]).forEach(sec => {
       const map: ItemChoicesPerSection = {};
       for (const rec of (this.diffs![sec].items || [])) {
+        if (rec.status === 'conflict') {
+          conflictCount++;
+        } else if (rec.status !== 'same') {
+          updateCount++;
+        }
+
         switch (rec.status) {
           case 'same':
             // no explicit choice needed
@@ -66,6 +82,27 @@ export class MergeResolverComponent {
         }
       }
       (this.choices as any)[sec] = map;
+    });
+
+    this.totalConflicts = conflictCount;
+    this.totalUpdates = updateCount;
+
+    // Default to simple mode if no conflicts exist
+    if (this.totalConflicts === 0) {
+      this.isSimpleMode = true;
+      // In simple mode, we don't need to filter list by default as user likely wants to see nothing or just summary
+      // But if they drill down, let's show all changes
+      this.showConflictsOnly = false;
+    }
+  }
+
+  toggleSimpleMode(): void {
+    this.isSimpleMode = !this.isSimpleMode;
+  }
+
+  resolveAll(side: 'repo' | 'local'): void {
+    (['processes','apiCalls','capabilities','applications','journeys'] as (keyof LandscaprData)[]).forEach(sec => {
+      this.bulk(sec, side);
     });
   }
 
@@ -101,6 +138,33 @@ export class MergeResolverComponent {
         map[rec.key] = side;
       }
     }
+  }
+
+  getFlatChanges(section: keyof LandscaprData, rec: ItemRecord): any[] {
+    const node = this.getDiff(section, rec);
+    if (!node) return [];
+    return this.flattenDiff(node, '');
+  }
+
+  flattenDiff(node: DiffNode, path: string): any[] {
+    const results: any[] = [];
+    const currentPath = path ? (node.key ? (path + '.' + node.key) : path) : (node.key || '');
+
+    if (this.isLeaf(node)) {
+      if (node.type !== 'equal') {
+        results.push({
+          path: currentPath,
+          left: node.left,
+          right: node.right,
+          type: node.type
+        });
+      }
+    } else if (node.children) {
+      for (const child of node.children) {
+        results.push(...this.flattenDiff(child, currentPath));
+      }
+    }
+    return results;
   }
 
   // ----- Diff helpers -----

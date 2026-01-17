@@ -5,145 +5,198 @@
   </button>
 </div>
 <div class="modal-body">
-  <p>
-    Review differences per entity on tabs. Choose for each conflicting item whether to keep Repository or Local.
-  </p>
 
-  <!-- Tabs -->
-  <ul class="nav nav-tabs">
-    <li class="nav-item" *ngFor="let section of ['processes','apiCalls','capabilities','applications','journeys']">
-      <a href="javascript:void(0)" class="nav-link" [class.active]="activeTab === section" (click)="setActiveTab(section)">
-        {{section}}
-        <span class="badge badge-light ml-1" title="conflicts">{{ countByStatus(section, 'conflict') }}</span>
-      </a>
-    </li>
-  </ul>
-
-  <div class="tab-toolbar d-flex align-items-center justify-content-between mt-2">
-    <div class="d-flex align-items-center">
-      <label class="mb-0 mr-3">
-        <input type="checkbox" [(ngModel)]="showConflictsOnly"> Show conflicts only
-      </label>
-      <label class="mb-0 mr-3">
-        <input type="checkbox" [(ngModel)]="highlightedView"> Highlight changes
-      </label>
-      <label class="mb-0" *ngIf="highlightedView">
-        <input type="checkbox" [(ngModel)]="showChangedOnly"> Show changed fields only
-      </label>
+  <!-- Simple Mode -->
+  <div *ngIf="isSimpleMode" class="simple-mode-container text-center py-4">
+    <div class="mb-3">
+      <h5 class="text-success">No conflicts detected</h5>
+      <p class="text-muted">
+        {{ totalUpdates }} items to update.
+      </p>
     </div>
-    <div>
-      <button class="btn btn-sm btn-outline-secondary mr-2" (click)="bulk(activeTab, 'repo')">Choose all Repo</button>
-      <button class="btn btn-sm btn-outline-secondary" (click)="bulk(activeTab, 'local')">Choose all Local</button>
+
+    <!-- Commit Message for Simple Mode -->
+    <div class="form-group text-left mx-5" *ngIf="requireCommitMessage">
+      <label for="commitMessageSimple"><strong>Commit message</strong></label>
+      <textarea id="commitMessageSimple" class="form-control" rows="3" [(ngModel)]="commitMessage" placeholder="Summarize your changes..."></textarea>
+    </div>
+
+    <div class="mt-3">
+       <button class="btn btn-link" (click)="toggleSimpleMode()">Show Details</button>
     </div>
   </div>
 
-  <!-- Items table for active tab -->
-  <div class="table-responsive mt-2">
-    <table class="table table-sm table-striped align-middle">
-      <thead>
-        <tr>
-          <th style="width: 24%">Item</th>
-          <th style="width: 10%">Status</th>
-          <th style="width: 29%">Repository</th>
-          <th style="width: 29%">Local</th>
-          <th style="width: 8%" class="text-center">Pick</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let rec of filteredItems(activeTab)">
-          <td>
-            <div class="item-title d-flex align-items-center justify-content-between">
-              <span>{{ getName(rec.repoItem || rec.localItem) }}</span>
-              <small class="text-muted" *ngIf="highlightedView">
-                <ng-container *ngIf="getDiff(activeTab, rec) as node">
-                  <ng-container *ngIf="countChanges(node) as c">{{c.changed}} changed, {{c.added}} added, {{c.removed}} removed</ng-container>
-                </ng-container>
-              </small>
-            </div>
-            <div class="item-sub" *ngIf="rec.key">#{{ rec.key }}</div>
-          </td>
-          <td>
-            <span class="badge" [ngClass]="{
-              'badge-danger': rec.status==='conflict',
-              'badge-secondary': rec.status==='same',
-              'badge-info': rec.status==='onlyRepo',
-              'badge-warning': rec.status==='onlyLocal'
-            }">{{ rec.status }}</span>
-          </td>
-          <td>
-            <ng-container *ngIf="highlightedView; else rawRepo">
-              <div class="diff-tree" *ngIf="getDiff(activeTab, rec) as node">
-                <ng-container *ngTemplateOutlet="renderNode; context: { $implicit: node, depth: 0, side: 'left' }"></ng-container>
-              </div>
-              <span *ngIf="!rec.repoItem" class="text-muted">—</span>
-            </ng-container>
-            <ng-template #rawRepo>
-              <pre class="json-preview" *ngIf="rec.repoItem">{{ rec.repoItem | json }}</pre>
-              <span *ngIf="!rec.repoItem" class="text-muted">—</span>
-            </ng-template>
-          </td>
-          <td>
-            <ng-container *ngIf="highlightedView; else rawLocal">
-              <div class="diff-tree" *ngIf="getDiff(activeTab, rec) as node">
-                <ng-container *ngTemplateOutlet="renderNode; context: { $implicit: node, depth: 0, side: 'right' }"></ng-container>
-              </div>
-              <span *ngIf="!rec.localItem" class="text-muted">—</span>
-            </ng-container>
-            <ng-template #rawLocal>
-              <pre class="json-preview" *ngIf="rec.localItem">{{ rec.localItem | json }}</pre>
-              <span *ngIf="!rec.localItem" class="text-muted">—</span>
-            </ng-template>
-          </td>
-          <td class="text-center">
-            <ng-container [ngSwitch]="rec.status">
-              <div *ngSwitchCase="'same'" class="text-muted">—</div>
-              <div *ngSwitchDefault>
-                <div class="form-check">
-                  <label class="form-check-label mr-2" [class.text-muted]="!rec.repoItem">
-                    <input type="radio" class="form-check-input" [name]="activeTab + '_' + rec.key" [checked]="choices[activeTab][rec.key] === 'repo'" (change)="pick(activeTab, rec.key, 'repo')" [disabled]="!rec.repoItem && choices[activeTab][rec.key] === 'repo'"> Repo
-                  </label>
-                  <label class="form-check-label" [class.text-muted]="!rec.localItem">
-                    <input type="radio" class="form-check-input" [name]="activeTab + '_' + rec.key" [checked]="choices[activeTab][rec.key] === 'local'" (change)="pick(activeTab, rec.key, 'local')" [disabled]="!rec.localItem && choices[activeTab][rec.key] === 'local'"> Local
-                  </label>
-                </div>
-              </div>
-            </ng-container>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+  <!-- Detailed Mode -->
+  <div *ngIf="!isSimpleMode">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <p class="mb-0">
+        Review differences per entity.
+      </p>
+      <div>
+        <button class="btn btn-sm btn-outline-primary mr-2" (click)="resolveAll('repo')">Accept All Repository</button>
+        <button class="btn btn-sm btn-outline-primary" (click)="resolveAll('local')">Accept All Local</button>
+      </div>
+    </div>
 
-    <!-- Recursive renderer -->
-    <ng-template #renderNode let-node let-depth="depth" let-side="side">
-      <ng-container *ngIf="showNode(node)">
-        <div class="diff-node" [class.container]="isContainer(node)" [ngClass]="cssClass(node, side)" [style.marginLeft.px]="depth * 10">
-          <div class="diff-line">
-            <span class="diff-key" *ngIf="node.key">{{ node.key }}:</span>
-            <ng-container *ngIf="isLeaf(node); else composite">
-              <span class="diff-value">{{ valueFor(node, side) !== undefined ? (valueFor(node, side) | json) : '—' }}</span>
-            </ng-container>
-          </div>
-          <ng-template #composite>
-            <div class="diff-children" *ngIf="node.children && node.children.length">
-              <ng-container *ngFor="let ch of node.children">
-                <ng-container *ngTemplateOutlet="renderNode; context: { $implicit: ch, depth: depth + 1, side: side }"></ng-container>
+    <!-- Tabs -->
+    <ul class="nav nav-tabs">
+      <li class="nav-item" *ngFor="let section of ['processes','apiCalls','capabilities','applications','journeys']">
+        <a href="javascript:void(0)" class="nav-link" [class.active]="activeTab === section" (click)="setActiveTab(section)">
+          {{section}}
+          <span class="badge badge-light ml-1" title="conflicts">{{ countByStatus(section, 'conflict') }}</span>
+        </a>
+      </li>
+    </ul>
+
+    <div class="tab-toolbar d-flex align-items-center justify-content-between mt-2">
+      <div class="d-flex align-items-center">
+        <label class="mb-0 mr-3">
+          <input type="checkbox" [(ngModel)]="showConflictsOnly"> Show conflicts only
+        </label>
+        <label class="mb-0 mr-3">
+          <input type="checkbox" [(ngModel)]="highlightedView"> Highlight changes
+        </label>
+        <label class="mb-0 mr-3" *ngIf="highlightedView">
+          <input type="checkbox" [(ngModel)]="showChangedOnly"> Show changed fields only
+        </label>
+        <div class="btn-group btn-group-sm btn-group-toggle" data-toggle="buttons">
+          <label class="btn btn-outline-secondary" [class.active]="viewMode === 'tree'">
+            <input type="radio" name="viewMode" [(ngModel)]="viewMode" value="tree"> JSON Tree
+          </label>
+          <label class="btn btn-outline-secondary" [class.active]="viewMode === 'table'">
+            <input type="radio" name="viewMode" [(ngModel)]="viewMode" value="table"> Table
+          </label>
+        </div>
+      </div>
+      <div>
+        <button class="btn btn-sm btn-outline-secondary mr-2" (click)="bulk(activeTab, 'repo')">Choose all Repo</button>
+        <button class="btn btn-sm btn-outline-secondary" (click)="bulk(activeTab, 'local')">Choose all Local</button>
+      </div>
+    </div>
+
+    <!-- Items table for active tab -->
+    <div class="table-responsive mt-2">
+      <table class="table table-sm table-striped align-middle">
+        <thead>
+          <tr>
+            <th style="width: 24%">Item</th>
+            <th style="width: 10%">Status</th>
+            <th style="width: 29%">Repository</th>
+            <th style="width: 29%">Local</th>
+            <th style="width: 8%" class="text-center">Pick</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let rec of filteredItems(activeTab)">
+            <td>
+              <div class="item-title d-flex align-items-center justify-content-between">
+                <span>{{ getName(rec.repoItem || rec.localItem) }}</span>
+                <small class="text-muted" *ngIf="highlightedView">
+                  <ng-container *ngIf="getDiff(activeTab, rec) as node">
+                    <ng-container *ngIf="countChanges(node) as c">{{c.changed}} changed, {{c.added}} added, {{c.removed}} removed</ng-container>
+                  </ng-container>
+                </small>
+              </div>
+              <div class="item-sub" *ngIf="rec.key">#{{ rec.key }}</div>
+            </td>
+            <td>
+              <span class="badge" [ngClass]="{
+                'badge-danger': rec.status==='conflict',
+                'badge-secondary': rec.status==='same',
+                'badge-info': rec.status==='onlyRepo',
+                'badge-warning': rec.status==='onlyLocal'
+              }">{{ rec.status }}</span>
+            </td>
+            <td>
+              <ng-container *ngIf="highlightedView; else rawRepo">
+                <!-- Tree View -->
+                <div class="diff-tree" *ngIf="viewMode === 'tree' && getDiff(activeTab, rec) as node">
+                  <ng-container *ngTemplateOutlet="renderNode; context: { $implicit: node, depth: 0, side: 'left' }"></ng-container>
+                </div>
+                <!-- Table View -->
+                <div *ngIf="viewMode === 'table'">
+                   <div *ngFor="let change of getFlatChanges(activeTab, rec)" class="diff-table-row">
+                      <span class="diff-key" [title]="change.path">{{ change.path }}:</span>
+                      <span class="diff-value" [class.text-muted]="change.left === undefined">{{ change.left !== undefined ? (change.left | json) : '—' }}</span>
+                   </div>
+                </div>
+                <span *ngIf="!rec.repoItem" class="text-muted">—</span>
+              </ng-container>
+              <ng-template #rawRepo>
+                <pre class="json-preview" *ngIf="rec.repoItem">{{ rec.repoItem | json }}</pre>
+                <span *ngIf="!rec.repoItem" class="text-muted">—</span>
+              </ng-template>
+            </td>
+            <td>
+              <ng-container *ngIf="highlightedView; else rawLocal">
+                <!-- Tree View -->
+                <div class="diff-tree" *ngIf="viewMode === 'tree' && getDiff(activeTab, rec) as node">
+                  <ng-container *ngTemplateOutlet="renderNode; context: { $implicit: node, depth: 0, side: 'right' }"></ng-container>
+                </div>
+                 <!-- Table View -->
+                <div *ngIf="viewMode === 'table'">
+                   <div *ngFor="let change of getFlatChanges(activeTab, rec)" class="diff-table-row">
+                      <span class="diff-key invisible">{{ change.path }}:</span>
+                      <span class="diff-value" [class.text-muted]="change.right === undefined">{{ change.right !== undefined ? (change.right | json) : '—' }}</span>
+                   </div>
+                </div>
+                <span *ngIf="!rec.localItem" class="text-muted">—</span>
+              </ng-container>
+              <ng-template #rawLocal>
+                <pre class="json-preview" *ngIf="rec.localItem">{{ rec.localItem | json }}</pre>
+                <span *ngIf="!rec.localItem" class="text-muted">—</span>
+              </ng-template>
+            </td>
+            <td class="text-center">
+              <ng-container [ngSwitch]="rec.status">
+                <div *ngSwitchCase="'same'" class="text-muted">—</div>
+                <div *ngSwitchDefault>
+                  <div class="form-check">
+                    <label class="form-check-label mr-2" [class.text-muted]="!rec.repoItem">
+                      <input type="radio" class="form-check-input" [name]="activeTab + '_' + rec.key" [checked]="choices[activeTab][rec.key] === 'repo'" (change)="pick(activeTab, rec.key, 'repo')" [disabled]="!rec.repoItem && choices[activeTab][rec.key] === 'repo'"> Repo
+                    </label>
+                    <label class="form-check-label" [class.text-muted]="!rec.localItem">
+                      <input type="radio" class="form-check-input" [name]="activeTab + '_' + rec.key" [checked]="choices[activeTab][rec.key] === 'local'" (change)="pick(activeTab, rec.key, 'local')" [disabled]="!rec.localItem && choices[activeTab][rec.key] === 'local'"> Local
+                    </label>
+                  </div>
+                </div>
+              </ng-container>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Recursive renderer -->
+      <ng-template #renderNode let-node let-depth="depth" let-side="side">
+        <ng-container *ngIf="showNode(node)">
+          <div class="diff-node" [class.container]="isContainer(node)" [ngClass]="cssClass(node, side)" [style.marginLeft.px]="depth * 10">
+            <div class="diff-line">
+              <span class="diff-key" *ngIf="node.key">{{ node.key }}:</span>
+              <ng-container *ngIf="isLeaf(node); else composite">
+                <span class="diff-value">{{ valueFor(node, side) !== undefined ? (valueFor(node, side) | json) : '—' }}</span>
               </ng-container>
             </div>
-          </ng-template>
-        </div>
-      </ng-container>
-    </ng-template>
-  </div>
+            <ng-template #composite>
+              <div class="diff-children" *ngIf="node.children && node.children.length">
+                <ng-container *ngFor="let ch of node.children">
+                  <ng-container *ngTemplateOutlet="renderNode; context: { $implicit: ch, depth: depth + 1, side: side }"></ng-container>
+                </ng-container>
+              </div>
+            </ng-template>
+          </div>
+        </ng-container>
+      </ng-template>
+    </div>
 
-<!-- Commit message field (required when pushing) -->
-<div class="px-3 pb-2" *ngIf="requireCommitMessage">
-  <div class="form-group">
-    <label for="commitMessage"><strong>Commit message</strong></label>
-    <textarea id="commitMessage" class="form-control" rows="3" [(ngModel)]="commitMessage" placeholder="Summarize your changes (e.g., feat: add new process flows)"></textarea>
-    <small class="form-text text-muted">Please provide a clear, conventional commit-style message.</small>
+  <!-- Commit message field (required when pushing) in Detailed Mode -->
+  <div class="px-3 pb-2" *ngIf="requireCommitMessage">
+    <div class="form-group">
+      <label for="commitMessageDetailed"><strong>Commit message</strong></label>
+      <textarea id="commitMessageDetailed" class="form-control" rows="3" [(ngModel)]="commitMessage" placeholder="Summarize your changes (e.g., feat: add new process flows)"></textarea>
+      <small class="form-text text-muted">Please provide a clear, conventional commit-style message.</small>
+    </div>
   </div>
-</div>
-
+  </div>
 </div>
 
 <div class="modal-footer">
