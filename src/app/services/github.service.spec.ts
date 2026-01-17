@@ -99,4 +99,16 @@ describe('GithubService', () => {
     expect(req.request.body.sha).toBe('sha');
     req.flush({});
   });
+
+  it('should get commits', () => {
+    const dummyCommits = [{ sha: '123', commit: { message: 'test' } }];
+    service.getCommits('owner', 'repo').subscribe(commits => {
+      expect(commits.length).toBe(1);
+      expect(commits).toEqual(dummyCommits);
+    });
+
+    const req = httpMock.expectOne('https://api.github.com/repos/owner/repo/commits?sha=main&per_page=10');
+    expect(req.request.method).toBe('GET');
+    req.flush(dummyCommits);
+  });
 });
