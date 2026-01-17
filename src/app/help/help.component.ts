@@ -18,6 +18,7 @@ interface HelpTopic {
 export class HelpComponent implements OnInit {
 
   rawTopics: HelpTopic[] = [
+    { id: 'access-processes', title: 'Access Processes', file: 'assets/help/access-processes.md', content: '' },
     { id: 'howto-workflow', title: 'How To: Workflow', file: 'assets/help/howto-workflow.md', content: '' },
     { id: 'dashboard', title: 'Dashboard', file: 'assets/help/dashboard.md', content: '' },
     { id: 'journeys', title: 'Journeys', file: 'assets/help/journeys.md', content: '' },
