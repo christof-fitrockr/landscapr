@@ -2,11 +2,9 @@
 > landscapr@1.0.0 start
 > node set-version.js && ng serve
 
-Wrote version 2025-12-22 20:04:17 to /app/src/environments/version.ts
+Wrote version 2026-01-17 06:17:18 to /app/src/environments/version.ts
 - Generating browser application bundles (phase: setup)...
 Processing legacy "View Engine" libraries:
-- ngx-filesaver [es2015/esm2015] (git+https://github.com/cipchk/ngx-filesaver.git)
-- ngx-bootstrap/typeahead [es2015/esm2015] (git+ssh://git@github.com/valor-software/ngx-bootstrap.git)
 - ngx-bootstrap/sortable [es2015/esm2015] (git+ssh://git@github.com/valor-software/ngx-bootstrap.git)
 Encourage the library authors to publish an Ivy distribution.
 DEPRECATION WARNING: Using / for division outside of calc() is deprecated and will be removed in Dart Sass 2.0.0.
@@ -64,21 +62,21 @@ More info and automated migrator: https://sass-lang.com/d/slash-div
 ✔ Browser application bundle generation complete.
 
 Initial Chunk Files                             | Names         |  Raw Size
-vendor.js                                       | vendor        |   4.18 MB |
+vendor.js                                       | vendor        |   4.92 MB |
 scripts.js                                      | scripts       |   1.37 MB |
-main.js                                         | main          |   1.06 MB |
-styles.css, styles.js                           | styles        | 607.66 kB |
+main.js                                         | main          |   1.29 MB |
+styles.css, styles.js                           | styles        | 611.00 kB |
 polyfills.js                                    | polyfills     | 348.96 kB |
 runtime.js                                      | runtime       |  14.14 kB |
 
-| Initial Total |   7.56 MB
+| Initial Total |   8.52 MB
 
 Lazy Chunk Files                                | Names         |  Raw Size
-node_modules_canvg_lib_index_es_js.js           | canvg         | 424.83 kB |
+node_modules_canvg_lib_index_es_js.js           | canvg         | 424.04 kB |
 node_modules_html2canvas_dist_html2canvas_js.js | html2canvas   | 390.81 kB |
-node_modules_dompurify_dist_purify_js.js        | dompurify     |  63.17 kB |
+node_modules_dompurify_dist_purify_js.js        | dompurify     |  64.19 kB |
 
-Build at: 2025-12-22T20:04:52.663Z - Hash: ff211ee8d89e86d4 - Time: 32417ms
+Build at: 2026-01-17T06:17:50.866Z - Hash: 9b8f091c0c5131e1 - Time: 30200ms
 
 Warning: /app/node_modules/canvg/lib/index.es.js depends on 'core-js/modules/es.array.index-of.js'. CommonJS or AMD dependencies can cause optimization bailouts.
 For more info see: https://angular.io/guide/build#configuring-commonjs-dependencies
@@ -137,6 +135,9 @@ For more info see: https://angular.io/guide/build#configuring-commonjs-dependenc
 Warning: /app/node_modules/ngx-filesaver/__ivy_ngcc__/fesm2015/ngx-filesaver.js depends on 'file-saver'. CommonJS or AMD dependencies can cause optimization bailouts.
 For more info see: https://angular.io/guide/build#configuring-commonjs-dependencies
 
+Warning: /app/src/app/services/ppt-export.service.ts depends on 'pptxgenjs'. CommonJS or AMD dependencies can cause optimization bailouts.
+For more info see: https://angular.io/guide/build#configuring-commonjs-dependencies
+
 
 
 ** Angular Live Development Server is listening on localhost:4200, open your browser on http://localhost:4200/ **
@@ -150,6 +151,28 @@ runtime.js          | runtime | 14.14 kB |
 
 8 unchanged chunks
 
-Build at: 2025-12-22T20:04:57.230Z - Hash: 01baca34a2e9b4a3 - Time: 4219ms
+Build at: 2026-01-17T06:17:55.924Z - Hash: 17c52c01ab3b8b54 - Time: 4672ms
+
+✔ Compiled successfully.
+✔ Browser application bundle generation complete.
+
+Initial Chunk Files | Names   | Raw Size
+main.js             | main    |  1.30 MB |
+runtime.js          | runtime | 14.14 kB |
+
+7 unchanged chunks
+
+Build at: 2026-01-17T06:21:18.910Z - Hash: 830fdab422a53aff - Time: 7570ms
+
+✔ Compiled successfully.
+✔ Browser application bundle generation complete.
+
+Initial Chunk Files | Names   | Raw Size
+main.js             | main    |  1.30 MB |
+runtime.js          | runtime | 14.14 kB |
+
+7 unchanged chunks
+
+Build at: 2026-01-17T06:22:17.417Z - Hash: 9f83d0490fbb3fa4 - Time: 1634ms
 
 ✔ Compiled successfully.

@@ -1,0 +1,66 @@
+<div class="modal-header">
+  <h5 class="modal-title">Commit Options</h5>
+  <button type="button" class="close" aria-label="Close" (click)="cancel()">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+<div class="modal-body">
+    <div class="mb-3">
+        <h6>Target: {{fileName}}</h6>
+    </div>
+
+    <div class="card mb-3">
+        <div class="card-body">
+            <h6 class="card-title">Commit Strategy</h6>
+
+            <div class="form-check mb-2">
+                <input class="form-check-input" type="radio" name="branchOption" id="commitExisting" [value]="false" [(ngModel)]="isNewBranch" (change)="toggleNewBranch(false)">
+                <label class="form-check-label" for="commitExisting">
+                    Commit to existing branch
+                </label>
+            </div>
+
+            <div class="mb-3 ml-4" *ngIf="!isNewBranch">
+                <select class="form-control" [(ngModel)]="selectedBranch">
+                    <option *ngFor="let b of branches" [value]="b.name">{{ b.name }}</option>
+                </select>
+            </div>
+
+            <div class="form-check mb-2">
+                <input class="form-check-input" type="radio" name="branchOption" id="commitNew" [value]="true" [(ngModel)]="isNewBranch" (change)="toggleNewBranch(true)">
+                <label class="form-check-label" for="commitNew">
+                    Create new branch
+                </label>
+            </div>
+
+            <div class="ml-4" *ngIf="isNewBranch">
+                <div class="mb-2">
+                    <label class="form-label small">New Branch Name</label>
+                    <input class="form-control form-control-sm" [(ngModel)]="newBranchName">
+                </div>
+                <div class="mb-2">
+                    <label class="form-label small">Source Branch (Base)</label>
+                    <select class="form-control form-control-sm" [(ngModel)]="baseBranch">
+                        <option *ngFor="let b of branches" [value]="b.name">{{ b.name }}</option>
+                    </select>
+                </div>
+
+                <div class="form-check mb-2">
+                    <input class="form-check-input" type="checkbox" id="commitCreatePr" [(ngModel)]="createPr">
+                    <label class="form-check-label" for="commitCreatePr">Create Pull Request</label>
+                </div>
+
+                <div class="mb-2" *ngIf="createPr">
+                    <label class="form-label small">PR Title</label>
+                    <input class="form-control form-control-sm" [(ngModel)]="prTitle">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal-footer">
+  <button class="btn btn-primary" (click)="confirm()" [disabled]="(isNewBranch && !newBranchName)">
+    Continue
+  </button>
+  <button class="btn btn-outline-secondary" (click)="cancel()">Cancel</button>
+</div>

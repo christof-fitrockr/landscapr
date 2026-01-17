@@ -5,7 +5,8 @@ import { SaveGithubDialogComponent } from './save-github-dialog.component';
 import { GithubService } from '../services/github.service';
 import { RepoService } from '../services/repo.service';
 import { ToastrService } from 'ngx-toastr';
-import { first } from 'rxjs/operators';
+import { first, switchMap, catchError } from 'rxjs/operators';
+import { of, throwError } from 'rxjs';
 
 @Component({
   selector: 'app-github-actions-dialog',
@@ -48,46 +49,73 @@ export class GithubActionsDialogComponent {
   }
 
   openSave(): void {
-    // Close this chooser modal and open the Save dialog
     this.bsModalRef.hide();
     const modalRef = this.modalService.show(SaveGithubDialogComponent, { class: 'modal-lg' });
     const content: any = modalRef.content;
+
     if (content && content.onClose) {
       content.onClose.subscribe((result: any) => {
         if (result) {
-          this.githubService.getFileContent(result.owner, result.repo.name, result.fileName).subscribe(
-            (file) => {
-              const sha = file && file.sha ? file.sha : undefined;
-              this.repoService.downloadAsJson().pipe(first()).subscribe(blob => {
-                (blob as Blob).text().then(contentText => {
-                  this.githubService.createOrUpdateFile(result.owner, result.repo.name, result.fileName, contentText, sha).subscribe(() => {
-                    this.toastr.success('File saved successfully');
-                  }, () => {
-                    this.toastr.error('Failed to save file to GitHub');
-                  });
-                }).catch(() => {
-                  this.toastr.error('Failed to prepare JSON content for GitHub');
-                });
-              });
-            },
-            () => {
-              // File does not exist -> create new
-              this.repoService.downloadAsJson().pipe(first()).subscribe(blob => {
-                (blob as Blob).text().then(contentText => {
-                  this.githubService.createOrUpdateFile(result.owner, result.repo.name, result.fileName, contentText).subscribe(() => {
-                    this.toastr.success('File saved successfully');
-                  }, () => {
-                    this.toastr.error('Failed to save file to GitHub');
-                  });
-                }).catch(() => {
-                  this.toastr.error('Failed to prepare JSON content for GitHub');
-                });
-              });
-            }
-          );
+          this.executeSaveFlow(result);
         }
       });
     }
+  }
+
+  private executeSaveFlow(config: any): void {
+    const { repo, fileName, owner, branchMode, branchName, baseBranch, createPr, prTitle } = config;
+
+    // Step 1: Handle Branching (if new)
+    let branchSetup$ = of(null);
+    if (branchMode === 'new') {
+        // Need to get SHA of base branch, then create new branch
+        branchSetup$ = this.githubService.getRef(owner, repo.name, `heads/${baseBranch}`).pipe(
+            switchMap((ref: any) => {
+                const sha = ref.object.sha;
+                return this.githubService.createBranch(owner, repo.name, branchName, sha);
+            }),
+            catchError(err => {
+                this.toastr.error(`Failed to create branch ${branchName}`);
+                return throwError(err);
+            })
+        );
+    }
+
+    branchSetup$.pipe(
+        // Step 2: Prepare Content (Download JSON)
+        switchMap(() => this.repoService.downloadAsJson().pipe(first())),
+        switchMap((blob: Blob) => blob.text()),
+        switchMap((contentText: string) => {
+            // Step 3: Check if file exists on Target Branch (to get SHA for update)
+            return this.githubService.getFileContent(owner, repo.name, fileName, branchName).pipe(
+                catchError(() => of(null)), // If 404, returns null (file doesn't exist)
+                switchMap((file: any) => {
+                    const sha = file && file.sha ? file.sha : undefined;
+                    // Step 4: Create or Update File
+                    return this.githubService.createOrUpdateFile(owner, repo.name, fileName, contentText, sha, undefined, branchName);
+                })
+            );
+        }),
+        switchMap(() => {
+             // Step 5: Create PR if requested
+             if (createPr && branchMode === 'new') {
+                 return this.githubService.createPullRequest(owner, repo.name, prTitle || `Update ${fileName}`, 'Automated update from Landscapr', branchName, baseBranch);
+             }
+             return of(null);
+        })
+    ).subscribe(
+        (res) => {
+            if (createPr && branchMode === 'new') {
+                this.toastr.success(`Saved to branch ${branchName} and created PR.`);
+            } else {
+                this.toastr.success(`File saved successfully to ${branchName}`);
+            }
+        },
+        (err) => {
+            console.error(err);
+            this.toastr.error('Failed to save to GitHub');
+        }
+    );
   }
 
   close(): void {

@@ -64,6 +64,7 @@ import {PrivacyPolicyComponent} from './privacyPolicy/privacy-policy.component';
 import { GithubDialogComponent } from './components/github-dialog.component';
 import { FileTypePipe } from './pipes/file-type.pipe';
 import { SaveGithubDialogComponent } from './components/save-github-dialog.component';
+import { CommitOptionsDialogComponent } from './components/commit-options-dialog.component';
 import { GithubActionsDialogComponent } from './components/github-actions-dialog.component';
 import { MergeResolverComponent } from './components/merge-resolver.component';
 import { DeleteConfirmationDialogComponent } from './components/delete-confirmation-dialog.component';
@@ -98,6 +99,7 @@ import { MarkdownModule } from 'ngx-markdown';
     HelpComponent,
     GithubDialogComponent,
     SaveGithubDialogComponent,
+    CommitOptionsDialogComponent,
     GithubActionsDialogComponent,
     DeleteConfirmationDialogComponent,
     RepositoriesComponent,
