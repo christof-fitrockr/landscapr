@@ -6,9 +6,8 @@ import { Observable, EMPTY, of, throwError } from 'rxjs';
 import { first, switchMap, catchError } from 'rxjs/operators';
 import { FileSaverService } from 'ngx-filesaver';
 import { BsModalService } from 'ngx-bootstrap/modal';
-import { MergeService } from '../services/merge.service';
 import { AuthenticationService } from '../services/authentication.service';
-import { MergeResolverComponent } from '../components/merge-resolver.component';
+import { CommitMessageDialogComponent } from '../components/commit-message-dialog.component';
 import { CommitOptionsDialogComponent } from '../components/commit-options-dialog.component';
 import { PrDialogComponent } from '../components/pr-dialog.component';
 import { ConfirmationDialogComponent } from '../components/confirmation-dialog.component';
@@ -47,7 +46,6 @@ export class RepositoriesComponent implements OnInit {
     private fileSaverService: FileSaverService,
     private toastr: ToastrService,
     private modalService: BsModalService,
-    private mergeService: MergeService,
     private authService: AuthenticationService,
   ) {}
 
@@ -182,27 +180,9 @@ export class RepositoriesComponent implements OnInit {
       .subscribe(fileContent => {
         try {
           const contentStr = atob(fileContent.content);
-          const repoData = JSON.parse(contentStr);
-          const localData = this.repoService.getCurrentData();
-          if (this.mergeService.different(repoData, localData)) {
-            const modalRef = this.modalService.show(MergeResolverComponent, {
-              class: 'modal-xl',
-              initialState: { repoData, localData }
-            });
-            const content: any = modalRef.content;
-            if (content && content.onClose) {
-              content.onClose.pipe(first()).subscribe((merged: any) => {
-                if (merged) {
-                  this.repoService.applyData(merged);
-                  this.toastr.success('Merged data applied to local storage');
-                }
-              });
-            }
-          } else {
-            this.repoService.uploadJsonContent(contentStr).pipe(first()).subscribe(() => {
-              this.toastr.success(`Loaded content from ${this.currentBranch}`);
-            });
-          }
+          this.repoService.uploadJsonContent(contentStr).pipe(first()).subscribe(() => {
+            this.toastr.success(`Loaded content from ${this.currentBranch}`);
+          });
         } catch (e) {
           this.toastr.error('Failed to parse GitHub file content');
         }
@@ -358,27 +338,17 @@ export class RepositoriesComponent implements OnInit {
         catchError(() => of(null))
     ).subscribe(file => {
         const sha = file && file.sha ? file.sha : undefined;
-        let remoteData: any = {};
-        try {
-            if (file && file.content) {
-                remoteData = JSON.parse(atob(file.content));
-            }
-        } catch { remoteData = {}; }
 
-        // Open Merge Resolver (It handles Simple Mode if no conflicts)
-        const modalRef = this.modalService.show(MergeResolverComponent, {
-            class: 'modal-xl',
-            initialState: { repoData: remoteData, localData, requireCommitMessage: true }
-        });
+        // Open Commit Message Dialog
+        const modalRef = this.modalService.show(CommitMessageDialogComponent);
         const content: any = modalRef.content;
         if (content && content.onClose) {
-             content.onClose.pipe(first()).subscribe((result: any) => {
-                  if (!result) { this.saving = false; return; }
-                  const merged = result.data ? result.data : result;
-                  const commitMessage: string | undefined = result.commitMessage;
-                  const mergedText = JSON.stringify(merged, null, 2);
+             content.onClose.pipe(first()).subscribe((commitMessage: string | null) => {
+                  if (!commitMessage) { this.saving = false; return; }
 
-                  this.githubService.createOrUpdateFile(owner, repo, path, mergedText, sha, commitMessage, branchName)
+                  const fileContent = JSON.stringify(localData, null, 2);
+
+                  this.githubService.createOrUpdateFile(owner, repo, path, fileContent, sha, commitMessage, branchName)
                     .pipe(first())
                     .subscribe(() => {
                         this.toastr.success(`Saved to ${branchName}`);
