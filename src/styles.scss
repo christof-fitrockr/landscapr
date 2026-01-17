@@ -103,5 +103,27 @@ html, body {
 .text-xs { font-size: .7rem; }
 .text-lg { font-size: 1.2rem; }
 
+// Gray scale utilities (mapped to slate for backward compatibility)
+.text-gray-100 { color: $slate-100 !important; }
+.text-gray-200 { color: $slate-200 !important; }
+.text-gray-300 { color: $slate-300 !important; }
+.text-gray-400 { color: $slate-400 !important; }
+.text-gray-500 { color: $slate-500 !important; }
+.text-gray-600 { color: $slate-600 !important; }
+.text-gray-700 { color: $slate-700 !important; }
+.text-gray-800 { color: $slate-800 !important; }
+.text-gray-900 { color: $slate-900 !important; }
+
+// Background Gray scale utilities (mapped to slate for backward compatibility)
+.bg-gray-100 { background-color: $slate-100 !important; }
+.bg-gray-200 { background-color: $slate-200 !important; }
+.bg-gray-300 { background-color: $slate-300 !important; }
+.bg-gray-400 { background-color: $slate-400 !important; }
+.bg-gray-500 { background-color: $slate-500 !important; }
+.bg-gray-600 { background-color: $slate-600 !important; }
+.bg-gray-700 { background-color: $slate-700 !important; }
+.bg-gray-800 { background-color: $slate-800 !important; }
+.bg-gray-900 { background-color: $slate-900 !important; }
+
 // Link Utilities
 a.black { color: $slate-900; &:hover { color: $primary; } }

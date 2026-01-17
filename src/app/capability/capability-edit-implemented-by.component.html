@@ -6,9 +6,10 @@
 
 
       <div class="btn-toolbar justify-content-lg-start" role="toolbar" aria-label="Toolbar with button groups">
+        <app-capability-edit-nav [capabilityId]="capabilityId"></app-capability-edit-nav>
         <div class="btn-group mr-2" role="group" aria-label="First group">
           <button type="button" class="btn btn-primary" title="Save" (click)="onUpdate()"><i class="fas fa-save"></i></button>
-          <a class="btn btn-secondary" title="List" routerLink="/process"><i class="fas fa-list"></i></a>
+          <a class="btn btn-secondary" title="List" routerLink="/capability"><i class="fas fa-list"></i></a>
         </div>
       </div>
 
@@ -97,32 +98,49 @@
                 <i class="fas fa-spinner fa-pulse"></i>
             </div>
 
-            <input *ngIf="systemTree && systemTree?.length > 0" type="text" class="input-group form-control" placeholder="Search name or cluster.." [(ngModel)]="searchText" [ngModelOptions]="{standalone: true}">
-            <div *ngIf="systemTree && systemTree?.length > 0" class="form-check mt-2">
-                <input id="showOrphansOnly" type="checkbox" class="form-check-input" [(ngModel)]="showOrphansOnly" [ngModelOptions]="{standalone: true}">
-                <label class="form-check-label" for="showOrphansOnly" title="Show only Systems not referenced by any API">Show orphans only</label>
+            <div *ngIf="systemTree && systemTree?.length > 0" class="form-row align-items-center mb-3">
+              <div class="col-auto flex-grow-1">
+                <input type="text" class="form-control" placeholder="Search name or cluster.." [(ngModel)]="searchText" [ngModelOptions]="{standalone: true}">
+              </div>
+              <div class="col-auto">
+                <select class="form-control" [(ngModel)]="filterStatus" [ngModelOptions]="{standalone: true}">
+                  <option [ngValue]="null">All Statuses</option>
+                  <option [ngValue]="0">Draft</option>
+                  <option [ngValue]="1">Validated</option>
+                </select>
+              </div>
+              <div class="col-auto">
+                <div class="form-check">
+                  <input id="showOrphansOnly" type="checkbox" class="form-check-input" [(ngModel)]="showOrphansOnly" [ngModelOptions]="{standalone: true}">
+                  <label class="form-check-label" for="showOrphansOnly" title="Show only Systems not referenced by any API">Orphans only</label>
+                </div>
+              </div>
             </div>
 
-            <div class="mt-3" *ngIf="systemTree && systemTree?.length > 0">
-                <div class="d-flex font-weight-bold border-bottom pb-2 mb-2 text-gray-500 small text-uppercase">
-                    <div style="width: 25px"></div>
-                    <div class="mr-2" style="width: 32px"></div>
-                    <div class="flex-grow-1">Name / Cluster</div>
-                    <div class="text-right" style="width: 100px">Capabilities</div>
-                    <div class="text-right" style="width: 100px">APIs</div>
-                    <div class="w-25 ml-2">Tags</div>
-                    <div class="ml-2 text-right" style="width: 30px"></div>
-                </div>
-                <app-system-tree-node
-                    *ngFor="let node of systemTree"
-                    [node]="node"
-                    [searchText]="searchText"
-                    [orphanIds]="orphanIds"
-                    [showOrphansOnly]="showOrphansOnly"
-                    [selectMode]="true"
-                    (selectEmitter)="selectSystem($event)">
-                </app-system-tree-node>
-            </div>
+            <table class="mt-3 tree-table" *ngIf="systemTree && systemTree?.length > 0">
+                <thead>
+                <tr>
+                    <th scope="col">Actions</th>
+                    <th scope="col" class="w-100">Name / Cluster</th>
+                    <th scope="col" class="text-right" style="width: 100px">Capabilities</th>
+                    <th scope="col" class="text-right" style="width: 100px">APIs</th>
+                    <th scope="col">Tags</th>
+                    <th scope="col" class="text-right" style="width: 30px">Status</th>
+                </tr>
+                </thead>
+                <tbody>
+                    <app-system-tree-node
+                        *ngFor="let node of systemTree"
+                        [node]="node"
+                        [searchText]="searchText"
+                        [orphanIds]="orphanIds"
+                        [showOrphansOnly]="showOrphansOnly"
+                        [filterStatus]="filterStatus"
+                        [selectMode]="true"
+                        (selectEmitter)="selectSystem($event)">
+                    </app-system-tree-node>
+                </tbody>
+            </table>
 
         </div>
         <div class="modal-footer border-top-0 d-flex justify-content-center">

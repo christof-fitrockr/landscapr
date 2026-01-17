@@ -36,6 +36,7 @@
 .tree-row {
   transition: all 0.2s ease;
   cursor: pointer;
+  height: 48px;
 
   &:hover {
     td {
@@ -47,10 +48,14 @@
   // Indentation Logic
   // --depth should be passed via [style.--depth]="level"
   .tree-indent-cell {
-    display: flex;
-    align-items: center;
+    vertical-align: middle;
     // Base padding + (depth * multiplier)
     padding-left: calc(var(--depth, 0) * 1.5rem + 0.5rem) !important;
+
+    .tree-indent-wrapper {
+      display: flex;
+      align-items: center;
+    }
 
     .toggle-icon {
       width: 24px;

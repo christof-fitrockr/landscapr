@@ -4,12 +4,12 @@
     <input type="text" class="form-control" placeholder="Search.." [(ngModel)]="filter" [ngModelOptions]="{standalone: true}">
   </div>
   <div class="col-auto">
-    <select class="form-control" [(ngModel)]="filterStatus" [ngModelOptions]="{standalone: true}">
-      <option [ngValue]="null">All Statuses</option>
-      <option [ngValue]="0">Draft</option>
-      <option [ngValue]="1">Validated</option>
-      <option [ngValue]="2">Review Needed</option>
-    </select>
+    <div class="btn-group btn-group-sm" role="group">
+      <button type="button" class="btn btn-outline-secondary" [class.active]="filterStatus === null" (click)="filterStatus = null">All Statuses</button>
+      <button type="button" class="btn btn-outline-secondary" [class.active]="filterStatus === 0" (click)="filterStatus = 0">Draft</button>
+      <button type="button" class="btn btn-outline-secondary" [class.active]="filterStatus === 1" (click)="filterStatus = 1">Validated</button>
+      <button type="button" class="btn btn-outline-secondary" [class.active]="filterStatus === 2" (click)="filterStatus = 2">Review Needed</button>
+    </div>
   </div>
   <div class="col-auto">
     <div class="form-check">
@@ -50,33 +50,11 @@
       [filterComments]="filterComments"
       [showOrphansOnly]="showOrphansOnly"
       (deleted)="deleted.emit()"
-      (prepareDelete)="prepareDelete($event)"
+      (delete)="onDelete($event)"
       (showDescription)="onShowDescription($event)"
     ></app-process-tree-node>
   </ng-container>
   </tbody>
 </table>
-
-<div class="modal fade" id="confirmDeleteProcess" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered" role="document">
-    <div class="modal-content">
-      <div class="modal-header border-bottom-0">
-        <h5 class="modal-title">Confirm Delete</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        <div class="col-12 form-group d-flex justify-content-start">
-          Really delete process '{{processToDelete?.name}}'?
-        </div>
-      </div>
-      <div class="modal-footer border-top-0 d-flex justify-content-center">
-        <button class="btn btn-danger" (click)="delete()" data-dismiss="modal">Delete</button>
-        <button class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-      </div>
-    </div>
-  </div>
-</div>
 
 <!-- Description Modal -->

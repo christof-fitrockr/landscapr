@@ -32,3 +32,56 @@
   color: vars.$primary !important;
   font-weight: 600;
 }
+
+// Workspace Redesign Helpers
+.bg-info-soft { background-color: rgba(vars.$info, 0.1); }
+.bg-primary-soft { background-color: rgba(vars.$primary, 0.1); }
+.bg-success-soft { background-color: rgba(vars.$success, 0.1); }
+.bg-warning-soft { background-color: rgba(vars.$warning, 0.1); }
+
+.bg-slate-50 { background-color: vars.$slate-50; }
+.text-slate-400 { color: vars.$slate-400; }
+.text-slate-500 { color: vars.$slate-500; }
+.text-slate-700 { color: vars.$slate-700; }
+.text-slate-800 { color: vars.$slate-800; }
+.text-slate-900 { color: vars.$slate-900; }
+
+.border-slate-100 { border-color: vars.$slate-100 !important; }
+
+.rounded-4 { border-radius: 1rem !important; }
+
+.btn-white {
+  background-color: vars.$white;
+  color: vars.$slate-700;
+  border: 1px solid vars.$slate-200;
+  &:hover {
+    background-color: vars.$slate-50;
+    color: vars.$slate-900;
+    border-color: vars.$slate-300;
+  }
+}
+
+.btn-outline-slate {
+  border-color: vars.$slate-300;
+  color: vars.$slate-600;
+  &:hover {
+    background-color: vars.$slate-50;
+    color: vars.$slate-900;
+    border-color: vars.$slate-400;
+  }
+}
+
+.hover-text-danger:hover {
+  color: vars.$danger !important;
+}
+
+.btn-outline-primary.border-2, .btn-success.border-2 {
+  border-width: 2px !important;
+}
+
+@media (min-width: 768px) {
+  .border-md-start {
+    border-left: 1px solid vars.$slate-200 !important;
+    padding-left: 1.5rem !important;
+  }
+}

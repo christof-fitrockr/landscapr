@@ -1,43 +1,45 @@
-<div class="capability-node" *ngIf="shouldShow()">
-  <div class="d-flex align-items-center py-1 hover-bg-light border-bottom">
-    <div [style.width.px]="level * 20" *ngIf="level > 0"></div>
-    <div class="d-flex align-items-center flex-grow-1">
-        <div style="width: 25px" class="text-center">
-            <button *ngIf="capability.children?.length > 0" class="btn btn-sm btn-link p-0 text-dark" (click)="toggleExpand()">
-                <i class="fas fa-sm" [class.fa-chevron-down]="isExpanded" [class.fa-chevron-right]="!isExpanded"></i>
-            </button>
-        </div>
-        <div class="mr-2">
-            <a class="black" routerLink="/capability/edit/{{capability?.id}}"><i class="fas fa-edit"></i></a>
-        </div>
-        <div class="flex-grow-1">
-            <a class="black font-weight-bold" routerLink="/capability/edit/{{capability?.id}}">{{capability.name}}</a>
-            <i *ngIf="orphanIds.includes(capability.id)" class="ml-2 text-warning fas fa-unlink" title="Orphan: No systems and no functions assigned"></i>
-        </div>
-    </div>
-    <div class="text-right text-muted small" style="width: 80px">
-        {{capability.recursiveSystemCount}}
-    </div>
-    <div class="text-right text-muted small" style="width: 80px">
-        {{capability.recursiveFunctionCount}}
-    </div>
-    <div class="w-25 small text-muted ml-2">
-        {{capability.tags}}
-    </div>
-    <div class="ml-2 text-right" style="width: 30px">
-        <i *ngIf="capability?.status === 0" class="text-warning fas fa-exclamation-triangle" title="Draft"></i>
-        <i *ngIf="capability?.status === 1" class="text-success fas fa-check-circle" title="Validated"></i>
-    </div>
-  </div>
+<tr class="tree-row" [style.--depth]="level" *ngIf="shouldShow()">
+  <td class="text-nowrap tree-indent-cell">
+    <div class="tree-indent-wrapper">
+      <div *ngIf="capability.children?.length > 0" class="toggle-icon pointer" (click)="toggleExpand(); $event.stopPropagation()">
+        <i class="fas fa-sm" [class.fa-chevron-down]="isExpanded" [class.fa-chevron-right]="!isExpanded"></i>
+      </div>
+      <div *ngIf="capability.children?.length === 0" class="toggle-icon"></div> <!-- Spacer -->
 
-  <div *ngIf="isExpanded && capability.children?.length > 0">
-    <app-capability-tree-node
-        *ngFor="let child of capability.children"
-        [capability]="child"
-        [searchText]="searchText"
-        [orphanIds]="orphanIds"
-        [showOrphansOnly]="showOrphansOnly"
-        [level]="level + 1">
-    </app-capability-tree-node>
-  </div>
-</div>
+      <a class="btn btn-icon btn-sm text-muted" routerLink="/capability/edit/{{capability?.id}}" title="Edit Capability"><i class="fas fa-edit"></i></a>
+      <button class="btn btn-icon btn-sm text-muted" (click)="onShowDescription(capability); $event.stopPropagation()" title="Show Description"><i class="fas fa-info-circle"></i></button>
+      <button class="btn btn-icon btn-sm text-muted" (click)="onDelete(capability); $event.stopPropagation()" title="Delete Capability"><i class="fas fa-trash"></i></button>
+    </div>
+  </td>
+  <td>
+    <a class="font-weight-bold" routerLink="/capability/edit/{{capability?.id}}">{{capability.name}}</a>
+    <i *ngIf="orphanIds.includes(capability.id)" class="ml-2 text-warning fas fa-unlink" title="Orphan: No systems and no functions assigned"></i>
+  </td>
+  <td class="text-right text-muted small" style="width: 100px">
+    {{capability.recursiveSystemCount}}
+  </td>
+  <td class="text-right text-muted small" style="width: 100px">
+    {{capability.recursiveFunctionCount}}
+  </td>
+  <td class="small text-muted">
+    {{capability.tags}}
+  </td>
+  <td class="text-nowrap pl-1 pr-1 text-right" style="width: 30px">
+    <span *ngIf="capability?.status === 0" class="badge-modern badge-draft">Draft</span>
+    <span *ngIf="capability?.status === 1" class="badge-modern badge-validated">Validated</span>
+  </td>
+</tr>
+
+<ng-container *ngIf="isExpanded && capability.children?.length > 0">
+  <app-capability-tree-node
+      *ngFor="let child of capability.children"
+      [capability]="child"
+      [searchText]="searchText"
+      [orphanIds]="orphanIds"
+      [showOrphansOnly]="showOrphansOnly"
+      [filterStatus]="filterStatus"
+      [level]="level + 1"
+      (deleteEmitter)="onDelete($event)"
+      (showDescriptionEmitter)="onShowDescription($event)">
+  </app-capability-tree-node>
+</ng-container>

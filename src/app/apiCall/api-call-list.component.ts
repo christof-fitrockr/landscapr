@@ -5,6 +5,10 @@ import {ApiCall, ApiType} from '../models/api-call';
 import {Subscription, forkJoin} from 'rxjs';
 import {ActivatedRoute} from '@angular/router';
 import {ProcessService} from '../services/process.service';
+import {BsModalService} from 'ngx-bootstrap/modal';
+import {ToastrService} from 'ngx-toastr';
+import {DeleteConfirmationDialogComponent} from '../components/delete-confirmation-dialog.component';
+import {ApiCallDescriptionModalComponent} from '../components/api-call-description-modal.component';
 
 @Component({selector: 'app-api-call-list', templateUrl: './api-call-list.component.html', styleUrls: ['./api-call-list.component.scss']})
 export class ApiCallListComponent implements OnInit, OnDestroy {
@@ -12,7 +16,9 @@ export class ApiCallListComponent implements OnInit, OnDestroy {
   constructor(
     private apiCallService: ApiCallService,
     private processService: ProcessService,
-    private activatedRoute: ActivatedRoute
+    private activatedRoute: ActivatedRoute,
+    private modalService: BsModalService,
+    private toastr: ToastrService
   ) {
   }
 
@@ -20,6 +26,7 @@ export class ApiCallListComponent implements OnInit, OnDestroy {
   apiCalls: ApiCall[];
   searchText: string;
   showOrphansOnly: boolean = false;
+  filterStatus: number = null;
   orphanIds: string[] = [];
   apiCallToDelete: ApiCall;
   filterType: ApiType = null;
@@ -37,7 +44,7 @@ export class ApiCallListComponent implements OnInit, OnDestroy {
     this.subscription.unsubscribe();
   }
 
-  private refresh() {
+  refresh() {
     forkJoin([
       this.apiCallService.all().pipe(first()),
       this.processService.all().pipe(first())
@@ -65,16 +72,25 @@ export class ApiCallListComponent implements OnInit, OnDestroy {
       .map(api => api.id);
   }
 
-  prepareDelete(apiCall: ApiCall) {
-    this.apiCallToDelete = apiCall;
+  onDelete(apiCall: ApiCall) {
+    const modalRef = this.modalService.show(DeleteConfirmationDialogComponent, { class: 'modal-md' });
+    modalRef.content.itemName = apiCall.name;
+    modalRef.content.onClose.subscribe(result => {
+      if (result) {
+        this.apiCallService.delete(apiCall.id).subscribe(() => {
+          this.toastr.success('API Call deleted');
+          this.refresh();
+        }, error => {
+          this.toastr.error('Error deleting API Call');
+        });
+      }
+    });
   }
 
-  delete() {
-    if (this.apiCallToDelete) {
-      this.apiCallService.delete(this.apiCallToDelete.id).pipe(first()).subscribe(() => {
-        this.refresh();
-        this.apiCallToDelete = null;
-      });
-    }
+  onShowDescription(apiCall: ApiCall) {
+    this.modalService.show(ApiCallDescriptionModalComponent, {
+      initialState: { apiCall },
+      class: 'modal-dialog-centered'
+    });
   }
 }

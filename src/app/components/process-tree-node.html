@@ -1,16 +1,18 @@
 <tr class="tree-row" [style.--depth]="level" [class.table-info]="process.comments?.length > 0" [class.pointer]="selectMode" (click)="selectMode ? onSelect(process) : null">
   <td class="text-nowrap tree-indent-cell" [style.border-left]="'4px solid ' + getRoleColor(process.role)">
-    <div *ngIf="childProcesses.length > 0" class="toggle-icon pointer" (click)="toggle(); $event.stopPropagation()">
-      <i class="fas fa-sm" [class.fa-chevron-down]="expanded" [class.fa-chevron-right]="!expanded"></i>
-    </div>
-    <div *ngIf="childProcesses.length === 0" class="toggle-icon"></div> <!-- Spacer -->
+    <div class="tree-indent-wrapper">
+      <div *ngIf="childProcesses.length > 0" class="toggle-icon pointer" (click)="toggle(); $event.stopPropagation()">
+        <i class="fas fa-sm" [class.fa-chevron-down]="expanded" [class.fa-chevron-right]="!expanded"></i>
+      </div>
+      <div *ngIf="childProcesses.length === 0" class="toggle-icon"></div> <!-- Spacer -->
 
-    <ng-container *ngIf="!selectMode">
-      <a class="btn btn-icon btn-sm text-muted" routerLink="/process/view/{{process?.id}}" title="View Process"><i class="fas fa-eye"></i></a>
-      <a class="btn btn-icon btn-sm text-muted" routerLink="/process/edit/{{process?.id}}" title="Edit Process"><i class="fas fa-edit"></i></a>
-      <button class="btn btn-icon btn-sm text-muted" (click)="onShowDescription(process); $event.stopPropagation()" title="Show Description"><i class="fas fa-info-circle text-info"></i></button>
-      <button class="btn btn-icon btn-sm text-muted" (click)="onPrepareDelete(process); $event.stopPropagation()" data-toggle="modal" data-target="#confirmDeleteProcess" title="Delete Process"><i class="fas fa-trash"></i></button>
-    </ng-container>
+      <ng-container *ngIf="!selectMode">
+        <a class="btn btn-icon btn-sm text-muted" routerLink="/process/view/{{process?.id}}" title="View Process"><i class="fas fa-eye"></i></a>
+        <a class="btn btn-icon btn-sm text-muted" routerLink="/process/edit/{{process?.id}}" title="Edit Process"><i class="fas fa-edit"></i></a>
+        <button class="btn btn-icon btn-sm text-muted" (click)="onShowDescription(process); $event.stopPropagation()" title="Show Description"><i class="fas fa-info-circle"></i></button>
+        <button class="btn btn-icon btn-sm text-muted" (click)="onDelete(process); $event.stopPropagation()" title="Delete Process"><i class="fas fa-trash"></i></button>
+      </ng-container>
+    </div>
   </td>
   <td>
     <span *ngIf="selectMode" class="font-weight-bold">{{process.name}}</span>
@@ -52,7 +54,7 @@
       [showOrphansOnly]="showOrphansOnly"
       [selectMode]="selectMode"
       (deleted)="onDeleted()"
-      (prepareDelete)="onPrepareDelete($event)"
+      (delete)="onDelete($event)"
       (select)="onSelect($event)"
       (showDescription)="onShowDescription($event)"
     ></app-process-tree-node>

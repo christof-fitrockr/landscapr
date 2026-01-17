@@ -10,7 +10,6 @@ import {ErrorInterceptor} from './helpers/error.interceptor';
 import {JwtInterceptor} from './helpers/jwt.interceptor';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {ProcessListComponent} from './process/process-list.component';
-import {ProcessEditComponent} from './process/process-edit.component';
 import {ProcessViewComponent} from './process/process-view.component';
 import {ToastrModule} from 'ngx-toastr';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
@@ -22,7 +21,7 @@ import {ProcessEditSubprocessComponent} from './process/process-edit-subprocess.
 import {ProcessEditBaseComponent} from './process/process-edit-base.component';
 import {DashboardComponent} from './dashboard/dashboard.component';
 import {ProcessEditApiCallsComponent} from './process/process-edit-api-calls.component';
-import {ApiCallEditComponent} from './apiCall/api-call-edit.component';
+import {ProcessEditNavComponent} from './process/process-edit-nav.component';
 import {ApiCallEditBaseComponent} from './apiCall/api-call-edit-base.component';
 import {ApiCallEditUsageComponent} from './apiCall/api-call-edit-usage.component';
 import {ApiCallListComponent} from './apiCall/api-call-list.component';
@@ -35,13 +34,12 @@ import {ProcessTreeNodeComponent} from './components/process-tree-node.component
 import {CapabilityViewComponent} from './capability/capability-view.component';
 import {CapabilityEditApiCallComponent} from './capability/capability-edit-api-call.component';
 import {CapabilityListComponent} from './capability/capability-list.component';
-import {CapabilityEditComponent} from './capability/capability-edit.component';
 import {CapabilityEditBaseComponent} from './capability/capability-edit-base.component';
-import {SystemEditComponent} from './system/system-edit.component';
 import {SystemEditImplementsComponent} from './system/system-edit-implements.component';
 import {SystemEditApiComponent} from './system/system-edit-api.component';
+import {SystemEditNavComponent} from './system/system-edit-nav.component';
+import {CapabilityEditNavComponent} from './capability/capability-edit-nav.component';
 import {SystemListComponent} from './system/system-list.component';
-import {SystemViewComponent} from './system/system-view.component';
 import {SystemEditBaseComponent} from './system/system-edit-base.component';
 import {SystemTreeNodeComponent} from './system/system-tree-node.component';
 import {DragDropModule} from '@angular/cdk/drag-drop';
@@ -49,6 +47,7 @@ import {CapabilityEditImplementedByComponent} from './capability/capability-edit
 import {CapabilityOverviewComponent} from './components/capability-overview.component';
 import {SystemOverviewComponent} from './components/system-overview.component';
 import {ApiCallEditImplementedInComponent} from './apiCall/api-call-edit-implemented-in.component';
+import {ApiCallEditNavComponent} from './apiCall/api-call-edit-nav.component';
 import { CapabilityMapComponent } from './capability/capability-map.component';
 import {CapabilityTreeNodeComponent} from './capability/capability-tree-node.component';
 import {CapabilitySelectorTreeNodeComponent} from './components/capability-selector-tree-node/capability-selector-tree-node.component';
@@ -66,7 +65,6 @@ import { GithubDialogComponent } from './components/github-dialog.component';
 import { FileTypePipe } from './pipes/file-type.pipe';
 import { SaveGithubDialogComponent } from './components/save-github-dialog.component';
 import { CommitMessageDialogComponent } from './components/commit-message-dialog.component';
-import { CommitOptionsDialogComponent } from './components/commit-options-dialog.component';
 import { PrDialogComponent } from './components/pr-dialog.component';
 import { GithubActionsDialogComponent } from './components/github-actions-dialog.component';
 import { MergeResolverComponent } from './components/merge-resolver.component';
@@ -75,14 +73,19 @@ import { ConfirmationDialogComponent } from './components/confirmation-dialog.co
 import {CapabilitySelectorDialogComponent} from './components/capability-selector-dialog/capability-selector-dialog.component';
 
 import { ModalModule } from 'ngx-bootstrap/modal';
-import { JourneyEditComponent } from './journey/journey-maintenance/journey-edit.component';
 import { JourneyListComponent } from './journey/journey-list/journey-list.component';
+import { JourneyTreeNodeComponent } from './journey/journey-list/journey-tree-node.component';
 import { JourneyEditorComponent } from './journey/journey-editor/journey-editor.component';
 import { ProcessQuickViewModalComponent } from './journey/journey-editor/process-quick-view-modal.component';
 import { ProcessDescriptionModalComponent } from './components/process-description-modal.component';
+import { SystemDescriptionModalComponent } from './components/system-description-modal.component';
+import { CapabilityDescriptionModalComponent } from './components/capability-description-modal.component';
+import { ApiCallDescriptionModalComponent } from './components/api-call-description-modal.component';
+import { JourneyDescriptionModalComponent } from './components/journey-description-modal.component';
 import { ConditionEditModalComponent } from './journey/journey-editor/condition-edit-modal.component';
 import { NewProcessModalComponent } from './journey/journey-editor/new-process-modal.component';
 import { JourneyEditBaseComponent } from './journey/journey-edit-base.component';
+import { JourneyEditNavComponent } from './journey/journey-edit-nav.component';
 import { RepositoriesComponent } from './repositories/repositories.component';
 import { ApiGroupMapComponent } from './components/api-group-map.component';
 import { ApiCallGroupPipe } from './pipes/api-call-group.pipe';
@@ -105,7 +108,6 @@ import { MarkdownModule } from 'ngx-markdown';
     GithubDialogComponent,
     SaveGithubDialogComponent,
     CommitMessageDialogComponent,
-    CommitOptionsDialogComponent,
     PrDialogComponent,
     GithubActionsDialogComponent,
     DeleteConfirmationDialogComponent,
@@ -116,11 +118,10 @@ import { MarkdownModule } from 'ngx-markdown';
     ProcessOverviewComponent,
     ProcessListComponent,
     ProcessViewComponent,
-    ProcessEditComponent,
     ProcessEditBaseComponent,
     ProcessEditSubprocessComponent,
     ProcessEditApiCallsComponent,
-    ProcessOverviewComponent,
+    ProcessEditNavComponent,
     ProcessFlowNodeComponent,
     ProcessFlowViewComponent,
     AppSidePanelComponent,
@@ -143,15 +144,14 @@ import { MarkdownModule } from 'ngx-markdown';
     ImprintComponent,
     DisclaimerComponent,
 
-    ApiCallEditComponent,
     ApiCallEditBaseComponent,
     ApiCallEditUsageComponent,
     ApiCallEditImplementedInComponent,
+    ApiCallEditNavComponent,
     ApiCallListComponent,
     ApiCallViewComponent,
     ApiCallOverviewComponent,
 
-    CapabilityEditComponent,
     CapabilityEditBaseComponent,
     CapabilityEditApiCallComponent,
     CapabilityEditImplementedByComponent,
@@ -162,22 +162,26 @@ import { MarkdownModule } from 'ngx-markdown';
     CapabilityViewComponent,
     CapabilityOverviewComponent,
 
-    SystemEditComponent,
     SystemEditBaseComponent,
     SystemEditImplementsComponent,
     SystemEditApiComponent,
+    SystemEditNavComponent,
+    CapabilityEditNavComponent,
     SystemTreeNodeComponent,
     SystemListComponent,
-    SystemViewComponent,
+    SystemDescriptionModalComponent,
+    CapabilityDescriptionModalComponent,
+    ApiCallDescriptionModalComponent,
+    JourneyDescriptionModalComponent,
     SystemOverviewComponent,
 
     PrivacyPolicyComponent,
     AppComponent,
     LoginPage,
-    ProcessOverviewComponent,
-    JourneyEditComponent,
     JourneyEditBaseComponent,
+    JourneyEditNavComponent,
     JourneyListComponent,
+    JourneyTreeNodeComponent,
     JourneyEditorComponent,
     ProcessQuickViewModalComponent,
     ConditionEditModalComponent,

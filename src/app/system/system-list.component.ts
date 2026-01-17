@@ -6,6 +6,10 @@ import {ActivatedRoute} from '@angular/router';
 import {Subscription, forkJoin} from 'rxjs';
 import {ApiCallService} from '../services/api-call.service';
 import {CapabilityService} from '../services/capability.service';
+import {BsModalService} from 'ngx-bootstrap/modal';
+import {ToastrService} from 'ngx-toastr';
+import {DeleteConfirmationDialogComponent} from '../components/delete-confirmation-dialog.component';
+import {SystemDescriptionModalComponent} from '../components/system-description-modal.component';
 
 @Component({selector: 'app-system-list', templateUrl: './system-list.component.html', styleUrls: ['./system-list.component.scss']})
 export class SystemListComponent implements OnInit, OnDestroy {
@@ -15,6 +19,7 @@ export class SystemListComponent implements OnInit, OnDestroy {
   systemTree: any[] = [];
   searchText = '';
   showOrphansOnly = false;
+  filterStatus: number = null;
   orphanIds: string[] = [];
   private subscription: Subscription;
 
@@ -22,7 +27,9 @@ export class SystemListComponent implements OnInit, OnDestroy {
     private systemService: ApplicationService,
     private capabilityService: CapabilityService,
     private apiCallService: ApiCallService,
-    private activatedRoute: ActivatedRoute
+    private activatedRoute: ActivatedRoute,
+    private modalService: BsModalService,
+    private toastr: ToastrService
   ) {
   }
 
@@ -95,5 +102,27 @@ export class SystemListComponent implements OnInit, OnDestroy {
     this.orphanIds = this.systems
       .filter(sys => !referencedSystemIds.has(sys.id))
       .map(sys => sys.id);
+  }
+
+  onDelete(system: Application) {
+    const modalRef = this.modalService.show(DeleteConfirmationDialogComponent, { class: 'modal-md' });
+    modalRef.content.itemName = system.name;
+    modalRef.content.onClose.subscribe(result => {
+      if (result) {
+        this.systemService.delete(system.id).subscribe(() => {
+          this.toastr.success('System deleted');
+          this.refresh();
+        }, error => {
+          this.toastr.error('Error deleting System');
+        });
+      }
+    });
+  }
+
+  onShowDescription(system: Application) {
+    this.modalService.show(SystemDescriptionModalComponent, {
+      initialState: { system },
+      class: 'modal-dialog-centered'
+    });
   }
 }

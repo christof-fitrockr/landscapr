@@ -6,6 +6,10 @@ import {Subscription, forkJoin} from 'rxjs';
 import {ActivatedRoute} from '@angular/router';
 import {ApiCallService} from '../services/api-call.service';
 import {ApiCall} from '../models/api-call';
+import {BsModalService} from 'ngx-bootstrap/modal';
+import {ToastrService} from 'ngx-toastr';
+import {DeleteConfirmationDialogComponent} from '../components/delete-confirmation-dialog.component';
+import {CapabilityDescriptionModalComponent} from '../components/capability-description-modal.component';
 
 @Component({selector: 'app-capability-list', templateUrl: './capability-list.component.html', styleUrls: ['./capability-list.component.scss']})
 export class CapabilityListComponent implements OnInit, OnDestroy {
@@ -14,15 +18,18 @@ export class CapabilityListComponent implements OnInit, OnDestroy {
   repoId: string;
   capabilities: Capability[];
   capabilityTree: any[] = [];
-  searchText: string;
+  searchText = '';
   showOrphansOnly = false;
+  filterStatus: number = null;
   orphanIds: string[] = [];
   private subscription: Subscription;
 
   constructor(
     private capabilityService: CapabilityService,
     private apiCallService: ApiCallService,
-    private activatedRoute: ActivatedRoute
+    private activatedRoute: ActivatedRoute,
+    private modalService: BsModalService,
+    private toastr: ToastrService
   ) {
   }
 
@@ -37,7 +44,7 @@ export class CapabilityListComponent implements OnInit, OnDestroy {
     this.subscription.unsubscribe();
   }
 
-  private refresh() {
+  refresh() {
     forkJoin([
         this.capabilityService.all(this.repoId).pipe(first()),
         this.apiCallService.all().pipe(first())
@@ -99,5 +106,27 @@ export class CapabilityListComponent implements OnInit, OnDestroy {
       node.children.forEach(child => checkOrphan(child));
     };
     this.capabilityTree.forEach(root => checkOrphan(root));
+  }
+
+  onDelete(capability: Capability) {
+    const modalRef = this.modalService.show(DeleteConfirmationDialogComponent, { class: 'modal-md' });
+    modalRef.content.itemName = capability.name;
+    modalRef.content.onClose.subscribe(result => {
+      if (result) {
+        this.capabilityService.delete(capability.id).subscribe(() => {
+          this.toastr.success('Capability deleted');
+          this.refresh();
+        }, error => {
+          this.toastr.error('Error deleting Capability');
+        });
+      }
+    });
+  }
+
+  onShowDescription(capability: Capability) {
+    this.modalService.show(CapabilityDescriptionModalComponent, {
+      initialState: { capability },
+      class: 'modal-dialog-centered'
+    });
   }
 }

@@ -23,7 +23,7 @@ export class ProcessTreeNodeComponent implements OnChanges {
   @Input() selectMode: boolean = false;
 
   @Output() deleted = new EventEmitter<void>();
-  @Output() prepareDelete = new EventEmitter<Process>();
+  @Output() delete = new EventEmitter<Process>();
   @Output() select = new EventEmitter<Process>();
   @Output() showDescription = new EventEmitter<Process>();
 
@@ -102,8 +102,8 @@ export class ProcessTreeNodeComponent implements OnChanges {
     this.expanded = !this.expanded;
   }
 
-  onPrepareDelete(process: Process) {
-    this.prepareDelete.emit(process);
+  onDelete(process: Process) {
+    this.delete.emit(process);
   }
 
   onDeleted() {

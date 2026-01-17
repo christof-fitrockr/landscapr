@@ -5,6 +5,7 @@
     <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
 
       <div class="btn-toolbar justify-content-lg-start" role="toolbar" aria-label="Toolbar with button groups">
+        <app-capability-edit-nav [capabilityId]="capabilityId"></app-capability-edit-nav>
         <div class="btn-group mr-2" role="group" aria-label="First group">
           <button type="button" class="btn btn-primary" title="Save" (click)="onUpdate()"><i class="fas fa-save"></i></button>
           <a class="btn btn-secondary" title="List" routerLink="/capability"><i class="fas fa-list"></i></a>
@@ -58,25 +59,25 @@
         <div class="form-group row">
           <label for="status" class="col-sm-2 col-form-label">Status</label>
           <div class="col-sm-10">
-            <ng-select id="status" formControlName="status">
-              <ng-option [value]="0">Draft</ng-option>
-              <ng-option [value]="1">Validated</ng-option>
-            </ng-select>
+            <div class="btn-group" role="group">
+              <button type="button" class="btn" [class.btn-primary]="capabilityForm.get('status').value === 0" [class.btn-outline-primary]="capabilityForm.get('status').value !== 0" (click)="capabilityForm.get('status').setValue(0)">Draft</button>
+              <button type="button" class="btn" [class.btn-primary]="capabilityForm.get('status').value === 1" [class.btn-outline-primary]="capabilityForm.get('status').value !== 1" (click)="capabilityForm.get('status').setValue(1)">Validated</button>
+            </div>
           </div>
         </div>
 
         <div class="form-group row">
           <label for="parentId" class="col-sm-2 col-form-label">Parent</label>
           <div class="col-sm-10">
-            <ng-select id="parentId"
-                       formControlName="parentId"
-                       [items]="parentOptions"
-                       bindLabel="name"
-                       bindValue="id"
-                       [clearable]="true"
-                       placeholder="(root)">
-            </ng-select>
-            <small class="form-text text-muted">Leave empty to make this a root capability.</small>
+            <div class="d-flex align-items-center">
+              <button type="button" class="btn btn-outline-secondary btn-sm mr-3" (click)="selectParent()">
+                <i class="fas fa-sitemap"></i> Select Parent
+              </button>
+              <span class="badge badge-light border py-2 px-3 text-slate-700 shadow-sm" [class.bg-white]="capabilityForm.get('parentId').value">
+                {{ getParentName() }}
+              </span>
+            </div>
+            <small class="form-text text-muted mt-2">Capabilities are organized in a tree. Leave root if this is a top-level capability.</small>
           </div>
         </div>
 

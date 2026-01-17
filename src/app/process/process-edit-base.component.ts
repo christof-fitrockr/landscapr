@@ -14,9 +14,9 @@ export class ProcessEditBaseComponent implements OnInit, OnDestroy {
 
   processForm: FormGroup;
   process: Process;
-  private processId: string;
+  processId: string;
   systems$: Observable<Application[]>;
-  private repoId: string;
+  repoId: string;
   private subscription: Subscription;
   roles: string[] = ['Customer', 'Vehicle', 'Service with Customer', 'Service', 'Workshop', 'Parts', 'Processing'];
 

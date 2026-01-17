@@ -6,11 +6,9 @@
 
 
       <div class="btn-toolbar justify-content-lg-start" role="toolbar" aria-label="Toolbar with button groups">
-        <div class="btn-group mr-2" role="group" aria-label="First group">
-          <a class="btn btn-secondary" title="List" routerLink="/system"><i class="fas fa-list"></i></a>
-        </div>
+        <app-system-edit-nav [systemId]="systemId"></app-system-edit-nav>
         <div class="btn-group mr-2" role="group" aria-label="Second group">
-          <button class="btn btn-secondary" title="Add" (click)="openAddModal()"><i class="fas fa-plus"></i></button>
+          <button class="btn btn-primary" title="Add" (click)="openAddModal()"><i class="fas fa-plus"></i></button>
         </div>
       </div>
 

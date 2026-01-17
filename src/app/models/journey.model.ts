@@ -38,6 +38,13 @@ export interface Journey {
   connections: Connection[];
   layout?: JourneyLayout;
   comments?: Comment[];
+  status: DataStatus;
+  tags: string[];
+}
+
+export enum DataStatus {
+  Draft,
+  Validated
 }
 
 export type JourneyItem = Process | Journey;

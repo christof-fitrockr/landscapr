@@ -3,9 +3,9 @@
 
     <div class="card-header py-3 d-flex flex-column">
       <div class="d-flex flex-row align-items-center justify-content-between w-100">
-        <div class="btn-toolbar" role="toolbar" aria-label="Editor tools">
+        <div class="btn-toolbar justify-content-lg-start" role="toolbar" aria-label="Editor tools">
+          <app-journey-edit-nav [journeyId]="journeyId"></app-journey-edit-nav>
           <div class="btn-group mr-2" role="group" aria-label="First group">
-            <a class="btn btn-secondary" title="Edit" [routerLink]="['/journeys/edit', journeyId, 'base']"><i class="fas fa-edit"></i></a>
             <a class="btn btn-secondary" title="List" routerLink="/journeys/list"><i class="fas fa-list"></i></a>
           </div>
           <div class="btn-group mr-2" role="group" aria-label="Tool buttons">
