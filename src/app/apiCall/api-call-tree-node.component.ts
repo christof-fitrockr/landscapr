@@ -4,7 +4,8 @@ import {ApiCall} from '../models/api-call';
 @Component({
   selector: 'app-api-call-tree-node',
   templateUrl: './api-call-tree-node.component.html',
-  styleUrls: ['./api-call-tree-node.component.scss']
+  styleUrls: ['./api-call-tree-node.component.scss'],
+  host: { style: 'display: contents' }
 })
 export class ApiCallTreeNodeComponent implements OnInit {
   @Input() group: { name: string, items: any[] };

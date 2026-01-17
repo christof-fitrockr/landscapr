@@ -85,6 +85,7 @@ import { JourneyEditBaseComponent } from './journey/journey-edit-base.component'
 import { RepositoriesComponent } from './repositories/repositories.component';
 import { ApiGroupMapComponent } from './components/api-group-map.component';
 import { ApiCallGroupPipe } from './pipes/api-call-group.pipe';
+import { ApiTypePipe } from './pipes/api-type.pipe';
 import { AppSidePanelComponent } from './components/app-side-panel.component';
 import { ProcessFlowNodeComponent } from './process/process-flow-node.component';
 import { ProcessFlowViewComponent } from './process/process-flow-view.component';
@@ -127,6 +128,7 @@ import { MarkdownModule } from 'ngx-markdown';
     DashboardComponent,
     ApiCallFilterPipe,
     ApiCallGroupPipe,
+    ApiTypePipe,
     ProcessFilterPipe,
     ApiCallCapabilityFilterPipe,
     SystemFilterPipe,
