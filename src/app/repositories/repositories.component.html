@@ -1,70 +1,114 @@
 <div class="container-xl mt-3">
-  <div class="row">
-    <div class="col-md-4">
-      <div class="card mb-3">
-        <div class="card-header">GitHub Connection</div>
-        <div class="card-body">
-          <div class="mb-3">
-            <label class="form-label">Personal Access Token</label>
-            <input [(ngModel)]="pat" type="password" class="form-control" placeholder="ghp_..." />
-          </div>
-          <button class="btn btn-primary" (click)="connect()" [disabled]="connecting">
-            <span *ngIf="!connecting">Connect</span>
-            <span *ngIf="connecting"><i class="fas fa-spinner fa-spin"></i> Connecting...</span>
-          </button>
-          <div *ngIf="owner" class="mt-2 text-muted">Connected as {{owner}}</div>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="card-header"><i class="fas fa-database"></i> Repositories</div>
-        <div class="card-body p-0 repo-list">
-          <ul class="list-group list-group-flush">
-            <li class="list-group-item repo-item" *ngFor="let r of (repos$ | async)" (click)="selectRepo(r)" [class.active]="selectedRepo?.name===r.name">
-              <i class="fab fa-github"></i> {{r.name}}
-            </li>
-          </ul>
-        </div>
-      </div>
+  <!-- Connection & Repository (Collapsible) -->
+  <div class="card mb-3">
+    <div class="card-header d-flex justify-content-between align-items-center" (click)="isRepoCollapsed = !isRepoCollapsed" style="cursor: pointer">
+      <span>
+        <i class="fas" [ngClass]="isRepoCollapsed ? 'fa-chevron-right' : 'fa-chevron-down'"></i>
+        Repository: <strong>{{ selectedRepo ? selectedRepo.name : 'None' }}</strong>
+      </span>
+      <span *ngIf="owner" class="text-muted small">Connected as {{owner}}</span>
     </div>
+    <div class="card-body" *ngIf="!isRepoCollapsed">
+        <div class="row">
+            <div class="col-md-4">
+                <div class="mb-3">
+                    <label class="form-label">Personal Access Token</label>
+                    <div class="input-group">
+                        <input [(ngModel)]="pat" type="password" class="form-control" placeholder="ghp_..." />
+                        <div class="input-group-append">
+                            <button class="btn btn-outline-secondary" (click)="connect()" [disabled]="connecting">
+                                <span *ngIf="!connecting">Connect</span>
+                                <span *ngIf="connecting"><i class="fas fa-spinner fa-spin"></i></span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="repo-list border rounded" style="max-height: 200px; overflow-y: auto;">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item repo-item list-group-item-action" *ngFor="let r of (repos$ | async)" (click)="selectRepo(r)" [class.active]="selectedRepo?.name===r.name" style="cursor: pointer">
+                          <i class="fab fa-github"></i> {{r.name}}
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-md-8">
+                <label class="form-label">Files</label>
+                <div class="file-list border rounded" style="max-height: 240px; overflow-y: auto;">
+                    <div *ngIf="!selectedRepo" class="p-3 text-muted">Select a repository.</div>
+                    <div *ngIf="loadingFiles" class="p-3"><i class="fas fa-spinner fa-spin"></i> Loading...</div>
+                    <ul class="list-group list-group-flush" *ngIf="selectedRepo && !loadingFiles">
+                      <li class="list-group-item file-item list-group-item-action" *ngFor="let f of (files$ | async)" (click)="selectFile(f)" [class.active]="selectedFilePath===f.path" style="cursor: pointer">
+                        <i class="far" [ngClass]="f.type==='dir' ? 'fa-folder' : 'fa-file'" class="me-2"></i>
+                        {{f.path}}
+                      </li>
+                    </ul>
+                </div>
+                <div class="mt-2 d-flex justify-content-between">
+                     <button class="btn btn-sm btn-outline-primary" (click)="loadFromGithub()" [disabled]="!selectedFilePath" title="Load selected GitHub file"><i class="fas fa-download"></i> Load</button>
+                     <div class="small text-muted align-self-center">{{ selectedFilePath || 'No file selected' }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+  </div>
 
-    <div class="col-md-8">
-      <div class="card">
-        <div class="card-header d-flex justify-content-between align-items-center">
-          <span>Files <ng-container *ngIf="selectedRepo">in {{selectedRepo.name}}</ng-container></span>
-          <div class="d-flex align-items-center">
-            <!-- Local data actions -->
+  <!-- Workspace Card (Prominent) -->
+  <div class="card mb-3 shadow-sm" *ngIf="selectedRepo && selectedFilePath">
+      <div class="card-header bg-white">
+          <h5 class="mb-0 text-primary"><i class="fas fa-code-branch"></i> Workspace</h5>
+      </div>
+      <div class="card-body">
+          <div class="row align-items-center">
+              <div class="col-md-6">
+                  <label class="small text-muted text-uppercase font-weight-bold">Current Branch</label>
+                  <div class="d-flex align-items-center">
+                      <div class="dropdown" dropdown>
+                          <button dropdownToggle type="button" class="btn btn-outline-secondary dropdown-toggle btn-lg text-left" style="min-width: 200px">
+                              {{ currentBranch }} <span class="caret"></span>
+                          </button>
+                          <ul *dropdownMenu class="dropdown-menu" role="menu">
+                              <li role="menuitem" *ngFor="let b of branches">
+                                  <a class="dropdown-item" href="javascript:void(0)" (click)="switchBranch(b.name)">{{ b.name }}</a>
+                              </li>
+                          </ul>
+                      </div>
+                      <button class="btn btn-link ml-2" (click)="createNewBranch()" title="Create New Branch">
+                          <i class="fas fa-plus-circle"></i> New Branch
+                      </button>
+                  </div>
+                  <div class="mt-2 text-danger small" *ngIf="currentBranch === selectedRepo.default_branch">
+                      <i class="fas fa-exclamation-triangle"></i> You are on the main branch. Create a new branch to save changes.
+                  </div>
+              </div>
+              <div class="col-md-6 text-right">
+                  <div class="mb-2">
+                      <span class="badge badge-light p-2 border">File: {{ selectedFilePath }}</span>
+                  </div>
+                  <button class="btn btn-primary btn-lg mr-2" (click)="saveToGithub()" [disabled]="saving">
+                      <span *ngIf="!saving"><i class="fas fa-save"></i> Save Changes</span>
+                      <span *ngIf="saving"><i class="fas fa-spinner fa-spin"></i> Saving...</span>
+                  </button>
+                  <button class="btn btn-success btn-lg" (click)="createPr()" [disabled]="currentBranch === selectedRepo.default_branch">
+                      <i class="fas fa-code-branch"></i> Create Pull Request
+                  </button>
+              </div>
+          </div>
+      </div>
+  </div>
+
+  <!-- Local Data Actions (Secondary) -->
+  <div class="card mb-3" *ngIf="selectedRepo">
+      <div class="card-body py-2 d-flex justify-content-between align-items-center bg-light">
+          <span class="text-muted small">Local Data Operations</span>
+          <div>
             <input id="uploadJsonInput" #uploadJsonInput type="file" accept="application/json" class="d-none" (change)="uploadDocument($event.target.files)">
             <button class="btn btn-sm btn-outline-secondary me-2" (click)="download()" title="Download current data as JSON">
-              <i class="fas fa-file-download"></i> Download
+              <i class="fas fa-file-download"></i> Download Local
             </button>
-            <button class="btn btn-sm btn-outline-secondary me-3" (click)="uploadJsonInput.click()" title="Upload JSON to replace current data">
-              <i class="fas fa-file-upload"></i> Upload
-            </button>
-            <!-- GitHub actions for the selected file -->
-            <button class="btn btn-sm btn-outline-primary me-2" (click)="loadFromGithub()" [disabled]="!selectedFilePath" title="Load selected GitHub file into app data"><i class="fas fa-download"></i> Load</button>
-            <button class="btn btn-sm btn-primary" (click)="saveToGithub()" [disabled]="!selectedFilePath || saving" title="Save current data to selected GitHub file">
-              <span *ngIf="!saving"><i class="fas fa-upload"></i> Save</span>
-              <span *ngIf="saving"><i class="fas fa-spinner fa-spin"></i> Saving...</span>
+            <button class="btn btn-sm btn-outline-secondary" (click)="uploadJsonInput.click()" title="Upload JSON to replace current data">
+              <i class="fas fa-file-upload"></i> Upload Local
             </button>
           </div>
-        </div>
-        <div class="card-body p-0 file-list">
-          <div *ngIf="!selectedRepo" class="p-3 text-muted">Select a repository to view its files.</div>
-          <div *ngIf="selectedRepo">
-            <div *ngIf="loadingFiles" class="p-3"><i class="fas fa-spinner fa-spin"></i> Loading files...</div>
-            <ul class="list-group list-group-flush">
-              <li class="list-group-item file-item" *ngFor="let f of (files$ | async)" (click)="selectFile(f)" [class.active]="selectedFilePath===f.path">
-                <i class="far" [ngClass]="f.type==='dir' ? 'fa-folder' : 'fa-file'" class="me-2"></i>
-                {{f.path}}
-              </li>
-            </ul>
-          </div>
-        </div>
-        <div *ngIf="selectedFilePath" class="card-footer small text-muted">
-          Selected: {{selectedFilePath}}
-        </div>
       </div>
-    </div>
   </div>
 </div>

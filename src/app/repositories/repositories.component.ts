@@ -9,6 +9,7 @@ import { BsModalService } from 'ngx-bootstrap/modal';
 import { MergeService } from '../services/merge.service';
 import { MergeResolverComponent } from '../components/merge-resolver.component';
 import { CommitOptionsDialogComponent } from '../components/commit-options-dialog.component';
+import { PrDialogComponent } from '../components/pr-dialog.component';
 
 @Component({
   selector: 'app-repositories',
@@ -19,6 +20,7 @@ export class RepositoriesComponent implements OnInit {
 
   private static readonly STORAGE_SELECTED_REPO = 'repositories.selectedRepo';
   private static readonly STORAGE_SELECTED_FILE = 'repositories.selectedFilePath';
+  private static readonly STORAGE_PREFIX_BRANCH = 'repositories.currentBranch.';
 
   pat: string = '';
   owner: string = '';
@@ -29,6 +31,8 @@ export class RepositoriesComponent implements OnInit {
 
   selectedRepo: any = null;
   selectedFilePath: string | null = null;
+  currentBranch: string = 'main';
+  isRepoCollapsed: boolean = false;
 
   connecting = false;
   loadingFiles = false;
@@ -81,9 +85,13 @@ export class RepositoriesComponent implements OnInit {
   selectRepo(repo: any): void {
     this.selectedRepo = repo;
     localStorage.setItem(RepositoriesComponent.STORAGE_SELECTED_REPO, repo?.name ?? '');
-    // Reset file selection in memory; keep stored selection to try to restore if it belongs to this repo
     this.selectedFilePath = null;
     this.branches = [];
+    this.isRepoCollapsed = false;
+
+    // Load persisted branch or default
+    const savedBranch = localStorage.getItem(RepositoriesComponent.STORAGE_PREFIX_BRANCH + repo.name);
+    this.currentBranch = savedBranch || repo.default_branch || 'main';
 
     this.loadingFiles = true;
     this.files$ = this.githubService.getRepoContents(repo.owner.login, repo.name, '');
@@ -92,15 +100,14 @@ export class RepositoriesComponent implements OnInit {
       this.branches = branches;
     });
 
-    // When observable resolves, Angular will render. We just turn off spinner shortly after by subscribing once.
     this.files$.pipe(first()).subscribe(files => {
       this.loadingFiles = false;
-      // Try to preselect previously selected file if it exists in this repo
       const savedFilePath = localStorage.getItem(RepositoriesComponent.STORAGE_SELECTED_FILE);
       if (savedFilePath) {
         const found = (files || []).find((f: any) => f?.path === savedFilePath);
         if (found) {
           this.selectFile(found);
+          this.isRepoCollapsed = true;
         }
       }
     }, _ => this.loadingFiles = false);
@@ -113,10 +120,56 @@ export class RepositoriesComponent implements OnInit {
     }
   }
 
-  // Load from selected GitHub file into local app storage
+  switchBranch(branchName: string): void {
+    this.currentBranch = branchName;
+    if (this.selectedRepo) {
+      localStorage.setItem(RepositoriesComponent.STORAGE_PREFIX_BRANCH + this.selectedRepo.name, branchName);
+      // Reload file if selected
+      if (this.selectedFilePath) {
+          this.loadFromGithub();
+      }
+    }
+  }
+
+  createNewBranch(): void {
+      if (!this.selectedRepo) return;
+
+      const modalRef = this.modalService.show(CommitOptionsDialogComponent, {
+          class: 'modal-lg',
+          initialState: {
+              branches: this.branches,
+              currentBranch: this.currentBranch,
+              fileName: this.selectedFilePath || 'repository',
+              isNewBranch: true // Force new branch mode initially
+          }
+      });
+      // We reuse CommitOptionsDialog but we treat it as "Create Branch" dialog
+      const content: any = modalRef.content;
+      if (content && content.onClose) {
+          content.onClose.pipe(first()).subscribe((config: any) => {
+              if (config && config.branchMode === 'new') {
+                  // Create the branch immediately
+                  const { branchName, baseBranch } = config;
+                  this.githubService.getRef(this.owner, this.selectedRepo.name, `heads/${baseBranch}`).pipe(
+                      switchMap((ref: any) => {
+                          const sha = ref.object.sha;
+                          return this.githubService.createBranch(this.owner, this.selectedRepo.name, branchName, sha);
+                      })
+                  ).subscribe(() => {
+                      this.toastr.success(`Branch ${branchName} created`);
+                      // Update branch list and switch
+                      this.branches.push({ name: branchName });
+                      this.switchBranch(branchName);
+                  }, err => this.toastr.error('Failed to create branch'));
+              }
+          });
+      }
+  }
+
   loadFromGithub(): void {
     if (!this.selectedRepo || !this.selectedFilePath) { return; }
-    this.githubService.getFileContent(this.selectedRepo.owner.login, this.selectedRepo.name, this.selectedFilePath)
+    // Fetch from CURRENT branch
+    this.githubService.getFileContent(this.selectedRepo.owner.login, this.selectedRepo.name, this.selectedFilePath, this.currentBranch)
       .pipe(first())
       .subscribe(fileContent => {
         try {
@@ -138,71 +191,57 @@ export class RepositoriesComponent implements OnInit {
               });
             }
           } else {
-            // identical -> just apply
             this.repoService.uploadJsonContent(contentStr).pipe(first()).subscribe(() => {
-              this.toastr.success('Repository content updated from GitHub file');
+              this.toastr.success(`Loaded content from ${this.currentBranch}`);
             });
           }
         } catch (e) {
           this.toastr.error('Failed to parse GitHub file content');
         }
-      }, _ => this.toastr.error('Failed to load file from GitHub'));
+      }, _ => this.toastr.error('Failed to load file from GitHub (does it exist on this branch?)'));
   }
 
-  // Save current local app JSON into the selected GitHub file (create or update)
+  createPr(): void {
+      if (!this.selectedRepo || this.currentBranch === this.selectedRepo.default_branch) return;
+      const modalRef = this.modalService.show(PrDialogComponent);
+      if (modalRef.content) {
+          (modalRef.content as any).onClose.pipe(first()).subscribe((res: any) => {
+              if (res) {
+                  this.githubService.createPullRequest(this.owner, this.selectedRepo.name, res.title, res.body, this.currentBranch, this.selectedRepo.default_branch)
+                    .subscribe(() => {
+                        this.toastr.success('Pull Request Created');
+                    }, err => this.toastr.error('Failed to create PR'));
+              }
+          });
+      }
+  }
+
   saveToGithub(): void {
     if (!this.selectedRepo || !this.selectedFilePath) { return; }
+
+    // GUARD: If on main, forbid
+    if (this.currentBranch === this.selectedRepo.default_branch) {
+        this.toastr.warning('You cannot save directly to the main branch. Please create a new branch.');
+        this.createNewBranch();
+        return;
+    }
+
     this.saving = true;
     const owner = this.selectedRepo.owner.login;
     const repo = this.selectedRepo.name;
     const path = this.selectedFilePath;
     const localData = this.repoService.getCurrentData();
 
-    // 1. Open Commit Options
-    const modalRef = this.modalService.show(CommitOptionsDialogComponent, {
-        class: 'modal-lg',
-        initialState: {
-            branches: this.branches,
-            currentBranch: this.selectedRepo.default_branch,
-            fileName: path
-        }
-    });
-
-    const content: any = modalRef.content;
-    if (content && content.onClose) {
-        content.onClose.pipe(first()).subscribe((config: any) => {
-            if (!config) { this.saving = false; return; }
-            this.executeSave(config, owner, repo, path, localData);
-        });
-    } else {
-        this.saving = false;
-    }
+    // Direct Save Flow (Fetch -> Compare -> Commit)
+    this.executeSave(owner, repo, path, localData);
   }
 
-  executeSave(config: any, owner: string, repo: string, path: string, localData: any) {
-    const { branchMode, branchName, baseBranch, createPr, prTitle } = config;
+  executeSave(owner: string, repo: string, path: string, localData: any) {
+    const branchName = this.currentBranch;
 
-    let branchSetup$ = of(null);
-    if (branchMode === 'new') {
-         branchSetup$ = this.githubService.getRef(owner, repo, `heads/${baseBranch}`).pipe(
-            switchMap((ref: any) => {
-                const sha = ref.object.sha;
-                return this.githubService.createBranch(owner, repo, branchName, sha);
-            }),
-            catchError(err => {
-                this.toastr.error(`Failed to create branch ${branchName}`);
-                return throwError(err);
-            })
-        );
-    }
-
-    branchSetup$.pipe(
-        switchMap(() => {
-            // Get file content from TARGET branch
-            return this.githubService.getFileContent(owner, repo, path, branchName).pipe(
-                catchError(() => of(null))
-            );
-        })
+    // Get file content from CURRENT branch
+    this.githubService.getFileContent(owner, repo, path, branchName).pipe(
+        catchError(() => of(null))
     ).subscribe(file => {
         const sha = file && file.sha ? file.sha : undefined;
         let remoteData: any = {};
@@ -212,7 +251,7 @@ export class RepositoriesComponent implements OnInit {
             }
         } catch { remoteData = {}; }
 
-        // Show Merge Resolver
+        // Open Merge Resolver (It handles Simple Mode if no conflicts)
         const modalRef = this.modalService.show(MergeResolverComponent, {
             class: 'modal-xl',
             initialState: { repoData: remoteData, localData, requireCommitMessage: true }
@@ -228,19 +267,8 @@ export class RepositoriesComponent implements OnInit {
                   this.githubService.createOrUpdateFile(owner, repo, path, mergedText, sha, commitMessage, branchName)
                     .pipe(first())
                     .subscribe(() => {
-                        if (createPr && branchMode === 'new') {
-                             this.githubService.createPullRequest(owner, repo, prTitle, commitMessage || 'Automated update', branchName, baseBranch)
-                                .subscribe(() => {
-                                    this.toastr.success(`Saved to ${branchName} and created PR`);
-                                    this.saving = false;
-                                }, () => {
-                                    this.toastr.success(`Saved to ${branchName} but PR creation failed`);
-                                    this.saving = false;
-                                });
-                        } else {
-                            this.toastr.success(`Saved to ${branchName}`);
-                            this.saving = false;
-                        }
+                        this.toastr.success(`Saved to ${branchName}`);
+                        this.saving = false;
                     }, err => {
                         this.toastr.error('Failed to save to GitHub');
                         this.saving = false;

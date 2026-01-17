@@ -1,28 +1,32 @@
 <div class="modal-header">
-  <h4 class="modal-title">Resolve Merge Conflicts</h4>
+  <h4 class="modal-title">{{ isSimpleMode ? 'Commit Changes' : 'Resolve Merge Conflicts' }}</h4>
   <button type="button" class="close" aria-label="Close" (click)="cancel()">
     <span aria-hidden="true">&times;</span>
   </button>
 </div>
 <div class="modal-body">
 
-  <!-- Simple Mode -->
-  <div *ngIf="isSimpleMode" class="simple-mode-container text-center py-4">
-    <div class="mb-3">
-      <h5 class="text-success">No conflicts detected</h5>
+  <!-- Simple Mode (Commit Dialog) -->
+  <div *ngIf="isSimpleMode" class="simple-mode-container py-3">
+    <div class="text-center mb-4">
+      <div class="fa-3x text-success mb-3">
+        <i class="fas fa-check-circle"></i>
+      </div>
+      <h5>Ready to Commit</h5>
       <p class="text-muted">
-        {{ totalUpdates }} items to update.
+        Your local changes are compatible with the remote branch.<br>
+        <span class="badge badge-light">{{ totalUpdates }} item(s) changed</span>
       </p>
     </div>
 
     <!-- Commit Message for Simple Mode -->
-    <div class="form-group text-left mx-5" *ngIf="requireCommitMessage">
-      <label for="commitMessageSimple"><strong>Commit message</strong></label>
+    <div class="form-group px-4" *ngIf="requireCommitMessage">
+      <label for="commitMessageSimple"><strong>Commit Message</strong></label>
       <textarea id="commitMessageSimple" class="form-control" rows="3" [(ngModel)]="commitMessage" placeholder="Summarize your changes..."></textarea>
     </div>
 
-    <div class="mt-3">
-       <button class="btn btn-link" (click)="toggleSimpleMode()">Show Details</button>
+    <div class="text-center mt-3">
+       <button class="btn btn-sm btn-link text-muted" (click)="toggleSimpleMode()">View Details</button>
     </div>
   </div>
 
@@ -201,5 +205,7 @@
 
 <div class="modal-footer">
   <button class="btn btn-outline-secondary" (click)="cancel()">Cancel</button>
-  <button class="btn btn-primary" [disabled]="requireCommitMessage && (!commitMessage || !commitMessage.trim())" (click)="apply()">Apply merge</button>
+  <button class="btn btn-primary" [disabled]="requireCommitMessage && (!commitMessage || !commitMessage.trim())" (click)="apply()">
+      {{ isSimpleMode ? 'Commit' : 'Resolve & Commit' }}
+  </button>
 </div>

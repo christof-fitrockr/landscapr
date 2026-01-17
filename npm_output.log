@@ -176,3 +176,165 @@ runtime.js          | runtime | 14.14 kB |
 Build at: 2026-01-17T06:22:17.417Z - Hash: 9f83d0490fbb3fa4 - Time: 1634ms
 
 ✔ Compiled successfully.
+✔ Browser application bundle generation complete.
+
+Initial Chunk Files | Names   | Raw Size
+main.js             | main    |  1.30 MB |
+runtime.js          | runtime | 14.14 kB |
+
+7 unchanged chunks
+
+Build at: 2026-01-17T07:03:38.383Z - Hash: d4adf11b25e6e384 - Time: 14970ms
+
+✔ Compiled successfully.
+✔ Browser application bundle generation complete.
+
+Initial Chunk Files | Names   | Raw Size
+main.js             | main    |  1.31 MB |
+runtime.js          | runtime | 14.14 kB |
+
+7 unchanged chunks
+
+Build at: 2026-01-17T07:03:59.470Z - Hash: ea4e4086adf366b8 - Time: 10032ms
+
+✔ Compiled successfully.
+✔ Browser application bundle generation complete.
+
+Initial Chunk Files | Names   | Raw Size
+main.js             | main    |  1.32 MB |
+runtime.js          | runtime | 14.14 kB |
+
+7 unchanged chunks
+
+Build at: 2026-01-17T07:04:19.506Z - Hash: 0a55dbee3ac1ae2d - Time: 2015ms
+
+Error: src/app/repositories/repositories.component.html:4:89 - error TS2339: Property 'isRepoCollapsed' does not exist on type 'RepositoriesComponent'.
+
+4     <div class="card-header d-flex justify-content-between align-items-center" (click)="isRepoCollapsed = !isRepoCollapsed" style="cursor: pointer">
+                                                                                          ~~~~~~~~~~~~~~~
+
+  src/app/repositories/repositories.component.ts:15:16
+    15   templateUrl: './repositories.component.html',
+                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    Error occurs in the template of component RepositoriesComponent.
+
+
+Error: src/app/repositories/repositories.component.html:4:108 - error TS2339: Property 'isRepoCollapsed' does not exist on type 'RepositoriesComponent'.
+
+4     <div class="card-header d-flex justify-content-between align-items-center" (click)="isRepoCollapsed = !isRepoCollapsed" style="cursor: pointer">
+                                                                                                             ~~~~~~~~~~~~~~~
+
+  src/app/repositories/repositories.component.ts:15:16
+    15   templateUrl: './repositories.component.html',
+                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    Error occurs in the template of component RepositoriesComponent.
+
+
+Error: src/app/repositories/repositories.component.html:6:35 - error TS2339: Property 'isRepoCollapsed' does not exist on type 'RepositoriesComponent'.
+
+6         <i class="fas" [ngClass]="isRepoCollapsed ? 'fa-chevron-right' : 'fa-chevron-down'"></i>
+                                    ~~~~~~~~~~~~~~~
+
+  src/app/repositories/repositories.component.ts:15:16
+    15   templateUrl: './repositories.component.html',
+                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    Error occurs in the template of component RepositoriesComponent.
+
+
+Error: src/app/repositories/repositories.component.html:11:28 - error NG8002: Can't bind to 'collapse' since it isn't a known property of 'div'.
+
+11     <div class="card-body" [collapse]="isRepoCollapsed">
+                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+  src/app/repositories/repositories.component.ts:15:16
+    15   templateUrl: './repositories.component.html',
+                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    Error occurs in the template of component RepositoriesComponent.
+
+
+Error: src/app/repositories/repositories.component.html:11:40 - error TS2339: Property 'isRepoCollapsed' does not exist on type 'RepositoriesComponent'.
+
+11     <div class="card-body" [collapse]="isRepoCollapsed">
+                                          ~~~~~~~~~~~~~~~
+
+  src/app/repositories/repositories.component.ts:15:16
+    15   templateUrl: './repositories.component.html',
+                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    Error occurs in the template of component RepositoriesComponent.
+
+
+
+
+✖ Failed to compile.
+✔ Browser application bundle generation complete.
+
+Initial Chunk Files | Names   | Raw Size
+main.js             | main    |  1.32 MB |
+runtime.js          | runtime | 14.14 kB |
+
+7 unchanged chunks
+
+Build at: 2026-01-17T07:04:45.950Z - Hash: 13fdbec5aae21b01 - Time: 1182ms
+
+Error: src/app/repositories/repositories.component.html:11:28 - error NG8002: Can't bind to 'collapse' since it isn't a known property of 'div'.
+
+11     <div class="card-body" [collapse]="isRepoCollapsed">
+                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+  src/app/repositories/repositories.component.ts:16:16
+    16   templateUrl: './repositories.component.html',
+                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    Error occurs in the template of component RepositoriesComponent.
+
+
+
+
+✖ Failed to compile.
+✔ Browser application bundle generation complete.
+
+Initial Chunk Files | Names   | Raw Size
+main.js             | main    |  1.32 MB |
+runtime.js          | runtime | 14.14 kB |
+
+7 unchanged chunks
+
+Build at: 2026-01-17T07:05:07.516Z - Hash: 714eadba3716e7c8 - Time: 1124ms
+
+Error: src/app/repositories/repositories.component.html:11:28 - error NG8002: Can't bind to 'collapse' since it isn't a known property of 'div'.
+
+11     <div class="card-body" [collapse]="isRepoCollapsed">
+                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+  src/app/repositories/repositories.component.ts:16:16
+    16   templateUrl: './repositories.component.html',
+                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    Error occurs in the template of component RepositoriesComponent.
+
+
+
+
+✖ Failed to compile.
+✔ Browser application bundle generation complete.
+
+Initial Chunk Files | Names   | Raw Size
+main.js             | main    |  1.32 MB |
+runtime.js          | runtime | 14.14 kB |
+
+7 unchanged chunks
+
+Build at: 2026-01-17T07:05:20.081Z - Hash: f68fe8b97fe3c95b - Time: 681ms
+
+Error: src/app/repositories/repositories.component.html:11:28 - error NG8002: Can't bind to 'collapse' since it isn't a known property of 'div'.
+
+11     <div class="card-body" [collapse]="isRepoCollapsed">
+                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+  src/app/repositories/repositories.component.ts:16:16
+    16   templateUrl: './repositories.component.html',
+                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    Error occurs in the template of component RepositoriesComponent.
+
+
+
+
+✖ Failed to compile.
