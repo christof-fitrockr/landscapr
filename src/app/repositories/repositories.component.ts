@@ -7,6 +7,7 @@ import { first, switchMap, catchError } from 'rxjs/operators';
 import { FileSaverService } from 'ngx-filesaver';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { MergeService } from '../services/merge.service';
+import { AuthenticationService } from '../services/authentication.service';
 import { MergeResolverComponent } from '../components/merge-resolver.component';
 import { CommitOptionsDialogComponent } from '../components/commit-options-dialog.component';
 import { PrDialogComponent } from '../components/pr-dialog.component';
@@ -45,6 +46,7 @@ export class RepositoriesComponent implements OnInit {
     private toastr: ToastrService,
     private modalService: BsModalService,
     private mergeService: MergeService,
+    private authService: AuthenticationService,
   ) {}
 
   ngOnInit(): void {
@@ -61,6 +63,7 @@ export class RepositoriesComponent implements OnInit {
     this.githubService.setPersonalAccessToken(this.pat);
     this.githubService.getUser().pipe(first()).subscribe(user => {
       this.owner = user.login;
+      this.authService.updateUserFromGithub(user);
       this.repos$ = this.githubService.getRepos();
 
       // Try to preselect previously selected repo when repos arrive
