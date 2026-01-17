@@ -41,17 +41,18 @@ html, body {
 // Navbar overrides for modern look
 .navbar {
   @include glass-effect(0.8, 12px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  border-bottom: 1px solid $border-color;
+  box-shadow: $box-shadow-sm;
 
   .navbar-brand {
     font-weight: 700;
     letter-spacing: -0.025em;
-    color: $white;
+    color: $slate-900;
   }
 
   .nav-link {
     font-weight: 500;
+    color: $slate-600;
     transition: color 0.2s;
 
     &:hover, &.active {
@@ -94,7 +95,7 @@ html, body {
 // Modal Overrides
 .modal-content {
   @include glass-effect(0.95, 20px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid $border-color;
   box-shadow: $box-shadow-lg;
 }
 
@@ -103,4 +104,4 @@ html, body {
 .text-lg { font-size: 1.2rem; }
 
 // Link Utilities
-a.black { color: $white; &:hover { color: $primary; } } // Modernized 'black' links to white/primary
+a.black { color: $slate-900; &:hover { color: $primary; } }

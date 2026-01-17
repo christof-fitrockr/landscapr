@@ -74,13 +74,12 @@ import { DeleteConfirmationDialogComponent } from './components/delete-confirmat
 import { ConfirmationDialogComponent } from './components/confirmation-dialog.component';
 import {CapabilitySelectorDialogComponent} from './components/capability-selector-dialog/capability-selector-dialog.component';
 
-import { ThemeService } from './services/theme.service';
-
 import { ModalModule } from 'ngx-bootstrap/modal';
 import { JourneyEditComponent } from './journey/journey-maintenance/journey-edit.component';
 import { JourneyListComponent } from './journey/journey-list/journey-list.component';
 import { JourneyEditorComponent } from './journey/journey-editor/journey-editor.component';
 import { ProcessQuickViewModalComponent } from './journey/journey-editor/process-quick-view-modal.component';
+import { ProcessDescriptionModalComponent } from './components/process-description-modal.component';
 import { ConditionEditModalComponent } from './journey/journey-editor/condition-edit-modal.component';
 import { NewProcessModalComponent } from './journey/journey-editor/new-process-modal.component';
 import { JourneyEditBaseComponent } from './journey/journey-edit-base.component';
@@ -183,6 +182,7 @@ import { MarkdownModule } from 'ngx-markdown';
     ProcessQuickViewModalComponent,
     ConditionEditModalComponent,
     NewProcessModalComponent,
+    ProcessDescriptionModalComponent,
     CapabilityMapComponent,
     ApiGroupMapComponent,
     MergeResolverComponent,
@@ -204,7 +204,6 @@ import { MarkdownModule } from 'ngx-markdown';
     MarkdownModule.forRoot(),
   ],
   providers: [
-    ThemeService,
     { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },
     { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true },
     {provide: LocationStrategy, useClass: HashLocationStrategy},

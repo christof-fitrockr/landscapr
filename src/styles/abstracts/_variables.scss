@@ -1,4 +1,4 @@
-// Color Palette - Slate / Zinc
+// Color Palette - Neutral / Slate
 $white: #ffffff;
 $black: #000000;
 
@@ -15,66 +15,66 @@ $slate-900: #0f172a;
 $slate-950: #020617;
 
 // Accent Color
-$electric-indigo: #6366f1;
-$electric-indigo-hover: #4f46e5;
+$royal-blue: #2563eb; // A nice, more blueish primary color
+$royal-blue-hover: #1d4ed8;
 
 // Bootstrap Variable Overrides
-$primary: $electric-indigo;
-$secondary: $slate-500;
-$success: #10b981;
-$info: #0ea5e9;
-$warning: #f59e0b;
-$danger: #ef4444;
-$light: $slate-100;
+$primary: $royal-blue;
+$secondary: $slate-600;
+$success: #059669;
+$info: #0284c7;
+$warning: #d97706;
+$danger: #dc2626;
+$light: $slate-50;
 $dark: $slate-900;
 
-$body-bg: $slate-950;
-$body-color: $slate-200;
+$body-bg: #fafafa;
+$body-color: $slate-800;
 
 $font-family-sans-serif: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 
 // Components
-$border-color: $slate-800; // Global border color override
+$border-color: $slate-200; // Global border color override
 $border-radius: 0.75rem;
 $border-radius-lg: 1rem;
 $border-radius-sm: 0.5rem;
 
-$box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+$box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 $box-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-$box-shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+$box-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
 
 $enable-shadows: true;
 $enable-gradients: true;
 
 // Cards
-$card-bg: rgba($slate-900, 0.7);
-$card-border-color: rgba($slate-700, 0.5);
-$card-cap-bg: transparent;
+$card-bg: $white;
+$card-border-color: $slate-200;
+$card-cap-bg: $slate-50;
 
 // Tables
 $table-bg: transparent;
-$table-accent-bg: rgba($slate-800, 0.3);
-$table-hover-bg: rgba($electric-indigo, 0.1);
-$table-border-color: $slate-800;
+$table-accent-bg: rgba($slate-100, 0.5);
+$table-hover-bg: rgba($royal-blue, 0.05);
+$table-border-color: $slate-200;
 $table-color: $body-color;
 
 // Forms
-$input-bg: rgba($slate-900, 0.5);
-$input-disabled-bg: $slate-800;
-$input-color: $slate-100;
-$input-border-color: $slate-700;
-$input-focus-border-color: $electric-indigo;
-$input-placeholder-color: $slate-500;
+$input-bg: $white;
+$input-disabled-bg: $slate-100;
+$input-color: $slate-900;
+$input-border-color: $slate-300;
+$input-focus-border-color: $royal-blue;
+$input-placeholder-color: $slate-400;
 
 // Dropdowns
-$dropdown-bg: $slate-900;
-$dropdown-border-color: $slate-700;
-$dropdown-link-color: $slate-200;
-$dropdown-link-hover-color: $white;
-$dropdown-link-hover-bg: $slate-800;
+$dropdown-bg: $white;
+$dropdown-border-color: $slate-200;
+$dropdown-link-color: $slate-700;
+$dropdown-link-hover-color: $slate-900;
+$dropdown-link-hover-bg: $slate-100;
 
 // Modals
-$modal-content-bg: $slate-900;
-$modal-content-border-color: $slate-700;
-$modal-header-border-color: $slate-800;
-$modal-footer-border-color: $slate-800;
+$modal-content-bg: $white;
+$modal-content-border-color: $slate-200;
+$modal-header-border-color: $slate-100;
+$modal-footer-border-color: $slate-100;

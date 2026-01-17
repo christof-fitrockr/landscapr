@@ -6,31 +6,31 @@
   transition: all 0.2s ease;
 
   &:focus {
-    box-shadow: 0 0 0 3px rgba($electric-indigo, 0.3);
+    box-shadow: 0 0 0 3px rgba($royal-blue, 0.3);
   }
 
   // Primary Button Modernization
   &.btn-primary {
-    background: linear-gradient(135deg, $electric-indigo, darken($electric-indigo, 5%));
+    background: linear-gradient(135deg, $royal-blue, darken($royal-blue, 5%));
     border: none;
-    box-shadow: 0 4px 6px rgba($electric-indigo, 0.3);
+    box-shadow: 0 4px 6px rgba($royal-blue, 0.3);
 
     &:hover {
-      background: linear-gradient(135deg, lighten($electric-indigo, 5%), $electric-indigo);
+      background: linear-gradient(135deg, lighten($royal-blue, 5%), $royal-blue);
       transform: translateY(-1px);
-      box-shadow: 0 6px 8px rgba($electric-indigo, 0.4);
+      box-shadow: 0 6px 8px rgba($royal-blue, 0.4);
     }
   }
 
   // Secondary/Ghost styling
   &.btn-outline-secondary {
-    border-color: $slate-600;
-    color: $slate-300;
+    border-color: $slate-300;
+    color: $slate-600;
 
     &:hover {
-      background-color: $slate-800;
-      border-color: $slate-500;
-      color: $white;
+      background-color: $slate-100;
+      border-color: $slate-400;
+      color: $slate-900;
     }
   }
 
@@ -45,7 +45,8 @@
     border-radius: 50%;
 
     &:hover {
-      background-color: rgba($white, 0.1);
+      background-color: rgba($primary, 0.1);
+      color: $primary;
     }
   }
 }

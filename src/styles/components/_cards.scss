@@ -1,19 +1,19 @@
 .card {
-  @include glass-effect(0.5, 10px);
-  border: 1px solid rgba($white, 0.1);
+  @include glass-effect(0.8, 10px);
+  border: 1px solid $border-color;
   box-shadow: $box-shadow;
   transition: transform 0.2s ease-in-out;
   margin-bottom: 1.5rem;
 
   .card-header {
-    background-color: rgba($slate-900, 0.3);
-    border-bottom: 1px solid rgba($white, 0.05);
+    background-color: $slate-50;
+    border-bottom: 1px solid $border-color;
     padding: 1.25rem;
 
     h5 {
       margin-bottom: 0;
       font-weight: 600;
-      color: $slate-100;
+      color: $slate-800;
     }
   }
 

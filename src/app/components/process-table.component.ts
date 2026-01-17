@@ -1,8 +1,9 @@
 import {Component, EventEmitter, Input, OnChanges, Output} from '@angular/core';
 import {Process} from '../models/process';
-import {ApiCall} from '../models/api-call';
 import {ProcessService} from '../services/process.service';
 import {first} from 'rxjs/operators';
+import {BsModalService} from 'ngx-bootstrap/modal';
+import {ProcessDescriptionModalComponent} from './process-description-modal.component';
 
 
 @Component({
@@ -27,9 +28,8 @@ export class ProcessTableComponent implements OnChanges {
 
   filterStatus: number = null;
   filterComments: boolean = false;
-  processToShowDescription: Process = null;
 
-  constructor(private processService: ProcessService) { }
+  constructor(private processService: ProcessService, private modalService: BsModalService) { }
 
   ngOnChanges(changes: any) {
     if (changes.processes) {
@@ -82,11 +82,10 @@ export class ProcessTableComponent implements OnChanges {
   }
 
   onShowDescription(process: Process) {
-    this.processToShowDescription = process;
-  }
-
-  closeDescriptionModal() {
-    this.processToShowDescription = null;
+    this.modalService.show(ProcessDescriptionModalComponent, {
+      initialState: { process },
+      class: 'modal-dialog-centered'
+    });
   }
 
 }

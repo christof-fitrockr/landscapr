@@ -80,23 +80,3 @@
 </div>
 
 <!-- Description Modal -->
-<div class="modal fade" [class.show]="processToShowDescription" [style.display]="processToShowDescription ? 'block' : 'none'" tabindex="-1" role="dialog">
-  <div class="modal-dialog modal-dialog-centered" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">{{processToShowDescription?.name}}</h5>
-        <button type="button" class="close" (click)="closeDescriptionModal()">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        <p *ngIf="processToShowDescription?.description" style="white-space: pre-wrap;">{{processToShowDescription?.description}}</p>
-        <p *ngIf="!processToShowDescription?.description" class="text-muted font-italic">No description available.</p>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" (click)="closeDescriptionModal()">Close</button>
-      </div>
-    </div>
-  </div>
-</div>
-<div class="modal-backdrop fade show" *ngIf="processToShowDescription"></div>

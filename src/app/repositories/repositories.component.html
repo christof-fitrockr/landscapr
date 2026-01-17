@@ -54,8 +54,8 @@
 
   <!-- Workspace Card (Prominent) -->
   <div class="card mb-3 shadow-lg border-0" *ngIf="selectedRepo && selectedFilePath">
-      <div class="card-header bg-light d-flex justify-content-between align-items-center">
-          <h5 class="mb-0 text-dark"><i class="fas fa-laptop-code text-primary me-2"></i> Workspace</h5>
+      <div class="card-header d-flex justify-content-between align-items-center">
+          <h5 class="mb-0 text-slate-900"><i class="fas fa-laptop-code text-primary me-2"></i> Workspace</h5>
           <span class="badge badge-info p-2">{{ selectedFilePath }}</span>
       </div>
       <div class="card-body">
@@ -67,7 +67,7 @@
                       <label class="form-label small fw-bold">Current Branch</label>
                       <div class="input-group">
                           <div class="dropdown w-100" dropdown>
-                              <button dropdownToggle type="button" class="btn btn-outline-dark dropdown-toggle w-100 d-flex justify-content-between align-items-center" style="min-height: 45px;">
+                              <button dropdownToggle type="button" class="btn btn-outline-secondary dropdown-toggle w-100 d-flex justify-content-between align-items-center" style="min-height: 45px;">
                                   <span><i class="fas fa-code-branch me-2"></i> {{ currentBranch }}</span>
                                   <span class="caret"></span>
                               </button>

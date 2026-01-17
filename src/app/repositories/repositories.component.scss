@@ -1,3 +1,5 @@
+@use "src/styles/abstracts/variables" as vars;
+
 .repo-list, .file-list {
   max-height: 60vh;
   overflow-y: auto;
@@ -8,7 +10,7 @@
 }
 
 .repo-item.active, .file-item.active {
-  background-color: rgba(0, 123, 255, 0.1);
+  background-color: rgba(vars.$primary, 0.1) !important;
 }
 
 .dnd-container {
@@ -27,5 +29,6 @@
 }
 
 .list-group-item.repo-item.active, .list-group-item.file-item.active {
-  color: #000 !important;
+  color: vars.$primary !important;
+  font-weight: 600;
 }

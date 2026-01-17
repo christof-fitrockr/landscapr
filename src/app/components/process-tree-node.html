@@ -14,7 +14,7 @@
   </td>
   <td>
     <span *ngIf="selectMode" class="font-weight-bold">{{process.name}}</span>
-    <a *ngIf="!selectMode" class="font-weight-bold text-white" routerLink="/process/edit/{{process?.id}}">{{process.name}}</a>
+    <a *ngIf="!selectMode" class="font-weight-bold " routerLink="/process/edit/{{process?.id}}">{{process.name}}</a>
     <i *ngIf="orphanIds.includes(process.id)" class="ml-2 text-warning fas fa-unlink" title="Orphan: Not referenced by any Journey"></i>
   </td>
   <td>

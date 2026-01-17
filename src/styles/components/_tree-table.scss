@@ -5,20 +5,21 @@
 
   th {
     border-top: none;
-    border-bottom: 1px solid $slate-700;
-    color: $slate-400;
+    border-bottom: 1px solid $slate-200;
+    color: $slate-500;
     font-weight: 600;
     text-transform: uppercase;
     font-size: 0.75rem;
-    padding: 1rem;
+    padding: 0.25rem;
     letter-spacing: 0.05em;
   }
 
   td {
     border: none;
     vertical-align: middle;
-    padding: 1rem;
-    background-color: rgba($slate-800, 0.4);
+    padding: 0.25rem;
+    background-color: $white;
+    border-bottom: 1px solid $slate-100;
 
     &:first-child {
       border-top-left-radius: $border-radius-sm;
@@ -38,8 +39,8 @@
 
   &:hover {
     td {
-      background-color: rgba($slate-700, 0.6);
-      color: $white;
+      background-color: $slate-50;
+      color: $primary;
     }
   }
 
@@ -63,8 +64,8 @@
       transition: all 0.2s;
 
       &:hover {
-        background-color: rgba($white, 0.1);
-        color: $white;
+        background-color: rgba($primary, 0.1);
+        color: $primary;
       }
     }
   }
@@ -82,20 +83,20 @@
   border-radius: 9999px;
 
   &.badge-draft {
-    background-color: rgba($warning, 0.2);
-    color: lighten($warning, 10%);
-    border: 1px solid rgba($warning, 0.3);
+    background-color: rgba($warning, 0.1);
+    color: darken($warning, 10%);
+    border: 1px solid rgba($warning, 0.2);
   }
 
   &.badge-validated {
-    background-color: rgba($success, 0.2);
-    color: lighten($success, 10%);
-    border: 1px solid rgba($success, 0.3);
+    background-color: rgba($success, 0.1);
+    color: darken($success, 10%);
+    border: 1px solid rgba($success, 0.2);
   }
 
   &.badge-review {
-    background-color: rgba($info, 0.2);
-    color: lighten($info, 10%);
-    border: 1px solid rgba($info, 0.3);
+    background-color: rgba($info, 0.1);
+    color: darken($info, 10%);
+    border: 1px solid rgba($info, 0.2);
   }
 }
