@@ -105,10 +105,10 @@
                   <div *ngIf="currentBranch === (selectedRepo?.default_branch || 'main')" class="w-100 text-center">
                       <h6 class="text-uppercase text-muted small mb-4">Available Actions</h6>
                       <div class="d-grid gap-3 col-8 mx-auto">
-                          <button class="btn btn-primary btn-lg shadow-sm" (click)="startEditMode()">
+                          <button class="btn btn-primary shadow-sm" (click)="startEditMode()">
                               <i class="fas fa-pen me-2"></i> Start Edit Mode
                           </button>
-                          <button class="btn btn-outline-secondary btn-lg" (click)="loadFromGithub()">
+                          <button class="btn btn-outline-secondary" (click)="loadFromGithub()">
                               <i class="fas fa-sync-alt me-2"></i> Update from Repository
                           </button>
                       </div>
