@@ -11,6 +11,10 @@ export class FakeBackendInterceptor implements HttpInterceptor {
     constructor() { }
 
     intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
+        if (request.url.startsWith('https://api.github.com')) {
+            return next.handle(request);
+        }
+
         // array in local storage for registered users
         let users: User[] = [];
 
