@@ -25,6 +25,10 @@ export class ProcessTableComponent implements OnChanges {
   processToDelete: Process;
   _rootProcesses: Process[] = [];
 
+  filterStatus: number = null;
+  filterComments: boolean = false;
+  processToShowDescription: Process = null;
+
   constructor(private processService: ProcessService) { }
 
   ngOnChanges(changes: any) {
@@ -75,6 +79,14 @@ export class ProcessTableComponent implements OnChanges {
         this.processToDelete = null;
       });
     }
+  }
+
+  onShowDescription(process: Process) {
+    this.processToShowDescription = process;
+  }
+
+  closeDescriptionModal() {
+    this.processToShowDescription = null;
   }
 
 }
