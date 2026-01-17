@@ -2,12 +2,13 @@ import { Component, OnInit } from '@angular/core';
 import { GithubService } from '../services/github.service';
 import { RepoService } from '../services/repo.service';
 import { ToastrService } from 'ngx-toastr';
-import { Observable, EMPTY } from 'rxjs';
-import { first } from 'rxjs/operators';
+import { Observable, EMPTY, of, throwError } from 'rxjs';
+import { first, switchMap, catchError } from 'rxjs/operators';
 import { FileSaverService } from 'ngx-filesaver';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { MergeService } from '../services/merge.service';
 import { MergeResolverComponent } from '../components/merge-resolver.component';
+import { CommitOptionsDialogComponent } from '../components/commit-options-dialog.component';
 
 @Component({
   selector: 'app-repositories',
@@ -24,6 +25,7 @@ export class RepositoriesComponent implements OnInit {
 
   repos$: Observable<any[]> = EMPTY;
   files$: Observable<any[]> = EMPTY;
+  branches: any[] = [];
 
   selectedRepo: any = null;
   selectedFilePath: string | null = null;
@@ -81,9 +83,15 @@ export class RepositoriesComponent implements OnInit {
     localStorage.setItem(RepositoriesComponent.STORAGE_SELECTED_REPO, repo?.name ?? '');
     // Reset file selection in memory; keep stored selection to try to restore if it belongs to this repo
     this.selectedFilePath = null;
+    this.branches = [];
 
     this.loadingFiles = true;
     this.files$ = this.githubService.getRepoContents(repo.owner.login, repo.name, '');
+
+    this.githubService.getBranches(repo.owner.login, repo.name).subscribe(branches => {
+      this.branches = branches;
+    });
+
     // When observable resolves, Angular will render. We just turn off spinner shortly after by subscribing once.
     this.files$.pipe(first()).subscribe(files => {
       this.loadingFiles = false;
@@ -148,90 +156,111 @@ export class RepositoriesComponent implements OnInit {
     const owner = this.selectedRepo.owner.login;
     const repo = this.selectedRepo.name;
     const path = this.selectedFilePath;
-
     const localData = this.repoService.getCurrentData();
 
-    this.githubService.getFileContent(owner, repo, path).pipe(first()).subscribe(file => {
-      const sha = file && file.sha ? file.sha : undefined;
-      let remoteData: any = {};
-      try {
-        remoteData = JSON.parse(atob(file.content));
-      } catch {
-        remoteData = {};
-      }
-
-      // Always show merge resolver to enforce commit message
-      const modalRef = this.modalService.show(MergeResolverComponent, {
-        class: 'modal-xl',
-        initialState: { repoData: remoteData, localData, requireCommitMessage: true }
-      });
-      const content: any = modalRef.content;
-      if (content && content.onClose) {
-        content.onClose.pipe(first()).subscribe((result: any) => {
-          if (!result) { this.saving = false; return; }
-          const merged = result.data ? result.data : result; // backward compatible
-          const commitMessage: string | undefined = result.commitMessage;
-          const mergedText = JSON.stringify(merged, null, 2);
-          this.githubService.createOrUpdateFile(owner, repo, path, mergedText, sha, commitMessage).pipe(first()).subscribe(() => {
-            this.toastr.success('File saved successfully');
-            this.saving = false;
-          }, _ => {
-            this.toastr.error('Failed to save file to GitHub');
-            this.saving = false;
-          });
-        });
-      }
-    }, _ => {
-      // File does not exist -> open resolver to enforce commit message on initial commit
-      const modalRef = this.modalService.show(MergeResolverComponent, {
-        class: 'modal-xl',
-        initialState: { repoData: {}, localData, requireCommitMessage: true }
-      });
-      const content: any = modalRef.content;
-      if (content && content.onClose) {
-        content.onClose.pipe(first()).subscribe((result: any) => {
-          if (!result) { this.saving = false; return; }
-          const merged = result.data ? result.data : result;
-          const commitMessage: string | undefined = result.commitMessage;
-          const mergedText = JSON.stringify(merged, null, 2);
-          this.githubService.createOrUpdateFile(owner, repo, path, mergedText, undefined, commitMessage).pipe(first()).subscribe(() => {
-            this.toastr.success('File created successfully');
-            this.saving = false;
-          }, _ => {
-            this.toastr.error('Failed to create file on GitHub');
-            this.saving = false;
-          });
-        });
-      }
+    // 1. Open Commit Options
+    const modalRef = this.modalService.show(CommitOptionsDialogComponent, {
+        class: 'modal-lg',
+        initialState: {
+            branches: this.branches,
+            currentBranch: this.selectedRepo.default_branch,
+            fileName: path
+        }
     });
-  }
 
-  private performSave(owner: string, repo: string, path: string, sha?: string): void {
-    // Deprecated by merge-aware saveToGithub
-    this.repoService.downloadAsJson().pipe(first()).subscribe(blob => {
-      (blob as Blob).text().then(contentText => {
-        this.githubService.createOrUpdateFile(owner, repo, path, contentText, sha).pipe(first()).subscribe(() => {
-          this.toastr.success('File saved successfully');
-          this.saving = false;
-        }, _ => {
-          this.toastr.error('Failed to save file to GitHub');
-          this.saving = false;
+    const content: any = modalRef.content;
+    if (content && content.onClose) {
+        content.onClose.pipe(first()).subscribe((config: any) => {
+            if (!config) { this.saving = false; return; }
+            this.executeSave(config, owner, repo, path, localData);
         });
-      }).catch(() => {
-        this.toastr.error('Failed to prepare JSON content for GitHub');
+    } else {
         this.saving = false;
-      });
+    }
+  }
+
+  executeSave(config: any, owner: string, repo: string, path: string, localData: any) {
+    const { branchMode, branchName, baseBranch, createPr, prTitle } = config;
+
+    let branchSetup$ = of(null);
+    if (branchMode === 'new') {
+         branchSetup$ = this.githubService.getRef(owner, repo, `heads/${baseBranch}`).pipe(
+            switchMap((ref: any) => {
+                const sha = ref.object.sha;
+                return this.githubService.createBranch(owner, repo, branchName, sha);
+            }),
+            catchError(err => {
+                this.toastr.error(`Failed to create branch ${branchName}`);
+                return throwError(err);
+            })
+        );
+    }
+
+    branchSetup$.pipe(
+        switchMap(() => {
+            // Get file content from TARGET branch
+            return this.githubService.getFileContent(owner, repo, path, branchName).pipe(
+                catchError(() => of(null))
+            );
+        })
+    ).subscribe(file => {
+        const sha = file && file.sha ? file.sha : undefined;
+        let remoteData: any = {};
+        try {
+            if (file && file.content) {
+                remoteData = JSON.parse(atob(file.content));
+            }
+        } catch { remoteData = {}; }
+
+        // Show Merge Resolver
+        const modalRef = this.modalService.show(MergeResolverComponent, {
+            class: 'modal-xl',
+            initialState: { repoData: remoteData, localData, requireCommitMessage: true }
+        });
+        const content: any = modalRef.content;
+        if (content && content.onClose) {
+             content.onClose.pipe(first()).subscribe((result: any) => {
+                  if (!result) { this.saving = false; return; }
+                  const merged = result.data ? result.data : result;
+                  const commitMessage: string | undefined = result.commitMessage;
+                  const mergedText = JSON.stringify(merged, null, 2);
+
+                  this.githubService.createOrUpdateFile(owner, repo, path, mergedText, sha, commitMessage, branchName)
+                    .pipe(first())
+                    .subscribe(() => {
+                        if (createPr && branchMode === 'new') {
+                             this.githubService.createPullRequest(owner, repo, prTitle, commitMessage || 'Automated update', branchName, baseBranch)
+                                .subscribe(() => {
+                                    this.toastr.success(`Saved to ${branchName} and created PR`);
+                                    this.saving = false;
+                                }, () => {
+                                    this.toastr.success(`Saved to ${branchName} but PR creation failed`);
+                                    this.saving = false;
+                                });
+                        } else {
+                            this.toastr.success(`Saved to ${branchName}`);
+                            this.saving = false;
+                        }
+                    }, err => {
+                        this.toastr.error('Failed to save to GitHub');
+                        this.saving = false;
+                    });
+             });
+        } else {
+            this.saving = false;
+        }
+    }, err => {
+        this.toastr.error('Failed to prepare save');
+        this.saving = false;
     });
   }
 
-  // Download local data as JSON
   download(): void {
     this.repoService.downloadAsJson().pipe(first()).subscribe(blob => {
       this.fileSaverService.save(blob, 'landscapr.json');
     });
   }
 
-  // Upload local JSON file and apply to storage
   uploadDocument(files: any): void {
     const file = files[0];
     this.repoService.uploadJson(file).pipe(first()).subscribe(() => {

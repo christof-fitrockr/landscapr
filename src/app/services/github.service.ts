@@ -28,22 +28,53 @@ export class GithubService {
     return this.http.get<any[]>(`${this.GITHUB_API_URL}/user/repos`, { headers: this.getAuthorizationHeaders() });
   }
 
+  getBranches(owner: string, repo: string): Observable<any[]> {
+    return this.http.get<any[]>(`${this.GITHUB_API_URL}/repos/${owner}/${repo}/branches`, { headers: this.getAuthorizationHeaders() });
+  }
+
   getRepoContents(owner: string, repo: string, path: string = ''): Observable<any[]> {
     return this.http.get<any[]>(`${this.GITHUB_API_URL}/repos/${owner}/${repo}/contents/${path}`, { headers: this.getAuthorizationHeaders() });
   }
 
-  getFileContent(owner: string, repo: string, path: string): Observable<any> {
-    return this.http.get(`${this.GITHUB_API_URL}/repos/${owner}/${repo}/contents/${path}`, {
+  getFileContent(owner: string, repo: string, path: string, ref?: string): Observable<any> {
+    let url = `${this.GITHUB_API_URL}/repos/${owner}/${repo}/contents/${path}`;
+    if (ref) {
+      url += `?ref=${ref}`;
+    }
+    return this.http.get(url, {
       headers: this.getAuthorizationHeaders()
     });
   }
 
-  createOrUpdateFile(owner: string, repo: string, path: string, content: string, sha?: string, message?: string): Observable<any> {
+  getRef(owner: string, repo: string, ref: string): Observable<any> {
+    return this.http.get<any>(`${this.GITHUB_API_URL}/repos/${owner}/${repo}/git/ref/${ref}`, { headers: this.getAuthorizationHeaders() });
+  }
+
+  createBranch(owner: string, repo: string, branchName: string, sha: string): Observable<any> {
+    const body = {
+      ref: `refs/heads/${branchName}`,
+      sha: sha
+    };
+    return this.http.post<any>(`${this.GITHUB_API_URL}/repos/${owner}/${repo}/git/refs`, body, { headers: this.getAuthorizationHeaders() });
+  }
+
+  createPullRequest(owner: string, repo: string, title: string, body: string, head: string, base: string): Observable<any> {
+    const payload = {
+      title,
+      body,
+      head,
+      base
+    };
+    return this.http.post<any>(`${this.GITHUB_API_URL}/repos/${owner}/${repo}/pulls`, payload, { headers: this.getAuthorizationHeaders() });
+  }
+
+  createOrUpdateFile(owner: string, repo: string, path: string, content: string, sha?: string, message?: string, branch?: string): Observable<any> {
     const body: any = {
       message: (message && message.trim()) ? message.trim() : `feat: update ${path}`,
       content: btoa(content)
     };
     if (sha) body.sha = sha;
+    if (branch) body.branch = branch;
     return this.http.put(`${this.GITHUB_API_URL}/repos/${owner}/${repo}/contents/${path}`, body, {
       headers: this.getAuthorizationHeaders()
     });
