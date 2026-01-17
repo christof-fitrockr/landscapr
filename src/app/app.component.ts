@@ -38,6 +38,9 @@ export class AppComponent implements OnInit {
     this.repoService.dataChanges.subscribe(() => {
       this.dataAvailable = this.repoService.dataAvailable();
       const currentUrl = this.router.url;
+      if (currentUrl.startsWith('/repositories')) {
+        return;
+      }
       this.router.navigateByUrl('/', { skipLocationChange: true }).then(() => {
         this.router.navigate([currentUrl]);
       });
