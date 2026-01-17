@@ -23,7 +23,7 @@ export class RepositoriesComponent implements OnInit {
   private static readonly STORAGE_PREFIX_BRANCH = 'repositories.currentBranch.';
 
   pat: string = '';
-  owner: string = '';
+  owner: string = ''; // Authenticated user
 
   repos$: Observable<any[]> = EMPTY;
   files$: Observable<any[]> = EMPTY;
@@ -133,6 +133,7 @@ export class RepositoriesComponent implements OnInit {
 
   createNewBranch(): void {
       if (!this.selectedRepo) return;
+      const repoOwner = this.selectedRepo.owner.login;
 
       const modalRef = this.modalService.show(CommitOptionsDialogComponent, {
           class: 'modal-lg',
@@ -150,10 +151,10 @@ export class RepositoriesComponent implements OnInit {
               if (config && config.branchMode === 'new') {
                   // Create the branch immediately
                   const { branchName, baseBranch } = config;
-                  this.githubService.getRef(this.owner, this.selectedRepo.name, `heads/${baseBranch}`).pipe(
+                  this.githubService.getRef(repoOwner, this.selectedRepo.name, `heads/${baseBranch}`).pipe(
                       switchMap((ref: any) => {
                           const sha = ref.object.sha;
-                          return this.githubService.createBranch(this.owner, this.selectedRepo.name, branchName, sha);
+                          return this.githubService.createBranch(repoOwner, this.selectedRepo.name, branchName, sha);
                       })
                   ).subscribe(() => {
                       this.toastr.success(`Branch ${branchName} created`);
@@ -168,8 +169,9 @@ export class RepositoriesComponent implements OnInit {
 
   loadFromGithub(): void {
     if (!this.selectedRepo || !this.selectedFilePath) { return; }
+    const repoOwner = this.selectedRepo.owner.login;
     // Fetch from CURRENT branch
-    this.githubService.getFileContent(this.selectedRepo.owner.login, this.selectedRepo.name, this.selectedFilePath, this.currentBranch)
+    this.githubService.getFileContent(repoOwner, this.selectedRepo.name, this.selectedFilePath, this.currentBranch)
       .pipe(first())
       .subscribe(fileContent => {
         try {
@@ -203,11 +205,12 @@ export class RepositoriesComponent implements OnInit {
 
   createPr(): void {
       if (!this.selectedRepo || this.currentBranch === this.selectedRepo.default_branch) return;
+      const repoOwner = this.selectedRepo.owner.login;
       const modalRef = this.modalService.show(PrDialogComponent);
       if (modalRef.content) {
           (modalRef.content as any).onClose.pipe(first()).subscribe((res: any) => {
               if (res) {
-                  this.githubService.createPullRequest(this.owner, this.selectedRepo.name, res.title, res.body, this.currentBranch, this.selectedRepo.default_branch)
+                  this.githubService.createPullRequest(repoOwner, this.selectedRepo.name, res.title, res.body, this.currentBranch, this.selectedRepo.default_branch)
                     .subscribe(() => {
                         this.toastr.success('Pull Request Created');
                     }, err => this.toastr.error('Failed to create PR'));

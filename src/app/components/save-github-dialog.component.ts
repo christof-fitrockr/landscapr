@@ -108,10 +108,11 @@ export class SaveGithubDialogComponent implements OnInit {
     }
 
     if (this.onClose) {
+      const repoOwner = this.selectedRepo && this.selectedRepo.owner ? this.selectedRepo.owner.login : this.owner;
       this.onClose.next({
         repo: this.selectedRepo,
         fileName: this.fileName,
-        owner: this.owner,
+        owner: repoOwner, // Use repo owner instead of authenticated user
         branchMode: this.isNewBranch ? 'new' : 'existing',
         branchName: this.isNewBranch ? this.newBranchName : this.selectedBranch,
         baseBranch: this.baseBranch,
