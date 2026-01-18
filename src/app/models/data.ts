@@ -4,6 +4,7 @@ export class Data {
   id: string;
   name: string;
   description: string;
+  group: string;
   state: DataStatus;
   link: string;
   items: DataItem[];

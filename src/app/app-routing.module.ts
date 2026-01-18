@@ -14,6 +14,7 @@ import {ApiCallEditBaseComponent} from './apiCall/api-call-edit-base.component';
 import {ApiCallEditUsageComponent} from './apiCall/api-call-edit-usage.component';
 import {DataListComponent} from './data/data-list.component';
 import {DataEditBaseComponent} from './data/data-edit-base.component';
+import {DataErDiagramComponent} from './data/data-er-diagram.component';
 import {ImprintComponent} from './imprint/imprint.component';
 import {DisclaimerComponent} from './disclaimer/disclaimer.component';
 import {PrivacyPolicyComponent} from './privacyPolicy/privacy-policy.component';
@@ -87,6 +88,7 @@ const routes: Routes = [
   { path: 'data', canActivate: [AuthGuard], children: [
       { path: '', redirectTo: 'list', pathMatch: 'full' },
       { path: 'list', component: DataListComponent, canActivate: [AuthGuard] },
+      { path: 'diagram', component: DataErDiagramComponent, canActivate: [AuthGuard] },
       { path: 'edit/:id', canActivate: [AuthGuard], children: [
           { path: '', redirectTo: 'base', pathMatch: 'full' },
           { path: 'base', component: DataEditBaseComponent, canActivate: [AuthGuard] },

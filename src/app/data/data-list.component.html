@@ -7,37 +7,67 @@
       <button type="button" class="btn btn-outline-secondary shadow-sm" title="Create New Data" routerLink="../create">
         <i class="fas fa-plus mr-1"></i>
       </button>
+      <button type="button" class="btn btn-outline-secondary shadow-sm" title="Show ER Diagram" (click)="showDiagram()">
+        <i class="fas fa-project-diagram mr-1"></i> Diagram
+      </button>
     </div>
-    <h2 class="m-0 font-weight-bold text-uppercase text-gray-400">Data</h2>
+    <h2 class="m-0 font-weight-bold text-uppercase text-gray-400">DATA</h2>
+  </div>
+
+  <div class="form-row align-items-center mb-3">
+    <div class="col-md-5 mb-2 mb-md-0">
+      <div class="input-group">
+        <div class="input-group-prepend">
+          <span class="input-group-text bg-white border-right-0"><i class="fas fa-search text-muted"></i></span>
+        </div>
+        <input type="text" class="form-control border-left-0" placeholder="Search Data by name..." [(ngModel)]="searchText">
+      </div>
+    </div>
   </div>
 
   <div class="card shadow-sm border-0 mb-4" *ngIf="dataList && dataList.length > 0">
     <div class="card-body p-0">
-      <table class="table mb-0 table-hover">
+      <table class="tree-table mb-0">
         <thead>
         <tr>
-          <th scope="col" style="width: 120px">Actions</th>
-          <th scope="col">Name</th>
-          <th scope="col">Description</th>
-          <th scope="col" class="text-right">Status</th>
+          <th scope="col" style="width: 100px">Actions</th>
+          <th scope="col" class="w-100">Name</th>
+          <th scope="col" style="width: 250px">Description</th>
+          <th scope="col" style="width: 100px" class="text-right">Attributes</th>
+          <th scope="col" style="width: 120px" class="text-right">Status</th>
         </tr>
         </thead>
         <tbody>
-        <tr *ngFor="let data of dataList">
-          <td>
-            <div class="btn-group btn-group-sm">
-              <a [routerLink]="['../edit', data.id]" class="btn btn-outline-primary" title="Edit"><i class="fas fa-pen"></i></a>
-              <button class="btn btn-outline-danger" (click)="onDelete(data)" title="Delete"><i class="fas fa-trash"></i></button>
-            </div>
-          </td>
-          <td>{{data.name}}</td>
-          <td>{{data.description}}</td>
-          <td class="text-right">
-             <span class="badge" [ngClass]="data.state === 1 ? 'badge-success' : 'badge-secondary'">
-                {{data.state === 1 ? 'Validated' : 'Draft'}}
-             </span>
-          </td>
-        </tr>
+          <ng-container *ngFor="let group of dataList | dataFilter: searchText | dataGroup">
+             <!-- Group Header -->
+             <tr class="tree-row bg-light font-weight-bold" *ngIf="group.groupName !== 'Ungrouped' || group.items.length > 0">
+                <td colspan="5" class="py-2 pl-3">
+                  <i class="fas fa-folder-open mr-2 text-muted"></i> {{ group.groupName }} <span class="badge badge-pill badge-secondary ml-2">{{ group.items.length }}</span>
+                </td>
+             </tr>
+             <!-- Items -->
+             <tr *ngFor="let data of group.items" class="tree-row">
+               <td class="text-center">
+                 <div class="btn-group btn-group-sm opacity-50-hover">
+                    <a [routerLink]="['../edit', data.id]" class="btn btn-link text-secondary p-0 mx-1" title="Edit"><i class="fas fa-edit"></i></a>
+                    <button (click)="onDelete(data)" class="btn btn-link text-danger p-0 mx-1" title="Delete"><i class="fas fa-trash"></i></button>
+                 </div>
+               </td>
+               <td class="pl-4">
+                 <a [routerLink]="['../edit', data.id]" class="font-weight-bold text-dark">{{data.name}}</a>
+                 <div class="small text-muted" *ngIf="data.link"><i class="fas fa-link mr-1"></i>External Link</div>
+               </td>
+               <td class="text-muted small">{{data.description | slice:0:100}}{{data.description?.length > 100 ? '...' : ''}}</td>
+               <td class="text-right">
+                  <span class="badge badge-light border">{{ data.items ? data.items.length : 0 }}</span>
+               </td>
+                <td class="text-right">
+                  <span class="badge" [class.badge-primary]="data.state === 1" [class.badge-secondary]="data.state === 0">
+                    {{ data.state === 1 ? 'Validated' : 'Draft' }}
+                  </span>
+                </td>
+             </tr>
+          </ng-container>
         </tbody>
       </table>
     </div>

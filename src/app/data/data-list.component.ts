@@ -3,7 +3,7 @@ import {first} from 'rxjs/operators';
 import {DataService} from '../services/data.service';
 import {Data} from '../models/data';
 import {Subscription} from 'rxjs';
-import {ActivatedRoute} from '@angular/router';
+import {ActivatedRoute, Router} from '@angular/router';
 import {BsModalService} from 'ngx-bootstrap/modal';
 import {ToastrService} from 'ngx-toastr';
 import {DeleteConfirmationDialogComponent} from '../components/delete-confirmation-dialog.component';
@@ -14,6 +14,7 @@ export class DataListComponent implements OnInit, OnDestroy {
   constructor(
     private dataService: DataService,
     private activatedRoute: ActivatedRoute,
+    private router: Router,
     private modalService: BsModalService,
     private toastr: ToastrService
   ) {
@@ -52,5 +53,9 @@ export class DataListComponent implements OnInit, OnDestroy {
         });
       }
     });
+  }
+
+  showDiagram() {
+    this.router.navigate(['../diagram'], {relativeTo: this.activatedRoute});
   }
 }

@@ -100,6 +100,9 @@ import { MarkdownModule } from 'ngx-markdown';
 import {DataListComponent} from './data/data-list.component';
 import {DataEditBaseComponent} from './data/data-edit-base.component';
 import {DataEditNavComponent} from './data/data-edit-nav.component';
+import {DataErDiagramComponent} from './data/data-er-diagram.component';
+import { DataFilterPipe } from './pipes/data-filter.pipe';
+import { DataGroupPipe } from './pipes/data-group.pipe';
 
 
 @NgModule({
@@ -157,6 +160,9 @@ import {DataEditNavComponent} from './data/data-edit-nav.component';
     DataListComponent,
     DataEditBaseComponent,
     DataEditNavComponent,
+    DataErDiagramComponent,
+    DataFilterPipe,
+    DataGroupPipe,
 
     CapabilityEditBaseComponent,
     CapabilityEditApiCallComponent,

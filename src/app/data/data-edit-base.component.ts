@@ -27,6 +27,7 @@ export class DataEditBaseComponent implements OnInit, OnDestroy {
     this.dataForm = this.formBuilder.group({
       name: ['', Validators.required],
       description: [''],
+      group: [''],
       state: [0],
       link: [''],
       items: this.formBuilder.array([])
@@ -76,6 +77,7 @@ export class DataEditBaseComponent implements OnInit, OnDestroy {
         this.dataForm.patchValue({
             name: data.name,
             description: data.description,
+            group: data.group,
             state: data.state,
             link: data.link
         });
