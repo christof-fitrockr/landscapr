@@ -14,7 +14,7 @@ export class ErDiagramService {
 
     constructor(private canvasService: CanvasService) {}
 
-    public drawErDiagram(canvasEl: HTMLCanvasElement, dataList: Data[]) {
+    public drawErDiagram(canvasEl: HTMLCanvasElement, dataList: Data[]): Map<string, {x: number, y: number, w: number, h: number}> {
         const cx = canvasEl.getContext('2d');
         const width = canvasEl.width;
         const height = canvasEl.height;
@@ -27,11 +27,18 @@ export class ErDiagramService {
         const positions: Map<string, {x: number, y: number, w: number, h: number}> = new Map();
 
         dataList.forEach((data, index) => {
-            const row = Math.floor(index / cols);
-            const col = index % cols;
+            let x: number, y: number;
 
-            const x = PADDING + col * (BOX_WIDTH + PADDING * 2);
-            const y = PADDING + row * (250 + PADDING * 2); // Approximation
+            if (data.x !== undefined && data.y !== undefined) {
+                x = data.x;
+                y = data.y;
+            } else {
+                const row = Math.floor(index / cols);
+                const col = index % cols;
+
+                x = PADDING + col * (BOX_WIDTH + PADDING * 2);
+                y = PADDING + row * (250 + PADDING * 2); // Approximation
+            }
 
             const itemCount = data.items ? data.items.length : 0;
             const h = BOX_HEADER_HEIGHT + itemCount * ITEM_HEIGHT + 10;
@@ -75,6 +82,8 @@ export class ErDiagramService {
                 });
             }
         });
+
+        return positions;
     }
 
     private drawComposition(cx: CanvasRenderingContext2D, x1: number, y1: number, x2: number, y2: number) {
