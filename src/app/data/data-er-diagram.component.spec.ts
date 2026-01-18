@@ -35,7 +35,7 @@ describe('DataErDiagramComponent', () => {
     // Mock positions map
     const positions = new Map();
     positions.set('1', { x: 10, y: 10, w: 100, h: 100 });
-    erDiagramServiceSpy.drawErDiagram.and.returnValue(positions);
+    erDiagramServiceSpy.drawErDiagram.and.returnValue({ entities: positions, edges: [] });
 
     fixture.detectChanges();
   });

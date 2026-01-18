@@ -26,6 +26,11 @@ export class DataItem {
 
   // If reference
   dataId?: string;
+
+  // Manual layout
+  edgePoints?: {x: number, y: number}[];
+  sourceSide?: 'left' | 'right';
+  targetSide?: 'left' | 'right';
 }
 
 export enum DataType {

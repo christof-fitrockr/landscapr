@@ -339,4 +339,122 @@ export class CanvasService {
 
         cx.restore();
      }
+
+  drawPolylineArrow(cx: CanvasRenderingContext2D, points: {x: number, y: number}[], description: string) {
+    if (points.length < 2) return;
+
+    cx.save();
+    cx.strokeStyle = this.palette.arrow;
+    cx.fillStyle = this.palette.arrow;
+
+    cx.beginPath();
+    cx.moveTo(points[0].x, points[0].y);
+    for (let i = 1; i < points.length; i++) {
+      cx.lineTo(points[i].x, points[i].y);
+    }
+    cx.stroke();
+
+    // Arrow head at the last segment
+    const last = points[points.length - 1];
+    const prev = points[points.length - 2];
+    const headlen = 10;
+    const dx = last.x - prev.x;
+    const dy = last.y - prev.y;
+    const angle = Math.atan2(dy, dx);
+
+    cx.beginPath();
+    cx.moveTo(last.x, last.y);
+    cx.lineTo(last.x - headlen * Math.cos(angle - Math.PI / 6), last.y - headlen * Math.sin(angle - Math.PI / 6));
+    cx.moveTo(last.x, last.y);
+    cx.lineTo(last.x - headlen * Math.cos(angle + Math.PI / 6), last.y - headlen * Math.sin(angle + Math.PI / 6));
+    cx.stroke();
+
+    if (description) {
+        // Find middle segment
+        const totalLen = points.reduce((acc, pt, i) => {
+            if (i === 0) return 0;
+            const dx = pt.x - points[i-1].x;
+            const dy = pt.y - points[i-1].y;
+            return acc + Math.sqrt(dx*dx + dy*dy);
+        }, 0);
+
+        let currentLen = 0;
+        const midLen = totalLen / 2;
+        let midPt = points[0];
+
+        for (let i = 1; i < points.length; i++) {
+             const dx = points[i].x - points[i-1].x;
+             const dy = points[i].y - points[i-1].y;
+             const dist = Math.sqrt(dx*dx + dy*dy);
+             if (currentLen + dist >= midLen) {
+                 // Interpolate
+                 const remaining = midLen - currentLen;
+                 const ratio = remaining / dist;
+                 midPt = {
+                     x: points[i-1].x + dx * ratio,
+                     y: points[i-1].y + dy * ratio
+                 };
+                 break;
+             }
+             currentLen += dist;
+        }
+
+
+        cx.fillStyle = this.palette.text;
+        cx.textAlign = 'center';
+        cx.textBaseline = 'middle';
+        cx.font = FUN_FONT;
+        cx.fillText(description, midPt.x, midPt.y + 15);
+    }
+
+    cx.restore();
+  }
+
+  drawPolylineComposition(cx: CanvasRenderingContext2D, points: {x: number, y: number}[]) {
+    if (points.length < 2) return;
+
+    cx.save();
+    cx.strokeStyle = '#555';
+    cx.fillStyle = '#555';
+    cx.lineWidth = 1;
+
+    const start = points[0];
+    const next = points[1];
+
+    const dx = next.x - start.x;
+    const dy = next.y - start.y;
+    const angle = Math.atan2(dy, dx);
+    const dSize = 8; // Half length of diamond
+
+    // Diamond at start
+    // We need to rotate the diamond to align with the first segment
+    cx.translate(start.x, start.y);
+    cx.rotate(angle);
+
+    cx.beginPath();
+    cx.moveTo(0, 0);
+    cx.lineTo(dSize, -dSize/1.5);
+    cx.lineTo(2*dSize, 0);
+    cx.lineTo(dSize, dSize/1.5);
+    cx.closePath();
+    cx.fill();
+
+    cx.rotate(-angle);
+    cx.translate(-start.x, -start.y);
+
+    // Line from end of diamond to next point
+    // Calculate point at end of diamond
+    const diamondEndX = start.x + Math.cos(angle) * (2*dSize);
+    const diamondEndY = start.y + Math.sin(angle) * (2*dSize);
+
+    cx.beginPath();
+    cx.moveTo(diamondEndX, diamondEndY);
+    cx.lineTo(next.x, next.y);
+    for (let i = 2; i < points.length; i++) {
+        cx.lineTo(points[i].x, points[i].y);
+    }
+    cx.stroke();
+
+    cx.restore();
+  }
 }
