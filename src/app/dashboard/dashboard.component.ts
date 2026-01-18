@@ -148,7 +148,9 @@ export class DashboardComponent implements OnInit {
   }
 
   ngOnDestroy() {
-    this.subscription.unsubscribe();
+    if (this.subscription) {
+      this.subscription.unsubscribe();
+    }
   }
 
   openGithubActionsDialog(): void {

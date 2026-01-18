@@ -23,29 +23,19 @@
 
       <div *ngIf="journeys && journeys.length === 0" class="small font-italic text-muted">No journeys available. Create one from the Journeys page.</div>
 
-      <div class="table-responsive" *ngIf="journeys && journeys.length > 0">
-        <table class="table table-sm table-striped mb-0">
-          <thead>
-            <tr>
-              <th scope="col" class="w-50">Name</th>
-              <th scope="col" class="w-50">Description</th>
-              <th scope="col" class="text-right">Editor</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let j of journeys">
-              <td>
-                <a class="black fw-bold" [routerLink]="['/journeys/editor', j.id]" title="Open in Journey Editor">{{ j.name }}</a>
-              </td>
-              <td>{{ j.description }}</td>
-              <td class="text-right">
-                <a class="btn btn-sm btn-outline-primary" [routerLink]="['/journeys/editor', j.id]" title="Open in Journey Editor">
-                  <i class="fas fa-project-diagram"></i>
-                </a>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+      <div class="row" *ngIf="journeys && journeys.length > 0">
+        <div class="col-md-6 col-lg-4 mb-3" *ngFor="let j of journeys">
+          <div class="card h-100 shadow-sm cursor-pointer dashboard-card" [routerLink]="['/journeys/editor', j.id]">
+            <div class="card-body p-3">
+              <h4 class="card-title fw-bold mb-1 text-truncate" [title]="j.name">
+                <i class="fas fa-map-signs mr-1 text-primary"></i> {{ j.name }}
+              </h4>
+              <p class="card-text small text-muted text-truncate-2 mb-0">
+                {{ j.description || 'No description' }}
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -64,7 +54,20 @@
 
       <div *ngIf="processes && processes?.length === 0" class="small font-italic text-muted">No favorite processes available.</div>
 
-      <app-process-table (deleted)="refresh()" [repoId]="repoId" [showFilter]="false" [processes]="processes" *ngIf="processes && processes?.length > 0"></app-process-table>
+      <div class="row" *ngIf="processes && processes?.length > 0">
+        <div class="col-md-6 col-lg-4 mb-3" *ngFor="let p of processes">
+          <div class="card h-100 shadow-sm cursor-pointer dashboard-card" [routerLink]="['/process/view', p.id]">
+            <div class="card-body p-3">
+              <h4 class="card-title fw-bold mb-1 text-truncate" [title]="p.name">
+                <i class="fas fa-project-diagram mr-1 text-primary"></i> {{ p.name }}
+              </h4>
+              <p class="card-text small text-muted text-truncate-2 mb-0">
+                {{ p.description || 'No description' }}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 

@@ -1,6 +1,6 @@
-<div class="modal-header bg-primary ">
-  <h4 class="modal-title pull-left">Export to PowerPoint</h4>
-  <button type="button" class="close pull-right " aria-label="Close" (click)="bsModalRef.hide()">
+<div class="modal-header bg-white border-bottom-0 pb-0">
+  <h4 class="modal-title fw-bold text-slate-900">Export to PowerPoint</h4>
+  <button type="button" class="close" aria-label="Close" (click)="bsModalRef.hide()">
     <span aria-hidden="true">&times;</span>
   </button>
 </div>
@@ -12,16 +12,16 @@
   </div>
 
   <div *ngIf="!loading">
-    <p class="mb-4">Select the entities you want to include in the PowerPoint presentation. Each selected item will have its own slide or chapter.</p>
+    <p class="mb-4 text-muted small">Select the entities you want to include in the PowerPoint presentation. Each selected item will have its own slide or chapter.</p>
 
     <div class="accordion" id="exportAccordion">
       <!-- Journeys -->
-      <div class="card mb-2 shadow-sm">
-        <div class="card-header bg-light d-flex justify-content-between align-items-center py-2">
-          <button class="btn btn-link text-dark font-weight-bold p-0" type="button" data-toggle="collapse" data-target="#collapseJourneys">
-            <i class="fas fa-map mr-2 text-primary"></i> Journeys ({{journeys.length}})
+      <div class="card mb-3 shadow-sm">
+        <div class="card-header bg-white d-flex justify-content-between align-items-center py-2">
+          <button class="btn btn-link text-slate-900 fw-bold p-0 text-decoration-none" type="button" data-toggle="collapse" data-target="#collapseJourneys">
+            <i class="fas fa-map mr-2 text-primary"></i> Journeys ({{getSelectedCount(journeys)}}/{{journeys.length}})
           </button>
-          <div class="btn-group btn-group-sm">
+          <div class="btn-group">
             <button class="btn btn-outline-secondary btn-xs" (click)="selectAll('journeys', true)">All</button>
             <button class="btn btn-outline-secondary btn-xs" (click)="selectAll('journeys', false)">None</button>
           </div>
@@ -37,12 +37,12 @@
       </div>
 
       <!-- Processes -->
-      <div class="card mb-2 shadow-sm">
-        <div class="card-header bg-light d-flex justify-content-between align-items-center py-2">
-          <button class="btn btn-link text-dark font-weight-bold p-0 collapsed" type="button" data-toggle="collapse" data-target="#collapseProcesses">
-            <i class="fas fa-project-diagram mr-2 text-success"></i> Processes ({{processes.length}})
+      <div class="card mb-3 shadow-sm">
+        <div class="card-header bg-white d-flex justify-content-between align-items-center py-2">
+          <button class="btn btn-link text-slate-900 fw-bold p-0 text-decoration-none collapsed" type="button" data-toggle="collapse" data-target="#collapseProcesses">
+            <i class="fas fa-project-diagram mr-2 text-success"></i> Processes ({{getSelectedCount(processes)}}/{{processes.length}})
           </button>
-          <div class="btn-group btn-group-sm">
+          <div class="btn-group">
             <button class="btn btn-outline-secondary btn-xs" (click)="selectAll('processes', true)">All</button>
             <button class="btn btn-outline-secondary btn-xs" (click)="selectAll('processes', false)">None</button>
           </div>
@@ -58,12 +58,12 @@
       </div>
 
       <!-- APIs -->
-      <div class="card mb-2 shadow-sm">
-        <div class="card-header bg-light d-flex justify-content-between align-items-center py-2">
-          <button class="btn btn-link text-dark font-weight-bold p-0 collapsed" type="button" data-toggle="collapse" data-target="#collapseApis">
-            <i class="fas fa-plug mr-2 text-info"></i> APIs ({{apis.length}})
+      <div class="card mb-3 shadow-sm">
+        <div class="card-header bg-white d-flex justify-content-between align-items-center py-2">
+          <button class="btn btn-link text-slate-900 fw-bold p-0 text-decoration-none collapsed" type="button" data-toggle="collapse" data-target="#collapseApis">
+            <i class="fas fa-plug mr-2 text-info"></i> APIs ({{getSelectedCount(apis)}}/{{apis.length}})
           </button>
-          <div class="btn-group btn-group-sm">
+          <div class="btn-group">
             <button class="btn btn-outline-secondary btn-xs" (click)="selectAll('apis', true)">All</button>
             <button class="btn btn-outline-secondary btn-xs" (click)="selectAll('apis', false)">None</button>
           </div>
@@ -79,12 +79,12 @@
       </div>
 
       <!-- Capabilities -->
-      <div class="card mb-2 shadow-sm">
-        <div class="card-header bg-light d-flex justify-content-between align-items-center py-2">
-          <button class="btn btn-link text-dark font-weight-bold p-0 collapsed" type="button" data-toggle="collapse" data-target="#collapseCaps">
-            <i class="fas fa-briefcase mr-2 text-purple"></i> Capabilities ({{capabilities.length}})
+      <div class="card mb-3 shadow-sm">
+        <div class="card-header bg-white d-flex justify-content-between align-items-center py-2">
+          <button class="btn btn-link text-slate-900 fw-bold p-0 text-decoration-none collapsed" type="button" data-toggle="collapse" data-target="#collapseCaps">
+            <i class="fas fa-briefcase mr-2 text-purple"></i> Capabilities ({{getSelectedCount(capabilities)}}/{{capabilities.length}})
           </button>
-          <div class="btn-group btn-group-sm">
+          <div class="btn-group">
             <button class="btn btn-outline-secondary btn-xs" (click)="selectAll('capabilities', true)">All</button>
             <button class="btn btn-outline-secondary btn-xs" (click)="selectAll('capabilities', false)">None</button>
           </div>
@@ -100,12 +100,12 @@
       </div>
 
       <!-- Systems -->
-      <div class="card mb-2 shadow-sm">
-        <div class="card-header bg-light d-flex justify-content-between align-items-center py-2">
-          <button class="btn btn-link text-dark font-weight-bold p-0 collapsed" type="button" data-toggle="collapse" data-target="#collapseSystems">
-            <i class="fas fa-server mr-2 text-warning"></i> Systems ({{systems.length}})
+      <div class="card mb-3 shadow-sm">
+        <div class="card-header bg-white d-flex justify-content-between align-items-center py-2">
+          <button class="btn btn-link text-slate-900 fw-bold p-0 text-decoration-none collapsed" type="button" data-toggle="collapse" data-target="#collapseSystems">
+            <i class="fas fa-server mr-2 text-warning"></i> Systems ({{getSelectedCount(systems)}}/{{systems.length}})
           </button>
-          <div class="btn-group btn-group-sm">
+          <div class="btn-group">
             <button class="btn btn-outline-secondary btn-xs" (click)="selectAll('systems', true)">All</button>
             <button class="btn btn-outline-secondary btn-xs" (click)="selectAll('systems', false)">None</button>
           </div>
@@ -129,9 +129,9 @@
   <app-journey-editor #journeyRenderer [journeyId]="renderingJourneyId" [isHeadless]="true" (drawn)="onJourneyDrawn()"></app-journey-editor>
 </div>
 
-<div class="modal-footer bg-light">
-  <button type="button" class="btn btn-secondary" (click)="bsModalRef.hide()">Cancel</button>
-  <button type="button" class="btn btn-primary px-4" (click)="export()" [disabled]="exporting || loading">
+<div class="modal-footer bg-white border-top-0">
+  <button type="button" class="btn btn-outline-secondary px-4" (click)="bsModalRef.hide()">Cancel</button>
+  <button type="button" class="btn btn-primary px-4 shadow-sm" (click)="export()" [disabled]="exporting || loading">
     <span *ngIf="exporting" class="spinner-border spinner-border-sm mr-2"></span>
     <i *ngIf="!exporting" class="fas fa-file-powerpoint mr-2"></i> Generate PPT
   </button>

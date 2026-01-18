@@ -76,12 +76,17 @@ export class RepositoriesComponent implements OnInit, OnDestroy {
   }
 
   updateStats(): void {
-    this.repoService.dataAvailable().pipe(first()).subscribe(available => {
-      if (!available) {
-        this.stats = null;
-        return;
-      }
-      this.repoService.getCurrentData().pipe(first()).subscribe(data => {
+    this.repoService.dataAvailable().pipe(
+      first(),
+      switchMap(available => {
+        if (!available) {
+          this.stats = null;
+          return of(null);
+        }
+        return this.repoService.getCurrentData().pipe(first());
+      })
+    ).subscribe(data => {
+      if (data) {
         this.stats = {
           journeys: data.journeys?.length || 0,
           processes: data.processes?.length || 0,
@@ -89,7 +94,7 @@ export class RepositoriesComponent implements OnInit, OnDestroy {
           capabilities: data.capabilities?.length || 0,
           systems: data.applications?.length || 0
         };
-      });
+      }
     });
   }
 
