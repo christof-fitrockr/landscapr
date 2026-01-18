@@ -23,6 +23,7 @@ export class AppComponent implements OnInit {
 
   upload$: Observable<Upload> = EMPTY;
   status$: Observable<SyncStatus> = EMPTY;
+  isMenuOpen = false;
 
   constructor(private authenticationService: AuthenticationService,
               private repoService: RepoService, private fileSaverService: FileSaverService,
@@ -69,5 +70,13 @@ export class AppComponent implements OnInit {
 
   openGithubActionsDialog() {
     this.modalService.show(GithubActionsDialogComponent, { class: 'modal-sm' });
+  }
+
+  toggleMenu() {
+    this.isMenuOpen = !this.isMenuOpen;
+  }
+
+  closeMenu() {
+    this.isMenuOpen = false;
   }
 }
