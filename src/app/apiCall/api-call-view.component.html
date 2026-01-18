@@ -22,6 +22,46 @@
           <p>{{apiCall?.description || 'No description available.'}}</p>
         </div>
       </div>
+
+      <div class="row mt-3" *ngIf="apiCall?.inputData?.length > 0">
+        <div class="col-12">
+          <label class="small text-uppercase text-muted font-weight-bold">Input Data</label>
+          <table class="table table-sm table-bordered">
+            <thead>
+              <tr>
+                <th>Data Object</th>
+                <th>Attribute</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let item of apiCall.inputData">
+                <td><a [routerLink]="['/data/edit', item.dataId]">{{getDataName(item.dataId)}}</a></td>
+                <td>{{getDataItemName(item.dataId, item.itemId)}}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="row mt-3" *ngIf="apiCall?.outputData?.length > 0">
+        <div class="col-12">
+          <label class="small text-uppercase text-muted font-weight-bold">Output Data</label>
+          <table class="table table-sm table-bordered">
+            <thead>
+              <tr>
+                <th>Data Object</th>
+                <th>Attribute</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let item of apiCall.outputData">
+                 <td><a [routerLink]="['/data/edit', item.dataId]">{{getDataName(item.dataId)}}</a></td>
+                 <td>{{getDataItemName(item.dataId, item.itemId)}}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   </div>
 </div>

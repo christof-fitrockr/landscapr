@@ -5,6 +5,7 @@ import { ApiCall } from '../models/api-call';
 import { Capability } from '../models/capability';
 import { Application } from '../models/application';
 import { Journey } from '../models/journey.model';
+import { Data } from '../models/data';
 
 @Injectable({
   providedIn: 'root'
@@ -15,6 +16,7 @@ export class LandscaprDb extends Dexie {
   capabilities!: Table<Capability, string>;
   applications!: Table<Application, string>;
   journeys!: Table<Journey, string>;
+  data!: Table<Data, string>;
 
   constructor() {
     super('LandscaprDb');
@@ -24,6 +26,9 @@ export class LandscaprDb extends Dexie {
       capabilities: 'id, name, parentId',
       applications: 'id, name',
       journeys: 'id, name'
+    });
+    this.version(2).stores({
+      data: 'id, name'
     });
   }
 }

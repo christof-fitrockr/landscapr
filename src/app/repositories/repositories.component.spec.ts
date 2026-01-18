@@ -88,7 +88,7 @@ describe('RepositoriesComponent', () => {
 
     githubServiceSpy.getFileContent.and.returnValue(of({ content: btoa('{}'), sha: '123' }));
     repoServiceSpy.getCurrentData.and.returnValue(of({
-      processes: [], apiCalls: [], capabilities: [], applications: [], journeys: []
+      processes: [], apiCalls: [], capabilities: [], applications: [], journeys: [], data: []
     }));
 
     // Mock modal to return confirm

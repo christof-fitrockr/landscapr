@@ -97,6 +97,13 @@ import { CommentsPanelComponent } from './components/comments-panel/comments-pan
 import { ExportModalComponent } from './components/export-modal.component';
 import {HelpComponent} from './help/help.component';
 import { MarkdownModule } from 'ngx-markdown';
+import {DataListComponent} from './data/data-list.component';
+import {DataEditBaseComponent} from './data/data-edit-base.component';
+import {DataEditNavComponent} from './data/data-edit-nav.component';
+import {DataErDiagramComponent} from './data/data-er-diagram.component';
+import {DataTreeNodeComponent} from './data/data-tree-node.component';
+import { DataFilterPipe } from './pipes/data-filter.pipe';
+import { DataGroupPipe } from './pipes/data-group.pipe';
 
 
 @NgModule({
@@ -150,6 +157,14 @@ import { MarkdownModule } from 'ngx-markdown';
     ApiCallListComponent,
     ApiCallViewComponent,
     ApiCallOverviewComponent,
+
+    DataListComponent,
+    DataEditBaseComponent,
+    DataEditNavComponent,
+    DataErDiagramComponent,
+    DataTreeNodeComponent,
+    DataFilterPipe,
+    DataGroupPipe,
 
     CapabilityEditBaseComponent,
     CapabilityEditApiCallComponent,
