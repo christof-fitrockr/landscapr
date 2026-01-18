@@ -119,6 +119,27 @@
           </div>
         </div>
       </div>
+
+      <!-- Data -->
+      <div class="card mb-3 shadow-sm">
+        <div class="card-header bg-white d-flex justify-content-between align-items-center py-2">
+          <button class="btn btn-link text-slate-900 fw-bold p-0 text-decoration-none collapsed" type="button" data-toggle="collapse" data-target="#collapseData">
+            <i class="fas fa-database mr-2 text-danger"></i> Data ({{getSelectedCount(dataEntities)}}/{{dataEntities.length}})
+          </button>
+          <div class="btn-group">
+            <button class="btn btn-outline-secondary btn-xs" (click)="selectAll('dataEntities', true)">All</button>
+            <button class="btn btn-outline-secondary btn-xs" (click)="selectAll('dataEntities', false)">None</button>
+          </div>
+        </div>
+        <div id="collapseData" class="collapse" data-parent="#exportAccordion">
+          <div class="card-body scrollable-list p-2">
+            <div *ngFor="let item of dataEntities" class="custom-control custom-checkbox ml-2 mb-1">
+              <input type="checkbox" class="custom-control-input" [id]="'d' + item.entity.id" [(ngModel)]="item.selected">
+              <label class="custom-control-label small" [for]="'d' + item.entity.id">{{item.entity.name}}</label>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </div>

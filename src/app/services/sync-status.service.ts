@@ -26,6 +26,7 @@ export class SyncStatusService {
   private static readonly STORAGE_SELECTED_FILE = 'repositories.selectedFilePath';
   private static readonly STORAGE_LAST_SYNC_SHA = 'repositories.lastSyncedSha';
   private static readonly STORAGE_LAST_SYNC_LOCAL_HASH = 'repositories.lastSyncedLocalHash';
+  private static readonly STORAGE_PREFIX_BRANCH = 'repositories.currentBranch.';
 
   private statusSubject = new BehaviorSubject<SyncStatus>({ state: 'UNKNOWN', lastChecked: Date.now() });
   readonly status$: Observable<SyncStatus> = this.statusSubject.asObservable();
@@ -156,54 +157,116 @@ export class SyncStatusService {
     const { owner, repoName, filePath } = status;
     if (!owner || !repoName || !filePath) { return; }
 
-    this.repoService.getCurrentData().pipe(first()).subscribe(localData => {
-        this.githubService.getFileContent(owner, repoName, filePath).pipe(first()).subscribe(file => {
-          const sha = file && file.sha ? file.sha : undefined;
-          let remoteData: any = {};
-          try { remoteData = JSON.parse(atob(file.content)); } catch { remoteData = {}; }
+    // 1. Get current branch from LS
+    const branchKey = SyncStatusService.STORAGE_PREFIX_BRANCH + repoName;
+    let currentBranch = localStorage.getItem(branchKey);
 
-          // Always show merge resolver to require commit message
-          const modalRef = this.modalService.show(MergeResolverComponent, {
-            class: 'modal-xl',
-            initialState: { repoData: remoteData, localData, requireCommitMessage: true }
-          });
-          const content: any = modalRef.content;
-          if (content && content.onClose) {
-            content.onClose.pipe(first()).subscribe((result: any) => {
-              if (!result) { return; }
-              const merged = result.data ? result.data : result; // backward compatibility
-              const commitMessage: string | undefined = result.commitMessage;
-              const mergedText = JSON.stringify(merged, null, 2);
-              this.githubService.createOrUpdateFile(owner, repoName, filePath, mergedText, sha, commitMessage).pipe(first()).subscribe(() => {
-                this.toastr.success('File saved successfully');
-                this.updateSyncSnapshot((file && file.sha) || sha || '', this.hash(mergedText));
-                this.refresh();
-              }, _ => this.toastr.error('Failed to save file to GitHub'));
+    // 2. Fetch repo details to get default branch
+    this.githubService.getRepo(owner, repoName).pipe(first()).subscribe(repo => {
+      const defaultBranch = repo.default_branch || 'main';
+
+      // If no current branch is stored, assume default (but we'll check logic below)
+      // Actually if it's null, we treat it as defaultBranch for comparison purposes
+      const effectiveCurrentBranch = currentBranch || defaultBranch;
+
+      if (effectiveCurrentBranch === defaultBranch) {
+        // 3. We are on default branch -> Create new branch
+        this.githubService.getUser().pipe(first()).subscribe(user => {
+          const newBranchName = this.generateBranchName(user.login);
+
+          this.toastr.info('Saving to main branch is restricted. Creating new branch: ' + newBranchName);
+
+          // Get SHA of default branch head
+          this.githubService.getRef(owner, repoName, `heads/${defaultBranch}`).pipe(
+            switchMap((ref: any) => {
+              const sha = ref.object.sha;
+              return this.githubService.createBranch(owner, repoName, newBranchName, sha);
+            })
+          ).subscribe(() => {
+            // Update local storage to point to new branch
+            localStorage.setItem(branchKey, newBranchName);
+            this.toastr.success(`Switched to branch ${newBranchName}`);
+
+            // Proceed with save on NEW branch
+            this.repoService.getCurrentData().pipe(first()).subscribe(localData => {
+              this.executePush(owner, repoName, filePath, newBranchName, localData);
             });
-          }
-        }, _ => {
-          // File does not exist -> still open resolver to enforce commit message
-          const remoteData: any = {};
-          const modalRef = this.modalService.show(MergeResolverComponent, {
-            class: 'modal-xl',
-            initialState: { repoData: remoteData, localData, requireCommitMessage: true }
+
+          }, err => {
+            this.toastr.error('Failed to create new branch. Save aborted.');
           });
-          const content: any = modalRef.content;
-          if (content && content.onClose) {
-            content.onClose.pipe(first()).subscribe((result: any) => {
-              if (!result) { return; }
-              const merged = result.data ? result.data : result;
-              const commitMessage: string | undefined = result.commitMessage;
-              const mergedText = JSON.stringify(merged, null, 2);
-              this.githubService.createOrUpdateFile(owner, repoName, filePath, mergedText, undefined, commitMessage).pipe(first()).subscribe(() => {
-                this.toastr.success('File created successfully');
-                this.updateSyncSnapshot('new', this.hash(mergedText));
-                this.refresh();
-              }, _ => this.toastr.error('Failed to create file on GitHub'));
-            });
-          }
+        }, _ => this.toastr.error('Failed to get user info for branch creation'));
+
+      } else {
+        // 4. We are on a feature branch -> Save directly
+        this.repoService.getCurrentData().pipe(first()).subscribe(localData => {
+           this.executePush(owner, repoName, filePath, effectiveCurrentBranch, localData);
         });
+      }
+    }, err => {
+      this.toastr.error('Failed to fetch repository details');
     });
+  }
+
+  private executePush(owner: string, repoName: string, filePath: string, branchName: string, localData: any) {
+    this.githubService.getFileContent(owner, repoName, filePath, branchName).pipe(first()).subscribe(file => {
+      const sha = file && file.sha ? file.sha : undefined;
+      let remoteData: any = {};
+      try { remoteData = JSON.parse(atob(file.content)); } catch { remoteData = {}; }
+
+      // Always show merge resolver to require commit message
+      const modalRef = this.modalService.show(MergeResolverComponent, {
+        class: 'modal-xl',
+        initialState: { repoData: remoteData, localData, requireCommitMessage: true }
+      });
+      const content: any = modalRef.content;
+      if (content && content.onClose) {
+        content.onClose.pipe(first()).subscribe((result: any) => {
+          if (!result) { return; }
+          const merged = result.data ? result.data : result; // backward compatibility
+          const commitMessage: string | undefined = result.commitMessage;
+          const mergedText = JSON.stringify(merged, null, 2);
+
+          this.githubService.createOrUpdateFile(owner, repoName, filePath, mergedText, sha, commitMessage, branchName).pipe(first()).subscribe(() => {
+            this.toastr.success(`File saved successfully to ${branchName}`);
+            this.updateSyncSnapshot((file && file.sha) || sha || '', this.hash(mergedText));
+            this.refresh();
+          }, _ => this.toastr.error('Failed to save file to GitHub'));
+        });
+      }
+    }, _ => {
+      // File does not exist -> still open resolver to enforce commit message
+      const remoteData: any = {};
+      const modalRef = this.modalService.show(MergeResolverComponent, {
+        class: 'modal-xl',
+        initialState: { repoData: remoteData, localData, requireCommitMessage: true }
+      });
+      const content: any = modalRef.content;
+      if (content && content.onClose) {
+        content.onClose.pipe(first()).subscribe((result: any) => {
+          if (!result) { return; }
+          const merged = result.data ? result.data : result;
+          const commitMessage: string | undefined = result.commitMessage;
+          const mergedText = JSON.stringify(merged, null, 2);
+
+          this.githubService.createOrUpdateFile(owner, repoName, filePath, mergedText, undefined, commitMessage, branchName).pipe(first()).subscribe(() => {
+            this.toastr.success(`File created successfully on ${branchName}`);
+            this.updateSyncSnapshot('new', this.hash(mergedText));
+            this.refresh();
+          }, _ => this.toastr.error('Failed to create file on GitHub'));
+        });
+      }
+    });
+  }
+
+  private generateBranchName(username: string): string {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = (now.getMonth() + 1).toString().padStart(2, '0');
+    const day = now.getDate().toString().padStart(2, '0');
+    const dateStr = `${year}-${month}-${day}`;
+    const timeStr = `${now.getHours().toString().padStart(2, '0')}${now.getMinutes().toString().padStart(2, '0')}`;
+    return `${username}-${dateStr}-${timeStr}`;
   }
 
   private updateSyncSnapshot(sha: string, localHash: string): void {

@@ -5,12 +5,14 @@ import { ProcessService } from '../services/process.service';
 import { ApiCallService } from '../services/api-call.service';
 import { CapabilityService } from '../services/capability.service';
 import { ApplicationService } from '../services/application.service';
+import { DataService } from '../services/data.service';
 import { PptExportService } from '../services/ppt-export.service';
 import { Journey } from '../models/journey.model';
 import { Process } from '../models/process';
 import { ApiCall } from '../models/api-call';
 import { Capability } from '../models/capability';
 import { Application } from '../models/application';
+import { Data } from '../models/data';
 import { forkJoin } from 'rxjs';
 import { SwimlaneViewComponent } from '../swimlaneView/swimlane-view.component';
 import { JourneyEditorComponent } from '../journey/journey-editor/journey-editor.component';
@@ -38,6 +40,7 @@ export class ExportModalComponent implements OnInit {
   apis: {selected: boolean, entity: ApiCall}[] = [];
   capabilities: {selected: boolean, entity: Capability}[] = [];
   systems: {selected: boolean, entity: Application}[] = [];
+  dataEntities: {selected: boolean, entity: Data}[] = [];
 
   loading = true;
   exporting = false;
@@ -49,6 +52,7 @@ export class ExportModalComponent implements OnInit {
     private apiCallService: ApiCallService,
     private capabilityService: CapabilityService,
     private systemService: ApplicationService,
+    private dataService: DataService,
     private pptExportService: PptExportService
   ) {}
 
@@ -58,7 +62,8 @@ export class ExportModalComponent implements OnInit {
       processes: this.processService.all(),
       apis: this.apiCallService.all(),
       capabilities: this.capabilityService.all(''),
-      systems: this.systemService.all('')
+      systems: this.systemService.all(''),
+      dataEntities: this.dataService.all()
     }).subscribe(data => {
       this.journeys = data.journeys.map(j => ({
         selected: this.currentJourney && j.id === this.currentJourney.entity.id,
@@ -71,6 +76,9 @@ export class ExportModalComponent implements OnInit {
       this.apis = data.apis.map(a => ({ selected: false, entity: a }));
       this.capabilities = data.capabilities.map(c => ({ selected: false, entity: c }));
       this.systems = data.systems.map(s => ({ selected: false, entity: s }));
+      this.dataEntities = data.dataEntities
+          .filter(d => d.isSubObject !== true)
+          .map(d => ({ selected: false, entity: d }));
       this.loading = false;
     });
   }
@@ -109,7 +117,8 @@ export class ExportModalComponent implements OnInit {
       processes: selectedProcessesData,
       apis: this.apis.filter(a => a.selected).map(a => a.entity),
       capabilities: this.capabilities.filter(c => c.selected).map(c => c.entity),
-      systems: this.systems.filter(s => s.selected).map(s => s.entity)
+      systems: this.systems.filter(s => s.selected).map(s => s.entity),
+      dataEntities: this.dataEntities.filter(d => d.selected).map(d => d.entity)
     });
 
     this.exporting = false;

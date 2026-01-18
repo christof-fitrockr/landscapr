@@ -37,6 +37,18 @@ describe('GithubService', () => {
     req.flush(dummyBranches);
   });
 
+  it('should get repo', () => {
+    const dummyRepo = { id: 1, name: 'repo', default_branch: 'main' };
+
+    service.getRepo('owner', 'repo').subscribe(repo => {
+      expect(repo).toEqual(dummyRepo);
+    });
+
+    const req = httpMock.expectOne('https://api.github.com/repos/owner/repo');
+    expect(req.request.method).toBe('GET');
+    req.flush(dummyRepo);
+  });
+
   it('should get ref', () => {
     const dummyRef = { ref: 'refs/heads/main', object: { sha: '123' } };
 

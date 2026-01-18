@@ -2,33 +2,33 @@
 <nav  class="navbar navbar-expand-lg fixed-top navbar-light bg-white" aria-label="Main navigation">
   <div class="container-fluid">
     <a class="navbar-brand" href="#">Landscapr</a>
-    <button class="navbar-toggler p-0 border-0" type="button" id="navbarSideCollapse" aria-label="Toggle navigation">
+    <button class="navbar-toggler p-0 border-0" type="button" id="navbarSideCollapse" aria-label="Toggle navigation" (click)="toggleMenu()">
       <span class="navbar-toggler-icon"></span>
     </button>
 
-    <div class="navbar-collapse offcanvas-collapse" id="navbarsExampleDefault">
+    <div class="navbar-collapse offcanvas-collapse" [class.open]="isMenuOpen" id="navbarsExampleDefault">
       <ul class="navbar-nav me-auto mb-2 mb-lg-0">
         <li class="nav-item">
-          <a *ngIf="!dataAvailable" class="nav-link" routerLinkActive="active" routerLink="dashboard" aria-current="page">Dashboard</a>
-          <a *ngIf="dataAvailable" class="nav-link" routerLinkActive="active" routerLink="/dashboard" aria-current="page">Dashboard</a>
+          <a *ngIf="!dataAvailable" class="nav-link" routerLinkActive="active" routerLink="dashboard" aria-current="page" (click)="closeMenu()">Dashboard</a>
+          <a *ngIf="dataAvailable" class="nav-link" routerLinkActive="active" routerLink="/dashboard" aria-current="page" (click)="closeMenu()">Dashboard</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" routerLinkActive="active" routerLink="/journeys">Journeys</a>
+          <a class="nav-link" routerLinkActive="active" routerLink="/journeys" (click)="closeMenu()">Journeys</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" routerLinkActive="active" routerLink="/process">Process</a>
+          <a class="nav-link" routerLinkActive="active" routerLink="/process" (click)="closeMenu()">Process</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" routerLinkActive="active" routerLink="/apiCall">Api</a>
+          <a class="nav-link" routerLinkActive="active" routerLink="/apiCall" (click)="closeMenu()">Api</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" routerLinkActive="active" routerLink="/data">Data</a>
+          <a class="nav-link" routerLinkActive="active" routerLink="/data" (click)="closeMenu()">Data</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" routerLinkActive="active" routerLink="/capability">Capability</a>
+          <a class="nav-link" routerLinkActive="active" routerLink="/capability" (click)="closeMenu()">Capability</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" routerLinkActive="active" routerLink="/system">System</a>
+          <a class="nav-link" routerLinkActive="active" routerLink="/system" (click)="closeMenu()">System</a>
         </li>
       </ul>
 
