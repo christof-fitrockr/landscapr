@@ -1,6 +1,7 @@
 import {Component, EventEmitter, Input, OnChanges, Output, SimpleChanges} from '@angular/core';
-import {Process, getRoleColor} from '../models/process';
+import {Process} from '../models/process';
 import {ProcessService} from '../services/process.service';
+import {RoleService} from '../services/role.service';
 
 @Component({
   selector: 'app-process-tree-node',
@@ -10,7 +11,6 @@ import {ProcessService} from '../services/process.service';
   }
 })
 export class ProcessTreeNodeComponent implements OnChanges {
-  getRoleColor = getRoleColor;
   @Input() process: Process;
   @Input() allProcesses: Process[];
   @Input() level: number = 0;
@@ -29,6 +29,12 @@ export class ProcessTreeNodeComponent implements OnChanges {
 
   expanded: boolean = false;
   childProcesses: Process[] = [];
+
+  constructor(private roleService: RoleService) {}
+
+  getRoleColor(id: any) {
+    return this.roleService.getRoleColor(id);
+  }
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes.process || changes.allProcesses) {

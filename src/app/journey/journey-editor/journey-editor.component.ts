@@ -1,7 +1,8 @@
 import { Component, ElementRef, HostListener, OnInit, ViewChild, Input, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import {Process, Status, getRoleColor} from '../../models/process';
+import {Process, Status} from '../../models/process';
 import { ProcessService } from '../../services/process.service';
+import { RoleService } from '../../services/role.service';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { ProcessQuickViewModalComponent } from './process-quick-view-modal.component';
 import { ConditionEditModalComponent } from './condition-edit-modal.component';
@@ -164,7 +165,8 @@ export class JourneyEditorComponent implements OnInit, OnChanges {
     private route: ActivatedRoute,
     private processService: ProcessService,
     private journeyService: JourneyService,
-    private modalService: BsModalService
+    private modalService: BsModalService,
+    private roleService: RoleService
   ) {}
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -942,7 +944,7 @@ export class JourneyEditorComponent implements OnInit, OnChanges {
     if (node.type === 'process' && (node as ProcessNode).processId) {
       const process = this.processes.find(p => p.id === (node as ProcessNode).processId);
       if (process) {
-        return getRoleColor(process.role);
+        return this.roleService.getRoleColor(process.role);
       }
     }
     return '#ffffff';

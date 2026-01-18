@@ -1,6 +1,7 @@
 import {Injectable} from '@angular/core';
-import {FunctionCall, Process, ProcessModel, ProcessStep, getRoleColor} from '../models/process';
+import {FunctionCall, Process, ProcessModel, ProcessStep} from '../models/process';
 import {CanvasService} from './canvas.service';
+import {RoleService} from './role.service';
 
 const SWIMLANE_HEIGHT = 150;
 const BOX_HEIGHT = 50;
@@ -12,7 +13,7 @@ const FUNCTION_PADDING = 10;
 })
 export class ProcessDrawingService {
 
-    constructor(private canvasService: CanvasService) {}
+    constructor(private canvasService: CanvasService, private roleService: RoleService) {}
 
     private zoomFactor = 1.0;
 
@@ -125,7 +126,7 @@ export class ProcessDrawingService {
     }
 
     private drawProcessStep(cx: CanvasRenderingContext2D, process: ProcessModel, laneId: string, x: number, w: number, step: ProcessStep, color: string = '#ffffff', isDraft: boolean = false) {
-        const fillColor = color === '#ffffff' ? getRoleColor(laneId) : color;
+        const fillColor = color === '#ffffff' ? this.roleService.getRoleColor(laneId) : color;
         this.canvasService.drawProcessStep(cx, x, this.getLaneMidX(process, laneId) - BOX_HEIGHT / 2, w, BOX_HEIGHT, step.name, fillColor, '', isDraft);
     }
 

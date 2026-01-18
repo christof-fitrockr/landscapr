@@ -2,9 +2,10 @@ import { Injectable } from '@angular/core';
 import pptxgen from "pptxgenjs";
 import { Journey } from '../models/journey.model';
 import { Process, Role, Status } from '../models/process';
-import { ApiCall, ApiImplementationStatus } from '../models/api-call';
+import { ApiCall, ApiImplementationStatus, DataStatus } from '../models/api-call'; // DataStatus is defined in api-call.ts
 import { Capability } from '../models/capability';
 import { Application } from '../models/application';
+import { Data, DataType } from '../models/data';
 
 @Injectable({
   providedIn: 'root'
@@ -111,7 +112,8 @@ export class PptExportService {
     processes: {entity: Process, image?: string, boxes?: {x: number, y: number, w: number, h: number}[]}[],
     apis: ApiCall[],
     capabilities: Capability[],
-    systems: Application[]
+    systems: Application[],
+    dataEntities: Data[]
   }) {
     const ppt = new pptxgen();
     ppt.layout = 'LAYOUT_WIDE';
@@ -356,6 +358,63 @@ export class PptExportService {
         slide.addText(`Contact: ${sys.contact || 'N/A'}`, { x: 0.5, y: 3.1, w: 12, h: 0.4, fontSize: 12 });
         if (sys.url) {
             slide.addText(`URL: ${sys.url}`, { x: 0.5, y: 3.5, w: 12, h: 0.4, fontSize: 12, color: '007BFF' });
+        }
+      }
+    }
+
+    // Data Chapter
+    if (data.dataEntities && data.dataEntities.length > 0) {
+      let chapterSlide = ppt.addSlide();
+      chapterSlide.background = { color: '343A40' };
+      chapterSlide.addText("Data Model", {
+        x: 0, y: '40%', w: '100%', h: 1.5,
+        fontSize: 60, bold: true, color: 'FFFFFF', align: 'center'
+      });
+
+      for (const d of data.dataEntities) {
+        let slide = ppt.addSlide();
+        // Title
+        slide.addText(d.name, { x: 0.5, y: 0.2, w: 9, h: 0.5, fontSize: 24, bold: true, color: 'DC3545' });
+
+        // Description
+        slide.addText("Description", { x: 0.5, y: 0.8, w: 12, h: 0.3, fontSize: 14, bold: true, color: '666666' });
+        slide.addText(d.description || "No description provided.", { x: 0.5, y: 1.1, w: 12, h: 1, fontSize: 12, valign: 'top' });
+
+        // Status
+        if (d.state !== undefined) {
+            slide.addText(`Status: ${DataStatus[d.state]}`, { x: 0.5, y: 0.5, w: 12, h: 0.3, fontSize: 12, color: '666666' });
+        }
+
+        // Items Table
+        if (d.items && d.items.length > 0) {
+            slide.addText("Fields", { x: 0.5, y: 2.2, w: 12, h: 0.3, fontSize: 14, bold: true, color: '666666' });
+
+            const tableRows: any[] = [
+                [
+                    { text: "Name", options: { bold: true, fill: 'E9ECEF' } },
+                    { text: "Type", options: { bold: true, fill: 'E9ECEF' } },
+                    { text: "Description", options: { bold: true, fill: 'E9ECEF' } }
+                ]
+            ];
+
+            d.items.forEach(item => {
+                let typeStr: string = item.type;
+                if (item.type === DataType.Primitive && item.primitiveType) {
+                    typeStr = item.primitiveType;
+                }
+                tableRows.push([
+                    item.name,
+                    typeStr,
+                    item.description || ''
+                ]);
+            });
+
+            slide.addTable(tableRows, {
+                x: 0.5, y: 2.6, w: 12.3,
+                colW: [3, 3, 6.3],
+                fontSize: 11,
+                border: { pt: 1, color: 'CCCCCC' }
+            });
         }
       }
     }
