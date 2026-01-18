@@ -60,10 +60,50 @@ export class ErDiagramService {
 
                             this.canvasService.drawArrow(cx, startX, startY, endX, endY, '');
                         }
+                    } else if (item.type === DataType.SubObject && item.dataId) {
+                         const endPos = positions.get(item.dataId);
+                         if (endPos) {
+                            const startX = startPos.x + BOX_WIDTH;
+                            const startY = startPos.y + BOX_HEADER_HEIGHT + itemIdx * ITEM_HEIGHT + ITEM_HEIGHT/2;
+
+                            const endX = endPos.x;
+                            const endY = endPos.y + BOX_HEADER_HEIGHT / 2;
+
+                            this.drawComposition(cx, startX, startY, endX, endY);
+                         }
                     }
                 });
             }
         });
+    }
+
+    private drawComposition(cx: CanvasRenderingContext2D, x1: number, y1: number, x2: number, y2: number) {
+        cx.save();
+        cx.strokeStyle = '#555';
+        cx.fillStyle = '#555';
+        cx.lineWidth = 1;
+
+        const midX = x1 + (x2 - x1) / 2;
+        const dSize = 6;
+
+        // Diamond at start (x1, y1) representing composition
+        cx.beginPath();
+        cx.moveTo(x1, y1);
+        cx.lineTo(x1 + dSize, y1 - dSize);
+        cx.lineTo(x1 + 2*dSize, y1);
+        cx.lineTo(x1 + dSize, y1 + dSize);
+        cx.closePath();
+        cx.fill();
+
+        // Line
+        cx.beginPath();
+        cx.moveTo(x1 + 2*dSize, y1);
+        cx.lineTo(midX, y1);
+        cx.lineTo(midX, y2);
+        cx.lineTo(x2, y2);
+        cx.stroke();
+
+        cx.restore();
     }
 
     private drawEntity(cx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, data: Data) {
@@ -80,7 +120,7 @@ export class ErDiagramService {
         cx.shadowColor = 'transparent';
 
         // Header
-        cx.fillStyle = '#f8f9fa';
+        cx.fillStyle = data.isSubObject ? '#e2e6ea' : '#f8f9fa';
         cx.fillRect(x, y, w, BOX_HEADER_HEIGHT);
         cx.strokeStyle = '#dee2e6';
         cx.strokeRect(x, y, w, BOX_HEADER_HEIGHT);
@@ -104,7 +144,9 @@ export class ErDiagramService {
 
                 cx.textAlign = 'right';
                 cx.fillStyle = '#666';
-                let typeText = item.type === DataType.Primitive ? item.primitiveType : 'REF';
+                let typeText = 'REF';
+                if (item.type === DataType.Primitive) typeText = item.primitiveType;
+                else if (item.type === DataType.SubObject) typeText = 'SUB';
                 cx.fillText(typeText, x + w - 10, itemY);
                 cx.textAlign = 'left';
             });
