@@ -14,13 +14,14 @@ export class RepoService {
     this.migrateFromLocalStorage();
   }
 
-  getCurrentData(): Observable<{ processes: any[]; apiCalls: any[]; capabilities: any[]; applications: any[]; journeys: any[] }> {
+  getCurrentData(): Observable<{ processes: any[]; apiCalls: any[]; capabilities: any[]; applications: any[]; journeys: any[]; data: any[] }> {
     return forkJoin({
         processes: from(this.db.processes.toArray()),
         apiCalls: from(this.db.apiCalls.toArray()),
         capabilities: from(this.db.capabilities.toArray()),
         applications: from(this.db.applications.toArray()),
-        journeys: from(this.db.journeys.toArray())
+        journeys: from(this.db.journeys.toArray()),
+        data: from(this.db.data.toArray())
     });
   }
 
@@ -38,7 +39,8 @@ export class RepoService {
                   apiCalls: data.apiCalls || [],
                   capabilities: data.capabilities || [],
                   applications: data.applications || [],
-                  journeys: data.journeys || []
+                  journeys: data.journeys || [],
+                  data: data.data || []
               };
               return new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
           })
@@ -85,23 +87,25 @@ export class RepoService {
     });
   }
 
-  applyData(parsedData: { applications?: any; capabilities?: any; apiCalls?: any; processes?: any; journeys?: any; }): void {
+  applyData(parsedData: { applications?: any; capabilities?: any; apiCalls?: any; processes?: any; journeys?: any; data?: any; }): void {
      this.applyParsedData(parsedData).catch(err => console.error(err));
   }
 
-  private async applyParsedData(parsedData: { applications?: any; capabilities?: any; apiCalls?: any; processes?: any; journeys?: any; }): Promise<void> {
-    await this.db.transaction('rw', [this.db.processes, this.db.apiCalls, this.db.capabilities, this.db.applications, this.db.journeys as any], async () => {
+  private async applyParsedData(parsedData: { applications?: any; capabilities?: any; apiCalls?: any; processes?: any; journeys?: any; data?: any; }): Promise<void> {
+    await this.db.transaction('rw', [this.db.processes, this.db.apiCalls, this.db.capabilities, this.db.applications, this.db.journeys as any, this.db.data], async () => {
         await this.db.processes.clear();
         await this.db.apiCalls.clear();
         await this.db.capabilities.clear();
         await this.db.applications.clear();
         await this.db.journeys.clear();
+        await this.db.data.clear();
 
         if (parsedData.processes) await this.db.processes.bulkAdd(parsedData.processes);
         if (parsedData.apiCalls) await this.db.apiCalls.bulkAdd(parsedData.apiCalls);
         if (parsedData.capabilities) await this.db.capabilities.bulkAdd(parsedData.capabilities);
         if (parsedData.applications) await this.db.applications.bulkAdd(parsedData.applications);
         if (parsedData.journeys) await this.db.journeys.bulkAdd(parsedData.journeys);
+        if (parsedData.data) await this.db.data.bulkAdd(parsedData.data);
     });
     this.dataChanges.next();
   }

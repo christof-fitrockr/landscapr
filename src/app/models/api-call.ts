@@ -18,6 +18,9 @@ export class ApiCall {
   input: string;
   output: string;
 
+  inputData: DataReference[];
+  outputData: DataReference[];
+
   tags: string[];
   apiType: ApiType
   status: DataStatus;
@@ -42,4 +45,9 @@ export enum ApiImplementationStatus {
   Planned,
   InDevelopment,
   Ready
+}
+
+export interface DataReference {
+  dataId: string;
+  itemId?: string;
 }

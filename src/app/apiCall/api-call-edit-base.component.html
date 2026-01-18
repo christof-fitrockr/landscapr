@@ -114,10 +114,69 @@
             <textarea rows="2" type="text" formControlName="input" class="form-control" id="input"></textarea>
           </div>
         </div>
+
+        <div class="form-group row">
+          <label class="col-sm-2 col-form-label">Input Data</label>
+          <div class="col-sm-10" formArrayName="inputData">
+            <table class="table table-sm mb-2" *ngIf="inputData.controls.length > 0">
+              <thead>
+              <tr>
+                <th>Data Object</th>
+                <th>Attribute (Optional)</th>
+                <th style="width: 50px"></th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr *ngFor="let item of inputData.controls; let i=index" [formGroupName]="i">
+                <td>
+                  <ng-select formControlName="dataId" [items]="dataList" bindLabel="name" bindValue="id" appendTo="body" class="custom-sm" placeholder="Select Data Object"></ng-select>
+                </td>
+                <td>
+                  <ng-select formControlName="itemId" [items]="getDataItems(item.get('dataId').value)" bindLabel="name" bindValue="id" appendTo="body" class="custom-sm" placeholder="Entire Object"></ng-select>
+                </td>
+                <td>
+                  <button type="button" class="btn btn-sm btn-outline-danger" (click)="removeDataReference(inputData, i)"><i class="fas fa-trash"></i></button>
+                </td>
+              </tr>
+              </tbody>
+            </table>
+            <button type="button" class="btn btn-sm btn-outline-secondary" (click)="addDataReference(inputData)"><i class="fas fa-plus"></i> Add Input Data</button>
+          </div>
+        </div>
+
         <div class="form-group row">
           <label for="output" class="col-sm-2 col-form-label">Output</label>
           <div class="col-sm-10">
             <textarea rows="2" type="text" formControlName="output" class="form-control" id="output"></textarea>
+          </div>
+        </div>
+
+        <div class="form-group row">
+          <label class="col-sm-2 col-form-label">Output Data</label>
+          <div class="col-sm-10" formArrayName="outputData">
+            <table class="table table-sm mb-2" *ngIf="outputData.controls.length > 0">
+              <thead>
+              <tr>
+                <th>Data Object</th>
+                <th>Attribute (Optional)</th>
+                <th style="width: 50px"></th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr *ngFor="let item of outputData.controls; let i=index" [formGroupName]="i">
+                <td>
+                  <ng-select formControlName="dataId" [items]="dataList" bindLabel="name" bindValue="id" appendTo="body" class="custom-sm" placeholder="Select Data Object"></ng-select>
+                </td>
+                <td>
+                  <ng-select formControlName="itemId" [items]="getDataItems(item.get('dataId').value)" bindLabel="name" bindValue="id" appendTo="body" class="custom-sm" placeholder="Entire Object"></ng-select>
+                </td>
+                <td>
+                  <button type="button" class="btn btn-sm btn-outline-danger" (click)="removeDataReference(outputData, i)"><i class="fas fa-trash"></i></button>
+                </td>
+              </tr>
+              </tbody>
+            </table>
+            <button type="button" class="btn btn-sm btn-outline-secondary" (click)="addDataReference(outputData)"><i class="fas fa-plus"></i> Add Output Data</button>
           </div>
         </div>
 

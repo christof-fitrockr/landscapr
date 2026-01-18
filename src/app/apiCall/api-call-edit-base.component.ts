@@ -1,5 +1,5 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
-import {FormBuilder, FormGroup, Validators} from '@angular/forms';
+import {FormBuilder, FormGroup, Validators, FormArray} from '@angular/forms';
 import {ActivatedRoute, Router} from '@angular/router';
 import {first} from 'rxjs/operators';
 import {ToastrService} from 'ngx-toastr';
@@ -12,6 +12,8 @@ import {Application} from '../models/application';
 import {ApplicationService} from '../services/application.service';
 import {BsModalService} from 'ngx-bootstrap/modal';
 import {CapabilitySelectorDialogComponent} from '../components/capability-selector-dialog/capability-selector-dialog.component';
+import {DataService} from '../services/data.service';
+import {Data, DataItem} from '../models/data';
 
 @Component({selector: 'app-function-edit', templateUrl: './api-call-edit-base.component.html', styleUrls: ['./api-call-edit-base.component.scss']})
 export class ApiCallEditBaseComponent implements OnInit, OnDestroy {
@@ -22,13 +24,14 @@ export class ApiCallEditBaseComponent implements OnInit, OnDestroy {
   capabilities$: Observable<Capability[]>;
   selectedCapability: Capability | null = null;
   systems$: Observable<Application[]>;
+  dataList: Data[] = [];
   repoId: string;
   private subscription: Subscription;
 
 
   constructor(private apiCallService: ApiCallService, private capabilityService: CapabilityService, private systemService: ApplicationService,
               private formBuilder: FormBuilder, private route: ActivatedRoute, private router: Router, private toastr: ToastrService,
-              private modalService: BsModalService) {
+              private modalService: BsModalService, private dataService: DataService) {
   }
 
 
@@ -46,7 +49,11 @@ export class ApiCallEditBaseComponent implements OnInit, OnDestroy {
       tags: [],
       input: [''],
       output: [''],
+      inputData: this.formBuilder.array([]),
+      outputData: this.formBuilder.array([]),
     });
+
+    this.dataService.all().subscribe(data => this.dataList = data);
 
     this.subscription = this.route.parent.paramMap.subscribe(obs => {
       this.repoId = obs.get('repoId');
@@ -74,6 +81,20 @@ export class ApiCallEditBaseComponent implements OnInit, OnDestroy {
         this.apiCall = apiCall;
         this.apiCallForm.patchValue(this.apiCall);
         this.updateSelectedCapability(apiCall.capabilityId);
+
+        this.inputData.clear();
+        if (apiCall.inputData) {
+            apiCall.inputData.forEach(d => {
+                this.inputData.push(this.formBuilder.group({dataId: d.dataId, itemId: d.itemId}));
+            });
+        }
+
+        this.outputData.clear();
+        if (apiCall.outputData) {
+            apiCall.outputData.forEach(d => {
+                this.outputData.push(this.formBuilder.group({dataId: d.dataId, itemId: d.itemId}));
+            });
+        }
       });
     } else {
       this.apiCall = new ApiCall();
@@ -104,6 +125,31 @@ export class ApiCallEditBaseComponent implements OnInit, OnDestroy {
     });
   }
 
+  get inputData(): FormArray {
+    return this.apiCallForm.get('inputData') as FormArray;
+  }
+
+  get outputData(): FormArray {
+    return this.apiCallForm.get('outputData') as FormArray;
+  }
+
+  addDataReference(array: FormArray) {
+    array.push(this.formBuilder.group({
+        dataId: [null, Validators.required],
+        itemId: [null]
+    }));
+  }
+
+  removeDataReference(array: FormArray, index: number) {
+    array.removeAt(index);
+  }
+
+  getDataItems(dataId: string): DataItem[] {
+      if (!dataId) return [];
+      const d = this.dataList.find(i => i.id === dataId);
+      return d ? d.items : [];
+  }
+
   onUpdate() {
     Object.keys(this.apiCallForm.controls).forEach(field => {
       const control = this.apiCallForm.get(field);
@@ -113,6 +159,9 @@ export class ApiCallEditBaseComponent implements OnInit, OnDestroy {
     if (this.apiCallForm.valid) {
       this.apiCall = Object.assign(this.apiCall, this.apiCallForm.value);
       this.apiCall.repoId = this.repoId;
+      // Ensure arrays are correct
+      this.apiCall.inputData = this.inputData.value;
+      this.apiCall.outputData = this.outputData.value;
       if(!this.apiCallId) {
         this.apiCallService.create(this.apiCall).pipe(first()).subscribe(docRef => {
           this.router.navigateByUrl('/apiCall/edit/' + docRef.id).then(() => {

@@ -1,0 +1,51 @@
+<div class="container-xl mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="btn-group">
+      <button type="button" class="btn btn-outline-secondary shadow-sm" title="Refresh" (click)="refresh()">
+        <i class="fas fa-sync"></i>
+      </button>
+      <button type="button" class="btn btn-outline-secondary shadow-sm" title="Create New Data" routerLink="../create">
+        <i class="fas fa-plus mr-1"></i>
+      </button>
+    </div>
+    <h2 class="m-0 font-weight-bold text-uppercase text-gray-400">Data</h2>
+  </div>
+
+  <div class="card shadow-sm border-0 mb-4" *ngIf="dataList && dataList.length > 0">
+    <div class="card-body p-0">
+      <table class="table mb-0 table-hover">
+        <thead>
+        <tr>
+          <th scope="col" style="width: 120px">Actions</th>
+          <th scope="col">Name</th>
+          <th scope="col">Description</th>
+          <th scope="col" class="text-right">Status</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let data of dataList">
+          <td>
+            <div class="btn-group btn-group-sm">
+              <a [routerLink]="['../edit', data.id]" class="btn btn-outline-primary" title="Edit"><i class="fas fa-pen"></i></a>
+              <button class="btn btn-outline-danger" (click)="onDelete(data)" title="Delete"><i class="fas fa-trash"></i></button>
+            </div>
+          </td>
+          <td>{{data.name}}</td>
+          <td>{{data.description}}</td>
+          <td class="text-right">
+             <span class="badge" [ngClass]="data.state === 1 ? 'badge-success' : 'badge-secondary'">
+                {{data.state === 1 ? 'Validated' : 'Draft'}}
+             </span>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div *ngIf="!dataList || dataList.length === 0" class="text-center py-5">
+    <div class="text-muted mb-3"><i class="fas fa-database fa-4x opacity-25"></i></div>
+    <div class="h5 text-muted font-italic">No Data found.</div>
+    <a routerLink="../create" class="btn btn-primary mt-2">Create your first Data Object</a>
+  </div>
+</div>
