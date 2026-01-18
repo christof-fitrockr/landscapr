@@ -8,6 +8,8 @@ import {ToastrService} from 'ngx-toastr';
 import {ApplicationService} from '../services/application.service';
 import {Observable, Subscription} from 'rxjs';
 import {Application} from '../models/application';
+import {RoleService} from '../services/role.service';
+import {Role} from '../models/role';
 
 @Component({selector: 'app-process-edit', templateUrl: './process-edit-base.component.html', styleUrls: ['./process-edit-base.component.scss']})
 export class ProcessEditBaseComponent implements OnInit, OnDestroy {
@@ -18,15 +20,17 @@ export class ProcessEditBaseComponent implements OnInit, OnDestroy {
   systems$: Observable<Application[]>;
   repoId: string;
   private subscription: Subscription;
-  roles: string[] = ['Customer', 'Vehicle', 'Service with Customer', 'Service', 'Workshop', 'Parts', 'Processing'];
+  roles$: Observable<Role[]>;
 
 
   constructor(private processService: ProcessService, private systemService: ApplicationService,
-              private formBuilder: FormBuilder, private route: ActivatedRoute, private router: Router, private toastr: ToastrService) {
+              private formBuilder: FormBuilder, private route: ActivatedRoute, private router: Router, private toastr: ToastrService,
+              private roleService: RoleService) {
   }
 
 
   ngOnInit() {
+    this.roles$ = this.roleService.getAll();
     this.processForm = this.formBuilder.group({
       name: ['', Validators.required],
       status: [0],
@@ -64,7 +68,11 @@ export class ProcessEditBaseComponent implements OnInit, OnDestroy {
     if (this.processId != null) {
       this.processService.byId(this.processId).pipe(first()).subscribe(process => {
         this.process = process;
-        this.processForm.patchValue(this.process);
+        const formValue = {...process};
+        if (formValue.role != null) {
+            formValue.role = String(formValue.role);
+        }
+        this.processForm.patchValue(formValue);
       });
     } else {
       this.process = new Process();

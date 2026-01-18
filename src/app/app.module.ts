@@ -104,10 +104,16 @@ import {DataErDiagramComponent} from './data/data-er-diagram.component';
 import {DataTreeNodeComponent} from './data/data-tree-node.component';
 import { DataFilterPipe } from './pipes/data-filter.pipe';
 import { DataGroupPipe } from './pipes/data-group.pipe';
+import {SettingsComponent} from './settings/settings.component';
+import {RoleListComponent} from './settings/role-list/role-list.component';
+import {RoleEditComponent} from './settings/role-edit/role-edit.component';
 
 
 @NgModule({
   declarations: [
+    SettingsComponent,
+    RoleListComponent,
+    RoleEditComponent,
     ExportModalComponent,
     CommentsPanelComponent,
     HelpComponent,
