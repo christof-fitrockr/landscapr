@@ -24,7 +24,8 @@ export class MergeResolverComponent {
     apiCalls: {},
     capabilities: {},
     applications: {},
-    journeys: {}
+    journeys: {},
+    data: {}
   };
 
   activeTab: keyof LandscaprData = 'processes';
@@ -57,7 +58,7 @@ export class MergeResolverComponent {
     let updateCount = 0;
 
     // Defaults: same -> either (prefer local), onlyRepo -> repo, onlyLocal -> local, conflict -> local
-    (['processes','apiCalls','capabilities','applications','journeys'] as (keyof LandscaprData)[]).forEach(sec => {
+    (['processes','apiCalls','capabilities','applications','journeys','data'] as (keyof LandscaprData)[]).forEach(sec => {
       const map: ItemChoicesPerSection = {};
       for (const rec of (this.diffs![sec].items || [])) {
         if (rec.status === 'conflict') {
@@ -101,7 +102,7 @@ export class MergeResolverComponent {
   }
 
   resolveAll(side: 'repo' | 'local'): void {
-    (['processes','apiCalls','capabilities','applications','journeys'] as (keyof LandscaprData)[]).forEach(sec => {
+    (['processes','apiCalls','capabilities','applications','journeys','data'] as (keyof LandscaprData)[]).forEach(sec => {
       this.bulk(sec, side);
     });
   }

@@ -44,7 +44,7 @@
 
     <!-- Tabs -->
     <ul class="nav nav-tabs">
-      <li class="nav-item" *ngFor="let section of ['processes','apiCalls','capabilities','applications','journeys']">
+      <li class="nav-item" *ngFor="let section of ['processes','apiCalls','capabilities','applications','journeys','data']">
         <a href="javascript:void(0)" class="nav-link" [class.active]="activeTab === section" (click)="setActiveTab(section)">
           {{section}}
           <span class="badge badge-light ml-1" title="conflicts">{{ countByStatus(section, 'conflict') }}</span>
