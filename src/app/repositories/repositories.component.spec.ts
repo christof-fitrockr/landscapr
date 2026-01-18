@@ -7,7 +7,7 @@ import { FileSaverService } from 'ngx-filesaver';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { MergeService } from '../services/merge.service';
 import { AuthenticationService } from '../services/authentication.service';
-import { of } from 'rxjs';
+import { of, Subject } from 'rxjs';
 import { FormsModule } from '@angular/forms';
 
 describe('RepositoriesComponent', () => {
@@ -23,7 +23,8 @@ describe('RepositoriesComponent', () => {
 
   beforeEach(async () => {
     githubServiceSpy = jasmine.createSpyObj('GithubService', ['getUser', 'getRepos', 'getRepoContents', 'getFileContent', 'createOrUpdateFile', 'setPersonalAccessToken', 'getPersonalAccessToken', 'getRef', 'createBranch', 'createPullRequest', 'getBranches', 'getPullRequests']);
-    repoServiceSpy = jasmine.createSpyObj('RepoService', ['getCurrentData', 'applyData', 'uploadJsonContent', 'downloadAsJson', 'uploadJson']);
+    repoServiceSpy = jasmine.createSpyObj('RepoService', ['getCurrentData', 'applyData', 'uploadJsonContent', 'downloadAsJson', 'uploadJson', 'dataAvailable']);
+    (repoServiceSpy as any).dataChanges = new Subject<void>();
     toastrServiceSpy = jasmine.createSpyObj('ToastrService', ['success', 'error', 'info', 'warning']);
     fileSaverServiceSpy = jasmine.createSpyObj('FileSaverService', ['save']);
     modalServiceSpy = jasmine.createSpyObj('BsModalService', ['show']);
@@ -53,6 +54,10 @@ describe('RepositoriesComponent', () => {
     githubServiceSpy.getUser.and.returnValue(of({ login: 'current-user' }));
     githubServiceSpy.getRepos.and.returnValue(of([]));
     githubServiceSpy.getBranches.and.returnValue(of([]));
+    repoServiceSpy.dataAvailable.and.returnValue(of(true));
+    repoServiceSpy.getCurrentData.and.returnValue(of({
+      processes: [], apiCalls: [], capabilities: [], applications: [], journeys: [], data: []
+    }));
     fixture.detectChanges(); // ngOnInit -> connect
   });
 
@@ -194,5 +199,18 @@ describe('RepositoriesComponent', () => {
 
     expect(toastrServiceSpy.success).toHaveBeenCalledWith('Changes submitted successfully!');
     expect(component.switchToMain).toHaveBeenCalled();
+  });
+
+  it('should update stats correctly including Data entities', () => {
+    repoServiceSpy.dataAvailable.and.returnValue(of(true));
+    repoServiceSpy.getCurrentData.and.returnValue(of({
+      processes: [], apiCalls: [], capabilities: [], applications: [], journeys: [],
+      data: [{ id: '1', name: 'd1', group: 'g', description: 'd' }, { id: '2', name: 'd2', group: 'g', description: 'd' }]
+    }));
+
+    component.updateStats();
+
+    expect(component.stats).toBeTruthy();
+    expect(component.stats.data).toBe(2);
   });
 });

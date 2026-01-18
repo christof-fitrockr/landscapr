@@ -33,6 +33,7 @@ describe('MergeResolverComponent', () => {
       capabilities: { section: 'capabilities', items: [] },
       applications: { section: 'applications', items: [] },
       journeys: { section: 'journeys', items: [] },
+      data: { section: 'data', items: [] },
     };
 
     if (conflicts > 0) {

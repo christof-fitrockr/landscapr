@@ -6,6 +6,7 @@ export interface LandscaprData {
   capabilities?: any[];
   applications?: any[];
   journeys?: any[];
+  data?: any[];
 }
 
 export interface SectionChoice {
@@ -14,6 +15,7 @@ export interface SectionChoice {
   capabilities: 'repo' | 'local';
   applications: 'repo' | 'local';
   journeys: 'repo' | 'local';
+  data: 'repo' | 'local';
 }
 
 export type DiffStatus = 'same' | 'onlyRepo' | 'onlyLocal' | 'conflict';
@@ -40,6 +42,7 @@ export interface AllItemChoices {
   capabilities: ItemChoicesPerSection;
   applications: ItemChoicesPerSection;
   journeys: ItemChoicesPerSection;
+  data: ItemChoicesPerSection;
 }
 
 export type DiffType = 'equal' | 'added' | 'removed' | 'changed' | 'object' | 'array';
@@ -71,6 +74,7 @@ export class MergeService {
       capabilities: choice.capabilities === 'repo' ? (ensureArray(repo.capabilities)) : (ensureArray(local.capabilities)),
       applications: choice.applications === 'repo' ? (ensureArray(repo.applications)) : (ensureArray(local.applications)),
       journeys: choice.journeys === 'repo' ? (ensureArray(repo.journeys)) : (ensureArray(local.journeys)),
+      data: choice.data === 'repo' ? (ensureArray(repo.data)) : (ensureArray(local.data)),
     };
   }
 
@@ -81,6 +85,7 @@ export class MergeService {
       capabilities: this.diffSection('capabilities', ensureArray(repo.capabilities), ensureArray(local.capabilities)),
       applications: this.diffSection('applications', ensureArray(repo.applications), ensureArray(local.applications)),
       journeys: this.diffSection('journeys', ensureArray(repo.journeys), ensureArray(local.journeys)),
+      data: this.diffSection('data', ensureArray(repo.data), ensureArray(local.data)),
     } as any;
   }
 
@@ -116,6 +121,7 @@ export class MergeService {
       capabilities: build('capabilities'),
       applications: build('applications'),
       journeys: build('journeys'),
+      data: build('data'),
     };
   }
 

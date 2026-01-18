@@ -44,7 +44,7 @@ export class RepositoriesComponent implements OnInit, OnDestroy {
   submitting = false;
   startingEditMode = false;
 
-  stats: { journeys: number, processes: number, apis: number, capabilities: number, systems: number } | null = null;
+  stats: { journeys: number, processes: number, apis: number, capabilities: number, systems: number, data: number } | null = null;
   private dataSubscription: Subscription;
 
   constructor(
@@ -92,7 +92,8 @@ export class RepositoriesComponent implements OnInit, OnDestroy {
           processes: data.processes?.length || 0,
           apis: data.apiCalls?.length || 0,
           capabilities: data.capabilities?.length || 0,
-          systems: data.applications?.length || 0
+          systems: data.applications?.length || 0,
+          data: data.data?.length || 0
         };
       }
     });
