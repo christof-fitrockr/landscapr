@@ -24,6 +24,10 @@ export class GithubService {
     return this.http.get(`${this.GITHUB_API_URL}/user`, { headers: this.getAuthorizationHeaders() });
   }
 
+  getRepo(owner: string, repo: string): Observable<any> {
+    return this.http.get<any>(`${this.GITHUB_API_URL}/repos/${owner}/${repo}`, { headers: this.getAuthorizationHeaders() });
+  }
+
   getRepos(): Observable<any[]> {
     return this.http.get<any[]>(`${this.GITHUB_API_URL}/user/repos`, { headers: this.getAuthorizationHeaders() });
   }
