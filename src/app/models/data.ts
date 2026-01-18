@@ -10,6 +10,8 @@ export class Data {
   items: DataItem[];
   isSubObject?: boolean;
   parentId?: string;
+  x?: number;
+  y?: number;
 }
 
 export class DataItem {
