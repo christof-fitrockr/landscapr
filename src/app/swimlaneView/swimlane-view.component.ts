@@ -14,9 +14,10 @@ import {
 import {ProcessService} from '../services/process.service';
 import {ActivatedRoute, Router} from '@angular/router';
 import {first} from 'rxjs/operators';
-import {Process, Role, Status, ROLE_COLORS, getRoleColor} from '../models/process';
+import {Process, Role, Status} from '../models/process';
 import {CanvasService} from '../services/canvas.service';
 import {ApiCallService} from '../services/api-call.service';
+import {RoleService} from '../services/role.service';
 import {ApiCall, ApiImplementationStatus} from '../models/api-call';
 import {Application} from '../models/application';
 import {ApplicationService} from '../services/application.service';
@@ -68,7 +69,8 @@ export class SwimlaneViewComponent implements OnInit, AfterViewInit, OnChanges, 
   noop = () => {};
 
   constructor(private activatedRoute: ActivatedRoute, private router: Router, private processService: ProcessService, private systemService: ApplicationService,
-              private canvasService: CanvasService, private apiCallService: ApiCallService, private authService: AuthenticationService) {
+              private canvasService: CanvasService, private apiCallService: ApiCallService, private authService: AuthenticationService,
+              private roleService: RoleService) {
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -201,7 +203,7 @@ export class SwimlaneViewComponent implements OnInit, AfterViewInit, OnChanges, 
     processBox.x = x;
     processBox.depth = layer;
     processBox.roleLayer = -1;
-    processBox.role = typeof process.role === 'number' ? Role[process.role] : process.role;
+    processBox.role = this.roleService.getRoleName(String(process.role));
     if (!process.steps || process.steps.length === 0) {
       processBox.w = this.canvasService.calcFunctionWidth(cx, 0, process.name, '');
     }
@@ -498,7 +500,7 @@ export class SwimlaneViewComponent implements OnInit, AfterViewInit, OnChanges, 
       for(let box of this.processOrder) {
         const boxY = box.depth * 100;
         const process = this.processMap.get(box.processId);
-        const boxColor = process ? getRoleColor(process.role) : '#ffffff';
+        const boxColor = process ? this.roleService.getRoleColor(process.role) : '#ffffff';
         const isDraft = process ? process.status === Status.Draft : false;
 
         this.canvasService.drawProcessStep(cx, box.x, boxY, box.w, 50, box.title, boxColor, box.role, isDraft)

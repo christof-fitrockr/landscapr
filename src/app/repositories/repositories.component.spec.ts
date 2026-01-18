@@ -56,7 +56,7 @@ describe('RepositoriesComponent', () => {
     githubServiceSpy.getBranches.and.returnValue(of([]));
     repoServiceSpy.dataAvailable.and.returnValue(of(true));
     repoServiceSpy.getCurrentData.and.returnValue(of({
-      processes: [], apiCalls: [], capabilities: [], applications: [], journeys: [], data: []
+      processes: [], apiCalls: [], capabilities: [], applications: [], journeys: [], data: [], roles: []
     }));
     fixture.detectChanges(); // ngOnInit -> connect
   });
@@ -93,7 +93,7 @@ describe('RepositoriesComponent', () => {
 
     githubServiceSpy.getFileContent.and.returnValue(of({ content: btoa('{}'), sha: '123' }));
     repoServiceSpy.getCurrentData.and.returnValue(of({
-      processes: [], apiCalls: [], capabilities: [], applications: [], journeys: [], data: []
+      processes: [], apiCalls: [], capabilities: [], applications: [], journeys: [], data: [], roles: []
     }));
 
     // Mock modal to return confirm
@@ -205,7 +205,8 @@ describe('RepositoriesComponent', () => {
     repoServiceSpy.dataAvailable.and.returnValue(of(true));
     repoServiceSpy.getCurrentData.and.returnValue(of({
       processes: [], apiCalls: [], capabilities: [], applications: [], journeys: [],
-      data: [{ id: '1', name: 'd1', group: 'g', description: 'd' }, { id: '2', name: 'd2', group: 'g', description: 'd' }]
+      data: [{ id: '1', name: 'd1', group: 'g', description: 'd' }, { id: '2', name: 'd2', group: 'g', description: 'd' }],
+      roles: []
     }));
 
     component.updateStats();

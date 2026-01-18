@@ -37,6 +37,9 @@ import { RepositoriesComponent } from './repositories/repositories.component';
 import { ApiGroupMapComponent } from './components/api-group-map.component';
 import {LicensesComponent} from './licenses/licenses.component';
 import {HelpComponent} from './help/help.component';
+import {SettingsComponent} from './settings/settings.component';
+import {RoleListComponent} from './settings/role-list/role-list.component';
+import {RoleEditComponent} from './settings/role-edit/role-edit.component';
 
 const routes: Routes = [
 
@@ -120,6 +123,11 @@ const routes: Routes = [
 
         ] },
       { path: 'create', component: SystemEditBaseComponent, canActivate: [AuthGuard] },
+  ] },
+  { path: 'settings', canActivate: [AuthGuard], children: [
+      { path: '', component: SettingsComponent, canActivate: [AuthGuard] },
+      { path: 'roles', component: RoleListComponent, canActivate: [AuthGuard] },
+      { path: 'roles/edit/:id', component: RoleEditComponent, canActivate: [AuthGuard] },
   ] },
   { path: 'privacyPolicy', component: PrivacyPolicyComponent},
   { path: 'disclaimer', component: DisclaimerComponent},
