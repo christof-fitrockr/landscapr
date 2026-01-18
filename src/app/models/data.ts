@@ -8,6 +8,8 @@ export class Data {
   state: DataStatus;
   link: string;
   items: DataItem[];
+  isSubObject?: boolean;
+  parentId?: string;
 }
 
 export class DataItem {
@@ -26,5 +28,6 @@ export class DataItem {
 
 export enum DataType {
   Primitive = 'Primitive',
-  Reference = 'Reference'
+  Reference = 'Reference',
+  SubObject = 'SubObject'
 }

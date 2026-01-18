@@ -3,6 +3,9 @@
   <div class="d-flex justify-content-between align-items-center mb-4">
     <div class="btn-toolbar" role="toolbar">
       <app-data-edit-nav [dataId]="dataId"></app-data-edit-nav>
+      <a *ngIf="returnTo" class="btn btn-outline-secondary mr-2" [routerLink]="['/data', 'edit', returnTo, 'base']">
+        <i class="fas fa-arrow-left mr-1"></i> Back to Parent
+      </a>
       <div class="btn-group shadow-sm">
         <button type="button" class="btn btn-primary" title="Save" (click)="onUpdate()">
           <i class="fas fa-save mr-1"></i> Save
@@ -86,6 +89,7 @@
                   <select formControlName="type" class="form-control form-control-sm">
                     <option [value]="DataType.Primitive">Primitive</option>
                     <option [value]="DataType.Reference">Reference</option>
+                    <option [value]="DataType.SubObject">Sub Object</option>
                   </select>
                 </td>
                 <td>
@@ -100,6 +104,9 @@
                   </div>
                   <div *ngIf="item.get('type').value === DataType.Reference">
                     <ng-select formControlName="dataId" [items]="allData$ | async" bindLabel="name" bindValue="id" appendTo="body" class="custom-sm"></ng-select>
+                  </div>
+                  <div *ngIf="item.get('type').value === DataType.SubObject">
+                     <button type="button" class="btn btn-sm btn-outline-primary" (click)="editSubObject(i)">Configure</button>
                   </div>
                 </td>
                 <td>

@@ -37,7 +37,7 @@ export class DataListComponent implements OnInit, OnDestroy {
 
   refresh() {
     this.dataService.all().pipe(first()).subscribe(dataList => {
-      this.dataList = dataList;
+      this.dataList = dataList.filter(d => !d.isSubObject);
     });
   }
 

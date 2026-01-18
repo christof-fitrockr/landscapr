@@ -1,11 +1,11 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {FormBuilder, FormGroup, Validators, FormArray} from '@angular/forms';
 import {ActivatedRoute, Router} from '@angular/router';
-import {first} from 'rxjs/operators';
+import {first, map} from 'rxjs/operators';
 import {ToastrService} from 'ngx-toastr';
 import {DataService} from '../services/data.service';
 import {Data, DataItem, DataType} from '../models/data';
-import {Subscription, Observable} from 'rxjs';
+import {Subscription, Observable, throwError} from 'rxjs';
 import {v4 as uuidv4} from 'uuid';
 
 @Component({selector: 'app-data-edit-base', templateUrl: './data-edit-base.component.html', styleUrls: ['./data-edit-base.component.scss']})
@@ -14,6 +14,7 @@ export class DataEditBaseComponent implements OnInit, OnDestroy {
   dataForm: FormGroup;
   dataObj: Data;
   dataId: string;
+  returnTo: string;
   allData$: Observable<Data[]>;
   DataType = DataType;
 
@@ -34,10 +35,15 @@ export class DataEditBaseComponent implements OnInit, OnDestroy {
     });
 
     // Load all data for reference dropdown
-    this.allData$ = this.dataService.all();
+    this.allData$ = this.dataService.all().pipe(
+      map(list => list.filter(d => !d.isSubObject))
+    );
 
     this.subscription = this.route.parent.paramMap.subscribe(obs => {
         this.refresh();
+    });
+    this.route.queryParamMap.subscribe(params => {
+      this.returnTo = params.get('returnTo');
     });
   }
 
@@ -96,28 +102,67 @@ export class DataEditBaseComponent implements OnInit, OnDestroy {
   }
 
   onUpdate() {
+    this.saveParent().subscribe(() => {
+       if(!this.dataId) {
+          // If we just created it, we are already navigated?
+          // Wait, saveParent handles create and returns ID.
+          // But existing onUpdate logic did navigation and toastr.
+          // I should preserve the existing behavior for manual save.
+          this.toastr.info('Data saved successfully');
+       } else {
+          this.toastr.info('Data updated successfully');
+          this.refresh();
+       }
+    });
+  }
+
+  private saveParent(): Observable<string> {
     this.dataForm.markAllAsTouched();
 
     if (this.dataForm.valid) {
       this.dataObj = Object.assign(this.dataObj, this.dataForm.value);
-
       // Ensure items is correct
       this.dataObj.items = this.items.value;
 
       if(!this.dataId) {
-        this.dataService.create(this.dataObj).pipe(first()).subscribe(docRef => {
-          this.router.navigateByUrl('/data/edit/' + docRef.id).then(() => {
-            this.toastr.info('Data created successfully');
-            this.refresh()
-          });
-        });
+        return this.dataService.create(this.dataObj).pipe(first(), map(docRef => {
+           this.router.navigateByUrl('/data/edit/' + docRef.id); // Update URL to new ID
+           return docRef.id;
+        }));
       } else {
-        this.dataService.update(this.dataId, this.dataObj).pipe(first()).subscribe(() => {
-          this.toastr.info('Data updated successfully');
-          this.refresh();
-        });
+        return this.dataService.update(this.dataId, this.dataObj).pipe(first(), map(() => this.dataId));
       }
     }
+    return throwError('Invalid form');
+  }
+
+  editSubObject(index: number) {
+      this.saveParent().pipe(first()).subscribe(parentId => {
+          const itemControl = this.items.at(index);
+          const currentDataId = itemControl.get('dataId').value;
+
+          if (currentDataId) {
+               this.router.navigate(['/data/edit', currentDataId, 'base'], { queryParams: { returnTo: parentId } });
+          } else {
+               // Create new sub object
+               const subData = new Data();
+               subData.name = this.dataObj.name + ' - ' + itemControl.get('name').value;
+               subData.isSubObject = true;
+               subData.parentId = parentId;
+               subData.state = 0; // Draft
+
+               this.dataService.create(subData).pipe(first()).subscribe(newSub => {
+                   // Update parent item with new ID
+                   itemControl.patchValue({ dataId: newSub.id });
+                   // Save parent again to persist the link
+                   this.saveParent().subscribe(() => {
+                        this.router.navigate(['/data/edit', newSub.id, 'base'], { queryParams: { returnTo: parentId } });
+                   });
+               });
+          }
+      }, error => {
+          this.toastr.error('Please fix validation errors before configuring sub-object');
+      });
   }
 
   delete() {
