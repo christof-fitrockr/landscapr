@@ -6,17 +6,15 @@ import { Data } from '../models/data';
 })
 export class DataFilterPipe implements PipeTransform {
 
-  transform(items: Data[], searchText: string): Data[] {
+  transform(items: Data[], searchText: string, filterStatus: number = null): Data[] {
     if (!items) {
       return [];
     }
-    if (!searchText) {
-      return items;
-    }
-    searchText = searchText.toLocaleLowerCase();
 
     return items.filter(it => {
-      return it.name.toLocaleLowerCase().includes(searchText);
+      const matchesSearch = !searchText || it.name.toLocaleLowerCase().includes(searchText.toLocaleLowerCase());
+      const matchesStatus = filterStatus === null || it.state === filterStatus;
+      return matchesSearch && matchesStatus;
     });
   }
 }

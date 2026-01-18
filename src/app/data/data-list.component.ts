@@ -21,7 +21,8 @@ export class DataListComponent implements OnInit, OnDestroy {
   }
 
   dataList: Data[];
-  searchText: string;
+  searchText: string = '';
+  filterStatus: number = null;
   private subscription: Subscription;
 
   ngOnInit() {

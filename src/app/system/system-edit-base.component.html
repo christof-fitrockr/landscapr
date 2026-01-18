@@ -5,10 +5,10 @@
     <div class="btn-toolbar" role="toolbar">
       <app-system-edit-nav [systemId]="systemId"></app-system-edit-nav>
       <div class="btn-group shadow-sm">
-        <button type="button" class="btn btn-outline-primary" title="Save" (click)="onUpdate()">
+        <button type="button" class="btn btn-primary" title="Save" (click)="onUpdate()">
           <i class="fas fa-save mr-1"></i> Save
         </button>
-        <button type="button" class="btn btn-outline-danger" title="Remove" data-toggle="modal" data-target="#confirmDelete" *ngIf="systemId">
+        <button type="button" class="btn btn-secondary" title="Remove" data-toggle="modal" data-target="#confirmDelete" *ngIf="systemId">
           <i class="fas fa-trash"></i>
         </button>
       </div>

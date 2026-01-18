@@ -1,0 +1,57 @@
+<ng-container *ngIf="shouldShowGroup()">
+  <!-- Group Row -->
+  <tr class="tree-row" [style.--depth]="level" (click)="toggleExpand()">
+    <td class="text-nowrap tree-indent-cell" colspan="2">
+      <div class="tree-indent-wrapper">
+        <div class="toggle-icon pointer">
+          <i class="fas fa-sm" [class.fa-chevron-down]="isExpanded" [class.fa-chevron-right]="!isExpanded"></i>
+        </div>
+        <span class="font-weight-bold text-uppercase small text-gray-600">
+            <i class="fas fa-folder-open mr-2 text-muted"></i> {{ group.groupName }} ({{ group.items.length }})
+        </span>
+      </div>
+    </td>
+    <td></td> <!-- Description -->
+    <td class="text-right"></td> <!-- Attributes -->
+    <td class="text-right"></td> <!-- Status -->
+  </tr>
+
+  <!-- Items -->
+  <ng-container *ngIf="isExpanded">
+    <ng-container *ngFor="let data of group.items">
+      <tr class="tree-row" [style.--depth]="level + 1" *ngIf="shouldShowItem(data)">
+
+        <!-- 1. Actions -->
+        <td class="text-nowrap tree-indent-cell">
+          <div class="tree-indent-wrapper">
+            <div class="toggle-icon"></div> <!-- Spacer -->
+            <a [routerLink]="['../edit', data.id]" class="btn btn-icon btn-sm text-muted" title="Edit"><i class="fas fa-edit"></i></a>
+            <button (click)="onDelete(data); $event.stopPropagation()" class="btn btn-icon btn-sm text-muted" title="Delete"><i class="fas fa-trash"></i></button>
+          </div>
+        </td>
+
+        <!-- 2. Name -->
+        <td>
+          <a class="font-weight-bold text-dark" [routerLink]="['../edit', data.id]">{{data.name}}</a>
+          <i *ngIf="data.link" class="fas fa-link ml-2 text-muted small" title="External Link"></i>
+        </td>
+
+        <!-- 3. Description -->
+        <td class="text-muted small text-truncate" style="max-width: 250px;">
+          {{data.description}}
+        </td>
+
+        <!-- 4. Attributes -->
+        <td class="text-right align-middle" style="width: 100px">
+           <span class="badge badge-light border">{{ data.items ? data.items.length : 0 }}</span>
+        </td>
+
+        <!-- 5. Status -->
+        <td style="width: 120px" class="text-nowrap pl-1 pr-1 text-right">
+           <span *ngIf="data?.state === 0" class="badge-modern badge-draft">Draft</span>
+           <span *ngIf="data?.state === 1" class="badge-modern badge-validated">Validated</span>
+        </td>
+      </tr>
+    </ng-container>
+  </ng-container>
+</ng-container>
