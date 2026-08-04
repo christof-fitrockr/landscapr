@@ -2,6 +2,15 @@
 
   <div class="d-flex justify-content-between align-items-start mb-3">
     <div class="btn-toolbar align-items-center flex-wrap" role="toolbar" aria-label="Landscape tools">
+      <div class="btn-group shadow-sm mr-3" role="group" aria-label="View">
+        <button class="btn btn-outline-dark" *ngFor="let p of personas"
+                [class.active]="persona === p.key"
+                [title]="p.hint"
+                (click)="setPersona(p.key)">
+          <i class="fas mr-1" [ngClass]="p.icon"></i>{{p.label}}
+        </button>
+      </div>
+
       <div class="btn-group shadow-sm mr-2" role="group" aria-label="Pointer tools">
         <button class="btn btn-outline-secondary" [class.active]="activeTool === 'select'"
                 (click)="setTool('select')" title="Select, move and edit elements">
@@ -144,6 +153,8 @@
                       [attr.fill]="layerMeta(node.layer).fill"
                       [attr.stroke]="node.selected ? '#007bff' : layerMeta(node.layer).color"
                       [class.selected]="node.selected"
+                      [class.impacted]="node.impacted"
+                      [class.impact-source]="impactSource?.id === node.id"
                       [class.connect-source]="connectSourceId === node.id"
                       [attr.stroke-dasharray]="node.draft ? '4,3' : null"></rect>
                 <rect class="node-bar" x="0" y="0" width="4" [attr.height]="node.height"
@@ -170,12 +181,43 @@
                                  [node]="selectedNode"
                                  [graph]="graph"
                                  [source]="source"
+                                 [persona]="persona"
+                                 (impactRequested)="showImpact($event)"
                                  (saved)="onElementSaved($event)"
                                  (unlinked)="removeRelation($event)"
                                  (opened)="openInEditor($event)"
                                  (selectedOther)="selectNode($event)"
                                  (closed)="clearSelection()">
         </app-landscape-inspector>
+
+        <div class="impact-panel card shadow" *ngIf="impactSource">
+          <div class="card-header bg-warning-subtle d-flex justify-content-between align-items-center py-2">
+            <div>
+              <div class="text-uppercase small font-weight-bold text-muted">Blast radius</div>
+              <div class="font-weight-bold">{{impactSource.label}}</div>
+            </div>
+            <button type="button" class="close" aria-label="Close" (click)="closeImpact()">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="card-body py-2">
+            <div class="small mb-2" *ngIf="impact.length > 0">
+              Retiring or changing this element affects <strong>{{impact.length}}</strong> other elements,
+              <strong>{{customerImpactCount()}}</strong> of them customer facing.
+            </div>
+            <div class="small text-muted font-italic" *ngIf="impact.length === 0">
+              Nothing else depends on this element.
+            </div>
+
+            <div class="impact-group" *ngFor="let group of impactByLayer()">
+              <div class="fact-title" [style.color]="group.meta.color">
+                <i class="fas mr-1" [ngClass]="group.meta.icon"></i>{{group.meta.label}} ({{group.nodes.length}})
+              </div>
+              <button type="button" class="btn btn-link btn-sm p-0 d-block text-left text-truncate"
+                      *ngFor="let node of group.nodes" (click)="selectNode(node)">{{node.label}}</button>
+            </div>
+          </div>
+        </div>
 
         <div class="edge-actions card shadow-sm" *ngIf="selectedEdge">
           <div class="card-body py-2 px-3 d-flex align-items-center">

@@ -11,6 +11,8 @@
     </button>
   </div>
 
+  <div class="inspector-scroll">
+
   <div class="card-body inspector-fields">
     <div class="form-group">
       <label for="inspectorName" class="small text-muted">Name</label>
@@ -56,6 +58,89 @@
     </div>
   </div>
 
+  <!-- What the business side needs to know about this element -->
+  <div class="card-body inspector-persona border-top pt-3" *ngIf="persona === 'business'">
+    <div class="text-uppercase small font-weight-bold text-muted mb-2">Business view</div>
+
+    <div class="text-muted small font-italic" *ngIf="!hasBusinessFacts">
+      Nothing downstream of this element reaches a journey yet.
+    </div>
+
+    <div class="fact-block" *ngIf="painPoints.length > 0">
+      <div class="fact-title text-danger">Customer pain points</div>
+      <div class="small mb-1" *ngFor="let pain of painPoints">
+        <i class="fas fa-exclamation-triangle text-danger mr-1"></i>{{pain.title}}
+        <span class="text-muted" *ngIf="pain.metric"> — {{pain.metric}}: {{pain.actual}} / {{pain.target}}</span>
+      </div>
+    </div>
+
+    <div class="fact-block" *ngIf="affectedExpectations.length > 0">
+      <div class="fact-title">Customer expectations affected</div>
+      <button type="button" class="btn btn-link btn-sm p-0 d-block text-left text-truncate"
+              *ngFor="let expectation of affectedExpectations"
+              (click)="selectedOther.emit(expectation)">{{expectation.label}}</button>
+    </div>
+
+    <div class="fact-block" *ngIf="affectedJourneys.length > 0">
+      <div class="fact-title">Journeys affected</div>
+      <button type="button" class="btn btn-link btn-sm p-0 d-block text-left text-truncate"
+              *ngFor="let journey of affectedJourneys"
+              (click)="selectedOther.emit(journey)">{{journey.label}}</button>
+    </div>
+
+    <div class="fact-block" *ngIf="supportingCapabilities.length > 0">
+      <div class="fact-title">Capabilities behind it</div>
+      <button type="button" class="btn btn-link btn-sm p-0 d-block text-left text-truncate"
+              *ngFor="let capability of supportingCapabilities"
+              (click)="selectedOther.emit(capability)">{{capability.label}}</button>
+    </div>
+
+    <div class="fact-block" *ngIf="kpis.length > 0">
+      <div class="fact-title">Measures</div>
+      <div class="small" *ngFor="let kpi of kpis">
+        {{kpi.metric}}: <strong>{{kpi.actual}}</strong> <span class="text-muted">/ {{kpi.target}}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- What the IT side needs to know about the very same element -->
+  <div class="card-body inspector-persona border-top pt-3" *ngIf="persona === 'it'">
+    <div class="text-uppercase small font-weight-bold text-muted mb-2">IT view</div>
+
+    <div class="text-muted small font-italic" *ngIf="!hasTechnicalFacts">
+      No functions, data objects or systems are attached below this element yet.
+    </div>
+
+    <div class="fact-block" *ngIf="technicalStatus">
+      <div class="fact-title">Implementation status</div>
+      <div class="small">{{technicalStatus}}</div>
+    </div>
+
+    <div class="fact-block" *ngIf="usedFunctions.length > 0">
+      <div class="fact-title">Functions used</div>
+      <button type="button" class="btn btn-link btn-sm p-0 d-block text-left text-truncate"
+              *ngFor="let fn of usedFunctions" (click)="selectedOther.emit(fn)">{{fn.label}}</button>
+    </div>
+
+    <div class="fact-block" *ngIf="usedData.length > 0">
+      <div class="fact-title">Data objects</div>
+      <button type="button" class="btn btn-link btn-sm p-0 d-block text-left text-truncate"
+              *ngFor="let data of usedData" (click)="selectedOther.emit(data)">{{data.label}}</button>
+    </div>
+
+    <div class="fact-block" *ngIf="usedSystems.length > 0">
+      <div class="fact-title">System dependencies</div>
+      <button type="button" class="btn btn-link btn-sm p-0 d-block text-left text-truncate"
+              *ngFor="let system of usedSystems" (click)="selectedOther.emit(system)">{{system.label}}</button>
+    </div>
+  </div>
+
+  <div class="card-body inspector-impact border-top py-2">
+    <button type="button" class="btn btn-outline-warning btn-sm btn-block" (click)="impactRequested.emit(node)">
+      <i class="fas fa-bolt mr-1"></i> Blast radius
+    </button>
+  </div>
+
   <div class="card-body inspector-relations border-top pt-3">
     <div class="d-flex justify-content-between align-items-center mb-2">
       <span class="text-uppercase small font-weight-bold text-muted">Relations</span>
@@ -82,5 +167,6 @@
         <i class="fas fa-unlink"></i>
       </button>
     </div>
+  </div>
   </div>
 </div>

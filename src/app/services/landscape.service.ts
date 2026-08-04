@@ -15,6 +15,7 @@ import {
   LandscapeEdge,
   LandscapeEdgeKind,
   LandscapeGraph,
+  LandscapeImpact,
   LandscapeLayer,
   LandscapeNode,
   LandscapeView,
@@ -310,6 +311,84 @@ export class LandscapeService {
     });
 
     return bands;
+  }
+
+  // ---------------------------------------------------------------------------
+  // Impact analysis
+  // ---------------------------------------------------------------------------
+
+  /**
+   * For every kind of relation: which of its two ends depends on the other.
+   * `from` means the element the edge starts at breaks when the other one goes
+   * away, `to` means the other way round.
+   */
+  private readonly DEPENDENT_END: { [key in LandscapeEdgeKind]: 'from' | 'to' } = {
+    'expectation-of-journey': 'from', // the expectation lives in the journey
+    'expectation-of-step': 'from',    // the expectation hangs on that step
+    'journey-step': 'from',           // the journey needs the process
+    'sub-process': 'from',            // the parent process needs the sub process
+    'process-function': 'from',       // the process needs the function
+    'function-capability': 'from',    // the function is filed under the capability
+    'capability-parent': 'to',        // the sub capability needs its parent
+    'function-input': 'to',           // the function reads the data
+    'function-output': 'to',          // the data is produced by the function
+    'data-reference': 'from',         // the referencing object needs the target
+    'implemented-by': 'from'          // the element needs the system
+  };
+
+  /**
+   * Everything that would be affected if the given element changed or was
+   * retired - the blast radius. Walks the model against the direction of
+   * dependency, so it ends up at the customer journeys and expectations.
+   */
+  impactOf(graph: LandscapeGraph, nodeId: string): LandscapeImpact[] {
+    return this.walk(graph, nodeId, 'dependents');
+  }
+
+  /**
+   * Everything the given element relies on - its functions, data objects and
+   * systems further down the model.
+   */
+  dependenciesOf(graph: LandscapeGraph, nodeId: string): LandscapeImpact[] {
+    return this.walk(graph, nodeId, 'dependencies');
+  }
+
+  private walk(graph: LandscapeGraph, nodeId: string, direction: 'dependents' | 'dependencies'): LandscapeImpact[] {
+    const nodes = new Map(graph.nodes.map(n => [n.id, n]));
+    if (!nodes.has(nodeId)) return [];
+
+    const found = new Map<string, number>();
+    let frontier = [nodeId];
+    let distance = 0;
+
+    while (frontier.length > 0 && distance < 12) {
+      distance++;
+      const next: string[] = [];
+
+      for (const currentId of frontier) {
+        for (const edge of graph.edges) {
+          const dependentEnd = this.DEPENDENT_END[edge.kind] || 'from';
+          const dependent = dependentEnd === 'from' ? edge.from : edge.to;
+          const dependsOn = dependentEnd === 'from' ? edge.to : edge.from;
+
+          const step = direction === 'dependents'
+            ? (dependsOn === currentId ? dependent : null)
+            : (dependent === currentId ? dependsOn : null);
+
+          if (!step || step === nodeId || found.has(step)) continue;
+          found.set(step, distance);
+          next.push(step);
+        }
+      }
+      frontier = next;
+    }
+
+    return Array.from(found.entries())
+      .map(([id, dist]) => ({ node: nodes.get(id)!, distance: dist }))
+      .filter(entry => !!entry.node)
+      .sort((a, b) => a.distance - b.distance
+        || LANDSCAPE_LAYERS.indexOf(a.node.layer) - LANDSCAPE_LAYERS.indexOf(b.node.layer)
+        || a.node.label.localeCompare(b.node.label));
   }
 
   // ---------------------------------------------------------------------------
