@@ -1,5 +1,5 @@
 <div class="modal-header">
-  <h5 class="modal-title">Create Pull Request</h5>
+  <h5 class="modal-title">Submit for review</h5>
   <button type="button" class="close" aria-label="Close" (click)="cancel()">
     <span aria-hidden="true">&times;</span>
   </button>
@@ -7,7 +7,7 @@
 <div class="modal-body">
   <div class="form-group">
     <label for="prTitle">Title</label>
-    <input type="text" class="form-control" id="prTitle" [(ngModel)]="title" placeholder="feat: new feature">
+    <input type="text" class="form-control" id="prTitle" [(ngModel)]="title" placeholder="e.g. New booking journey and its processes">
   </div>
   <div class="form-group">
     <label for="prBody">Description</label>
@@ -16,5 +16,5 @@
 </div>
 <div class="modal-footer">
   <button type="button" class="btn btn-secondary" (click)="cancel()">Cancel</button>
-  <button type="button" class="btn btn-primary" [disabled]="!title" (click)="submit()">Create Pull Request</button>
+  <button type="button" class="btn btn-primary" [disabled]="!title" (click)="submit()">Submit for review</button>
 </div>

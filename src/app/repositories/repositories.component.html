@@ -131,7 +131,7 @@
   <div class="card mb-4 shadow-sm" *ngIf="selectedRepo && selectedFilePath">
     <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
       <h5 class="mb-0 fw-bold text-slate-900">
-        <i class="fas fa-laptop-code mr-2"></i> Workspace
+        <i class="fas fa-laptop-code mr-2"></i> Your workspace
       </h5>
 
       <div class="d-flex align-items-center">
@@ -139,7 +139,7 @@
         <ng-container *ngIf="currentBranch === (selectedRepo?.default_branch || 'main')">
           <button class="btn btn-sm btn-primary me-2" (click)="startEditMode()" [disabled]="startingEditMode">
             <i class="fas" [ngClass]="startingEditMode ? 'fa-spinner fa-spin' : 'fa-pen-nib'"></i>
-            {{ startingEditMode ? ' Starting...' : ' Start Edit Mode' }}
+            {{ startingEditMode ? ' Preparing...' : ' Start a draft' }}
           </button>
         </ng-container>
 
@@ -147,24 +147,24 @@
         <ng-container *ngIf="currentBranch !== (selectedRepo?.default_branch || 'main')">
           <button class="btn btn-sm btn-outline-primary me-2 shadow-sm" (click)="saveToGithub()" [disabled]="saving">
             <i class="fas" [ngClass]="saving ? 'fa-spinner fa-spin' : 'fa-cloud-upload-alt'"></i>
-            {{ saving ? ' Saving...' : ' Save Changes' }}
+            {{ saving ? ' Saving...' : ' Save version' }}
           </button>
           <button class="btn btn-sm btn-success me-2 shadow-sm" (click)="submitChanges()" [disabled]="submitting">
             <i class="fas" [ngClass]="submitting ? 'fa-spinner fa-spin' : 'fa-paper-plane'"></i>
-            {{ submitting ? ' Submitting...' : ' Submit Changes' }}
+            {{ submitting ? ' Submitting...' : ' Submit for review' }}
           </button>
         </ng-container>
 
         <!-- Shared Actions -->
         <button class="btn btn-sm btn-outline-slate me-2 shadow-sm" (click)="loadFromGithub()" [disabled]="loadingFileContent">
           <i class="fas" [ngClass]="loadingFileContent ? 'fa-spinner fa-spin' : 'fa-sync-alt'"></i>
-          {{ loadingFileContent ? ' Updating...' : ' Update from Repo' }}
+          {{ loadingFileContent ? ' Updating...' : ' Get latest published model' }}
         </button>
 
         <!-- Discard (Only in Edit Mode) -->
         <button *ngIf="currentBranch !== (selectedRepo?.default_branch || 'main')"
                 class="btn btn-sm btn-link text-danger text-decoration-none" (click)="switchToMain()">
-          <i class="fas fa-times-circle me-1"></i> Discard
+          <i class="fas fa-times-circle me-1"></i> Discard draft
         </button>
       </div>
     </div>
@@ -173,11 +173,11 @@
       <div class="row">
         <div class="col-md-6">
           <div class="d-flex align-items-center mb-2">
-            <span class="text-muted small text-uppercase fw-bold me-3" style="min-width: 80px;">Branch</span>
+            <span class="text-muted small text-uppercase fw-bold me-3" style="min-width: 80px;">Workspace</span>
             <div class="d-flex align-items-center">
               <span class="py-1 px-2 border rounded bg-white shadow-sm small fw-bold">
                 <i class="fas fa-code-branch me-2 text-primary"></i> {{ currentBranch }}
-                <span *ngIf="currentBranch === (selectedRepo?.default_branch || 'main')" class="badge bg-light text-slate-500 border ms-2 fw-normal">default</span>
+                <span *ngIf="currentBranch === (selectedRepo?.default_branch || 'main')" class="badge bg-light text-slate-500 border ms-2 fw-normal">published</span>
               </span>
             </div>
           </div>
@@ -194,14 +194,14 @@
               [class.text-info]="currentBranch === (selectedRepo?.default_branch || 'main')"
               [class.bg-warning-soft]="currentBranch !== (selectedRepo?.default_branch || 'main')"
               [class.text-warning]="currentBranch !== (selectedRepo?.default_branch || 'main')">
-              {{ currentBranch === (selectedRepo?.default_branch || 'main') ? 'VIEW' : 'EDIT' }}
+              {{ currentBranch === (selectedRepo?.default_branch || 'main') ? 'READING' : 'DRAFT' }}
             </span>
             <span class="ms-3 small text-slate-500">
               <ng-container *ngIf="currentBranch === (selectedRepo?.default_branch || 'main')">
-                Viewing main branch
+                Reading the published model
               </ng-container>
               <ng-container *ngIf="currentBranch !== (selectedRepo?.default_branch || 'main')">
-                Active feature branch
+                Working in your own draft
               </ng-container>
             </span>
           </div>
@@ -209,10 +209,10 @@
             <span class="text-muted small text-uppercase fw-bold me-3" style="min-width: 80px;">Status</span>
             <span class="small text-slate-500 font-italic">
               <ng-container *ngIf="currentBranch === (selectedRepo?.default_branch || 'main')">
-                Start Edit Mode to make changes.
+                Start a draft to make changes.
               </ng-container>
               <ng-container *ngIf="currentBranch !== (selectedRepo?.default_branch || 'main')">
-                Unsaved changes will be lost if you switch branches.
+                Unsaved changes are lost if you leave this draft.
               </ng-container>
             </span>
           </div>
@@ -224,20 +224,20 @@
   <!-- Open Pull Requests -->
   <div class="card mb-3 shadow-sm" *ngIf="selectedRepo">
       <div class="card-header bg-white">
-          <h5 class="mb-0 text-secondary"><i class="fas fa-code-branch mr-2"></i> Open Pull Requests</h5>
+          <h5 class="mb-0 text-secondary"><i class="fas fa-code-branch mr-2"></i> Changes waiting for review</h5>
       </div>
       <div class="card-body p-0">
           <div *ngIf="loadingPRs" class="p-3 text-center text-muted">
-              <i class="fas fa-spinner fa-spin me-2"></i>Loading pull requests...
+              <i class="fas fa-spinner fa-spin me-2"></i>Loading proposed changes...
           </div>
           <ng-container *ngIf="!loadingPRs">
-              <div *ngIf="(pullRequests$ | async)?.length === 0" class="p-3 text-muted">No open pull requests.</div>
+              <div *ngIf="(pullRequests$ | async)?.length === 0" class="p-3 text-muted">Nothing is waiting for review.</div>
               <ul class="list-group list-group-flush" *ngIf="(pullRequests$ | async) as prs">
                   <li class="list-group-item d-flex justify-content-between align-items-center" *ngFor="let pr of prs">
                       <div>
                           <a [href]="pr.html_url" target="_blank" rel="noopener noreferrer" class="fw-bold">{{ pr.title }}</a>
                           <div class="small text-muted">
-                              #{{ pr.number }} opened by {{ pr.user.login }}
+                              Proposal #{{ pr.number }} by {{ pr.user.login }}
                           </div>
                       </div>
                       <a [href]="pr.html_url" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-outline-secondary"><i class="fas fa-external-link-alt"></i></a>
