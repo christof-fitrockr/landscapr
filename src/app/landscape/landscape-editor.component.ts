@@ -15,13 +15,19 @@ import {
   DEFAULT_LANDSCAPE_VIEW_ID,
   LandscapeEdge,
   LandscapeGraph,
+  LandscapeImpact,
   LandscapeLayer,
   LandscapeLayerMeta,
   LandscapeNode,
   LandscapeView,
+  Persona,
+  PersonaMeta,
   LANDSCAPE_LAYERS,
-  LANDSCAPE_LAYER_META
+  LANDSCAPE_LAYER_META,
+  PERSONAS,
+  PERSONA_META
 } from '../models/landscape.model';
+import { PersonaService } from '../services/persona.service';
 
 export type LandscapeTool = 'select' | 'connect' | LandscapeLayer;
 
@@ -46,6 +52,14 @@ export class LandscapeEditorComponent implements OnInit {
   activeTool: LandscapeTool = 'select';
   searchText = '';
   focusMode = false;
+
+  // Persona: the same model, told from the point of view of who is looking
+  personas: PersonaMeta[] = PERSONAS.map(persona => PERSONA_META[persona]);
+  persona: Persona = 'business';
+
+  // Blast radius
+  impactSource: LandscapeNode | null = null;
+  impact: LandscapeImpact[] = [];
 
   // Selection
   selectedNode: LandscapeNode | null = null;
@@ -72,11 +86,13 @@ export class LandscapeEditorComponent implements OnInit {
 
   constructor(
     private landscapeService: LandscapeService,
+    private personaService: PersonaService,
     private router: Router,
     private toastr: ToastrService
   ) {}
 
   ngOnInit(): void {
+    this.persona = this.personaService.persona;
     this.refresh();
   }
 
@@ -88,6 +104,12 @@ export class LandscapeEditorComponent implements OnInit {
         this.panX = view.panX ?? 40;
         this.panY = view.panY ?? 40;
         this.zoom = view.zoom || 0.8;
+        // without a stored view the persona decides which layers are shown
+        if (!seenBefore) {
+          const shown = PERSONA_META[this.persona].layers;
+          this.view.hiddenLayers = LANDSCAPE_LAYERS.filter(layer => shown.indexOf(layer) < 0);
+        }
+
         this.landscapeService.load().pipe(first()).subscribe(source => {
           this.source = source;
           this.rebuild();
@@ -118,11 +140,77 @@ export class LandscapeEditorComponent implements OnInit {
     this.graph = graph;
     this.bands = this.landscapeService.layout(this.graph, this.view);
 
+    if (this.impactSource) {
+      const stillThere = this.graph.nodes.find(n => n.id === this.impactSource!.id);
+      this.impactSource = stillThere || null;
+      this.impact = stillThere ? this.landscapeService.impactOf(this.graph, stillThere.id) : [];
+    }
+
     this.selectedNode = selectedNodeId ? this.graph.nodes.find(n => n.id === selectedNodeId) || null : null;
     this.selectedEdge = selectedEdgeId ? this.graph.edges.find(e => e.id === selectedEdgeId) || null : null;
     if (this.selectedNode) this.selectedNode.selected = true;
     if (this.selectedEdge) this.selectedEdge.selected = true;
     this.applyHighlighting();
+  }
+
+  // ---------------------------------------------------------------------------
+  // Persona
+  // ---------------------------------------------------------------------------
+
+  /**
+   * Switching the persona does not touch the model, it only decides which
+   * layers are put in front of the user by default.
+   */
+  setPersona(persona: Persona): void {
+    if (this.persona === persona) return;
+    this.persona = persona;
+    this.personaService.set(persona);
+
+    const shown = PERSONA_META[persona].layers;
+    this.view.hiddenLayers = LANDSCAPE_LAYERS.filter(layer => shown.indexOf(layer) < 0);
+    this.rebuild();
+    this.scheduleViewSave();
+  }
+
+  personaMeta(persona: Persona): PersonaMeta {
+    return PERSONA_META[persona];
+  }
+
+  // ---------------------------------------------------------------------------
+  // Blast radius
+  // ---------------------------------------------------------------------------
+
+  /** Shows everything that breaks if the given element changes or is retired */
+  showImpact(node: LandscapeNode): void {
+    this.impactSource = node;
+    this.impact = this.landscapeService.impactOf(this.graph, node.id);
+    this.focusMode = false;
+    this.applyHighlighting();
+    if (this.impact.length === 0) {
+      this.toastr.info(`Nothing else depends on ${node.label}`);
+    }
+  }
+
+  closeImpact(): void {
+    this.impactSource = null;
+    this.impact = [];
+    this.applyHighlighting();
+  }
+
+  /** The affected elements grouped by layer, for the summary list */
+  impactByLayer(): { layer: LandscapeLayer; meta: LandscapeLayerMeta; nodes: LandscapeNode[] }[] {
+    return LANDSCAPE_LAYERS
+      .map(layer => ({
+        layer,
+        meta: LANDSCAPE_LAYER_META[layer],
+        nodes: this.impact.filter(entry => entry.node.layer === layer).map(entry => entry.node)
+      }))
+      .filter(group => group.nodes.length > 0);
+  }
+
+  /** Customer facing elements are the ones the business side has to hear about */
+  customerImpactCount(): number {
+    return this.impact.filter(entry => entry.node.layer === 'experience' || entry.node.layer === 'journey').length;
   }
 
   // ---------------------------------------------------------------------------
@@ -155,13 +243,18 @@ export class LandscapeEditorComponent implements OnInit {
   private applyHighlighting(): void {
     const term = (this.searchText || '').trim().toLowerCase();
     const focusIds = this.focusMode && this.selectedNode ? this.neighbourhood(this.selectedNode.id) : null;
+    const impactIds = this.impactSource
+      ? new Set<string>([this.impactSource.id, ...this.impact.map(entry => entry.node.id)])
+      : null;
 
     this.graph.nodes.forEach(node => {
       const matchesSearch = !term
         || node.label.toLowerCase().includes(term)
         || (node.sublabel || '').toLowerCase().includes(term);
       const inFocus = !focusIds || focusIds.has(node.id);
-      node.dimmed = !(matchesSearch && inFocus);
+      const inImpact = !impactIds || impactIds.has(node.id);
+      node.dimmed = !(matchesSearch && inFocus && inImpact);
+      node.impacted = !!impactIds && impactIds.has(node.id) && node.id !== this.impactSource?.id;
     });
 
     this.graph.edges.forEach(edge => {
@@ -348,6 +441,10 @@ export class LandscapeEditorComponent implements OnInit {
       event.preventDefault();
     }
     if (event.key === 'Escape') {
+      if (this.impactSource) {
+        this.closeImpact();
+        return;
+      }
       this.connectSourceId = null;
       this.setTool('select');
     }

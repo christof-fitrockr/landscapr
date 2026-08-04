@@ -133,6 +133,43 @@ svg .dimmed {
   display: block;
 }
 
+svg .node.impacted {
+  stroke: #d9822b;
+  stroke-width: 3;
+}
+
+svg .node.impact-source {
+  stroke: #d9534f;
+  stroke-width: 4;
+}
+
+.impact-panel {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  width: 300px;
+  max-height: calc(100% - 24px);
+  overflow-y: auto;
+  z-index: 16;
+}
+
+.impact-panel .bg-warning-subtle {
+  background: #fff6e6;
+}
+
+.impact-panel .impact-group + .impact-group {
+  margin-top: 8px;
+}
+
+.impact-panel .fact-title {
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.impact-panel .btn-link {
+  max-width: 100%;
+}
+
 .edge-actions {
   position: absolute;
   left: 50%;

@@ -197,7 +197,7 @@ describe('RepositoriesComponent', () => {
     const titleArg = githubServiceSpy.createPullRequest.calls.mostRecent().args[2];
     expect(titleArg).toContain('Update by user');
 
-    expect(toastrServiceSpy.success).toHaveBeenCalledWith('Changes submitted successfully!');
+    expect(toastrServiceSpy.success).toHaveBeenCalledWith('Your changes were submitted for review.');
     expect(component.switchToMain).toHaveBeenCalled();
   });
 

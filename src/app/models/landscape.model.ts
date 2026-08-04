@@ -139,6 +139,8 @@ export interface LandscapeNode {
   pinned?: boolean;
   /** dimmed when a focus or filter is active */
   dimmed?: boolean;
+  /** highlighted as part of the blast radius of another element */
+  impacted?: boolean;
 }
 
 export interface LandscapeEdge {
@@ -168,6 +170,47 @@ export interface LandscapeView {
 }
 
 export const DEFAULT_LANDSCAPE_VIEW_ID = 'default';
+
+/**
+ * Who is looking at the model. The stored model is the same for everyone -
+ * the persona only decides which parts of it are put in front of the user.
+ */
+export type Persona = 'business' | 'it';
+
+export interface PersonaMeta {
+  key: Persona;
+  label: string;
+  hint: string;
+  icon: string;
+  /** layers this persona sees by default, the others start hidden */
+  layers: LandscapeLayer[];
+}
+
+export const PERSONA_META: { [key in Persona]: PersonaMeta } = {
+  business: {
+    key: 'business',
+    label: 'Business',
+    hint: 'Customer experience, journeys, processes and capabilities',
+    icon: 'fa-user-tie',
+    layers: ['experience', 'journey', 'process', 'capability']
+  },
+  it: {
+    key: 'it',
+    label: 'IT',
+    hint: 'Processes, functions, data objects and systems',
+    icon: 'fa-server',
+    layers: ['process', 'capability', 'api', 'data', 'system']
+  }
+};
+
+export const PERSONAS: Persona[] = ['business', 'it'];
+
+/** One element that would be affected if the analysed element changed */
+export interface LandscapeImpact {
+  node: LandscapeNode;
+  /** number of relations between the analysed element and this one */
+  distance: number;
+}
 
 export function landscapeNodeId(layer: LandscapeLayer, entityId: string): string {
   return `${layer}:${entityId}`;

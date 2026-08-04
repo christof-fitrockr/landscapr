@@ -22,6 +22,27 @@ The canvas is split into one band per layer, from top to bottom:
 
 Click a layer chip below the toolbar to hide or show that band.
 
+## Business or IT
+The same model answers different questions depending on who is asking. The **View** switch in the toolbar
+turns the landscape from a business view into a technical one and back:
+
+- **Business** starts with experience, journeys, processes and capabilities. The inspector answers who is
+  affected: customer pain points, the expectations and journeys that depend on the element, the capabilities
+  behind it and the measures attached to those expectations.
+- **IT** starts with processes, capabilities, functions, data and systems. For the very same element the
+  inspector answers what it runs on: functions used, data objects and system dependencies, plus the
+  implementation status of a function.
+
+Nothing is hidden permanently - the layer chips still show any band, so either side can peek into the
+other's world. The choice is remembered per browser.
+
+## Blast radius
+**Blast radius** in the inspector answers the question an architect has to bring to the business: what
+breaks if this element changes or is retired. LandscapR walks the model against the direction of
+dependency and highlights everything that hangs on the element, grouped by layer, right up to the affected
+customer journeys and expectations - including how many of the affected elements are customer facing.
+Press `Escape` or close the panel to leave the view.
+
 ## Reading the picture
 - Each element is a card, coloured by its layer. A dashed border marks an element that is still in draft.
 - Lines are relations that exist in the model, e.g. a journey step pointing to its process, a function

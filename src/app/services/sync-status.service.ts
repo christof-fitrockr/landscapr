@@ -130,7 +130,7 @@ export class SyncStatusService {
                 content.onClose.pipe(first()).subscribe((merged: any) => {
                   if (merged) {
                     this.repoService.applyData(merged);
-                    this.toastr.success('Merged data applied to local storage');
+                    this.toastr.success('The resolved version is now the one you work on');
                     this.updateSyncSnapshot(fileContent.sha!, this.hash(JSON.stringify(merged)));
                     this.refresh();
                   }

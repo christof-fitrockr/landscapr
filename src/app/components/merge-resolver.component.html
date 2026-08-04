@@ -1,27 +1,27 @@
 <div class="modal-header">
-  <h4 class="modal-title">{{ isSimpleMode ? 'Commit Changes' : 'Resolve Merge Conflicts' }}</h4>
+  <h4 class="modal-title">{{ isSimpleMode ? 'Save version' : 'Differences to resolve' }}</h4>
   <button type="button" class="close" aria-label="Close" (click)="cancel()">
     <span aria-hidden="true">&times;</span>
   </button>
 </div>
 <div class="modal-body">
 
-  <!-- Simple Mode (Commit Dialog) -->
+  <!-- Simple mode: nothing to resolve, just describe the version -->
   <div *ngIf="isSimpleMode" class="simple-mode-container py-3">
     <div class="text-center mb-4">
       <div class="fa-3x text-success mb-3">
         <i class="fas fa-check-circle"></i>
       </div>
-      <h5>Ready to Commit</h5>
+      <h5>Ready to save</h5>
       <p class="text-muted">
-        Your local changes are compatible with the remote branch.<br>
+        Your changes fit on top of the version in the repository.<br>
         <span class="badge badge-light">{{ totalUpdates }} item(s) changed</span>
       </p>
     </div>
 
-    <!-- Commit Message for Simple Mode -->
+    <!-- Version note for simple mode -->
     <div class="form-group px-4" *ngIf="requireCommitMessage">
-      <label for="commitMessageSimple"><strong>Commit Message</strong></label>
+      <label for="commitMessageSimple"><strong>What changed?</strong></label>
       <textarea id="commitMessageSimple" class="form-control" rows="3" [(ngModel)]="commitMessage" placeholder="Summarize your changes..."></textarea>
     </div>
 
@@ -37,7 +37,7 @@
         Review differences per entity.
       </p>
       <div>
-        <button class="btn btn-sm btn-outline-primary mr-2" (click)="resolveAll('repo')">Accept All Repository</button>
+        <button class="btn btn-sm btn-outline-primary mr-2" (click)="resolveAll('repo')">Take all from the repository</button>
         <button class="btn btn-sm btn-outline-primary" (click)="resolveAll('local')">Accept All Local</button>
       </div>
     </div>
@@ -73,7 +73,7 @@
         </div>
       </div>
       <div>
-        <button class="btn btn-sm btn-outline-secondary mr-2" (click)="bulk(activeTab, 'repo')">Choose all Repo</button>
+        <button class="btn btn-sm btn-outline-secondary mr-2" (click)="bulk(activeTab, 'repo')">Take all from the repository</button>
         <button class="btn btn-sm btn-outline-secondary" (click)="bulk(activeTab, 'local')">Choose all Local</button>
       </div>
     </div>
@@ -85,7 +85,7 @@
           <tr>
             <th style="width: 24%">Item</th>
             <th style="width: 10%">Status</th>
-            <th style="width: 29%">Repository</th>
+            <th style="width: 29%">In the repository</th>
             <th style="width: 29%">Local</th>
             <th style="width: 8%" class="text-center">Pick</th>
           </tr>
@@ -157,7 +157,7 @@
                 <div *ngSwitchDefault>
                   <div class="form-check">
                     <label class="form-check-label mr-2" [class.text-muted]="!rec.repoItem">
-                      <input type="radio" class="form-check-input" [name]="activeTab + '_' + rec.key" [checked]="choices[activeTab][rec.key] === 'repo'" (change)="pick(activeTab, rec.key, 'repo')" [disabled]="!rec.repoItem && choices[activeTab][rec.key] === 'repo'"> Repo
+                      <input type="radio" class="form-check-input" [name]="activeTab + '_' + rec.key" [checked]="choices[activeTab][rec.key] === 'repo'" (change)="pick(activeTab, rec.key, 'repo')" [disabled]="!rec.repoItem && choices[activeTab][rec.key] === 'repo'"> Repository version
                     </label>
                     <label class="form-check-label" [class.text-muted]="!rec.localItem">
                       <input type="radio" class="form-check-input" [name]="activeTab + '_' + rec.key" [checked]="choices[activeTab][rec.key] === 'local'" (change)="pick(activeTab, rec.key, 'local')" [disabled]="!rec.localItem && choices[activeTab][rec.key] === 'local'"> Local
@@ -192,12 +192,12 @@
       </ng-template>
     </div>
 
-  <!-- Commit message field (required when pushing) in Detailed Mode -->
+  <!-- Version note, required when saving back -->
   <div class="px-3 pb-2" *ngIf="requireCommitMessage">
     <div class="form-group">
-      <label for="commitMessageDetailed"><strong>Commit message</strong></label>
+      <label for="commitMessageDetailed"><strong>What changed?</strong></label>
       <textarea id="commitMessageDetailed" class="form-control" rows="3" [(ngModel)]="commitMessage" placeholder="Summarize your changes (e.g., feat: add new process flows)"></textarea>
-      <small class="form-text text-muted">Please provide a clear, conventional commit-style message.</small>
+      <small class="form-text text-muted">One short sentence that tells a reviewer what you changed.</small>
     </div>
   </div>
   </div>
@@ -206,6 +206,6 @@
 <div class="modal-footer">
   <button class="btn btn-outline-secondary" (click)="cancel()">Cancel</button>
   <button class="btn btn-primary" [disabled]="requireCommitMessage && (!commitMessage || !commitMessage.trim())" (click)="apply()">
-      {{ isSimpleMode ? 'Commit' : 'Resolve & Commit' }}
+      {{ isSimpleMode ? 'Save version' : 'Resolve & save version' }}
   </button>
 </div>

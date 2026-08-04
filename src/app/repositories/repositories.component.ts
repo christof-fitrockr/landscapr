@@ -202,16 +202,17 @@ export class RepositoriesComponent implements OnInit, OnDestroy {
           this.loadingFileContent = false;
         }
       }, _ => {
-        this.toastr.error('Failed to load file from GitHub (does it exist on this branch?)');
+        this.toastr.error('The model could not be loaded. Does the file exist in this workspace?');
         this.loadingFileContent = false;
       });
   }
 
+  /** Name of the draft workspace, readable for the person working in it */
   generateBranchName(): string {
     const now = new Date();
     const dateStr = now.toISOString().slice(0, 10);
     const timeStr = `${now.getHours().toString().padStart(2, '0')}${now.getMinutes().toString().padStart(2, '0')}`;
-    return `${this.connectedUser}-${dateStr}-${timeStr}`;
+    return `draft/${this.connectedUser}-${dateStr}-${timeStr}`;
   }
 
   startEditMode(): void {
@@ -222,7 +223,7 @@ export class RepositoriesComponent implements OnInit, OnDestroy {
     const baseBranch = this.selectedRepo.default_branch || 'main';
 
     this.startingEditMode = true;
-    this.toastr.info('Starting edit mode...');
+    this.toastr.info('Preparing your draft workspace...');
 
     this.githubService.getRef(repoOwner, repoName, `heads/${baseBranch}`).pipe(
       switchMap((ref: any) => {
@@ -231,11 +232,11 @@ export class RepositoriesComponent implements OnInit, OnDestroy {
       })
     ).subscribe(() => {
       this.startingEditMode = false;
-      this.toastr.success(`Created branch ${branchName}`);
+      this.toastr.success('Draft workspace ready. Your changes stay separate until you submit them.');
       this.switchBranch(branchName);
     }, err => {
       this.startingEditMode = false;
-      this.toastr.error('Failed to create branch. Try again later.');
+      this.toastr.error('The draft workspace could not be prepared. Please try again later.');
     });
   }
 
@@ -244,9 +245,9 @@ export class RepositoriesComponent implements OnInit, OnDestroy {
 
     const confirmRef = this.modalService.show(ConfirmationDialogComponent, {
       initialState: {
-        title: 'Submit Changes',
-        message: 'Are you ready to submit your changes to the main repository? This will create a Pull Request for review.',
-        btnYesText: 'Yes, Submit',
+        title: 'Submit for review',
+        message: 'Send your draft to the reviewers? They decide whether it becomes part of the published model.',
+        btnYesText: 'Yes, submit',
         btnNoText: 'Cancel'
       }
     });
@@ -271,15 +272,15 @@ export class RepositoriesComponent implements OnInit, OnDestroy {
     this.githubService.createPullRequest(repoOwner, repoName, title, body, this.currentBranch, this.selectedRepo.default_branch || 'main')
       .subscribe(() => {
         this.submitting = false;
-        this.toastr.success('Changes submitted successfully!');
+        this.toastr.success('Your changes were submitted for review.');
 
         // Ask to return to main
         const returnRef = this.modalService.show(ConfirmationDialogComponent, {
           initialState: {
-            title: 'Submission Complete',
-            message: 'Your changes have been submitted. Would you like to return to the main view?',
-            btnYesText: 'Yes, Return to Main',
-            btnNoText: 'Stay Here'
+            title: 'Submitted for review',
+            message: 'Your changes are with the reviewers. Go back to the published model?',
+            btnYesText: 'Yes, go back',
+            btnNoText: 'Stay in the draft'
           }
         });
         const returnContent: any = returnRef.content;
@@ -290,7 +291,7 @@ export class RepositoriesComponent implements OnInit, OnDestroy {
         }
       }, err => {
         this.submitting = false;
-        this.toastr.error('Failed to submit changes (Pull Request creation failed).');
+        this.toastr.error('Your changes could not be submitted for review.');
       });
   }
 
@@ -303,7 +304,7 @@ export class RepositoriesComponent implements OnInit, OnDestroy {
               if (res) {
                   this.githubService.createPullRequest(repoOwner, this.selectedRepo.name, res.title, res.body, this.currentBranch, this.selectedRepo.default_branch)
                     .subscribe(() => {
-                        this.toastr.success('Pull Request Created');
+                        this.toastr.success('Change proposal created');
 
                         // Offer to create a new branch immediately
                         const confirmRef = this.modalService.show(ConfirmationDialogComponent, {
@@ -322,7 +323,7 @@ export class RepositoriesComponent implements OnInit, OnDestroy {
                                 }
                             });
                         }
-                    }, err => this.toastr.error('Failed to create PR'));
+                    }, err => this.toastr.error('The change proposal could not be created'));
               }
           });
       }
@@ -342,7 +343,7 @@ export class RepositoriesComponent implements OnInit, OnDestroy {
 
     // GUARD: If on main, forbid
     if (this.currentBranch === this.selectedRepo.default_branch) {
-        this.toastr.warning('You cannot save directly to the main branch. Please start edit mode.');
+        this.toastr.warning('The published model cannot be changed directly. Start a draft first.');
         this.startEditMode();
         return;
     }

@@ -4,10 +4,22 @@ import { LandscapeElementValues, LandscapeService, LandscapeSource } from '../se
 import {
   LandscapeEdge,
   LandscapeGraph,
+  LandscapeImpact,
+  LandscapeLayer,
   LandscapeLayerMeta,
   LandscapeNode,
+  Persona,
   LANDSCAPE_LAYER_META
 } from '../models/landscape.model';
+
+/** A measurable promise attached to a customer expectation */
+export interface InspectorKpi {
+  title: string;
+  metric: string;
+  target: string;
+  actual: string;
+  fulfilment: string;
+}
 
 /** One relation of the inspected element, prepared for the list in the panel */
 export interface InspectorRelation {
@@ -27,16 +39,31 @@ export class LandscapeInspectorComponent implements OnChanges {
   @Input() node: LandscapeNode | null = null;
   @Input() graph: LandscapeGraph = { nodes: [], edges: [] };
   @Input() source: LandscapeSource | null = null;
+  @Input() persona: Persona = 'business';
 
   @Output() saved = new EventEmitter<LandscapeElementValues>();
   @Output() unlinked = new EventEmitter<LandscapeEdge>();
   @Output() opened = new EventEmitter<LandscapeNode>();
   @Output() selectedOther = new EventEmitter<LandscapeNode>();
   @Output() closed = new EventEmitter<void>();
+  @Output() impactRequested = new EventEmitter<LandscapeNode>();
 
   values: LandscapeElementValues = {};
   tagsText = '';
   relations: InspectorRelation[] = [];
+
+  /** what the business side cares about: who feels a change of this element */
+  affectedExpectations: LandscapeNode[] = [];
+  affectedJourneys: LandscapeNode[] = [];
+  supportingCapabilities: LandscapeNode[] = [];
+  painPoints: InspectorKpi[] = [];
+  kpis: InspectorKpi[] = [];
+
+  /** what the IT side cares about: what this element runs on */
+  usedFunctions: LandscapeNode[] = [];
+  usedData: LandscapeNode[] = [];
+  usedSystems: LandscapeNode[] = [];
+  technicalStatus: string | null = null;
 
   private readonly relationLabels: { [key: string]: { out: string; in: string } } = {
     'expectation-of-journey': { out: 'expectation in journey', in: 'expectation' },
@@ -76,6 +103,68 @@ export class LandscapeInspectorComponent implements OnChanges {
     };
     this.tagsText = (this.values.tags || []).join(', ');
     this.relations = this.buildRelations(this.node);
+    this.buildPersonaFacts(this.node);
+  }
+
+  /**
+   * Both personas look at the same element, they just need different answers:
+   * the business side who is affected, the IT side what it runs on.
+   */
+  private buildPersonaFacts(node: LandscapeNode): void {
+    const dependents = this.landscapeService.impactOf(this.graph, node.id);
+    const dependencies = this.landscapeService.dependenciesOf(this.graph, node.id);
+    const pick = (list: LandscapeImpact[], layer: LandscapeLayer) =>
+      list.filter(entry => entry.node.layer === layer).map(entry => entry.node);
+
+    this.affectedExpectations = pick(dependents, 'experience');
+    this.affectedJourneys = pick(dependents, 'journey');
+    this.supportingCapabilities = pick(dependencies, 'capability');
+
+    const expectations = this.affectedExpectations
+      .map(expectationNode => this.expectationOf(expectationNode.entityId))
+      .filter(expectation => !!expectation);
+
+    this.painPoints = expectations
+      .filter(expectation => expectation.fulfilment === 'missed' || expectation.fulfilment === 'partly')
+      .map(expectation => this.toKpi(expectation));
+    this.kpis = expectations
+      .filter(expectation => !!expectation.metric)
+      .map(expectation => this.toKpi(expectation));
+
+    this.usedFunctions = pick(dependencies, 'api');
+    this.usedData = pick(dependencies, 'data');
+    this.usedSystems = pick(dependencies, 'system');
+
+    const entity = this.entity();
+    this.technicalStatus = node.layer === 'api' && entity
+      ? this.API_STATUS[entity.implementationStatus] || null
+      : null;
+  }
+
+  private readonly API_STATUS: { [key: number]: string } = {
+    0: 'Gap',
+    1: 'Planned',
+    2: 'In development',
+    3: 'Ready'
+  };
+
+  private toKpi(expectation: any): InspectorKpi {
+    return {
+      title: expectation.title || expectation.expectation || '',
+      metric: expectation.metric || '',
+      target: expectation.target || '–',
+      actual: expectation.actual || '–',
+      fulfilment: expectation.fulfilment || 'unknown'
+    };
+  }
+
+  private expectationOf(expectationId: string): any {
+    if (!this.source) return null;
+    for (const journey of this.source.journeys) {
+      const found = (journey.layout?.expectations || []).find(e => e.id === expectationId);
+      if (found) return found;
+    }
+    return null;
   }
 
   get meta(): LandscapeLayerMeta | null {
@@ -96,6 +185,19 @@ export class LandscapeInspectorComponent implements OnChanges {
 
   get supportsGroup(): boolean {
     return this.node?.layer === 'data';
+  }
+
+  get hasBusinessFacts(): boolean {
+    return this.affectedExpectations.length > 0
+      || this.affectedJourneys.length > 0
+      || this.supportingCapabilities.length > 0;
+  }
+
+  get hasTechnicalFacts(): boolean {
+    return this.usedFunctions.length > 0
+      || this.usedData.length > 0
+      || this.usedSystems.length > 0
+      || !!this.technicalStatus;
   }
 
   get descriptionLabel(): string {

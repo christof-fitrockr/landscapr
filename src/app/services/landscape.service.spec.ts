@@ -232,6 +232,58 @@ describe('LandscapeService', () => {
     });
   });
 
+  describe('impact analysis', () => {
+    it('walks from a system all the way up to the customer expectation', () => {
+      const graph = service.buildGraph(source);
+      const impact = service.impactOf(graph, landscapeNodeId('system', 's1'));
+      const affected = impact.map(entry => entry.node.id);
+
+      expect(affected).toContain(landscapeNodeId('api', 'a1'));
+      expect(affected).toContain(landscapeNodeId('process', 'p1'));
+      expect(affected).toContain(landscapeNodeId('journey', 'j1'));
+      expect(affected).toContain(landscapeNodeId('experience', 'x1'));
+      expect(affected).not.toContain(landscapeNodeId('system', 's1'));
+    });
+
+    it('reports how many relations away each affected element sits', () => {
+      const graph = service.buildGraph(source);
+      const impact = service.impactOf(graph, landscapeNodeId('api', 'a1'));
+      const distanceOf = (id: string) => impact.find(entry => entry.node.id === id)?.distance;
+
+      expect(distanceOf(landscapeNodeId('process', 'p1'))).toBe(1);
+      expect(distanceOf(landscapeNodeId('journey', 'j1'))).toBe(2);
+      // the expectation hangs on the step itself, so it is just as close as the journey
+      expect(distanceOf(landscapeNodeId('experience', 'x1'))).toBe(2);
+    });
+
+    it('finds nothing for an element nothing depends on', () => {
+      const graph = service.buildGraph(source);
+
+      expect(service.impactOf(graph, landscapeNodeId('experience', 'x1'))).toEqual([]);
+    });
+
+    it('lists what an element runs on in the other direction', () => {
+      const graph = service.buildGraph(source);
+      const dependencies = service.dependenciesOf(graph, landscapeNodeId('process', 'p1'))
+        .map(entry => entry.node.id);
+
+      expect(dependencies).toContain(landscapeNodeId('api', 'a1'));
+      expect(dependencies).toContain(landscapeNodeId('system', 's1'));
+      expect(dependencies).toContain(landscapeNodeId('capability', 'c2'));
+      expect(dependencies).not.toContain(landscapeNodeId('journey', 'j1'));
+    });
+
+    it('survives a cycle in the model', () => {
+      source.processes[1].steps = [{ processReference: 'p1', successors: [] } as any];
+      const graph = service.buildGraph(source);
+
+      const impact = service.impactOf(graph, landscapeNodeId('process', 'p1'));
+
+      expect(impact.some(entry => entry.node.id === landscapeNodeId('process', 'p2'))).toBeTrue();
+      expect(impact.some(entry => entry.node.id === landscapeNodeId('process', 'p1'))).toBeFalse();
+    });
+  });
+
   describe('elements', () => {
     it('creates an element and adds it to the snapshot', () => {
       let created: any = null;

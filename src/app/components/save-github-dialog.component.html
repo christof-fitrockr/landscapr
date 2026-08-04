@@ -1,5 +1,5 @@
 <div class="modal-header">
-  <h5 class="modal-title">Save to GitHub</h5>
+  <h5 class="modal-title">Save version</h5>
   <button type="button" class="close" aria-label="Close" (click)="close()">
     <span aria-hidden="true">&times;</span>
   </button>
@@ -32,12 +32,12 @@
     <!-- Branching Section -->
     <div class="card mb-3">
         <div class="card-body">
-            <h6 class="card-title">Commit Strategy</h6>
+            <h6 class="card-title">Where to save it</h6>
 
             <div class="form-check mb-2">
                 <input class="form-check-input" type="radio" name="branchOption" id="branchExisting" [value]="false" [(ngModel)]="isNewBranch" (change)="toggleNewBranch(false)" [disabled]="isMainBranchProtected">
                 <label class="form-check-label" for="branchExisting" [class.text-muted]="isMainBranchProtected">
-                    Commit to existing branch
+                    Into an existing draft workspace
                 </label>
             </div>
 
@@ -50,17 +50,17 @@
             <div class="form-check mb-2">
                 <input class="form-check-input" type="radio" name="branchOption" id="branchNew" [value]="true" [(ngModel)]="isNewBranch" (change)="toggleNewBranch(true)">
                 <label class="form-check-label" for="branchNew">
-                    Create new branch
+                    Into a new draft workspace
                 </label>
             </div>
 
             <div class="ml-4" *ngIf="isNewBranch">
                 <div class="mb-2">
-                    <label class="form-label small">New Branch Name</label>
+                    <label class="form-label small">Name of the draft workspace</label>
                     <input class="form-control form-control-sm" [(ngModel)]="newBranchName">
                 </div>
                 <div class="mb-2">
-                    <label class="form-label small">Source Branch (Base)</label>
+                    <label class="form-label small">Start from</label>
                     <select class="form-control form-control-sm" [(ngModel)]="baseBranch">
                         <option *ngFor="let b of branches" [value]="b.name">{{ b.name }}</option>
                     </select>
@@ -68,11 +68,11 @@
 
                 <div class="form-check mb-2">
                     <input class="form-check-input" type="checkbox" id="createPr" [(ngModel)]="createPr">
-                    <label class="form-check-label" for="createPr">Create Pull Request</label>
+                    <label class="form-check-label" for="createPr">Submit for review right away</label>
                 </div>
 
                 <div class="mb-2" *ngIf="createPr">
-                    <label class="form-label small">PR Title</label>
+                    <label class="form-label small">What changed?</label>
                     <input class="form-control form-control-sm" [(ngModel)]="prTitle">
                 </div>
             </div>
@@ -91,7 +91,7 @@
 </div>
 <div class="modal-footer">
   <button class="btn btn-primary" (click)="save()" [disabled]="!selectedRepo || !fileName || (isNewBranch && !newBranchName)">
-    {{ isNewBranch && createPr ? 'Commit & PR' : 'Save' }}
+    {{ isNewBranch && createPr ? 'Save & submit' : 'Save version' }}
   </button>
   <button class="btn btn-outline-secondary" (click)="close()">Cancel</button>
 </div>

@@ -1,36 +1,55 @@
-# Repositories & Data Sync
+# Repositories & versions
 
-The **Repositories** page is the central hub for managing data updates in Landscapr. It allows you to connect to a GitHub repository, edit data in a safe environment, and submit your changes for review.
+The **Repositories** page is where the model is loaded, saved and handed over for review. Your model lives in
+a GitHub repository, but you never have to think in developer terms: LandscapR talks about drafts, versions
+and reviews.
 
-## 1. Connect to GitHub
-To start, you must authenticate with GitHub:
-1.  Enter your **Personal Access Token (PAT)** in the input field.
-2.  Click **Connect**.
-3.  Once connected, a list of available repositories will appear on the left.
-4.  Select the repository you want to work with.
+## 1. Connect
+1. Enter your **Personal Access Token (PAT)** and click **Connect**.
+2. Pick the repository you want to work with.
+3. Select the model file and load it into LandscapR.
 
-## 2. Start Editing
-By default, you are in **View Mode** (on the `main` branch). To make changes, you must start an editing session.
-1.  Select the file you wish to work on from the file list.
-2.  Click the **Load** button to bring the data into Landscapr.
-3.  Click the **Start Edit Mode** button.
-    *   This automatically creates a personal working branch for you (e.g., `username-2023-10-27...`).
-    *   You are now safe to make changes without affecting the main database.
+## 2. Start a draft
+Straight after loading you are **reading the published model** - the version everybody else sees. It cannot be
+changed directly, so nothing is broken by accident.
 
-## 3. Saving Changes
-As you work in the application (editing processes, capabilities, etc.), remember to save your progress back to your personal branch.
-1.  Return to the **Repositories** page.
-2.  Click **Save Changes**.
-3.  If there are conflicts, a resolution window will appear. Otherwise, your changes are saved to your branch on GitHub.
+Click **Start a draft** to get your own workspace. From that moment on every change you make stays in your
+draft until you hand it over. The workspace card shows which draft you are in and switches from `READING`
+to `DRAFT`.
 
-## 4. Submit Changes
-When you have finished all your updates and verified them:
-1.  Click the **Submit Changes** button.
-2.  Confirm the submission in the dialog.
-3.  This creates a "Pull Request" sending your changes to the administrators for review.
-4.  After submission, you can return to the main view to see the latest approved data.
+## 3. Save versions
+While you work, click **Save version** whenever you reach a state worth keeping. LandscapR asks **what
+changed** - one short sentence is enough, it is what reviewers read later. Several saved versions in the
+same draft are perfectly normal.
 
-## 5. Local Data Operations
-If you do not use GitHub, you can manage data manually:
--   **Download Local:** Saves the current application state as a JSON file to your computer.
--   **Upload Local:** Replaces the current application state with data from a JSON file on your computer.
+If somebody else changed the model in the meantime, a **Differences to resolve** window opens. For every
+element you decide whether to keep **your version** or take the one **in the repository**; then you save as
+usual.
+
+## 4. Submit for review
+When the draft is ready, click **Submit for review**. Your draft goes to the reviewers as a change proposal.
+They decide whether it becomes part of the published model. Everything currently waiting for a decision is
+listed under **Changes waiting for review**.
+
+Afterwards you can go back to the published model, or stay in the draft and keep working.
+
+**Discard draft** leaves the draft without submitting it - useful when you were only trying something out.
+
+## 5. Working without GitHub
+- **Download local:** saves the current model as a JSON file on your computer.
+- **Upload local:** replaces the current model with a JSON file from your computer.
+
+## What the words mean
+The repository underneath is an ordinary Git repository, so if you or a colleague look at it with developer
+tools, this is how the two vocabularies match up:
+
+| In LandscapR | In the repository |
+|---|---|
+| Draft workspace | branch |
+| Published model | default branch (`main`) |
+| Save version | commit |
+| What changed? | commit message |
+| Submit for review | pull request |
+| Changes waiting for review | open pull requests |
+| Differences to resolve | merge conflict |
+| Get latest published model | pull |
