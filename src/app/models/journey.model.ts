@@ -22,12 +22,39 @@ export interface JourneyLayoutEdge {
   toOffset?: { x: number; y: number };
 }
 
+/**
+ * How well the outcome a customer actually gets matches the expectation
+ * they bring into a journey step. Drives the colour coding and the
+ * experience curve of the experience layer.
+ */
+export type ExperienceFulfilment = 'exceeded' | 'met' | 'partly' | 'missed' | 'unknown';
+
+/**
+ * A single customer expectation attached to a step of the journey.
+ * It carries what the customer expects, the outcome they actually get and
+ * how well both match - the core building blocks of experience management.
+ */
+export interface ExperienceExpectation {
+  id: string;
+  nodeId: string; // id of the JourneyLayoutNode this expectation belongs to
+  title: string;
+  expectation: string; // what the customer expects at this step
+  outcome: string; // the result the customer actually gets
+  fulfilment: ExperienceFulfilment;
+  persona?: string; // the individual customer / segment this result applies to
+  metric?: string; // name of the measure used to verify the outcome
+  target?: string; // target value of the measure
+  actual?: string; // measured value of the measure
+}
+
 export interface JourneyLayout {
   nodes: JourneyLayoutNode[];
   edges: JourneyLayoutEdge[];
   panX: number;
   panY: number;
   zoom: number;
+  expectations?: ExperienceExpectation[];
+  showExperienceLayer?: boolean;
 }
 
 export interface Journey {

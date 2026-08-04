@@ -83,6 +83,7 @@ import { ApiCallDescriptionModalComponent } from './components/api-call-descript
 import { JourneyDescriptionModalComponent } from './components/journey-description-modal.component';
 import { ConditionEditModalComponent } from './journey/journey-editor/condition-edit-modal.component';
 import { NewProcessModalComponent } from './journey/journey-editor/new-process-modal.component';
+import { ExperienceExpectationModalComponent } from './journey/journey-editor/experience-expectation-modal.component';
 import { JourneyEditBaseComponent } from './journey/journey-edit-base.component';
 import { JourneyEditNavComponent } from './journey/journey-edit-nav.component';
 import { RepositoriesComponent } from './repositories/repositories.component';
@@ -205,6 +206,7 @@ import {RoleEditComponent} from './settings/role-edit/role-edit.component';
     ProcessQuickViewModalComponent,
     ConditionEditModalComponent,
     NewProcessModalComponent,
+    ExperienceExpectationModalComponent,
     ProcessDescriptionModalComponent,
     CapabilityMapComponent,
     ApiGroupMapComponent,

@@ -36,6 +36,11 @@
   --node-text: #495057;
   --group-fill: rgba(108, 117, 125, 0.08);
   --group-stroke: #adb5bd;
+  --experience-band-fill: rgba(0, 123, 255, 0.04);
+  --experience-band-stroke: #b8c9dd;
+  --experience-grid-color: #dfe4ea;
+  --experience-curve-color: #6f42c1;
+  --experience-muted: #8892a0;
 }
 
 svg.canvas {
@@ -153,6 +158,118 @@ svg .edge-label {
   fill: #495057;
   pointer-events: none; /* let edge hit-path receive clicks/dblclicks */
   user-select: none;
+}
+
+/* Experience layer above the journey */
+svg .experience-layer text {
+  user-select: none;
+}
+
+svg .experience-band {
+  fill: var(--experience-band-fill);
+  stroke: var(--experience-band-stroke);
+  stroke-width: 1.5;
+  stroke-dasharray: 6 4;
+}
+
+svg .experience-band-title {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  fill: #4a5568;
+}
+
+svg .experience-band-subtitle {
+  font-size: 9px;
+  fill: var(--experience-muted);
+}
+
+svg .experience-grid line {
+  stroke: var(--experience-grid-color);
+  stroke-width: 1;
+}
+
+svg .experience-grid text {
+  font-size: 8px;
+  fill: var(--experience-muted);
+}
+
+svg .experience-curve {
+  fill: none;
+  stroke: var(--experience-curve-color);
+  stroke-width: 2;
+  stroke-linejoin: round;
+}
+
+svg .experience-dot {
+  stroke: #ffffff;
+  stroke-width: 1.5;
+}
+
+svg .experience-anchor {
+  fill: none;
+  stroke: var(--experience-band-stroke);
+  stroke-width: 1.5;
+  stroke-dasharray: 3 3;
+}
+
+svg .experience-card {
+  stroke-width: 1.5;
+  cursor: pointer;
+}
+
+svg .experience-card.selected {
+  stroke-width: 3;
+}
+
+svg .experience-card-bar {
+  pointer-events: none;
+}
+
+svg .experience-card-title {
+  font-size: 11px;
+  font-weight: 600;
+  fill: #2d3748;
+  pointer-events: none;
+}
+
+svg .experience-card-label {
+  font-size: 7.5px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  fill: var(--experience-muted);
+  pointer-events: none;
+}
+
+svg .experience-card-text {
+  font-size: 9px;
+  fill: #495057;
+  pointer-events: none;
+}
+
+svg .experience-card-metric {
+  font-size: 8px;
+  fill: #6c757d;
+  pointer-events: none;
+}
+
+svg .experience-card-fulfilment {
+  font-size: 8.5px;
+  font-weight: 700;
+  pointer-events: none;
+}
+
+svg .experience-persona {
+  font-size: 8px;
+  font-style: italic;
+  fill: var(--experience-muted);
+  pointer-events: none;
+}
+
+svg .experience-empty {
+  font-size: 10px;
+  font-style: italic;
+  fill: var(--experience-muted);
 }
 
 .swimlane-overlay {

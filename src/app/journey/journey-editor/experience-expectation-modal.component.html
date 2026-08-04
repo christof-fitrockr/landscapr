@@ -1,0 +1,76 @@
+<div class="modal-header">
+  <div>
+    <h5 class="modal-title">{{isEdit ? 'Edit Customer Expectation' : 'New Customer Expectation'}}</h5>
+    <div class="text-muted small" *ngIf="stepLabel">Journey step: {{stepLabel}}</div>
+  </div>
+  <button type="button" class="close" aria-label="Close" (click)="cancel()">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+<div class="modal-body">
+  <div class="form-group">
+    <label for="expTitle" class="small text-muted">Title</label>
+    <input id="expTitle" type="text" class="form-control" [(ngModel)]="model.title"
+           placeholder="e.g. Get an appointment without waiting" />
+  </div>
+
+  <div class="form-row">
+    <div class="form-group col-md-6">
+      <label for="expExpectation" class="small text-muted">Expectation &ndash; what the customer expects</label>
+      <textarea id="expExpectation" rows="3" class="form-control" [(ngModel)]="model.expectation"
+                placeholder="I expect to&hellip;"></textarea>
+    </div>
+    <div class="form-group col-md-6">
+      <label for="expOutcome" class="small text-muted">Result &ndash; what the customer actually gets</label>
+      <textarea id="expOutcome" rows="3" class="form-control" [(ngModel)]="model.outcome"
+                placeholder="What the customer really experiences&hellip;"></textarea>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label class="small text-muted d-block">Fulfilment</label>
+    <div class="btn-group btn-group-sm flex-wrap" role="group" aria-label="Fulfilment">
+      <button type="button" class="btn"
+              *ngFor="let f of fulfilments"
+              [title]="f.hint"
+              [class.btn-primary]="model.fulfilment === f.key"
+              [class.btn-outline-primary]="model.fulfilment !== f.key"
+              (click)="setFulfilment(f.key)">{{f.label}}</button>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label for="expPersona" class="small text-muted">Customer / Persona</label>
+    <input id="expPersona" type="text" class="form-control" [(ngModel)]="model.persona"
+           placeholder="e.g. Fleet customer, First-time buyer" />
+    <div class="mt-1" *ngIf="personaSuggestions.length > 0">
+      <button type="button" class="btn btn-link btn-sm p-0 mr-2 small"
+              *ngFor="let p of personaSuggestions" (click)="usePersona(p)">{{p}}</button>
+    </div>
+  </div>
+
+  <div class="form-row">
+    <div class="form-group col-md-6">
+      <label for="expMetric" class="small text-muted">Measure</label>
+      <input id="expMetric" type="text" class="form-control" [(ngModel)]="model.metric"
+             placeholder="e.g. Waiting time, CSAT" />
+    </div>
+    <div class="form-group col-md-3">
+      <label for="expTarget" class="small text-muted">Target</label>
+      <input id="expTarget" type="text" class="form-control" [(ngModel)]="model.target" placeholder="e.g. &lt; 2 min" />
+    </div>
+    <div class="form-group col-md-3">
+      <label for="expActual" class="small text-muted">Actual</label>
+      <input id="expActual" type="text" class="form-control" [(ngModel)]="model.actual" placeholder="e.g. 6 min" />
+    </div>
+  </div>
+</div>
+<div class="modal-footer justify-content-between">
+  <button class="btn btn-outline-danger" *ngIf="isEdit" (click)="remove()">
+    <i class="fas fa-trash mr-1"></i> Delete
+  </button>
+  <div class="ml-auto">
+    <button class="btn btn-secondary mr-2" (click)="cancel()">Cancel</button>
+    <button class="btn btn-primary" [disabled]="!isValid()" (click)="save()">Save</button>
+  </div>
+</div>

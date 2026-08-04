@@ -7,13 +7,24 @@ import { BsModalService } from 'ngx-bootstrap/modal';
 import { ProcessQuickViewModalComponent } from './process-quick-view-modal.component';
 import { ConditionEditModalComponent } from './condition-edit-modal.component';
 import { NewProcessModalComponent } from './new-process-modal.component';
-import { Journey, JourneyLayout, JourneyLayoutEdge, JourneyLayoutNode } from '../../models/journey.model';
+import {
+  ExperienceExpectation,
+  ExperienceFulfilment,
+  Journey,
+  JourneyLayout,
+  JourneyLayoutEdge,
+  JourneyLayoutNode
+} from '../../models/journey.model';
 import { JourneyService } from '../../services/journey.service';
 import { Comment } from '../../models/comment';
 import { ExportModalComponent } from '../../components/export-modal.component';
+import {
+  ExperienceExpectationDraft,
+  ExperienceExpectationModalComponent
+} from './experience-expectation-modal.component';
 
 // Basic types for nodes and edges
-export type ToolType = 'select' | 'process' | 'decision' | 'group' | 'connector';
+export type ToolType = 'select' | 'process' | 'decision' | 'group' | 'connector' | 'experience';
 
 export interface CanvasNodeBase {
   id: string;
@@ -56,6 +67,43 @@ export interface Edge {
   toOffset?: { x: number; y: number };
 }
 
+/** Rendering model of one expectation card in the experience layer (world coords) */
+export interface ExperienceCard {
+  expectation: ExperienceExpectation;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  selected: boolean;
+  color: string;
+  fill: string;
+  fulfilmentLabel: string;
+  titleLines: string[];
+  expectationLines: string[];
+  outcomeLines: string[];
+  metricLine: string | null;
+  persona: string | null;
+  /** Point of this card on the experience curve */
+  curveX: number;
+  curveY: number;
+  /** Path from the curve point down to the anchored journey node */
+  anchorPath: string;
+}
+
+/** Geometry of the experience band drawn above the journey */
+export interface ExperienceBand {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  /** y positions of the fulfilment levels of the experience curve */
+  levels: { label: string; y: number }[];
+  /** x where the curve grid starts (right of the level labels) */
+  gridX: number;
+  /** polyline points of the experience curve */
+  curvePoints: string;
+}
+
 @Component({
   selector: 'app-journey-editor',
   templateUrl: './journey-editor.component.html',
@@ -90,6 +138,34 @@ export class JourneyEditorComponent implements OnInit, OnChanges {
   // Canvas state
   nodes: CanvasNode[] = [];
   edges: Edge[] = [];
+
+  // Experience layer state
+  expectations: ExperienceExpectation[] = [];
+  showExperienceLayer = true;
+  personaFilter: string | null = null;
+  personas: string[] = [];
+  selectedExpectationId: string | null = null;
+  experienceCards: ExperienceCard[] = [];
+  experienceBand: ExperienceBand | null = null;
+
+  // Experience layer geometry (world units)
+  private readonly EXP_CARD_W = 180;
+  private readonly EXP_CARD_H = 124;
+  private readonly EXP_CARD_GAP = 14;
+  private readonly EXP_HEADER_H = 26;
+  private readonly EXP_CURVE_H = 78;
+  private readonly EXP_BAND_PAD = 16;
+  private readonly EXP_LABEL_GUTTER = 62;
+  /** vertical distance between the bottom of the band and the topmost journey node */
+  private readonly EXP_BAND_GAP = 70;
+
+  private readonly EXP_FULFILMENTS: { key: ExperienceFulfilment; label: string; level: number; color: string; fill: string }[] = [
+    { key: 'exceeded', label: 'Exceeded', level: 0, color: '#1e7e34', fill: '#e6f4ea' },
+    { key: 'met', label: 'Met', level: 1, color: '#2f9e44', fill: '#eef8f0' },
+    { key: 'partly', label: 'Partly', level: 2, color: '#e8a33d', fill: '#fdf4e3' },
+    { key: 'missed', label: 'Missed', level: 3, color: '#d9534f', fill: '#fdecec' },
+    { key: 'unknown', label: 'Unknown', level: 1.5, color: '#adb5bd', fill: '#f5f6f7' }
+  ];
 
   // Undo/Redo history
   private undoStack: JourneyLayout[] = [];
@@ -255,6 +331,11 @@ export class JourneyEditorComponent implements OnInit, OnChanges {
       toOffset: e.toOffset
     }));
 
+    this.expectations = (layout.expectations || []).map(e => ({ ...e }));
+    this.showExperienceLayer = layout.showExperienceLayer !== false;
+    this.selectedExpectationId = null;
+    this.recalcExperienceLayer();
+
     // Persist migration back into the journey layout if any decision node was resized
     if (changed) {
       this.scheduleSave();
@@ -280,7 +361,16 @@ export class JourneyEditorComponent implements OnInit, OnChanges {
       fromOffset: e.fromOffset,
       toOffset: e.toOffset
     }));
-    return { nodes, edges, panX: this.panX, panY: this.panY, zoom: this.zoom };
+    const expectations: ExperienceExpectation[] = this.expectations.map(e => ({ ...e }));
+    return {
+      nodes,
+      edges,
+      panX: this.panX,
+      panY: this.panY,
+      zoom: this.zoom,
+      expectations,
+      showExperienceLayer: this.showExperienceLayer
+    };
   }
 
   private scheduleSave() {
@@ -382,6 +472,14 @@ export class JourneyEditorComponent implements OnInit, OnChanges {
       case 'connector':
         this.handleConnectorDown(pt.x, pt.y);
         break;
+      case 'experience': {
+        const node = this.findNodeAt(pt.x, pt.y);
+        if (node) {
+          this.selectSingleNode(node.id);
+          this.openExpectationModal(node);
+        }
+        break;
+      }
     }
   }
 
@@ -426,6 +524,7 @@ export class JourneyEditorComponent implements OnInit, OnChanges {
         node.y = y;
         node.width = w;
         node.height = h;
+        this.recalcExperienceLayer();
       }
       return;
     }
@@ -463,6 +562,7 @@ export class JourneyEditorComponent implements OnInit, OnChanges {
           n.y = pos.y + dy;
         }
       });
+      this.recalcExperienceLayer();
       return;
     }
 
@@ -572,6 +672,7 @@ export class JourneyEditorComponent implements OnInit, OnChanges {
     // Auto-select the newly created node and switch back to select tool
     this.selectSingleNode(node.id);
     this.activeTool = 'select';
+    this.recalcExperienceLayer();
     this.scheduleSave();
   }
 
@@ -589,6 +690,7 @@ export class JourneyEditorComponent implements OnInit, OnChanges {
     this.nodes.push(node);
     this.selectSingleNode(node.id);
     this.activeTool = 'select';
+    this.recalcExperienceLayer();
     this.scheduleSave();
   }
 
@@ -605,12 +707,288 @@ export class JourneyEditorComponent implements OnInit, OnChanges {
     this.nodes.push(node);
     this.selectSingleNode(node.id);
     this.activeTool = 'select';
+    this.recalcExperienceLayer();
+  }
+
+  // ---------------------------------------------------------------------------
+  // Experience layer
+  // ---------------------------------------------------------------------------
+
+  /** Short summary of the experience layer shown in the band header */
+  experienceSummary = '';
+
+  private fulfilmentMeta(key: ExperienceFulfilment | undefined) {
+    return this.EXP_FULFILMENTS.find(f => f.key === key) || this.EXP_FULFILMENTS[this.EXP_FULFILMENTS.length - 1];
+  }
+
+  /** Breaks a text into at most maxLines lines of roughly maxChars characters */
+  private wrapText(text: string, maxChars: number, maxLines: number): string[] {
+    const clean = (text || '').replace(/\s+/g, ' ').trim();
+    if (!clean) return [];
+    const words = clean.split(' ');
+    const lines: string[] = [];
+    let current = '';
+    for (const word of words) {
+      const candidate = current ? current + ' ' + word : word;
+      if (candidate.length <= maxChars) {
+        current = candidate;
+        continue;
+      }
+      if (current) {
+        lines.push(current);
+        current = word;
+      } else {
+        // single word longer than a line
+        lines.push(word.substring(0, maxChars - 1) + '…');
+        current = '';
+      }
+      if (lines.length === maxLines) break;
+    }
+    if (lines.length < maxLines && current) {
+      lines.push(current);
+    }
+    if (lines.length === maxLines) {
+      const consumed = lines.join(' ').length;
+      if (consumed < clean.length) {
+        const last = lines[maxLines - 1];
+        lines[maxLines - 1] = last.length > maxChars - 1 ? last.substring(0, maxChars - 1) + '…' : last + '…';
+      }
+    }
+    return lines;
+  }
+
+  /** Recomputes band geometry and expectation cards from the current nodes */
+  private recalcExperienceLayer(): void {
+    this.personas = Array.from(new Set(
+      this.expectations.map(e => (e.persona || '').trim()).filter(p => !!p)
+    )).sort((a, b) => a.localeCompare(b));
+
+    if (this.personaFilter && !this.personas.includes(this.personaFilter)) {
+      this.personaFilter = null;
+    }
+
+    // Drop expectations whose journey step no longer exists
+    const nodeIds = new Set(this.nodes.map(n => n.id));
+    const orphans = this.expectations.filter(e => !nodeIds.has(e.nodeId));
+    if (orphans.length > 0) {
+      this.expectations = this.expectations.filter(e => nodeIds.has(e.nodeId));
+    }
+
+    // The summary always describes what is currently shown - filtered by customer if a filter is set
+    const scope = this.personaFilter
+      ? this.expectations.filter(e => (e.persona || '').trim() === this.personaFilter)
+      : this.expectations;
+    const total = scope.length;
+    const fulfilled = scope.filter(e => e.fulfilment === 'met' || e.fulfilment === 'exceeded').length;
+    const atRisk = scope.filter(e => e.fulfilment === 'partly' || e.fulfilment === 'missed').length;
+    this.experienceSummary = total === 0
+      ? 'No customer expectations captured yet'
+      : `${total} expectation${total === 1 ? '' : 's'} · ${fulfilled} fulfilled · ${atRisk} at risk`;
+    if (this.personaFilter) {
+      this.experienceSummary += ` · ${this.personaFilter}`;
+    }
+
+    if (!this.showExperienceLayer || this.nodes.length === 0) {
+      this.experienceCards = [];
+      this.experienceBand = null;
+      return;
+    }
+
+    // Bounding box of the journey itself
+    let minX = Infinity;
+    let minY = Infinity;
+    let maxX = -Infinity;
+    this.nodes.forEach(n => {
+      minX = Math.min(minX, n.x);
+      minY = Math.min(minY, n.y);
+      maxX = Math.max(maxX, n.x + n.width);
+    });
+
+    const bandHeight = this.EXP_HEADER_H + this.EXP_CARD_H + this.EXP_CURVE_H;
+    const bandTop = minY - this.EXP_BAND_GAP - bandHeight;
+    const bandLeft = minX - this.EXP_BAND_PAD - this.EXP_LABEL_GUTTER;
+    const gridX = bandLeft + this.EXP_LABEL_GUTTER;
+    const cardsTop = bandTop + this.EXP_HEADER_H;
+    const curveTop = cardsTop + this.EXP_CARD_H + 10;
+    const levelStep = 16;
+    const bandBottom = bandTop + bandHeight;
+
+    const visible = this.expectations
+      .filter(e => !this.personaFilter || (e.persona || '').trim() === this.personaFilter)
+      .map(e => ({ expectation: e, node: this.nodes.find(n => n.id === e.nodeId) }))
+      .filter(entry => !!entry.node) as { expectation: ExperienceExpectation; node: CanvasNode }[];
+
+    visible.sort((a, b) => (a.node.x + a.node.width / 2) - (b.node.x + b.node.width / 2));
+
+    const cards: ExperienceCard[] = [];
+    let cursor = gridX;
+    for (const entry of visible) {
+      const meta = this.fulfilmentMeta(entry.expectation.fulfilment);
+      const anchorCx = entry.node.x + entry.node.width / 2;
+      const x = Math.max(anchorCx - this.EXP_CARD_W / 2, cursor);
+      cursor = x + this.EXP_CARD_W + this.EXP_CARD_GAP;
+
+      const curveX = x + this.EXP_CARD_W / 2;
+      const curveY = curveTop + meta.level * levelStep;
+      const nodeTop = entry.node.y;
+      const metricLine = entry.expectation.metric
+        ? `${entry.expectation.metric}: ${entry.expectation.actual || '–'} / ${entry.expectation.target || '–'}`
+        : null;
+
+      cards.push({
+        expectation: entry.expectation,
+        x,
+        y: cardsTop,
+        width: this.EXP_CARD_W,
+        height: this.EXP_CARD_H,
+        selected: this.selectedExpectationId === entry.expectation.id,
+        color: meta.color,
+        fill: meta.fill,
+        fulfilmentLabel: meta.label,
+        titleLines: this.wrapText(entry.expectation.title, 27, 1),
+        expectationLines: this.wrapText(entry.expectation.expectation, 30, 2),
+        outcomeLines: this.wrapText(entry.expectation.outcome, 30, 2),
+        metricLine: metricLine ? this.wrapText(metricLine, 30, 1)[0] : null,
+        persona: this.wrapText(entry.expectation.persona || '', 32, 1)[0] || null,
+        curveX,
+        curveY,
+        anchorPath: `M ${curveX} ${curveY} L ${curveX} ${bandBottom} L ${anchorCx} ${nodeTop - 14} L ${anchorCx} ${nodeTop - 4}`
+      });
+    }
+
+    const lastCardRight = cards.length > 0 ? cards[cards.length - 1].x + this.EXP_CARD_W : gridX;
+    const bandRight = Math.max(maxX, lastCardRight) + this.EXP_BAND_PAD;
+
+    this.experienceBand = {
+      x: bandLeft,
+      y: bandTop,
+      width: bandRight - bandLeft,
+      height: bandHeight,
+      gridX,
+      levels: [
+        { label: 'Exceeded', y: curveTop },
+        { label: 'Met', y: curveTop + levelStep },
+        { label: 'Partly', y: curveTop + 2 * levelStep },
+        { label: 'Missed', y: curveTop + 3 * levelStep }
+      ],
+      curvePoints: cards.length > 1 ? cards.map(c => `${c.curveX},${c.curveY}`).join(' ') : ''
+    };
+    this.experienceCards = cards;
+
+    if (orphans.length > 0) {
+      this.scheduleSave();
+    }
+  }
+
+  /** The expectation attached to a journey node, if any */
+  expectationForNode(nodeId: string): ExperienceExpectation | undefined {
+    return this.expectations.find(e => e.nodeId === nodeId);
+  }
+
+  toggleExperienceLayer(): void {
+    this.showExperienceLayer = !this.showExperienceLayer;
+    if (!this.showExperienceLayer) {
+      this.selectedExpectationId = null;
+    }
+    this.recalcExperienceLayer();
+    this.scheduleSave();
+  }
+
+  onPersonaFilterChange(): void {
+    this.recalcExperienceLayer();
+  }
+
+  /** Opens the expectation editor for a journey node (creates one on demand) */
+  openExpectationModal(node: CanvasNode): void {
+    const existing = this.expectationForNode(node.id);
+    const ref = this.modalService.show(ExperienceExpectationModalComponent, { class: 'modal-lg', initialState: {} });
+    const comp = ref.content as ExperienceExpectationModalComponent;
+    if (!comp) return;
+
+    comp.stepLabel = node.label || '';
+    comp.isEdit = !!existing;
+    comp.personaSuggestions = this.personas;
+    if (existing) {
+      comp.load(existing);
+    }
+    comp.saved.subscribe((draft: ExperienceExpectationDraft) => this.saveExpectation(node.id, draft));
+    comp.removed.subscribe(() => {
+      if (existing) {
+        this.deleteExpectation(existing.id);
+      }
+    });
+  }
+
+  private saveExpectation(nodeId: string, draft: ExperienceExpectationDraft): void {
+    this.pushStateToHistory();
+    const existing = this.expectationForNode(nodeId);
+    const value: ExperienceExpectation = {
+      id: existing ? existing.id : this.newId('exp'),
+      nodeId,
+      title: (draft.title || '').trim(),
+      expectation: (draft.expectation || '').trim(),
+      outcome: (draft.outcome || '').trim(),
+      fulfilment: draft.fulfilment || 'unknown',
+      persona: (draft.persona || '').trim() || undefined,
+      metric: (draft.metric || '').trim() || undefined,
+      target: (draft.target || '').trim() || undefined,
+      actual: (draft.actual || '').trim() || undefined
+    };
+
+    if (existing) {
+      this.expectations = this.expectations.map(e => (e.id === existing.id ? value : e));
+    } else {
+      this.expectations = [...this.expectations, value];
+      this.showExperienceLayer = true;
+    }
+    this.selectedExpectationId = value.id;
+    this.recalcExperienceLayer();
+    this.scheduleSave();
+  }
+
+  private deleteExpectation(id: string): void {
+    if (!this.expectations.some(e => e.id === id)) return;
+    this.pushStateToHistory();
+    this.expectations = this.expectations.filter(e => e.id !== id);
+    if (this.selectedExpectationId === id) {
+      this.selectedExpectationId = null;
+    }
+    this.recalcExperienceLayer();
+    this.scheduleSave();
+  }
+
+  onExpectationMouseDown(card: ExperienceCard, event: MouseEvent): void {
+    if (event.button !== 0) return;
+    event.stopPropagation();
+    this.nodes.forEach(n => n.selected = false);
+    this.edges.forEach(e => e.selected = false);
+    if (this.activeTool === 'experience') {
+      const node = this.nodes.find(n => n.id === card.expectation.nodeId);
+      if (node) {
+        this.openExpectationModal(node);
+      }
+      return;
+    }
+    this.selectedExpectationId = card.expectation.id;
+    this.recalcExperienceLayer();
+  }
+
+  onExpectationDblClick(card: ExperienceCard, event: MouseEvent): void {
+    event.stopPropagation();
+    const node = this.nodes.find(n => n.id === card.expectation.nodeId);
+    if (node) {
+      this.openExpectationModal(node);
+    }
   }
 
   // Selection & connector logic (minimal)
   private handleSelectDown(x: number, y: number): CanvasNode | undefined {
     // Clear edge selection on any canvas click in select mode
     this.edges.forEach(e => e.selected = false);
+    if (this.selectedExpectationId) {
+      this.selectedExpectationId = null;
+      this.recalcExperienceLayer();
+    }
 
     // Hit test preferring non-group nodes first, then groups
     let hit: CanvasNode | undefined;
@@ -695,6 +1073,12 @@ export class JourneyEditorComponent implements OnInit, OnChanges {
 
     // Delete key removes selected nodes and/or selected edges
     if (ev.key === 'Delete') {
+      // A selected expectation card is deleted on its own, the journey stays untouched
+      if (this.selectedExpectationId && !typing) {
+        this.deleteExpectation(this.selectedExpectationId);
+        return;
+      }
+
       const selectedNodes = this.nodes.filter(n => n.selected);
       const selectedEdges = this.edges.filter(e => e.selected);
 
@@ -706,6 +1090,9 @@ export class JourneyEditorComponent implements OnInit, OnChanges {
         const ids = new Set(selectedNodes.map(n => n.id));
         this.nodes = this.nodes.filter(n => !ids.has(n.id));
         this.edges = this.edges.filter(e => !ids.has(e.from) && !ids.has(e.to));
+        // Expectations belong to their journey step and are removed with it
+        this.expectations = this.expectations.filter(e => !ids.has(e.nodeId));
+        this.recalcExperienceLayer();
       }
       // Remove explicitly selected edges (also covers case when no nodes were selected)
       if (selectedEdges.length > 0) {
@@ -912,6 +1299,10 @@ export class JourneyEditorComponent implements OnInit, OnChanges {
     this.pendingEdgeSourceId = null;
     // Clear edge selection when switching tools
     this.edges.forEach(e => e.selected = false);
+    if (this.selectedExpectationId) {
+      this.selectedExpectationId = null;
+      this.recalcExperienceLayer();
+    }
   }
 
   // Open process quick view on double click
@@ -1016,6 +1407,13 @@ export class JourneyEditorComponent implements OnInit, OnChanges {
       maxX = Math.max(maxX, n.x + n.width);
       maxY = Math.max(maxY, n.y + n.height);
     });
+
+    // The experience layer sits above the journey and has to be captured as well
+    if (this.experienceBand) {
+      minX = Math.min(minX, this.experienceBand.x);
+      minY = Math.min(minY, this.experienceBand.y);
+      maxX = Math.max(maxX, this.experienceBand.x + this.experienceBand.width);
+    }
 
     // Add some padding
     const padding = 50;
