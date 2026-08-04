@@ -108,10 +108,14 @@ import { DataGroupPipe } from './pipes/data-group.pipe';
 import {SettingsComponent} from './settings/settings.component';
 import {RoleListComponent} from './settings/role-list/role-list.component';
 import {RoleEditComponent} from './settings/role-edit/role-edit.component';
+import {LandscapeEditorComponent} from './landscape/landscape-editor.component';
+import {LandscapeInspectorComponent} from './landscape/landscape-inspector.component';
 
 
 @NgModule({
   declarations: [
+    LandscapeEditorComponent,
+    LandscapeInspectorComponent,
     SettingsComponent,
     RoleListComponent,
     RoleEditComponent,

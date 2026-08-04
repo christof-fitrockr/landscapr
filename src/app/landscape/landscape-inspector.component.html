@@ -1,0 +1,86 @@
+<div class="landscape-inspector card shadow border-0" *ngIf="node">
+  <div class="card-header bg-white d-flex justify-content-between align-items-start">
+    <div>
+      <span class="badge-layer" [style.background]="meta?.fill" [style.color]="meta?.color">
+        <i class="fas mr-1" [ngClass]="meta?.icon"></i>{{meta?.label}}
+      </span>
+      <div class="h5 mb-0 mt-2 text-truncate" [title]="node.label">{{node.label}}</div>
+    </div>
+    <button type="button" class="close ml-2" aria-label="Close" (click)="closed.emit()">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+
+  <div class="card-body inspector-fields">
+    <div class="form-group">
+      <label for="inspectorName" class="small text-muted">Name</label>
+      <input id="inspectorName" type="text" class="form-control form-control-sm" [(ngModel)]="values.name" />
+    </div>
+
+    <div class="form-group">
+      <label for="inspectorDescription" class="small text-muted">{{descriptionLabel}}</label>
+      <textarea id="inspectorDescription" rows="3" class="form-control form-control-sm"
+                [(ngModel)]="values.description"></textarea>
+    </div>
+
+    <div class="form-group" *ngIf="supportsGroup">
+      <label for="inspectorGroup" class="small text-muted">Group</label>
+      <input id="inspectorGroup" type="text" class="form-control form-control-sm" [(ngModel)]="values.group" />
+    </div>
+
+    <div class="form-group" *ngIf="supportsStatus">
+      <label class="small text-muted d-block">Status</label>
+      <div class="btn-group btn-group-sm" role="group">
+        <button type="button" class="btn"
+                [class.btn-primary]="values.status === 0" [class.btn-outline-primary]="values.status !== 0"
+                (click)="values.status = 0">Draft</button>
+        <button type="button" class="btn"
+                [class.btn-primary]="values.status === 1" [class.btn-outline-primary]="values.status !== 1"
+                (click)="values.status = 1">Validated</button>
+      </div>
+    </div>
+
+    <div class="form-group" *ngIf="supportsTags">
+      <label for="inspectorTags" class="small text-muted">Tags <span class="text-muted">(comma separated)</span></label>
+      <input id="inspectorTags" type="text" class="form-control form-control-sm"
+             [(ngModel)]="tagsText" (change)="onTagsChange()" />
+    </div>
+
+    <div class="d-flex">
+      <button type="button" class="btn btn-primary btn-sm mr-2" (click)="save()">
+        <i class="fas fa-save mr-1"></i> Save
+      </button>
+      <button type="button" class="btn btn-outline-secondary btn-sm" (click)="opened.emit(node)">
+        <i class="fas fa-external-link-alt mr-1"></i> Open editor
+      </button>
+    </div>
+  </div>
+
+  <div class="card-body inspector-relations border-top pt-3">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+      <span class="text-uppercase small font-weight-bold text-muted">Relations</span>
+      <span class="badge badge-light">{{relations.length}}</span>
+    </div>
+
+    <div class="text-muted small font-italic" *ngIf="relations.length === 0">
+      Not connected yet. Pick the connector tool and click this element and its counterpart.
+    </div>
+
+    <div class="relation-row d-flex align-items-center justify-content-between py-1"
+         *ngFor="let relation of relations">
+      <div class="mr-2 text-truncate">
+        <div class="small text-muted">{{relation.description}}</div>
+        <button type="button" class="btn btn-link btn-sm p-0 text-left text-truncate"
+                [title]="relation.other.label"
+                (click)="selectedOther.emit(relation.other)">
+          <i class="fas mr-1" [ngClass]="metaOf(relation.other).icon"
+             [style.color]="metaOf(relation.other).color"></i>{{relation.other.label}}
+        </button>
+      </div>
+      <button type="button" class="btn btn-outline-danger btn-sm" *ngIf="relation.removable"
+              title="Remove relation" (click)="unlinked.emit(relation.edge)">
+        <i class="fas fa-unlink"></i>
+      </button>
+    </div>
+  </div>
+</div>

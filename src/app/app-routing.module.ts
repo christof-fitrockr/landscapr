@@ -38,12 +38,14 @@ import { ApiGroupMapComponent } from './components/api-group-map.component';
 import {LicensesComponent} from './licenses/licenses.component';
 import {HelpComponent} from './help/help.component';
 import {SettingsComponent} from './settings/settings.component';
+import {LandscapeEditorComponent} from './landscape/landscape-editor.component';
 import {RoleListComponent} from './settings/role-list/role-list.component';
 import {RoleEditComponent} from './settings/role-edit/role-edit.component';
 
 const routes: Routes = [
 
   { path: 'dashboard', component: DashboardComponent, canActivate: [AuthGuard] },
+  { path: 'landscape', component: LandscapeEditorComponent, canActivate: [AuthGuard] },
   { path: 'help', component: HelpComponent},
   { path: 'journeys', canActivate: [AuthGuard], children: [
       { path: '', redirectTo: 'list', pathMatch: 'full' },

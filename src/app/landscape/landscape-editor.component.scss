@@ -1,0 +1,142 @@
+:host {
+  display: block;
+  height: 100%;
+}
+
+.search-box {
+  width: 260px;
+}
+
+.layer-chip {
+  border: 1px solid transparent;
+  border-radius: 14px;
+  padding: 2px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  background: transparent;
+  cursor: pointer;
+
+  &.off {
+    opacity: 0.45;
+  }
+}
+
+.landscape-canvas-wrapper {
+  position: relative;
+  height: 100%;
+  min-height: calc(100vh - var(--navbar-height) - 230px);
+  overflow: hidden;
+  background: #fafbfc;
+  border-radius: 0 0 4px 4px;
+}
+
+svg.canvas {
+  width: 100%;
+  height: 100%;
+  outline: none;
+  cursor: grab;
+  min-height: calc(100vh - var(--navbar-height) - 230px);
+
+  &.connect-mode {
+    cursor: crosshair;
+  }
+}
+
+svg .band {
+  opacity: 0.5;
+}
+
+svg .band-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  user-select: none;
+}
+
+svg .edge {
+  fill: none;
+  stroke-width: 1.6;
+  opacity: 0.75;
+
+  &.selected {
+    stroke-width: 3;
+    opacity: 1;
+  }
+}
+
+svg .node {
+  stroke-width: 1.5;
+  cursor: pointer;
+
+  &.selected {
+    stroke-width: 3;
+  }
+
+  &.connect-source {
+    stroke-width: 3;
+    stroke-dasharray: 5 3;
+  }
+}
+
+svg .node-bar,
+svg .node-label,
+svg .node-sublabel,
+svg .node-pin {
+  pointer-events: none;
+  user-select: none;
+}
+
+svg .node-label {
+  font-size: 11.5px;
+  font-weight: 600;
+  fill: #2d3748;
+}
+
+svg .node-sublabel {
+  font-size: 9px;
+  fill: #7d8794;
+}
+
+svg .node-pin {
+  font-size: 14px;
+}
+
+svg .dimmed {
+  opacity: 0.16;
+}
+
+.loading-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.6);
+  z-index: 20;
+}
+
+.empty-hint {
+  position: absolute;
+  top: 40%;
+  left: 0;
+  right: 0;
+  pointer-events: none;
+}
+
+.inspector-slot {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  bottom: 12px;
+  z-index: 15;
+  display: block;
+}
+
+.edge-actions {
+  position: absolute;
+  left: 50%;
+  bottom: 16px;
+  transform: translateX(-50%);
+  z-index: 15;
+}

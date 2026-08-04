@@ -14,7 +14,7 @@ export class RepoService {
     this.migrateFromLocalStorage();
   }
 
-  getCurrentData(): Observable<{ processes: any[]; apiCalls: any[]; capabilities: any[]; applications: any[]; journeys: any[]; data: any[]; roles: any[] }> {
+  getCurrentData(): Observable<{ processes: any[]; apiCalls: any[]; capabilities: any[]; applications: any[]; journeys: any[]; data: any[]; roles: any[]; landscapeViews: any[] }> {
     return forkJoin({
         processes: from(this.db.processes.toArray()),
         apiCalls: from(this.db.apiCalls.toArray()),
@@ -22,7 +22,8 @@ export class RepoService {
         applications: from(this.db.applications.toArray()),
         journeys: from(this.db.journeys.toArray()),
         data: from(this.db.data.toArray()),
-        roles: from(this.db.roles.toArray())
+        roles: from(this.db.roles.toArray()),
+        landscapeViews: from(this.db.landscapeViews.toArray())
     });
   }
 
@@ -42,7 +43,8 @@ export class RepoService {
                   applications: data.applications || [],
                   journeys: data.journeys || [],
                   data: data.data || [],
-                  roles: data.roles || []
+                  roles: data.roles || [],
+                  landscapeViews: data.landscapeViews || []
               };
               return new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
           })
@@ -89,12 +91,12 @@ export class RepoService {
     });
   }
 
-  applyData(parsedData: { applications?: any; capabilities?: any; apiCalls?: any; processes?: any; journeys?: any; data?: any; roles?: any; }): void {
+  applyData(parsedData: { applications?: any; capabilities?: any; apiCalls?: any; processes?: any; journeys?: any; data?: any; roles?: any; landscapeViews?: any; }): void {
      this.applyParsedData(parsedData).catch(err => console.error(err));
   }
 
-  private async applyParsedData(parsedData: { applications?: any; capabilities?: any; apiCalls?: any; processes?: any; journeys?: any; data?: any; roles?: any; }): Promise<void> {
-    await this.db.transaction('rw', [this.db.processes, this.db.apiCalls, this.db.capabilities, this.db.applications, this.db.journeys as any, this.db.data, this.db.roles], async () => {
+  private async applyParsedData(parsedData: { applications?: any; capabilities?: any; apiCalls?: any; processes?: any; journeys?: any; data?: any; roles?: any; landscapeViews?: any; }): Promise<void> {
+    await this.db.transaction('rw', [this.db.processes, this.db.apiCalls, this.db.capabilities, this.db.applications, this.db.journeys as any, this.db.data, this.db.roles, this.db.landscapeViews as any], async () => {
         await this.db.processes.clear();
         await this.db.apiCalls.clear();
         await this.db.capabilities.clear();
@@ -102,6 +104,7 @@ export class RepoService {
         await this.db.journeys.clear();
         await this.db.data.clear();
         await this.db.roles.clear();
+        await this.db.landscapeViews.clear();
 
         if (parsedData.processes) await this.db.processes.bulkAdd(parsedData.processes);
         if (parsedData.apiCalls) await this.db.apiCalls.bulkAdd(parsedData.apiCalls);
@@ -110,6 +113,7 @@ export class RepoService {
         if (parsedData.journeys) await this.db.journeys.bulkAdd(parsedData.journeys);
         if (parsedData.data) await this.db.data.bulkAdd(parsedData.data);
         if (parsedData.roles) await this.db.roles.bulkAdd(parsedData.roles);
+        if (parsedData.landscapeViews) await this.db.landscapeViews.bulkAdd(parsedData.landscapeViews);
     });
     this.dataChanges.next();
   }
