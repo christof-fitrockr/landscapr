@@ -22,6 +22,7 @@ export class HelpComponent implements OnInit {
     { id: 'access-processes', title: 'Access Processes', file: 'assets/help/access-processes.md', content: '' },
     { id: 'howto-workflow', title: 'How To: Workflow', file: 'assets/help/howto-workflow.md', content: '' },
     { id: 'dashboard', title: 'Dashboard', file: 'assets/help/dashboard.md', content: '' },
+    { id: 'landscape', title: 'Landscape', file: 'assets/help/landscape.md', content: '' },
     { id: 'journeys', title: 'Journeys', file: 'assets/help/journeys.md', content: '' },
     { id: 'process', title: 'Process', file: 'assets/help/process.md', content: '' },
     { id: 'api-call', title: 'Api Call', file: 'assets/help/api-call.md', content: '' },

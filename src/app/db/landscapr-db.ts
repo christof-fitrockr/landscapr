@@ -7,6 +7,7 @@ import { Application } from '../models/application';
 import { Journey } from '../models/journey.model';
 import { Data } from '../models/data';
 import { Role } from '../models/role';
+import { LandscapeView } from '../models/landscape.model';
 
 @Injectable({
   providedIn: 'root'
@@ -19,6 +20,7 @@ export class LandscaprDb extends Dexie {
   journeys!: Table<Journey, string>;
   data!: Table<Data, string>;
   roles!: Table<Role, string>;
+  landscapeViews!: Table<LandscapeView, string>;
 
   constructor() {
     super('LandscaprDb');
@@ -34,6 +36,9 @@ export class LandscaprDb extends Dexie {
     });
     this.version(3).stores({
       roles: 'id, name'
+    });
+    this.version(4).stores({
+      landscapeViews: 'id'
     });
   }
 }

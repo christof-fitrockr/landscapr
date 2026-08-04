@@ -1,0 +1,197 @@
+<div class="container-fluid h-100 mt-4 d-flex flex-column">
+
+  <div class="d-flex justify-content-between align-items-start mb-3">
+    <div class="btn-toolbar align-items-center flex-wrap" role="toolbar" aria-label="Landscape tools">
+      <div class="btn-group shadow-sm mr-2" role="group" aria-label="Pointer tools">
+        <button class="btn btn-outline-secondary" [class.active]="activeTool === 'select'"
+                (click)="setTool('select')" title="Select, move and edit elements">
+          <i class="fas fa-mouse-pointer"></i>
+        </button>
+        <button class="btn btn-outline-secondary" [class.active]="activeTool === 'connect'"
+                (click)="setTool('connect')" title="Connect two elements across the layers">
+          <i class="fas fa-link"></i>
+        </button>
+      </div>
+
+      <div class="btn-group shadow-sm mr-2" role="group" aria-label="Create elements">
+        <button class="btn btn-outline-secondary" *ngFor="let layer of creatableLayers"
+                [class.active]="activeTool === layer.key"
+                [title]="'New ' + layer.label + ': ' + layer.hint"
+                (click)="setTool(layer.key)">
+          <i class="fas" [ngClass]="layer.icon" [style.color]="activeTool === layer.key ? null : layer.color"></i>
+        </button>
+      </div>
+
+      <div class="btn-group shadow-sm mr-2" role="group" aria-label="View">
+        <button class="btn btn-outline-secondary" (click)="fitToScreen()" title="Fit the whole landscape">
+          <i class="fas fa-compress-arrows-alt"></i>
+        </button>
+        <button class="btn btn-outline-secondary" (click)="zoomBy(1.2)" title="Zoom in">
+          <i class="fas fa-search-plus"></i>
+        </button>
+        <button class="btn btn-outline-secondary" (click)="zoomBy(1/1.2)" title="Zoom out">
+          <i class="fas fa-search-minus"></i>
+        </button>
+        <button class="btn btn-outline-secondary" (click)="resetLayout()" title="Arrange all elements again">
+          <i class="fas fa-th"></i>
+        </button>
+        <button class="btn btn-outline-secondary" [class.active]="focusMode" (click)="toggleFocusMode()"
+                title="Focus: dim everything that is not connected to the selected element">
+          <i class="fas fa-crosshairs"></i>
+        </button>
+        <button class="btn btn-outline-secondary" (click)="refresh()" title="Reload the model">
+          <i class="fas fa-sync"></i>
+        </button>
+      </div>
+
+      <div class="input-group input-group-sm shadow-sm search-box">
+        <div class="input-group-prepend">
+          <span class="input-group-text bg-white"><i class="fas fa-search text-muted"></i></span>
+        </div>
+        <input type="text" class="form-control" placeholder="Search elements..."
+               [(ngModel)]="searchText" (input)="onSearchChange()" />
+        <div class="input-group-append" *ngIf="searchText">
+          <button class="btn btn-outline-secondary" (click)="searchText = ''; onSearchChange()">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="text-right">
+      <h2 class="m-0 font-weight-bold text-uppercase text-gray-400">Landscape</h2>
+      <div class="text-muted small">{{graph.nodes.length}} elements · {{graph.edges.length}} relations</div>
+    </div>
+  </div>
+
+  <!-- Layer legend doubles as visibility filter -->
+  <div class="d-flex flex-wrap align-items-center mb-2">
+    <button type="button" class="layer-chip mr-2 mb-2" *ngFor="let layer of layers"
+            [class.off]="isLayerHidden(layer.key)"
+            [style.border-color]="layer.color"
+            [style.background]="isLayerHidden(layer.key) ? 'transparent' : layer.fill"
+            [style.color]="layer.color"
+            [title]="layer.hint"
+            (click)="toggleLayer(layer.key)">
+      <i class="fas mr-1" [ngClass]="isLayerHidden(layer.key) ? 'fa-eye-slash' : layer.icon"></i>{{layer.label}}
+    </button>
+    <span class="text-muted small ml-auto mb-2" *ngIf="searchText">{{matchCount()}} matching elements</span>
+  </div>
+
+  <div class="alert alert-info py-2 px-3 mb-2" *ngIf="connectHint">
+    <i class="fas fa-link mr-1"></i> {{connectHint}}
+    <button class="btn btn-sm btn-link py-0" (click)="setTool('select')">Cancel</button>
+  </div>
+
+  <div class="card shadow-sm border-0 mb-4 flex-fill">
+    <div class="card-body p-0 h-100">
+      <div class="landscape-canvas-wrapper" (contextmenu)="$event.preventDefault()">
+
+        <div class="loading-overlay" *ngIf="loading">
+          <i class="fas fa-spinner fa-pulse fa-2x text-primary"></i>
+        </div>
+
+        <svg #svgEl class="canvas" tabindex="0"
+             [class.connect-mode]="activeTool === 'connect'"
+             (mousedown)="onCanvasMouseDown($event)"
+             (mousemove)="onCanvasMouseMove($event)"
+             (wheel)="onWheel($event)">
+          <defs>
+            <pattern id="landscapeGrid" width="24" height="24" patternUnits="userSpaceOnUse">
+              <path d="M 24 0 L 0 0 0 24" fill="none" stroke="#eceef0" stroke-width="1" />
+            </pattern>
+            <marker id="landscapeArrow" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+              <polygon points="0 0, 8 3, 0 6" fill="#9aa3ad" />
+            </marker>
+          </defs>
+          <rect x="-100000" y="-100000" width="200000" height="200000" fill="url(#landscapeGrid)"></rect>
+
+          <g [attr.transform]="'translate(' + panX + ',' + panY + ') scale(' + zoom + ')'">
+
+            <!-- Layer bands -->
+            <g class="bands">
+              <g *ngFor="let band of bands">
+                <rect class="band" rx="12" ry="12"
+                      [attr.x]="band.x" [attr.y]="band.y"
+                      [attr.width]="band.width" [attr.height]="band.height"
+                      [attr.fill]="layerMeta(band.layer).fill"></rect>
+                <text class="band-label" [attr.x]="band.x + 14" [attr.y]="band.y + 16"
+                      [attr.fill]="layerMeta(band.layer).color">{{bandLabel(band)}}</text>
+              </g>
+            </g>
+
+            <!-- Relations -->
+            <g class="edges">
+              <g *ngFor="let edge of graph.edges" [class.dimmed]="edge.dimmed">
+                <path [attr.d]="edgePath(edge)"
+                      style="fill:none; stroke:transparent; stroke-width:18; vector-effect:non-scaling-stroke; pointer-events:stroke;"
+                      (mousedown)="onEdgeMouseDown(edge, $event)"></path>
+                <path class="edge" [class.selected]="edge.selected"
+                      [attr.d]="edgePath(edge)"
+                      [attr.stroke]="edge.selected ? '#007bff' : edgeColor(edge)"
+                      marker-end="url(#landscapeArrow)"></path>
+              </g>
+            </g>
+
+            <!-- Elements -->
+            <g class="nodes">
+              <g *ngFor="let node of graph.nodes"
+                 [attr.transform]="'translate(' + node.x + ',' + node.y + ')'"
+                 [class.dimmed]="node.dimmed"
+                 (dblclick)="onNodeDblClick(node, $event)">
+                <rect class="node" rx="8" ry="8"
+                      [attr.width]="node.width" [attr.height]="node.height"
+                      [attr.fill]="layerMeta(node.layer).fill"
+                      [attr.stroke]="node.selected ? '#007bff' : layerMeta(node.layer).color"
+                      [class.selected]="node.selected"
+                      [class.connect-source]="connectSourceId === node.id"
+                      [attr.stroke-dasharray]="node.draft ? '4,3' : null"></rect>
+                <rect class="node-bar" x="0" y="0" width="4" [attr.height]="node.height"
+                      [attr.fill]="layerMeta(node.layer).color"></rect>
+
+                <text class="node-label" x="12" *ngFor="let line of labelLines(node); let i = index"
+                      [attr.y]="node.sublabel ? 20 + i * 12 : 26 + i * 12">{{line}}</text>
+                <text class="node-sublabel" x="12" [attr.y]="node.height - 12" *ngIf="node.sublabel">{{node.sublabel}}</text>
+                <text class="node-pin" [attr.x]="node.width - 8" y="14" text-anchor="end" *ngIf="node.pinned"
+                      [attr.fill]="layerMeta(node.layer).color">•</text>
+              </g>
+            </g>
+          </g>
+        </svg>
+
+        <div class="empty-hint text-center text-muted" *ngIf="!loading && graph.nodes.length === 0">
+          <i class="fas fa-project-diagram fa-3x opacity-25 mb-3"></i>
+          <div class="h5 font-italic">Nothing modelled yet.</div>
+          <div class="small">Pick one of the coloured tools above and click the canvas to create your first element.</div>
+        </div>
+
+        <app-landscape-inspector class="inspector-slot"
+                                 *ngIf="selectedNode"
+                                 [node]="selectedNode"
+                                 [graph]="graph"
+                                 [source]="source"
+                                 (saved)="onElementSaved($event)"
+                                 (unlinked)="removeRelation($event)"
+                                 (opened)="openInEditor($event)"
+                                 (selectedOther)="selectNode($event)"
+                                 (closed)="clearSelection()">
+        </app-landscape-inspector>
+
+        <div class="edge-actions card shadow-sm" *ngIf="selectedEdge">
+          <div class="card-body py-2 px-3 d-flex align-items-center">
+            <span class="small mr-3">
+              <strong>{{nodeById(selectedEdge.from)?.label}}</strong>
+              <i class="fas fa-arrow-right mx-2 text-muted"></i>
+              <strong>{{nodeById(selectedEdge.to)?.label}}</strong>
+            </span>
+            <button class="btn btn-sm btn-outline-danger mr-2" (click)="removeRelation(selectedEdge)">
+              <i class="fas fa-unlink mr-1"></i> Remove relation
+            </button>
+            <button class="btn btn-sm btn-outline-secondary" (click)="clearSelection()">Close</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
