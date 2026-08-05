@@ -13,6 +13,73 @@
 
   <div class="inspector-scroll">
 
+  <!-- What changed about this element, while a review is shown -->
+  <div class="card-body inspector-change border-top pt-3" *ngIf="change && review">
+    <div class="d-flex align-items-center mb-2">
+      <span class="change-pill" [ngClass]="'state-' + change.state">{{changeTitle}}</span>
+      <span class="change-pill state-conflict ml-2" *ngIf="change.conflict">Needs a decision</span>
+    </div>
+
+    <div class="text-muted small font-italic"
+         *ngIf="change.state === 'unchanged' && change.relations.length === 0">
+      This element is untouched by the proposal.
+    </div>
+
+    <div class="fact-block" *ngIf="change.attributes.length > 0">
+      <div class="fact-title">Attributes</div>
+      <div class="attribute-change small" *ngFor="let attribute of change.attributes">
+        <div class="text-muted">{{attribute.label}}</div>
+        <div><span class="value-before" *ngIf="attribute.before">{{attribute.before}}</span>
+          <span class="text-muted mx-1" *ngIf="attribute.before && attribute.after">&rarr;</span>
+          <span class="value-after" *ngIf="attribute.after">{{attribute.after}}</span>
+          <span class="text-muted font-italic" *ngIf="!attribute.after">removed</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="fact-block" *ngIf="change.relations.length > 0">
+      <div class="fact-title">Relations</div>
+      <div class="small" *ngFor="let relation of change.relations">
+        <span [class.value-after]="relation.state === 'added'" [class.value-before]="relation.state === 'removed'">
+          <i class="fas mr-1" [ngClass]="relation.state === 'added' ? 'fa-plus' : 'fa-minus'"></i>{{relation.otherLabel}}
+        </span>
+        <span class="text-muted"> ({{relation.description}})</span>
+      </div>
+    </div>
+
+    <!-- Two versions of the same element, side by side -->
+    <div class="fact-block" *ngIf="change.conflict">
+      <div class="fact-title">Both sides changed this</div>
+      <table class="table table-sm comparison-table mb-2">
+        <thead>
+          <tr>
+            <th></th>
+            <th class="text-truncate">{{review.mineLabel}}</th>
+            <th class="text-truncate">{{review.theirsLabel}}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let field of comparison" [class.differs]="field.differs">
+            <td class="text-muted">{{field.label}}</td>
+            <td>{{field.mine || '—'}}</td>
+            <td>{{field.theirs || '—'}}</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="btn-group btn-group-sm w-100" role="group">
+        <button type="button" class="btn"
+                [class.btn-primary]="node.resolved === 'mine'"
+                [class.btn-outline-primary]="node.resolved !== 'mine'"
+                (click)="conflictResolved.emit('mine')">Keep my version</button>
+        <button type="button" class="btn"
+                [class.btn-primary]="node.resolved === 'theirs'"
+                [class.btn-outline-primary]="node.resolved !== 'theirs'"
+                (click)="conflictResolved.emit('theirs')">Keep incoming version</button>
+      </div>
+    </div>
+  </div>
+
   <div class="card-body inspector-fields">
     <div class="form-group">
       <label for="inspectorName" class="small text-muted">Name</label>

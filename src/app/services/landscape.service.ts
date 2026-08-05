@@ -134,10 +134,12 @@ export class LandscapeService {
       });
     };
 
+    const edgeIds = new Set<string>();
     const addEdge = (from: string, to: string, kind: LandscapeEdgeKind, label?: string) => {
       if (!known.has(from) || !known.has(to) || from === to) return;
       const id = `${kind}|${from}|${to}`;
-      if (edges.some(e => e.id === id)) return;
+      if (edgeIds.has(id)) return;
+      edgeIds.add(id);
       edges.push({ id, from, to, kind, label });
     };
 

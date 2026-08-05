@@ -149,6 +149,11 @@
             <i class="fas" [ngClass]="saving ? 'fa-spinner fa-spin' : 'fa-cloud-upload-alt'"></i>
             {{ saving ? ' Saving...' : ' Save version' }}
           </button>
+          <button class="btn btn-sm btn-outline-primary me-2 shadow-sm" (click)="reviewChanges()" [disabled]="reviewingChanges"
+                  title="See on the canvas what your draft changes">
+            <i class="fas" [ngClass]="reviewingChanges ? 'fa-spinner fa-spin' : 'fa-project-diagram'"></i>
+            {{ reviewingChanges ? ' Preparing...' : ' Review changes' }}
+          </button>
           <button class="btn btn-sm btn-success me-2 shadow-sm" (click)="submitChanges()" [disabled]="submitting">
             <i class="fas" [ngClass]="submitting ? 'fa-spinner fa-spin' : 'fa-paper-plane'"></i>
             {{ submitting ? ' Submitting...' : ' Submit for review' }}

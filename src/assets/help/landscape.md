@@ -43,6 +43,39 @@ dependency and highlights everything that hangs on the element, grouped by layer
 customer journeys and expectations - including how many of the affected elements are customer facing.
 Press `Escape` or close the panel to leave the view.
 
+## Reviewing changes
+Before a draft is submitted - and while a reviewer looks at a proposal - the landscape can show two states
+of the model at once instead of one. **Review changes** on the Repositories page opens that view.
+
+Every element then carries what happened to it:
+
+| Look | Meaning |
+|---|---|
+| Solid green outline, green fill, `+` badge | Added in this proposal |
+| Dashed red outline, red fill, `−` badge | Removed in this proposal |
+| Amber outline, `*` badge | Changed in this proposal |
+| Faded into the background | Untouched, shown only for orientation |
+
+Relations follow the same language: a line that was newly connected is drawn green, a cut one dashed red.
+Clicking a changed element shows in the inspector exactly which attributes moved - the old value struck
+through in red, the new one in green - and which relations were connected or disconnected. The panel on the
+left lists everything that changed, grouped by added, changed and removed. `Escape` or **Leave** ends the
+review.
+
+## Resolving differences
+If somebody else changed the model while you were working, LandscapR does not ask you to read a text diff.
+**Show on the canvas** in the differences dialog puts both versions on the landscape:
+
+- Only the colliding elements stay in focus, everything else fades out. A colliding element pulses in violet.
+- Clicking it shows both versions side by side, field by field: **your version** next to the **version in the
+  repository**, with the differing rows highlighted.
+- **Keep my version** or **Keep incoming version** decides per element; a green tick marks what is decided,
+  and the banner counts what is still open.
+- **Apply** becomes available once nothing is open. The resolved model is assembled from whole stored
+  elements, never from patched text, so it cannot come out broken.
+
+Deciding is per element - half of one version and half of the other is deliberately not offered.
+
 ## Reading the picture
 - Each element is a card, coloured by its layer. A dashed border marks an element that is still in draft.
 - Lines are relations that exist in the model, e.g. a journey step pointing to its process, a function

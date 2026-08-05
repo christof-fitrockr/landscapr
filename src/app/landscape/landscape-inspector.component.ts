@@ -1,6 +1,8 @@
 import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
 
 import { LandscapeElementValues, LandscapeService, LandscapeSource } from '../services/landscape.service';
+import { ModelDiffService, ObjectChange } from '../services/model-diff.service';
+import { ConflictChoice, ReviewSession } from '../services/review-session.service';
 import {
   LandscapeEdge,
   LandscapeGraph,
@@ -40,6 +42,9 @@ export class LandscapeInspectorComponent implements OnChanges {
   @Input() graph: LandscapeGraph = { nodes: [], edges: [] };
   @Input() source: LandscapeSource | null = null;
   @Input() persona: Persona = 'business';
+  /** set while a review is shown: how this element changed */
+  @Input() change: ObjectChange | null = null;
+  @Input() review: ReviewSession | null = null;
 
   @Output() saved = new EventEmitter<LandscapeElementValues>();
   @Output() unlinked = new EventEmitter<LandscapeEdge>();
@@ -47,6 +52,7 @@ export class LandscapeInspectorComponent implements OnChanges {
   @Output() selectedOther = new EventEmitter<LandscapeNode>();
   @Output() closed = new EventEmitter<void>();
   @Output() impactRequested = new EventEmitter<LandscapeNode>();
+  @Output() conflictResolved = new EventEmitter<ConflictChoice>();
 
   values: LandscapeElementValues = {};
   tagsText = '';
@@ -79,11 +85,33 @@ export class LandscapeInspectorComponent implements OnChanges {
     'implemented-by': { out: 'implemented by system', in: 'implements' }
   };
 
-  constructor(private landscapeService: LandscapeService) {}
+  /** the two versions of a conflicting element, ready for a side by side view */
+  comparison: { field: string; label: string; theirs: string | null; mine: string | null; differs: boolean }[] = [];
+
+  constructor(private landscapeService: LandscapeService, private modelDiffService: ModelDiffService) {}
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['node'] || changes['graph']) {
+    if (changes['node'] || changes['graph'] || changes['change'] || changes['review']) {
       this.reload();
+      this.reloadComparison();
+    }
+  }
+
+  private reloadComparison(): void {
+    this.comparison = [];
+    if (!this.node || !this.review || !this.change?.conflict) return;
+    this.comparison = this.modelDiffService
+      .versionsOf(this.node.id, this.review.theirs, this.review.mine)
+      .fields
+      .filter(field => field.differs || field.field === 'name');
+  }
+
+  get changeTitle(): string {
+    switch (this.change?.state) {
+      case 'added': return 'Added in this proposal';
+      case 'removed': return 'Removed in this proposal';
+      case 'modified': return 'Changed in this proposal';
+      default: return 'Unchanged';
     }
   }
 

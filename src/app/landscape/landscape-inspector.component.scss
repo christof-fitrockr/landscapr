@@ -51,3 +51,51 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
+/* Review: what changed about this element */
+.change-pill {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 10px;
+
+  &.state-added { background: #e6f4ea; color: #1e7e34; }
+  &.state-removed { background: #fdecec; color: #d9534f; }
+  &.state-modified { background: #fdf4e3; color: #b26a12; }
+  &.state-unchanged { background: #f1f3f5; color: #6c757d; }
+  &.state-conflict { background: #f1ecfa; color: #6f42c1; }
+}
+
+.attribute-change + .attribute-change {
+  margin-top: 6px;
+}
+
+.value-before {
+  color: #d9534f;
+  text-decoration: line-through;
+}
+
+.value-after {
+  color: #1e7e34;
+  font-weight: 600;
+}
+
+.comparison-table {
+  font-size: 11px;
+  table-layout: fixed;
+
+  th {
+    font-size: 10px;
+    text-transform: uppercase;
+    color: #6c757d;
+  }
+
+  td, th {
+    word-break: break-word;
+  }
+
+  tr.differs td {
+    background: #fffaf0;
+  }
+}

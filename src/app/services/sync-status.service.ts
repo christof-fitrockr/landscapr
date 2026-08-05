@@ -7,6 +7,8 @@ import { MergeService } from './merge.service';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { MergeResolverComponent } from '../components/merge-resolver.component';
 import { ToastrService } from 'ngx-toastr';
+import { Router } from '@angular/router';
+import { ReviewSessionService } from './review-session.service';
 
 export type SyncState = 'UNKNOWN' | 'IN_SYNC' | 'LOCAL_NEWER' | 'REMOTE_NEWER' | 'DIVERGED';
 
@@ -36,6 +38,8 @@ export class SyncStatusService {
   constructor(
     private githubService: GithubService,
     private repoService: RepoService,
+    private reviewSessionService: ReviewSessionService,
+    private router: Router,
     private mergeService: MergeService,
     private modalService: BsModalService,
     private toastr: ToastrService,
@@ -129,11 +133,13 @@ export class SyncStatusService {
               if (content && content.onClose) {
                 content.onClose.pipe(first()).subscribe((merged: any) => {
                   if (merged) {
-                    this.repoService.applyData(merged);
-                    this.toastr.success('The resolved version is now the one you work on');
-                    this.updateSyncSnapshot(fileContent.sha!, this.hash(JSON.stringify(merged)));
-                    this.refresh();
+                    this.applyMerged(merged, fileContent.sha!);
                   }
+                });
+              }
+              if (content && content.onResolveVisually) {
+                content.onResolveVisually.pipe(first()).subscribe(() => {
+                  this.resolveVisually(repoData, localData, fileContent.sha!);
                 });
               }
             } else {
@@ -272,6 +278,29 @@ export class SyncStatusService {
   private updateSyncSnapshot(sha: string, localHash: string): void {
     localStorage.setItem(SyncStatusService.STORAGE_LAST_SYNC_SHA, sha || '');
     localStorage.setItem(SyncStatusService.STORAGE_LAST_SYNC_LOCAL_HASH, localHash || '');
+  }
+
+  /** Applies a resolved model and remembers that it matches the repository */
+  private applyMerged(merged: any, sha: string): void {
+    this.repoService.applyData(merged);
+    this.toastr.success('The resolved version is now the one you work on');
+    this.updateSyncSnapshot(sha, this.hash(JSON.stringify(merged)));
+    this.refresh();
+  }
+
+  /** Opens the two states on the landscape canvas and resolves them there */
+  private resolveVisually(repoData: any, localData: any, sha: string): void {
+    this.reviewSessionService.startConflictResolution(
+      repoData,
+      localData,
+      merged => this.applyMerged(merged, sha),
+      {
+        title: 'Differences to resolve',
+        mineLabel: 'Your version',
+        theirsLabel: 'Version in the repository'
+      }
+    );
+    this.router.navigate(['/landscape']).then();
   }
 
   private hash(text: string): string {

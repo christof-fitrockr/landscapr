@@ -1,4 +1,4 @@
-import { Component, ElementRef, HostListener, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, HostListener, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { first } from 'rxjs/operators';
@@ -28,6 +28,9 @@ import {
   PERSONA_META
 } from '../models/landscape.model';
 import { PersonaService } from '../services/persona.service';
+import { ReviewSessionService, ReviewSession, ConflictChoice } from '../services/review-session.service';
+import { ChangeState, ObjectChange } from '../services/model-diff.service';
+import { Subscription } from 'rxjs';
 
 export type LandscapeTool = 'select' | 'connect' | LandscapeLayer;
 
@@ -36,7 +39,7 @@ export type LandscapeTool = 'select' | 'connect' | LandscapeLayer;
   templateUrl: './landscape-editor.component.html',
   styleUrls: ['./landscape-editor.component.scss']
 })
-export class LandscapeEditorComponent implements OnInit {
+export class LandscapeEditorComponent implements OnInit, OnDestroy {
 
   @ViewChild('svgEl', { static: true }) svgEl: ElementRef<SVGSVGElement>;
 
@@ -60,6 +63,16 @@ export class LandscapeEditorComponent implements OnInit {
   // Blast radius
   impactSource: LandscapeNode | null = null;
   impact: LandscapeImpact[] = [];
+
+  // Review mode: the canvas shows two states of the model instead of one
+  review: ReviewSession | null = null;
+  reviewGroups: { state: ChangeState; label: string }[] = [
+    { state: 'added', label: 'Added' },
+    { state: 'modified', label: 'Changed' },
+    { state: 'removed', label: 'Removed' }
+  ];
+  reviewSelection: ObjectChange | null = null;
+  private reviewSubscription: Subscription | null = null;
 
   // Selection
   selectedNode: LandscapeNode | null = null;
@@ -87,13 +100,24 @@ export class LandscapeEditorComponent implements OnInit {
   constructor(
     private landscapeService: LandscapeService,
     private personaService: PersonaService,
+    private reviewSessionService: ReviewSessionService,
     private router: Router,
     private toastr: ToastrService
   ) {}
 
   ngOnInit(): void {
     this.persona = this.personaService.persona;
+    this.reviewSubscription = this.reviewSessionService.session$.subscribe(session => {
+      this.review = session;
+      if (this.source) {
+        this.rebuild();
+      }
+    });
     this.refresh();
+  }
+
+  ngOnDestroy(): void {
+    this.reviewSubscription?.unsubscribe();
   }
 
   refresh(): void {
@@ -132,7 +156,11 @@ export class LandscapeEditorComponent implements OnInit {
     const selectedNodeId = keepSelection ? this.selectedNode?.id : null;
     const selectedEdgeId = keepSelection ? this.selectedEdge?.id : null;
 
-    const graph = this.landscapeService.buildGraph(this.source);
+    // a review shows both states at once, so removed elements and cut relations
+    // stay visible; the diff already prepared that picture
+    const graph = this.review
+      ? { nodes: this.review.diff.graph.nodes.map(n => ({ ...n })), edges: this.review.diff.graph.edges.map(e => ({ ...e })) }
+      : this.landscapeService.buildGraph(this.source);
     graph.nodes = graph.nodes.filter(n => !this.isLayerHidden(n.layer));
     const visible = new Set(graph.nodes.map(n => n.id));
     graph.edges = graph.edges.filter(e => visible.has(e.from) && visible.has(e.to));
@@ -144,6 +172,10 @@ export class LandscapeEditorComponent implements OnInit {
       const stillThere = this.graph.nodes.find(n => n.id === this.impactSource!.id);
       this.impactSource = stillThere || null;
       this.impact = stillThere ? this.landscapeService.impactOf(this.graph, stillThere.id) : [];
+    }
+
+    if (this.review) {
+      this.applyReviewStates();
     }
 
     this.selectedNode = selectedNodeId ? this.graph.nodes.find(n => n.id === selectedNodeId) || null : null;
@@ -214,6 +246,104 @@ export class LandscapeEditorComponent implements OnInit {
   }
 
   // ---------------------------------------------------------------------------
+  // Review mode
+  // ---------------------------------------------------------------------------
+
+  /** Paints every element and relation with the state it has in the review */
+  private applyReviewStates(): void {
+    const review = this.review;
+    if (!review) return;
+
+    this.graph.nodes.forEach(node => {
+      const change = review.diff.changes[node.id];
+      node.changeState = change ? change.state : 'unchanged';
+      node.conflict = !!change?.conflict;
+      node.resolved = change?.conflict ? (review.resolutions[node.id] || null) : null;
+    });
+
+    this.graph.edges.forEach(edge => {
+      edge.changeState = review.diff.edgeStates[edge.id] || 'unchanged';
+    });
+  }
+
+  get reviewCounts(): { added: number; removed: number; modified: number; conflicts: number } | null {
+    if (!this.review) return null;
+    return {
+      added: this.review.diff.added,
+      removed: this.review.diff.removed,
+      modified: this.review.diff.modified,
+      conflicts: this.review.diff.conflicts.length
+    };
+  }
+
+  get openConflicts(): ObjectChange[] {
+    return this.reviewSessionService.openConflicts();
+  }
+
+  get allConflictsResolved(): boolean {
+    return !!this.review && this.review.mode === 'conflicts' && this.openConflicts.length === 0;
+  }
+
+  changeFor(node: LandscapeNode | null): ObjectChange | null {
+    if (!node || !this.review) return null;
+    return this.review.diff.changes[node.id] || null;
+  }
+
+  /** The elements that changed, grouped for the summary list */
+  reviewChanges(state: ChangeState): ObjectChange[] {
+    if (!this.review) return [];
+    return Object.values(this.review.diff.changes)
+      .filter(change => change.state === state)
+      .sort((a, b) => a.layer.localeCompare(b.layer) || a.label.localeCompare(b.label));
+  }
+
+  selectChange(change: ObjectChange): void {
+    const node = this.graph.nodes.find(n => n.id === change.nodeId);
+    if (node) {
+      this.selectNode(node);
+      this.reviewSelection = change;
+    }
+  }
+
+  resolveConflict(nodeId: string, choice: ConflictChoice): void {
+    this.reviewSessionService.resolve(nodeId, choice);
+    this.applyReviewStates();
+  }
+
+  resolveAllConflicts(choice: ConflictChoice): void {
+    this.reviewSessionService.resolveAll(choice);
+    this.applyReviewStates();
+  }
+
+  applyResolution(): void {
+    if (!this.allConflictsResolved) {
+      this.toastr.warning('Please decide about every highlighted element first');
+      return;
+    }
+    const merged = this.reviewSessionService.apply();
+    if (merged) {
+      this.toastr.success('The resolved version is now the one you work on');
+      this.refresh();
+    }
+  }
+
+  endReview(): void {
+    this.reviewSessionService.end();
+    this.reviewSelection = null;
+    this.refresh();
+  }
+
+  /** Colour of the badge shown on a changed element */
+  changeBadge(state: ChangeState | undefined): string {
+    switch (state) {
+      case 'added': return '+';
+      case 'removed': return '\u2212';
+      case 'modified': return '*';
+      default: return '';
+    }
+  }
+
+  // ---------------------------------------------------------------------------
   // Filtering, search and focus
   // ---------------------------------------------------------------------------
 
@@ -253,7 +383,10 @@ export class LandscapeEditorComponent implements OnInit {
         || (node.sublabel || '').toLowerCase().includes(term);
       const inFocus = !focusIds || focusIds.has(node.id);
       const inImpact = !impactIds || impactIds.has(node.id);
-      node.dimmed = !(matchesSearch && inFocus && inImpact);
+      // in a review the delta is what matters, everything else steps back
+      const inReview = !this.review
+        || (this.review.mode === 'conflicts' ? !!node.conflict : node.changeState !== 'unchanged');
+      node.dimmed = !(matchesSearch && inFocus && inImpact && inReview);
       node.impacted = !!impactIds && impactIds.has(node.id) && node.id !== this.impactSource?.id;
     });
 
@@ -443,6 +576,12 @@ export class LandscapeEditorComponent implements OnInit {
     if (event.key === 'Escape') {
       if (this.impactSource) {
         this.closeImpact();
+        return;
+      }
+      // a plain review can be left with Escape; decisions in a resolution
+      // should not be dropped by a stray key press
+      if (this.review && this.review.mode === 'review') {
+        this.endReview();
         return;
       }
       this.connectSourceId = null;

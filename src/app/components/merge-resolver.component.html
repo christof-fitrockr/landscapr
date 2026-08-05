@@ -203,9 +203,14 @@
   </div>
 </div>
 
-<div class="modal-footer">
+<div class="modal-footer justify-content-between">
+  <button class="btn btn-outline-primary" (click)="resolveVisually()">
+    <i class="fas fa-project-diagram mr-1"></i> Show on the canvas
+  </button>
+  <div>
   <button class="btn btn-outline-secondary" (click)="cancel()">Cancel</button>
   <button class="btn btn-primary" [disabled]="requireCommitMessage && (!commitMessage || !commitMessage.trim())" (click)="apply()">
       {{ isSimpleMode ? 'Save version' : 'Resolve & save version' }}
   </button>
+  </div>
 </div>

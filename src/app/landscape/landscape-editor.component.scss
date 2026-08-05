@@ -170,6 +170,130 @@ svg .node.impact-source {
   max-width: 100%;
 }
 
+/* Review mode: the visual language of a change */
+svg .node.change-added {
+  stroke: #1e7e34;
+  stroke-width: 2.5;
+  fill: #e6f4ea !important;
+}
+
+svg .node.change-removed {
+  stroke: #d9534f;
+  stroke-width: 2.5;
+  stroke-dasharray: 5 3;
+  fill: #fdecec !important;
+}
+
+svg .node.change-modified {
+  stroke: #d9822b;
+  stroke-width: 2.5;
+  fill: #fdf4e3 !important;
+}
+
+svg .node.conflict {
+  stroke: #6f42c1;
+  stroke-width: 3.5;
+  animation: conflict-pulse 1.6s ease-in-out infinite;
+}
+
+svg .node.conflict.resolved {
+  animation: none;
+  stroke: #1e7e34;
+}
+
+@keyframes conflict-pulse {
+  0%, 100% { stroke-opacity: 1; }
+  50% { stroke-opacity: 0.35; }
+}
+
+svg .edge.change-added {
+  stroke-width: 2.5;
+  opacity: 1;
+}
+
+svg .edge.change-removed {
+  stroke-width: 2.5;
+  stroke-dasharray: 5 3;
+  opacity: 1;
+}
+
+svg .change-badge {
+  fill: #ffffff;
+  stroke-width: 2;
+
+  &.change-added { stroke: #1e7e34; }
+  &.change-removed { stroke: #d9534f; }
+  &.change-modified { stroke: #d9822b; }
+}
+
+svg .conflict-badge {
+  fill: #6f42c1;
+  stroke: #ffffff;
+  stroke-width: 1.5;
+
+  &.resolved { fill: #1e7e34; }
+}
+
+svg .change-badge-text {
+  font-size: 11px;
+  font-weight: 700;
+  fill: #343a40;
+  pointer-events: none;
+  user-select: none;
+}
+
+svg .change-badge-text.conflict-text {
+  fill: #ffffff;
+}
+
+.review-banner {
+  background: #f8f9fb;
+  border-left: 4px solid #343a40 !important;
+}
+
+.diff-chip {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 10px;
+
+  .badge-mark {
+    font-weight: 700;
+  }
+
+  &.added { background: #e6f4ea; color: #1e7e34; }
+  &.removed { background: #fdecec; color: #d9534f; }
+  &.modified { background: #fdf4e3; color: #b26a12; }
+  &.conflict { background: #f1ecfa; color: #6f42c1; }
+}
+
+.review-panel {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  width: 290px;
+  max-height: calc(100% - 24px);
+  overflow-y: auto;
+  z-index: 15;
+}
+
+.review-panel .review-group + .review-group {
+  margin-top: 10px;
+}
+
+.review-panel .fact-title {
+  font-size: 11px;
+  font-weight: 700;
+
+  &.state-added { color: #1e7e34; }
+  &.state-removed { color: #d9534f; }
+  &.state-modified { color: #b26a12; }
+}
+
+.review-panel .review-row + .review-row {
+  border-top: 1px solid #f1f3f5;
+}
+
 .edge-actions {
   position: absolute;
   left: 50%;
