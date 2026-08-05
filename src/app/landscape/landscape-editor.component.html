@@ -11,7 +11,7 @@
         </button>
       </div>
 
-      <div class="btn-group shadow-sm mr-2" role="group" aria-label="Pointer tools">
+      <div class="btn-group shadow-sm mr-2" role="group" aria-label="Pointer tools" *ngIf="!review">
         <button class="btn btn-outline-secondary" [class.active]="activeTool === 'select'"
                 (click)="setTool('select')" title="Select, move and edit elements">
           <i class="fas fa-mouse-pointer"></i>
@@ -22,7 +22,7 @@
         </button>
       </div>
 
-      <div class="btn-group shadow-sm mr-2" role="group" aria-label="Create elements">
+      <div class="btn-group shadow-sm mr-2" role="group" aria-label="Create elements" *ngIf="!review">
         <button class="btn btn-outline-secondary" *ngFor="let layer of creatableLayers"
                 [class.active]="activeTool === layer.key"
                 [title]="'New ' + layer.label + ': ' + layer.hint"
@@ -87,6 +87,36 @@
     <span class="text-muted small ml-auto mb-2" *ngIf="searchText">{{matchCount()}} matching elements</span>
   </div>
 
+  <!-- Review mode banner with the visual language of the diff -->
+  <div class="review-banner card border-0 shadow-sm mb-2" *ngIf="review">
+    <div class="card-body py-2 px-3 d-flex align-items-center flex-wrap">
+      <span class="badge badge-dark mr-3">{{review.mode === 'conflicts' ? 'RESOLVE' : 'REVIEW'}}</span>
+      <strong class="mr-3">{{review.title}}</strong>
+
+      <span class="diff-chip added mr-2"><span class="badge-mark">+</span> {{reviewCounts?.added}} added</span>
+      <span class="diff-chip removed mr-2"><span class="badge-mark">&minus;</span> {{reviewCounts?.removed}} removed</span>
+      <span class="diff-chip modified mr-2"><span class="badge-mark">*</span> {{reviewCounts?.modified}} changed</span>
+      <span class="diff-chip conflict mr-2" *ngIf="reviewCounts?.conflicts">
+        <i class="fas fa-exclamation-circle mr-1"></i>{{openConflicts.length}} of {{reviewCounts?.conflicts}} still to decide
+      </span>
+
+      <div class="ml-auto d-flex align-items-center">
+        <ng-container *ngIf="review.mode === 'conflicts'">
+          <button class="btn btn-sm btn-outline-secondary mr-2" (click)="resolveAllConflicts('mine')">
+            Keep all mine
+          </button>
+          <button class="btn btn-sm btn-outline-secondary mr-2" (click)="resolveAllConflicts('theirs')">
+            Keep all theirs
+          </button>
+          <button class="btn btn-sm btn-success mr-2" [disabled]="!allConflictsResolved" (click)="applyResolution()">
+            <i class="fas fa-check mr-1"></i> Apply
+          </button>
+        </ng-container>
+        <button class="btn btn-sm btn-outline-secondary" (click)="endReview()">Leave</button>
+      </div>
+    </div>
+  </div>
+
   <div class="alert alert-info py-2 px-3 mb-2" *ngIf="connectHint">
     <i class="fas fa-link mr-1"></i> {{connectHint}}
     <button class="btn btn-sm btn-link py-0" (click)="setTool('select')">Cancel</button>
@@ -136,8 +166,9 @@
                       style="fill:none; stroke:transparent; stroke-width:18; vector-effect:non-scaling-stroke; pointer-events:stroke;"
                       (mousedown)="onEdgeMouseDown(edge, $event)"></path>
                 <path class="edge" [class.selected]="edge.selected"
+                      [ngClass]="review ? ('change-' + edge.changeState) : ''"
                       [attr.d]="edgePath(edge)"
-                      [attr.stroke]="edge.selected ? '#007bff' : edgeColor(edge)"
+                      [attr.stroke]="edge.selected ? '#007bff' : (review && edge.changeState === 'added' ? '#1e7e34' : (review && edge.changeState === 'removed' ? '#d9534f' : edgeColor(edge)))"
                       marker-end="url(#landscapeArrow)"></path>
               </g>
             </g>
@@ -149,6 +180,9 @@
                  [class.dimmed]="node.dimmed"
                  (dblclick)="onNodeDblClick(node, $event)">
                 <rect class="node" rx="8" ry="8"
+                      [ngClass]="review ? ('change-' + node.changeState) : ''"
+                      [class.conflict]="node.conflict && !node.resolved"
+                      [class.resolved]="node.conflict && node.resolved"
                       [attr.width]="node.width" [attr.height]="node.height"
                       [attr.fill]="layerMeta(node.layer).fill"
                       [attr.stroke]="node.selected ? '#007bff' : layerMeta(node.layer).color"
@@ -163,8 +197,22 @@
                 <text class="node-label" x="12" *ngFor="let line of labelLines(node); let i = index"
                       [attr.y]="node.sublabel ? 20 + i * 12 : 26 + i * 12">{{line}}</text>
                 <text class="node-sublabel" x="12" [attr.y]="node.height - 12" *ngIf="node.sublabel">{{node.sublabel}}</text>
-                <text class="node-pin" [attr.x]="node.width - 8" y="14" text-anchor="end" *ngIf="node.pinned"
+                <text class="node-pin" [attr.x]="node.width - 8" y="14" text-anchor="end" *ngIf="node.pinned && !review"
                       [attr.fill]="layerMeta(node.layer).color">•</text>
+
+                <!-- what happened to this element, marked in its corner -->
+                <g *ngIf="review && node.changeState && node.changeState !== 'unchanged'">
+                  <circle class="change-badge" [ngClass]="'change-' + node.changeState"
+                          [attr.cx]="node.width - 11" cy="11" r="9"></circle>
+                  <text class="change-badge-text" [attr.x]="node.width - 11" y="15"
+                        text-anchor="middle">{{changeBadge(node.changeState)}}</text>
+                </g>
+                <g *ngIf="review && node.conflict">
+                  <circle class="conflict-badge" [class.resolved]="node.resolved"
+                          cx="11" [attr.cy]="node.height - 11" r="8"></circle>
+                  <text class="change-badge-text conflict-text" x="11" [attr.y]="node.height - 7"
+                        text-anchor="middle">{{node.resolved ? '✓' : '!'}}</text>
+                </g>
               </g>
             </g>
           </g>
@@ -182,6 +230,9 @@
                                  [graph]="graph"
                                  [source]="source"
                                  [persona]="persona"
+                                 [change]="changeFor(selectedNode)"
+                                 [review]="review"
+                                 (conflictResolved)="resolveConflict(selectedNode.id, $event)"
                                  (impactRequested)="showImpact($event)"
                                  (saved)="onElementSaved($event)"
                                  (unlinked)="removeRelation($event)"
@@ -216,6 +267,56 @@
               <button type="button" class="btn btn-link btn-sm p-0 d-block text-left text-truncate"
                       *ngFor="let node of group.nodes" (click)="selectNode(node)">{{node.label}}</button>
             </div>
+          </div>
+        </div>
+
+        <div class="review-panel card shadow" *ngIf="review">
+          <div class="card-header bg-white py-2">
+            <div class="text-uppercase small font-weight-bold text-muted">
+              {{review.mode === 'conflicts' ? 'Elements to decide about' : 'What changes'}}
+            </div>
+          </div>
+          <div class="card-body py-2">
+            <ng-container *ngIf="review.mode === 'conflicts'">
+              <div class="text-muted small font-italic" *ngIf="review.diff.conflicts.length === 0">
+                Nothing collides - you can apply the version straight away.
+              </div>
+              <div class="review-row d-flex align-items-center justify-content-between py-1"
+                   *ngFor="let conflict of review.diff.conflicts">
+                <button type="button" class="btn btn-link btn-sm p-0 text-left text-truncate"
+                        (click)="selectChange(conflict)">
+                  <i class="fas mr-1" [ngClass]="layerMeta(conflict.layer).icon"
+                     [style.color]="layerMeta(conflict.layer).color"></i>{{conflict.label}}
+                </button>
+                <span class="badge"
+                      [class.badge-success]="review.resolutions[conflict.nodeId]"
+                      [class.badge-light]="!review.resolutions[conflict.nodeId]">
+                  {{review.resolutions[conflict.nodeId] === 'mine' ? 'mine'
+                    : (review.resolutions[conflict.nodeId] === 'theirs' ? 'theirs' : 'open')}}
+                </span>
+              </div>
+            </ng-container>
+
+            <ng-container *ngIf="review.mode === 'review'">
+              <div class="text-muted small font-italic"
+                   *ngIf="reviewCounts?.added === 0 && reviewCounts?.removed === 0 && reviewCounts?.modified === 0">
+                Your draft matches the published model.
+              </div>
+
+              <div class="review-group" *ngFor="let group of reviewGroups">
+                <ng-container *ngIf="reviewChanges(group.state).length > 0">
+                  <div class="fact-title" [ngClass]="'state-' + group.state">
+                    {{group.label}} ({{reviewChanges(group.state).length}})
+                  </div>
+                  <button type="button" class="btn btn-link btn-sm p-0 d-block text-left text-truncate"
+                          *ngFor="let change of reviewChanges(group.state)"
+                          (click)="selectChange(change)">
+                    <i class="fas mr-1" [ngClass]="layerMeta(change.layer).icon"
+                       [style.color]="layerMeta(change.layer).color"></i>{{change.label}}
+                  </button>
+                </ng-container>
+              </div>
+            </ng-container>
           </div>
         </div>
 

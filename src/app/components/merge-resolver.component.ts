@@ -16,6 +16,8 @@ export class MergeResolverComponent {
 
   // Outputs
   onClose: Subject<any> = new Subject<any>();
+  /** the user would rather resolve the differences on the canvas */
+  onResolveVisually: Subject<void> = new Subject<void>();
 
   // Item-level state
   diffs: { [K in keyof LandscaprData]: SectionDiff } | null = null;
@@ -48,6 +50,12 @@ export class MergeResolverComponent {
   private diffCache = new Map<string, any>();
 
   constructor(public bsModalRef: BsModalRef, private mergeService: MergeService) {}
+
+  /** Hands the same two states over to the visual diff on the landscape canvas */
+  resolveVisually(): void {
+    this.onResolveVisually.next();
+    this.bsModalRef.hide();
+  }
 
   ngOnInit(): void {
     const repo = this.repoData || {};

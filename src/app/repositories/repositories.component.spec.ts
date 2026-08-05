@@ -9,6 +9,7 @@ import { MergeService } from '../services/merge.service';
 import { AuthenticationService } from '../services/authentication.service';
 import { of, Subject } from 'rxjs';
 import { FormsModule } from '@angular/forms';
+import { RouterTestingModule } from '@angular/router/testing';
 
 describe('RepositoriesComponent', () => {
   let component: RepositoriesComponent;
@@ -33,7 +34,7 @@ describe('RepositoriesComponent', () => {
 
     await TestBed.configureTestingModule({
       declarations: [ RepositoriesComponent ],
-      imports: [ FormsModule ],
+      imports: [ FormsModule, RouterTestingModule ],
       providers: [
         { provide: GithubService, useValue: githubServiceSpy },
         { provide: RepoService, useValue: repoServiceSpy },

@@ -11,6 +11,8 @@ import { CommitMessageDialogComponent } from '../components/commit-message-dialo
 import { PrDialogComponent } from '../components/pr-dialog.component';
 import { ConfirmationDialogComponent } from '../components/confirmation-dialog.component';
 import { ExportModalComponent } from '../components/export-modal.component';
+import { Router } from '@angular/router';
+import { ReviewSessionService } from '../services/review-session.service';
 
 @Component({
   selector: 'app-repositories',
@@ -43,6 +45,7 @@ export class RepositoriesComponent implements OnInit, OnDestroy {
   saving = false;
   submitting = false;
   startingEditMode = false;
+  reviewingChanges = false;
 
   stats: { journeys: number, processes: number, apis: number, capabilities: number, systems: number, data: number } | null = null;
   private dataSubscription: Subscription;
@@ -54,6 +57,8 @@ export class RepositoriesComponent implements OnInit, OnDestroy {
     private toastr: ToastrService,
     private modalService: BsModalService,
     private authService: AuthenticationService,
+    private reviewSessionService: ReviewSessionService,
+    private router: Router,
   ) {}
 
   ngOnInit(): void {
@@ -179,6 +184,46 @@ export class RepositoriesComponent implements OnInit, OnDestroy {
           this.loadFromGithub();
       }
     }
+  }
+
+  /**
+   * Shows what the draft changes compared to the published model, drawn on the
+   * landscape canvas instead of as a text diff.
+   */
+  reviewChanges(): void {
+    if (!this.selectedRepo || !this.selectedFilePath) { return; }
+    const repoOwner = this.selectedRepo.owner.login;
+    const publishedBranch = this.selectedRepo.default_branch || 'main';
+
+    this.reviewingChanges = true;
+    this.githubService.getFileContent(repoOwner, this.selectedRepo.name, this.selectedFilePath, publishedBranch)
+      .pipe(first())
+      .subscribe(fileContent => {
+        let published: any;
+        try {
+          published = JSON.parse(atob(fileContent.content));
+        } catch (e) {
+          this.reviewingChanges = false;
+          this.toastr.error('The published model could not be read');
+          return;
+        }
+
+        this.repoService.getCurrentData().pipe(first()).subscribe(local => {
+          this.reviewingChanges = false;
+          this.reviewSessionService.startReview(published, local, {
+            title: 'Your draft compared to the published model',
+            mineLabel: 'Your draft',
+            theirsLabel: 'Published model'
+          });
+          this.router.navigate(['/landscape']).then();
+        }, () => {
+          this.reviewingChanges = false;
+          this.toastr.error('Your current model could not be read');
+        });
+      }, () => {
+        this.reviewingChanges = false;
+        this.toastr.error('The published model could not be loaded');
+      });
   }
 
   loadFromGithub(): void {

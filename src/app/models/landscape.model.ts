@@ -141,6 +141,12 @@ export interface LandscapeNode {
   dimmed?: boolean;
   /** highlighted as part of the blast radius of another element */
   impacted?: boolean;
+  /** how this element changed, while a review is being shown */
+  changeState?: 'unchanged' | 'added' | 'removed' | 'modified';
+  /** both sides changed this element and someone has to decide */
+  conflict?: boolean;
+  /** the side the user picked for a conflict */
+  resolved?: 'mine' | 'theirs' | null;
 }
 
 export interface LandscapeEdge {
@@ -151,6 +157,8 @@ export interface LandscapeEdge {
   label?: string;
   selected?: boolean;
   dimmed?: boolean;
+  /** how this relation changed, while a review is being shown */
+  changeState?: 'unchanged' | 'added' | 'removed' | 'modified';
 }
 
 export interface LandscapeGraph {
