@@ -80,6 +80,25 @@
     </div>
   </div>
 
+  <!-- What a target picture plans for this element -->
+  <div class="card-body inspector-planning border-top pt-3" *ngIf="planning">
+    <div class="d-flex align-items-center justify-content-between mb-2">
+      <span class="change-pill" [ngClass]="'state-' + (plannedState || 'unchanged')">{{plannedLabel}}</span>
+      <button type="button" class="btn btn-link btn-sm p-0" *ngIf="plannedState"
+              (click)="plannedReverted.emit()">Back to today</button>
+    </div>
+    <button type="button" class="btn btn-sm btn-block"
+            [class.btn-outline-danger]="plannedState !== 'removed'"
+            [class.btn-danger]="plannedState === 'removed'"
+            (click)="plannedRemovalToggled.emit()">
+      <i class="fas fa-ban mr-1"></i>
+      {{plannedState === 'removed' ? 'Keep it after all' : 'Plan to drop this element'}}
+    </button>
+    <div class="text-muted small font-italic mt-2">
+      Every change you make here belongs to the target picture. The model of today stays untouched.
+    </div>
+  </div>
+
   <div class="card-body inspector-fields">
     <div class="form-group">
       <label for="inspectorName" class="small text-muted">Name</label>

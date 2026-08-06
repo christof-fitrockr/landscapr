@@ -1,6 +1,8 @@
 import { Injectable } from '@angular/core';
-import { forkJoin, from, Observable, throwError } from 'rxjs';
+import { forkJoin, from, Observable, of, throwError } from 'rxjs';
 import { map, switchMap, take } from 'rxjs/operators';
+
+import { v4 as uuidv4 } from 'uuid';
 
 import { LandscaprDb } from '../db/landscapr-db';
 import { Application } from '../models/application';
@@ -63,6 +65,12 @@ const MAX_NODES_PER_ROW = 12;
 
 @Injectable({ providedIn: 'root' })
 export class LandscapeService {
+
+  /**
+   * While a target picture is being planned, changes must not touch the model
+   * of today: they stay in the snapshot and are stored as a plan by the caller.
+   */
+  planningMode = false;
 
   constructor(
     private db: LandscaprDb,
@@ -532,10 +540,8 @@ export class LandscapeService {
           tags: [],
           layout: { nodes: [], edges: [], panX: 0, panY: 0, zoom: 1, expectations: [], showExperienceLayer: true }
         };
-        return this.journeyService.create(journey).pipe(map(created => {
-          source.journeys.push(created);
-          return this.nodeFor('journey', created.id, created.name, '0 steps', true);
-        }));
+        return this.addElement(journey, source.journeys, () => this.journeyService.create(journey))
+          .pipe(map(created => this.nodeFor('journey', created.id, created.name, '0 steps', true)));
       }
       case 'process': {
         const process: Process = {
@@ -553,10 +559,8 @@ export class LandscapeService {
           favorite: false,
           implementedBy: []
         };
-        return this.processService.create(process).pipe(map(created => {
-          source.processes.push(created);
-          return this.nodeFor('process', created.id, created.name, '0 functions', true);
-        }));
+        return this.addElement(process, source.processes, () => this.processService.create(process))
+          .pipe(map(created => this.nodeFor('process', created.id, created.name, '0 functions', true)));
       }
       case 'capability': {
         const capability: Capability = {
@@ -568,10 +572,8 @@ export class LandscapeService {
           status: 0,
           tags: []
         } as Capability;
-        return this.capabilityService.create(capability).pipe(map(created => {
-          source.capabilities.push(created);
-          return this.nodeFor('capability', created.id, created.name, undefined, true);
-        }));
+        return this.addElement(capability, source.capabilities, () => this.capabilityService.create(capability))
+          .pipe(map(created => this.nodeFor('capability', created.id, created.name, undefined, true)));
       }
       case 'api': {
         const apiCall: ApiCall = {
@@ -591,10 +593,8 @@ export class LandscapeService {
           apiType: ApiType.Business,
           status: DataStatus.Draft
         } as ApiCall;
-        return this.apiCallService.create(apiCall).pipe(map(created => {
-          source.apiCalls.push(created);
-          return this.nodeFor('api', created.id, created.name, undefined, true);
-        }));
+        return this.addElement(apiCall, source.apiCalls, () => this.apiCallService.create(apiCall))
+          .pipe(map(created => this.nodeFor('api', created.id, created.name, undefined, true)));
       }
       case 'data': {
         const data: Data = {
@@ -606,10 +606,8 @@ export class LandscapeService {
           link: '',
           items: []
         } as Data;
-        return this.dataService.create(data).pipe(map(created => {
-          source.data.push(created);
-          return this.nodeFor('data', created.id, created.name, undefined, true);
-        }));
+        return this.addElement(data, source.data, () => this.dataService.create(data))
+          .pipe(map(created => this.nodeFor('data', created.id, created.name, undefined, true)));
       }
       case 'system': {
         const system: Application = {
@@ -623,14 +621,28 @@ export class LandscapeService {
           tags: [],
           status: DataStatus.Draft
         } as Application;
-        return this.applicationService.create(system).pipe(map(created => {
-          source.applications.push(created);
-          return this.nodeFor('system', created.id, created.name, undefined, true);
-        }));
+        return this.addElement(system, source.applications, () => this.applicationService.create(system))
+          .pipe(map(created => this.nodeFor('system', created.id, created.name, undefined, true)));
       }
       default:
         return throwError(new Error('Elements of this layer are created inside their parent element'));
     }
+  }
+
+  /**
+   * Puts a new element into the snapshot. While a target picture is planned it
+   * only exists there, so a planned element never appears in today's model.
+   */
+  private addElement<T extends { id: string }>(entity: T, collection: T[], persist: () => Observable<T>): Observable<T> {
+    if (this.planningMode) {
+      entity.id = uuidv4();
+      collection.push(entity);
+      return of(entity);
+    }
+    return persist().pipe(map(created => {
+      collection.push(created);
+      return created;
+    }));
   }
 
   /** Writes the edited base fields of an element back to its entity */
@@ -809,6 +821,7 @@ export class LandscapeService {
     const journey = source.journeys.find(j => j.id === id);
     if (!journey) return throwError(new Error('Journey not found'));
     mutate(journey);
+    if (this.planningMode) return of(undefined);
     return this.journeyService.update(id, journey).pipe(map(() => undefined));
   }
 
@@ -816,6 +829,7 @@ export class LandscapeService {
     const process = source.processes.find(p => p.id === id);
     if (!process) return throwError(new Error('Process not found'));
     mutate(process);
+    if (this.planningMode) return of(undefined);
     return this.processService.update(id, process).pipe(map(() => undefined));
   }
 
@@ -823,6 +837,7 @@ export class LandscapeService {
     const capability = source.capabilities.find(c => c.id === id);
     if (!capability) return throwError(new Error('Capability not found'));
     mutate(capability);
+    if (this.planningMode) return of(undefined);
     return this.capabilityService.update(id, capability).pipe(
       switchMap(() => this.capabilityService.all(null as any).pipe(take(1))),
       map(all => {
@@ -837,6 +852,7 @@ export class LandscapeService {
     const apiCall = source.apiCalls.find(a => a.id === id);
     if (!apiCall) return throwError(new Error('Function not found'));
     mutate(apiCall);
+    if (this.planningMode) return of(undefined);
     return this.apiCallService.update(id, apiCall).pipe(map(() => undefined));
   }
 
@@ -844,6 +860,7 @@ export class LandscapeService {
     const data = source.data.find(d => d.id === id);
     if (!data) return throwError(new Error('Data object not found'));
     mutate(data);
+    if (this.planningMode) return of(undefined);
     return this.dataService.update(id, data).pipe(map(() => undefined));
   }
 
@@ -851,6 +868,7 @@ export class LandscapeService {
     const system = source.applications.find(s => s.id === id);
     if (!system) return throwError(new Error('System not found'));
     mutate(system);
+    if (this.planningMode) return of(undefined);
     return this.applicationService.update(id, system).pipe(map(() => undefined));
   }
 }

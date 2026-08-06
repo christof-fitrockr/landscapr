@@ -11,6 +11,26 @@
         </button>
       </div>
 
+      <div class="input-group input-group-sm shadow-sm mr-2 scenario-box" *ngIf="!review">
+        <div class="input-group-prepend">
+          <span class="input-group-text bg-white" title="Model of today or one of the target pictures">
+            <i class="fas fa-bullseye"></i>
+          </span>
+        </div>
+        <select class="form-control form-control-sm"
+                [ngModel]="scenario?.id || ''"
+                (ngModelChange)="switchScenarioById($event)"
+                [ngModelOptions]="{standalone: true}">
+          <option value="">Today</option>
+          <option *ngFor="let item of scenarios" [value]="item.id">{{item.name}}</option>
+        </select>
+        <div class="input-group-append">
+          <button class="btn btn-outline-secondary" (click)="createScenario()" title="New target picture">
+            <i class="fas fa-plus"></i>
+          </button>
+        </div>
+      </div>
+
       <div class="btn-group shadow-sm mr-2" role="group" aria-label="Pointer tools" *ngIf="!review">
         <button class="btn btn-outline-secondary" [class.active]="activeTool === 'select'"
                 (click)="setTool('select')" title="Select, move and edit elements">
@@ -85,6 +105,45 @@
       <i class="fas mr-1" [ngClass]="isLayerHidden(layer.key) ? 'fa-eye-slash' : layer.icon"></i>{{layer.label}}
     </button>
     <span class="text-muted small ml-auto mb-2" *ngIf="searchText">{{matchCount()}} matching elements</span>
+  </div>
+
+  <!-- Target picture banner: everything shown is a plan, not reality -->
+  <div class="scenario-banner card border-0 shadow-sm mb-2" *ngIf="scenario && !review">
+    <div class="card-body py-2 px-3 d-flex align-items-center flex-wrap">
+      <span class="badge badge-purple mr-3">{{isRealised ? 'ADOPTED' : 'TARGET'}}</span>
+      <strong class="mr-2">{{scenario.name}}</strong>
+      <span class="badge badge-light border mr-2">{{statusLabel(scenario)}}</span>
+      <span class="text-muted small mr-3" *ngIf="scenario.targetDate">for {{scenario.targetDate}}</span>
+
+      <span class="text-muted small mr-2" *ngIf="isRealised">
+        Adopted, this is the model of today. It once planned:
+      </span>
+      <span class="diff-chip added mr-2"><span class="badge-mark">+</span> {{plannedSummary.added}} {{isRealised ? 'new' : 'planned'}}</span>
+      <span class="diff-chip removed mr-2"><span class="badge-mark">&minus;</span> {{plannedSummary.removed}} {{isRealised ? 'dropped' : 'to go'}}</span>
+      <span class="diff-chip modified mr-2"><span class="badge-mark">*</span> {{plannedSummary.modified}} changed</span>
+      <span class="text-muted small" *ngIf="plannedSummary.total === 0">
+        Nothing planned yet — edit anything and it becomes part of this target picture.
+      </span>
+
+      <div class="ml-auto d-flex align-items-center">
+        <button class="btn btn-sm btn-outline-secondary mr-2" (click)="editScenario()" title="Name, purpose, target date and status">
+          <i class="fas fa-pen"></i>
+        </button>
+        <button class="btn btn-sm btn-outline-secondary mr-2" (click)="compareWithToday()">
+          <i class="fas fa-columns mr-1"></i> Compare with today
+        </button>
+        <button class="btn btn-sm btn-success mr-2" *ngIf="!isRealised"
+                [disabled]="plannedSummary.total === 0"
+                (click)="adoptScenario()"
+                title="The plan has happened: make it the model of today">
+          <i class="fas fa-check-double mr-1"></i> Plan is reality
+        </button>
+        <button class="btn btn-sm btn-outline-danger mr-2" (click)="deleteScenario()" title="Delete this target picture">
+          <i class="fas fa-trash"></i>
+        </button>
+        <button class="btn btn-sm btn-outline-secondary" (click)="switchScenario(null)">Back to today</button>
+      </div>
+    </div>
   </div>
 
   <!-- Review mode banner with the visual language of the diff -->
@@ -166,7 +225,7 @@
                       style="fill:none; stroke:transparent; stroke-width:18; vector-effect:non-scaling-stroke; pointer-events:stroke;"
                       (mousedown)="onEdgeMouseDown(edge, $event)"></path>
                 <path class="edge" [class.selected]="edge.selected"
-                      [ngClass]="review ? ('change-' + edge.changeState) : ''"
+                      [ngClass]="showChangeStates ? ('change-' + edge.changeState) : ''"
                       [attr.d]="edgePath(edge)"
                       [attr.stroke]="edge.selected ? '#007bff' : (review && edge.changeState === 'added' ? '#1e7e34' : (review && edge.changeState === 'removed' ? '#d9534f' : edgeColor(edge)))"
                       marker-end="url(#landscapeArrow)"></path>
@@ -180,7 +239,7 @@
                  [class.dimmed]="node.dimmed"
                  (dblclick)="onNodeDblClick(node, $event)">
                 <rect class="node" rx="8" ry="8"
-                      [ngClass]="review ? ('change-' + node.changeState) : ''"
+                      [ngClass]="showChangeStates ? ('change-' + node.changeState) : ''"
                       [class.conflict]="node.conflict && !node.resolved"
                       [class.resolved]="node.conflict && node.resolved"
                       [attr.width]="node.width" [attr.height]="node.height"
@@ -197,11 +256,11 @@
                 <text class="node-label" x="12" *ngFor="let line of labelLines(node); let i = index"
                       [attr.y]="node.sublabel ? 20 + i * 12 : 26 + i * 12">{{line}}</text>
                 <text class="node-sublabel" x="12" [attr.y]="node.height - 12" *ngIf="node.sublabel">{{node.sublabel}}</text>
-                <text class="node-pin" [attr.x]="node.width - 8" y="14" text-anchor="end" *ngIf="node.pinned && !review"
+                <text class="node-pin" [attr.x]="node.width - 8" y="14" text-anchor="end" *ngIf="node.pinned && !showChangeStates"
                       [attr.fill]="layerMeta(node.layer).color">•</text>
 
                 <!-- what happened to this element, marked in its corner -->
-                <g *ngIf="review && node.changeState && node.changeState !== 'unchanged'">
+                <g *ngIf="showChangeStates && node.changeState && node.changeState !== 'unchanged'">
                   <circle class="change-badge" [ngClass]="'change-' + node.changeState"
                           [attr.cx]="node.width - 11" cy="11" r="9"></circle>
                   <text class="change-badge-text" [attr.x]="node.width - 11" y="15"
@@ -232,6 +291,10 @@
                                  [persona]="persona"
                                  [change]="changeFor(selectedNode)"
                                  [review]="review"
+                                 [plannedState]="plannedStateOf(selectedNode)"
+                                 [planning]="!!scenario && !review"
+                                 (plannedRemovalToggled)="togglePlannedRemoval(selectedNode)"
+                                 (plannedReverted)="revertPlanned(selectedNode)"
                                  (conflictResolved)="resolveConflict(selectedNode.id, $event)"
                                  (impactRequested)="showImpact($event)"
                                  (saved)="onElementSaved($event)"

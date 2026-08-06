@@ -110,12 +110,14 @@ import {RoleListComponent} from './settings/role-list/role-list.component';
 import {RoleEditComponent} from './settings/role-edit/role-edit.component';
 import {LandscapeEditorComponent} from './landscape/landscape-editor.component';
 import {LandscapeInspectorComponent} from './landscape/landscape-inspector.component';
+import {ScenarioEditModalComponent} from './landscape/scenario-edit-modal.component';
 
 
 @NgModule({
   declarations: [
     LandscapeEditorComponent,
     LandscapeInspectorComponent,
+    ScenarioEditModalComponent,
     SettingsComponent,
     RoleListComponent,
     RoleEditComponent,
