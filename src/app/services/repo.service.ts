@@ -14,7 +14,7 @@ export class RepoService {
     this.migrateFromLocalStorage();
   }
 
-  getCurrentData(): Observable<{ processes: any[]; apiCalls: any[]; capabilities: any[]; applications: any[]; journeys: any[]; data: any[]; roles: any[]; landscapeViews: any[] }> {
+  getCurrentData(): Observable<{ processes: any[]; apiCalls: any[]; capabilities: any[]; applications: any[]; journeys: any[]; data: any[]; roles: any[]; landscapeViews: any[]; scenarios: any[] }> {
     return forkJoin({
         processes: from(this.db.processes.toArray()),
         apiCalls: from(this.db.apiCalls.toArray()),
@@ -23,7 +23,8 @@ export class RepoService {
         journeys: from(this.db.journeys.toArray()),
         data: from(this.db.data.toArray()),
         roles: from(this.db.roles.toArray()),
-        landscapeViews: from(this.db.landscapeViews.toArray())
+        landscapeViews: from(this.db.landscapeViews.toArray()),
+        scenarios: from(this.db.scenarios.toArray())
     });
   }
 
@@ -44,7 +45,8 @@ export class RepoService {
                   journeys: data.journeys || [],
                   data: data.data || [],
                   roles: data.roles || [],
-                  landscapeViews: data.landscapeViews || []
+                  landscapeViews: data.landscapeViews || [],
+                  scenarios: data.scenarios || []
               };
               return new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
           })
@@ -91,12 +93,12 @@ export class RepoService {
     });
   }
 
-  applyData(parsedData: { applications?: any; capabilities?: any; apiCalls?: any; processes?: any; journeys?: any; data?: any; roles?: any; landscapeViews?: any; }): void {
+  applyData(parsedData: { applications?: any; capabilities?: any; apiCalls?: any; processes?: any; journeys?: any; data?: any; roles?: any; landscapeViews?: any; scenarios?: any; }): void {
      this.applyParsedData(parsedData).catch(err => console.error(err));
   }
 
-  private async applyParsedData(parsedData: { applications?: any; capabilities?: any; apiCalls?: any; processes?: any; journeys?: any; data?: any; roles?: any; landscapeViews?: any; }): Promise<void> {
-    await this.db.transaction('rw', [this.db.processes, this.db.apiCalls, this.db.capabilities, this.db.applications, this.db.journeys as any, this.db.data, this.db.roles, this.db.landscapeViews as any], async () => {
+  private async applyParsedData(parsedData: { applications?: any; capabilities?: any; apiCalls?: any; processes?: any; journeys?: any; data?: any; roles?: any; landscapeViews?: any; scenarios?: any; }): Promise<void> {
+    await this.db.transaction('rw', [this.db.processes, this.db.apiCalls, this.db.capabilities, this.db.applications, this.db.journeys as any, this.db.data, this.db.roles, this.db.landscapeViews as any, this.db.scenarios as any], async () => {
         await this.db.processes.clear();
         await this.db.apiCalls.clear();
         await this.db.capabilities.clear();
@@ -105,6 +107,7 @@ export class RepoService {
         await this.db.data.clear();
         await this.db.roles.clear();
         await this.db.landscapeViews.clear();
+        await this.db.scenarios.clear();
 
         if (parsedData.processes) await this.db.processes.bulkAdd(parsedData.processes);
         if (parsedData.apiCalls) await this.db.apiCalls.bulkAdd(parsedData.apiCalls);
@@ -114,6 +117,7 @@ export class RepoService {
         if (parsedData.data) await this.db.data.bulkAdd(parsedData.data);
         if (parsedData.roles) await this.db.roles.bulkAdd(parsedData.roles);
         if (parsedData.landscapeViews) await this.db.landscapeViews.bulkAdd(parsedData.landscapeViews);
+        if (parsedData.scenarios) await this.db.scenarios.bulkAdd(parsedData.scenarios);
     });
     this.dataChanges.next();
   }

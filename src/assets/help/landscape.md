@@ -43,6 +43,33 @@ dependency and highlights everything that hangs on the element, grouped by layer
 customer journeys and expectations - including how many of the affected elements are customer facing.
 Press `Escape` or close the panel to leave the view.
 
+## Today and the target picture
+LandscapR shows two kinds of model: the business **as it is today**, and any number of **target pictures** -
+what it should look like at some point. The picker in the toolbar switches between them.
+
+A target picture is not a second model. It is stored as the planned difference to today: which elements are
+new, which fall away, which change. That has two consequences worth knowing:
+
+- **Planning cannot damage reality.** While a target picture is open, nothing you do touches the model of
+  today. Every edit - renaming, connecting, creating - lands in the plan.
+- **The plan follows reality.** If a colleague changes something today that the plan does not touch, the
+  target picture shows that change too. Only what is planned deviates.
+
+Working with one:
+
+- **New target picture** (plus button) creates one and opens it right away; the banner names it and counts
+  what is planned.
+- Elements are painted in the same language as a review: green with `+` for planned as new, amber with `*`
+  for planned to change, dashed red with `−` for planned to fall away.
+- **Plan to drop this element** in the inspector marks an element to disappear; it stays visible on purpose,
+  because a target picture has to show what goes away. `Delete` on a selected element does the same.
+- **Back to today** on a single element drops the plan for it and brings it back to today's state.
+- **Compare with today** puts both states side by side in the review view, with the change summary and the
+  attribute diffs.
+- **Back to today** in the banner returns to reality; the target picture stays and can be opened again.
+
+Target pictures are stored with the model, so they travel through export, import and the repository.
+
 ## Reviewing changes
 Before a draft is submitted - and while a reviewer looks at a proposal - the landscape can show two states
 of the model at once instead of one. **Review changes** on the Repositories page opens that view.

@@ -12,6 +12,8 @@ import {
   LANDSCAPE_NODE_WIDTH
 } from '../services/landscape.service';
 import {
+  landscapeNodeId,
+  parseLandscapeNodeId,
   DEFAULT_LANDSCAPE_VIEW_ID,
   LandscapeEdge,
   LandscapeGraph,
@@ -29,7 +31,9 @@ import {
 } from '../models/landscape.model';
 import { PersonaService } from '../services/persona.service';
 import { ReviewSessionService, ReviewSession, ConflictChoice } from '../services/review-session.service';
-import { ChangeState, ObjectChange } from '../services/model-diff.service';
+import { ChangeState, ModelDiffService, ModelPayload, ObjectChange } from '../services/model-diff.service';
+import { ScenarioService } from '../services/scenario.service';
+import { Scenario, ScenarioSummary, scenarioSummary } from '../models/scenario.model';
 import { Subscription } from 'rxjs';
 
 export type LandscapeTool = 'select' | 'connect' | LandscapeLayer;
@@ -63,6 +67,12 @@ export class LandscapeEditorComponent implements OnInit, OnDestroy {
   // Blast radius
   impactSource: LandscapeNode | null = null;
   impact: LandscapeImpact[] = [];
+
+  // Target picture: the canvas shows the model as it is planned to become
+  scenarios: Scenario[] = [];
+  scenario: Scenario | null = null;
+  /** the model of today, kept aside while a target picture is shown */
+  private today: LandscapeSource | null = null;
 
   // Review mode: the canvas shows two states of the model instead of one
   review: ReviewSession | null = null;
@@ -101,12 +111,15 @@ export class LandscapeEditorComponent implements OnInit, OnDestroy {
     private landscapeService: LandscapeService,
     private personaService: PersonaService,
     private reviewSessionService: ReviewSessionService,
+    private scenarioService: ScenarioService,
+    private modelDiffService: ModelDiffService,
     private router: Router,
     private toastr: ToastrService
   ) {}
 
   ngOnInit(): void {
     this.persona = this.personaService.persona;
+    this.scenarioService.all().pipe(first()).subscribe(scenarios => this.scenarios = scenarios || []);
     this.reviewSubscription = this.reviewSessionService.session$.subscribe(session => {
       this.review = session;
       if (this.source) {
@@ -135,8 +148,13 @@ export class LandscapeEditorComponent implements OnInit, OnDestroy {
         }
 
         this.landscapeService.load().pipe(first()).subscribe(source => {
-          this.source = source;
-          this.rebuild();
+          this.today = source;
+          this.scenarioService.restoreActive().pipe(first()).subscribe(scenario => {
+            this.scenario = scenario;
+            this.source = this.applyScenario(source, scenario);
+            this.landscapeService.planningMode = !!scenario;
+            this.rebuild();
+          });
           this.loading = false;
           // on the very first visit show the whole landscape at once
           if (!seenBefore) {
@@ -176,6 +194,8 @@ export class LandscapeEditorComponent implements OnInit, OnDestroy {
 
     if (this.review) {
       this.applyReviewStates();
+    } else if (this.scenario) {
+      this.applyPlannedStates();
     }
 
     this.selectedNode = selectedNodeId ? this.graph.nodes.find(n => n.id === selectedNodeId) || null : null;
@@ -183,6 +203,196 @@ export class LandscapeEditorComponent implements OnInit, OnDestroy {
     if (this.selectedNode) this.selectedNode.selected = true;
     if (this.selectedEdge) this.selectedEdge.selected = true;
     this.applyHighlighting();
+  }
+
+  // ---------------------------------------------------------------------------
+  // Target picture
+  // ---------------------------------------------------------------------------
+
+  /**
+   * Puts the plan on top of today's model. Elements that are planned to go stay
+   * in the picture on purpose - a target picture has to show what falls away.
+   */
+  private applyScenario(today: LandscapeSource, scenario: Scenario | null): LandscapeSource {
+    if (!scenario) {
+      return today;
+    }
+    // applyTo already hands out copies, so editing here cannot reach today's model
+    const planned = this.scenarioService.applyTo(this.toPayload(today), scenario);
+    const display = this.toSource(planned, today.roles);
+
+    // bring the elements that are planned to disappear back into the drawing
+    Object.entries(scenario.changes).forEach(([nodeId, change]) => {
+      if (change.state !== 'removed') return;
+      const parsed = parseLandscapeNodeId(nodeId);
+      if (!parsed) return;
+      const original = this.entitiesOf(today, parsed.layer).find(item => item.id === parsed.entityId);
+      if (original) {
+        this.entitiesOf(display, parsed.layer).push(JSON.parse(JSON.stringify(original)));
+      }
+    });
+
+    return display;
+  }
+
+  /** The model as it would be once the plan is reality */
+  private plannedTargetPayload(): ModelPayload {
+    const payload = this.toPayload(this.source!);
+    const removed = new Set(Object.entries(this.scenario?.changes || {})
+      .filter(([, change]) => change.state === 'removed')
+      .map(([nodeId]) => nodeId));
+
+    LANDSCAPE_LAYERS.forEach(layer => {
+      if (layer === 'experience') return;
+      const items = this.entitiesOf(this.toSourceRef(payload), layer);
+      const kept = items.filter(item => !removed.has(landscapeNodeId(layer, item.id)));
+      this.setEntities(payload, layer, kept);
+    });
+    return payload;
+  }
+
+  /** Stores what the target picture currently looks like */
+  private persistPlan(): void {
+    if (!this.scenario || !this.today || !this.source) return;
+    this.scenarioService
+      .saveTargetState(this.scenario, this.toPayload(this.today), this.plannedTargetPayload())
+      .pipe(first())
+      .subscribe(updated => {
+        this.scenario = updated;
+        this.scenarios = this.scenarios.map(item => item.id === updated.id ? updated : item);
+        this.rebuild();
+      }, () => this.toastr.error('The target picture could not be saved'));
+  }
+
+  switchScenario(scenario: Scenario | null): void {
+    this.scenarioService.activate(scenario);
+    this.scenario = scenario;
+    this.landscapeService.planningMode = !!scenario;
+    this.clearSelection();
+    if (this.today) {
+      this.source = this.applyScenario(this.today, scenario);
+      this.rebuild(false);
+    }
+    this.toastr.info(scenario ? `Target picture: ${scenario.name}` : 'Showing the model as it is today');
+  }
+
+  switchScenarioById(id: string): void {
+    this.switchScenario(id ? (this.scenarios.find(item => item.id === id) || null) : null);
+  }
+
+  createScenario(): void {
+    const name = (window.prompt('Name of the new target picture', 'Target picture') || '').trim();
+    if (!name) return;
+    this.scenarioService.create(name).pipe(first()).subscribe(scenario => {
+      this.scenarios = [...this.scenarios, scenario].sort((a, b) => a.name.localeCompare(b.name));
+      // switch only once the new entry exists in the picker, otherwise the
+      // selection falls back to today
+      setTimeout(() => this.switchScenario(scenario));
+    }, () => this.toastr.error('The target picture could not be created'));
+  }
+
+  deleteScenario(): void {
+    if (!this.scenario) return;
+    const scenario = this.scenario;
+    if (!window.confirm(`Delete the target picture "${scenario.name}"? The model of today stays untouched.`)) return;
+    this.scenarioService.delete(scenario.id).pipe(first()).subscribe(() => {
+      this.scenarios = this.scenarios.filter(item => item.id !== scenario.id);
+      this.switchScenario(null);
+      this.toastr.success('Target picture deleted');
+    });
+  }
+
+  get plannedSummary(): ScenarioSummary {
+    return scenarioSummary(this.scenario);
+  }
+
+  plannedStateOf(node: LandscapeNode | null): string | null {
+    if (!node || !this.scenario) return null;
+    return this.scenarioService.plannedStateOf(this.scenario, node.id);
+  }
+
+  /** Plans an element to fall away, or takes that plan back */
+  togglePlannedRemoval(node: LandscapeNode): void {
+    if (!this.scenario) return;
+    this.scenarioService.toggleRemoval(this.scenario, node.id).pipe(first()).subscribe(updated => {
+      this.scenario = updated;
+      this.scenarios = this.scenarios.map(item => item.id === updated.id ? updated : item);
+      this.source = this.applyScenario(this.today!, updated);
+      this.rebuild();
+    });
+  }
+
+  /** Drops the plan for one element, bringing it back to today's state */
+  revertPlanned(node: LandscapeNode): void {
+    if (!this.scenario) return;
+    this.scenarioService.revert(this.scenario, node.id).pipe(first()).subscribe(updated => {
+      this.scenario = updated;
+      this.scenarios = this.scenarios.map(item => item.id === updated.id ? updated : item);
+      this.source = this.applyScenario(this.today!, updated);
+      this.rebuild();
+      this.toastr.info('Back to how it is today');
+    });
+  }
+
+  /** Shows today and the target picture side by side, with the diff language */
+  compareWithToday(): void {
+    if (!this.scenario || !this.today) return;
+    this.reviewSessionService.startReview(this.toPayload(this.today), this.plannedTargetPayload(), {
+      title: `Today compared to "${this.scenario.name}"`,
+      mineLabel: 'Target picture',
+      theirsLabel: 'Today'
+    });
+  }
+
+  private toPayload(source: LandscapeSource): ModelPayload {
+    return {
+      journeys: source.journeys,
+      processes: source.processes,
+      capabilities: source.capabilities,
+      apiCalls: source.apiCalls,
+      data: source.data,
+      applications: source.applications,
+      roles: source.roles
+    };
+  }
+
+  private toSource(payload: ModelPayload, roles: any[]): LandscapeSource {
+    return {
+      journeys: (payload.journeys || []) as any,
+      processes: (payload.processes || []) as any,
+      capabilities: (payload.capabilities || []) as any,
+      apiCalls: (payload.apiCalls || []) as any,
+      data: (payload.data || []) as any,
+      applications: (payload.applications || []) as any,
+      roles: roles || []
+    };
+  }
+
+  private toSourceRef(payload: ModelPayload): LandscapeSource {
+    return this.toSource(payload, []);
+  }
+
+  private entitiesOf(source: LandscapeSource, layer: LandscapeLayer): any[] {
+    switch (layer) {
+      case 'journey': return source.journeys as any[];
+      case 'process': return source.processes as any[];
+      case 'capability': return source.capabilities as any[];
+      case 'api': return source.apiCalls as any[];
+      case 'data': return source.data as any[];
+      case 'system': return source.applications as any[];
+      default: return [];
+    }
+  }
+
+  private setEntities(payload: ModelPayload, layer: LandscapeLayer, items: any[]): void {
+    switch (layer) {
+      case 'journey': payload.journeys = items; break;
+      case 'process': payload.processes = items; break;
+      case 'capability': payload.capabilities = items; break;
+      case 'api': payload.apiCalls = items; break;
+      case 'data': payload.data = items; break;
+      case 'system': payload.applications = items; break;
+    }
   }
 
   // ---------------------------------------------------------------------------
@@ -249,6 +459,18 @@ export class LandscapeEditorComponent implements OnInit, OnDestroy {
   // Review mode
   // ---------------------------------------------------------------------------
 
+  /** Paints the elements a target picture adds, changes or drops */
+  private applyPlannedStates(): void {
+    const changes = this.scenario?.changes || {};
+    this.graph.nodes.forEach(node => {
+      const planned = changes[node.id];
+      node.changeState = planned ? planned.state : 'unchanged';
+      node.conflict = false;
+      node.resolved = null;
+    });
+    this.graph.edges.forEach(edge => edge.changeState = 'unchanged');
+  }
+
   /** Paints every element and relation with the state it has in the review */
   private applyReviewStates(): void {
     const review = this.review;
@@ -264,6 +486,11 @@ export class LandscapeEditorComponent implements OnInit, OnDestroy {
     this.graph.edges.forEach(edge => {
       edge.changeState = review.diff.edgeStates[edge.id] || 'unchanged';
     });
+  }
+
+  /** true whenever the canvas paints change states: a review or a target picture */
+  get showChangeStates(): boolean {
+    return !!this.review || !!this.scenario;
   }
 
   get reviewCounts(): { added: number; removed: number; modified: number; conflicts: number } | null {
@@ -638,6 +865,10 @@ export class LandscapeEditorComponent implements OnInit, OnDestroy {
       return;
     }
     if (this.selectedNode) {
+      if (this.scenario) {
+        this.togglePlannedRemoval(this.selectedNode);
+        return;
+      }
       this.toastr.info('Elements are deleted in their own list view, so nothing gets lost by accident');
     }
   }
@@ -671,7 +902,8 @@ export class LandscapeEditorComponent implements OnInit, OnDestroy {
     this.landscapeService.link(this.source, from, to).pipe(first()).subscribe(() => {
       this.connectSourceId = null;
       this.rebuild();
-      this.toastr.success(`${from.label} → ${to.label}`, 'Relation created');
+      this.persistPlan();
+      this.toastr.success(`${from.label} → ${to.label}`, this.scenario ? 'Planned relation' : 'Relation created');
     }, err => {
       this.connectSourceId = null;
       this.toastr.error(err?.message || 'The relation could not be created');
@@ -692,7 +924,8 @@ export class LandscapeEditorComponent implements OnInit, OnDestroy {
     this.landscapeService.unlink(this.source, edge, from, to).pipe(first()).subscribe(() => {
       this.selectedEdge = null;
       this.rebuild();
-      this.toastr.success('Relation removed');
+      this.persistPlan();
+      this.toastr.success(this.scenario ? 'Relation planned to go' : 'Relation removed');
     }, err => this.toastr.error(err?.message || 'The relation could not be removed'));
   }
 
@@ -720,7 +953,8 @@ export class LandscapeEditorComponent implements OnInit, OnDestroy {
           this.selectNode(created);
         }
         this.scheduleViewSave();
-        this.toastr.success(`${this.layerMeta(layer).label} created`);
+        this.persistPlan();
+        this.toastr.success(`${this.layerMeta(layer).label} ${this.scenario ? 'planned' : 'created'}`);
       }, err => this.toastr.error(err?.message || 'The element could not be created'));
   }
 
@@ -728,7 +962,8 @@ export class LandscapeEditorComponent implements OnInit, OnDestroy {
     if (!this.source || !this.selectedNode) return;
     this.landscapeService.updateElement(this.source, this.selectedNode, values).pipe(first()).subscribe(() => {
       this.rebuild();
-      this.toastr.success('Element saved');
+      this.persistPlan();
+      this.toastr.success(this.scenario ? 'Planned change saved' : 'Element saved');
     }, err => this.toastr.error(err?.message || 'The element could not be saved'));
   }
 

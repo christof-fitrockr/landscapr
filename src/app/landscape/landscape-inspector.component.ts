@@ -45,6 +45,9 @@ export class LandscapeInspectorComponent implements OnChanges {
   /** set while a review is shown: how this element changed */
   @Input() change: ObjectChange | null = null;
   @Input() review: ReviewSession | null = null;
+  /** while a target picture is open: what is planned for this element */
+  @Input() plannedState: string | null = null;
+  @Input() planning = false;
 
   @Output() saved = new EventEmitter<LandscapeElementValues>();
   @Output() unlinked = new EventEmitter<LandscapeEdge>();
@@ -53,6 +56,8 @@ export class LandscapeInspectorComponent implements OnChanges {
   @Output() closed = new EventEmitter<void>();
   @Output() impactRequested = new EventEmitter<LandscapeNode>();
   @Output() conflictResolved = new EventEmitter<ConflictChoice>();
+  @Output() plannedRemovalToggled = new EventEmitter<void>();
+  @Output() plannedReverted = new EventEmitter<void>();
 
   values: LandscapeElementValues = {};
   tagsText = '';
@@ -104,6 +109,15 @@ export class LandscapeInspectorComponent implements OnChanges {
       .versionsOf(this.node.id, this.review.theirs, this.review.mine)
       .fields
       .filter(field => field.differs || field.field === 'name');
+  }
+
+  get plannedLabel(): string {
+    switch (this.plannedState) {
+      case 'added': return 'Planned as new';
+      case 'removed': return 'Planned to fall away';
+      case 'modified': return 'Planned to change';
+      default: return 'As it is today';
+    }
   }
 
   get changeTitle(): string {
