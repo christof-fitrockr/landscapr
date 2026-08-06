@@ -1,0 +1,46 @@
+<div class="modal-header">
+  <h5 class="modal-title">{{isEdit ? 'Target picture' : 'New target picture'}}</h5>
+  <button type="button" class="close" aria-label="Close" (click)="cancel()">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+<div class="modal-body">
+  <div class="form-group">
+    <label for="scenarioName" class="small text-muted">Name</label>
+    <input id="scenarioName" type="text" class="form-control" [(ngModel)]="values.name"
+           placeholder="e.g. Aftersales 2027" />
+  </div>
+
+  <div class="form-group">
+    <label for="scenarioDescription" class="small text-muted">What this target picture is about</label>
+    <textarea id="scenarioDescription" rows="3" class="form-control" [(ngModel)]="values.description"
+              placeholder="The idea behind the plan, so others can follow it&hellip;"></textarea>
+  </div>
+
+  <div class="form-group">
+    <label for="scenarioTargetDate" class="small text-muted">Target date</label>
+    <input id="scenarioTargetDate" type="text" class="form-control" [(ngModel)]="values.targetDate"
+           placeholder="e.g. Q3 2027" />
+    <small class="form-text text-muted">Free text, so a quarter or a milestone name works just as well.</small>
+  </div>
+
+  <div class="form-group">
+    <label class="small text-muted d-block">Status</label>
+    <div class="btn-group btn-group-sm" role="group">
+      <button type="button" class="btn" *ngFor="let status of statuses"
+              [class.btn-primary]="values.status === status.value"
+              [class.btn-outline-primary]="values.status !== status.value"
+              [disabled]="status.value === 2 && values.status !== 2"
+              [title]="status.value === 2 ? 'A target picture becomes realised by adopting it, not by setting it here' : ''"
+              (click)="setStatus(status.value)">{{status.label}}</button>
+    </div>
+  </div>
+
+  <div class="alert alert-secondary py-2 px-3 mb-0 small" *ngIf="isRealised">
+    This target picture was adopted: the model of today already looks like this. It is kept as a record.
+  </div>
+</div>
+<div class="modal-footer">
+  <button class="btn btn-secondary" (click)="cancel()">Cancel</button>
+  <button class="btn btn-primary" [disabled]="!isValid()" (click)="save()">Save</button>
+</div>

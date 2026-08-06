@@ -67,6 +67,16 @@ Working with one:
 - **Compare with today** puts both states side by side in the review view, with the change summary and the
   attribute diffs.
 - **Back to today** in the banner returns to reality; the target picture stays and can be opened again.
+- The **pencil** opens the target picture itself: name, what it is about, target date (free text, so a quarter
+  or a milestone name works) and status - `Draft` while it is being shaped, `Agreed` once it is decided.
+
+### When the plan has happened
+**Plan is reality** adopts the target picture: everything it describes becomes the model of today, in one go.
+LandscapR asks first and says how many elements are new, changed and dropped.
+
+Afterwards the target picture is not deleted. It switches to `Realised`, keeps what it planned and notes when
+it was adopted, so the decision stays readable later. From then on it is drawn like any other model - it is
+reality now, not a plan - and it can no longer be adopted a second time.
 
 Target pictures are stored with the model, so they travel through export, import and the repository.
 

@@ -3,7 +3,7 @@ import { TestBed } from '@angular/core/testing';
 import { ScenarioService } from './scenario.service';
 import { LandscaprDb } from '../db/landscapr-db';
 import { ModelPayload } from './model-diff.service';
-import { Scenario, ScenarioStatus, scenarioSummary } from '../models/scenario.model';
+import { Scenario, ScenarioStatus, SCENARIO_STATUS_LABELS, scenarioSummary } from '../models/scenario.model';
 import { landscapeNodeId } from '../models/landscape.model';
 
 describe('ScenarioService', () => {
@@ -168,6 +168,34 @@ describe('ScenarioService', () => {
       });
 
       expect(scenarioSummary(plan)).toEqual({ added: 2, removed: 1, modified: 1, total: 4 });
+    });
+
+    it('keeps a target picture as a record once the plan is reality', () => {
+      const plan = scenario({ [landscapeNodeId('system', 's1')]: { state: 'removed' } });
+
+      const realised = service.asRealised(plan);
+
+      expect(realised.status).toBe(ScenarioStatus.Realised);
+      expect(realised.realisedAt).toBeGreaterThan(0);
+      // the decision stays readable, only its state changes
+      expect(realised.changes).toEqual(plan.changes);
+      expect(realised.name).toBe(plan.name);
+      expect(SCENARIO_STATUS_LABELS[realised.status]).toBe('Realised');
+    });
+
+    it('has nothing left to plan once it was adopted', () => {
+      const plan = scenario({
+        [landscapeNodeId('system', 's1')]: { state: 'removed' },
+        [landscapeNodeId('process', 'p1')]: {
+          state: 'modified',
+          entity: { id: 'p1', name: 'Book appointment', description: 'planned', status: 1, apiCallIds: [], steps: [], implementedBy: ['s1'], tags: [] }
+        }
+      });
+
+      // adopting means the target state becomes today
+      const adopted = service.applyTo(today(), plan);
+
+      expect(service.deltaFrom(adopted, service.applyTo(adopted, plan))).toEqual({});
     });
 
     it('forgets a target picture that was deleted while it was open', async () => {

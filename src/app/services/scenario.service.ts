@@ -246,6 +246,19 @@ export class ScenarioService {
     return this.update({ ...scenario, changes });
   }
 
+  /**
+   * The target picture as a record of something that happened: the plan is
+   * reality now, so it stops being a plan but stays readable.
+   */
+  asRealised(scenario: Scenario): Scenario {
+    return {
+      ...scenario,
+      status: ScenarioStatus.Realised,
+      realisedAt: Date.now(),
+      updatedAt: Date.now()
+    };
+  }
+
   plannedStateOf(scenario: Scenario | null, nodeId: string): PlannedState | null {
     return scenario?.changes[nodeId]?.state || null;
   }

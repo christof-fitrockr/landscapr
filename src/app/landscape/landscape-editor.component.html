@@ -110,20 +110,33 @@
   <!-- Target picture banner: everything shown is a plan, not reality -->
   <div class="scenario-banner card border-0 shadow-sm mb-2" *ngIf="scenario && !review">
     <div class="card-body py-2 px-3 d-flex align-items-center flex-wrap">
-      <span class="badge badge-purple mr-3">TARGET</span>
+      <span class="badge badge-purple mr-3">{{isRealised ? 'ADOPTED' : 'TARGET'}}</span>
       <strong class="mr-2">{{scenario.name}}</strong>
+      <span class="badge badge-light border mr-2">{{statusLabel(scenario)}}</span>
       <span class="text-muted small mr-3" *ngIf="scenario.targetDate">for {{scenario.targetDate}}</span>
 
-      <span class="diff-chip added mr-2"><span class="badge-mark">+</span> {{plannedSummary.added}} planned</span>
-      <span class="diff-chip removed mr-2"><span class="badge-mark">&minus;</span> {{plannedSummary.removed}} to go</span>
+      <span class="text-muted small mr-2" *ngIf="isRealised">
+        Adopted, this is the model of today. It once planned:
+      </span>
+      <span class="diff-chip added mr-2"><span class="badge-mark">+</span> {{plannedSummary.added}} {{isRealised ? 'new' : 'planned'}}</span>
+      <span class="diff-chip removed mr-2"><span class="badge-mark">&minus;</span> {{plannedSummary.removed}} {{isRealised ? 'dropped' : 'to go'}}</span>
       <span class="diff-chip modified mr-2"><span class="badge-mark">*</span> {{plannedSummary.modified}} changed</span>
       <span class="text-muted small" *ngIf="plannedSummary.total === 0">
         Nothing planned yet — edit anything and it becomes part of this target picture.
       </span>
 
       <div class="ml-auto d-flex align-items-center">
+        <button class="btn btn-sm btn-outline-secondary mr-2" (click)="editScenario()" title="Name, purpose, target date and status">
+          <i class="fas fa-pen"></i>
+        </button>
         <button class="btn btn-sm btn-outline-secondary mr-2" (click)="compareWithToday()">
           <i class="fas fa-columns mr-1"></i> Compare with today
+        </button>
+        <button class="btn btn-sm btn-success mr-2" *ngIf="!isRealised"
+                [disabled]="plannedSummary.total === 0"
+                (click)="adoptScenario()"
+                title="The plan has happened: make it the model of today">
+          <i class="fas fa-check-double mr-1"></i> Plan is reality
         </button>
         <button class="btn btn-sm btn-outline-danger mr-2" (click)="deleteScenario()" title="Delete this target picture">
           <i class="fas fa-trash"></i>

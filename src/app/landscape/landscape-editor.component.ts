@@ -33,7 +33,11 @@ import { PersonaService } from '../services/persona.service';
 import { ReviewSessionService, ReviewSession, ConflictChoice } from '../services/review-session.service';
 import { ChangeState, ModelDiffService, ModelPayload, ObjectChange } from '../services/model-diff.service';
 import { ScenarioService } from '../services/scenario.service';
-import { Scenario, ScenarioSummary, scenarioSummary } from '../models/scenario.model';
+import { Scenario, ScenarioStatus, ScenarioSummary, scenarioSummary, SCENARIO_STATUS_LABELS } from '../models/scenario.model';
+import { ScenarioEditModalComponent, ScenarioValues } from './scenario-edit-modal.component';
+import { ConfirmationDialogComponent } from '../components/confirmation-dialog.component';
+import { BsModalService } from 'ngx-bootstrap/modal';
+import { RepoService } from '../services/repo.service';
 import { Subscription } from 'rxjs';
 
 export type LandscapeTool = 'select' | 'connect' | LandscapeLayer;
@@ -113,6 +117,8 @@ export class LandscapeEditorComponent implements OnInit, OnDestroy {
     private reviewSessionService: ReviewSessionService,
     private scenarioService: ScenarioService,
     private modelDiffService: ModelDiffService,
+    private modalService: BsModalService,
+    private repoService: RepoService,
     private router: Router,
     private toastr: ToastrService
   ) {}
@@ -194,7 +200,7 @@ export class LandscapeEditorComponent implements OnInit, OnDestroy {
 
     if (this.review) {
       this.applyReviewStates();
-    } else if (this.scenario) {
+    } else if (this.scenario && !this.isRealised) {
       this.applyPlannedStates();
     }
 
@@ -281,14 +287,123 @@ export class LandscapeEditorComponent implements OnInit, OnDestroy {
   }
 
   createScenario(): void {
-    const name = (window.prompt('Name of the new target picture', 'Target picture') || '').trim();
-    if (!name) return;
-    this.scenarioService.create(name).pipe(first()).subscribe(scenario => {
-      this.scenarios = [...this.scenarios, scenario].sort((a, b) => a.name.localeCompare(b.name));
-      // switch only once the new entry exists in the picker, otherwise the
-      // selection falls back to today
-      setTimeout(() => this.switchScenario(scenario));
-    }, () => this.toastr.error('The target picture could not be created'));
+    const ref = this.modalService.show(ScenarioEditModalComponent, { initialState: {} });
+    const form = ref.content as ScenarioEditModalComponent;
+    if (!form) return;
+
+    form.saved.subscribe((values: ScenarioValues) => {
+      this.scenarioService.create(values.name, values.description, values.targetDate)
+        .pipe(first())
+        .subscribe(created => {
+          const scenario = { ...created, status: values.status };
+          this.scenarioService.update(scenario).pipe(first()).subscribe(stored => {
+            this.scenarios = [...this.scenarios, stored].sort((a, b) => a.name.localeCompare(b.name));
+            // switch only once the new entry exists in the picker, otherwise the
+            // selection falls back to today
+            setTimeout(() => this.switchScenario(stored));
+          });
+        }, () => this.toastr.error('The target picture could not be created'));
+    });
+  }
+
+  /** Name, purpose, target date and status of the open target picture */
+  editScenario(): void {
+    if (!this.scenario) return;
+    const ref = this.modalService.show(ScenarioEditModalComponent, { initialState: {} });
+    const form = ref.content as ScenarioEditModalComponent;
+    if (!form) return;
+
+    form.load(this.scenario);
+    form.saved.subscribe((values: ScenarioValues) => {
+      this.scenarioService.update({ ...this.scenario!, ...values }).pipe(first()).subscribe(updated => {
+        this.scenario = updated;
+        this.scenarios = this.scenarios
+          .map(item => item.id === updated.id ? updated : item)
+          .sort((a, b) => a.name.localeCompare(b.name));
+        this.toastr.success('Target picture saved');
+      }, () => this.toastr.error('The target picture could not be saved'));
+    });
+  }
+
+  statusLabel(scenario: Scenario | null): string {
+    return scenario ? SCENARIO_STATUS_LABELS[scenario.status] : '';
+  }
+
+  get isRealised(): boolean {
+    return this.scenario?.status === ScenarioStatus.Realised;
+  }
+
+  /**
+   * The plan has happened: everything it describes becomes the model of today.
+   * The target picture itself is kept as a record of what was decided.
+   */
+  adoptScenario(): void {
+    if (!this.scenario || !this.today || this.review) return;
+    const scenario = this.scenario;
+    const summary = this.plannedSummary;
+
+    if (summary.total === 0) {
+      this.toastr.info('This target picture does not change anything yet');
+      return;
+    }
+
+    const ref = this.modalService.show(ConfirmationDialogComponent, {
+      initialState: {
+        title: 'Make this target picture reality',
+        message: `${summary.added} new, ${summary.modified} changed and ${summary.removed} dropped elements `
+          + `become the model of today. The target picture is kept as a record of the decision.`,
+        btnYesText: 'Yes, adopt it',
+        btnNoText: 'Cancel'
+      }
+    });
+
+    const content: any = ref.content;
+    if (!content?.onClose) return;
+    content.onClose.pipe(first()).subscribe((confirmed: boolean) => {
+      if (confirmed) {
+        this.applyScenarioToReality(scenario);
+      }
+    });
+  }
+
+  private applyScenarioToReality(scenario: Scenario): void {
+    this.loading = true;
+    this.repoService.getCurrentData().pipe(first()).subscribe(current => {
+      const target = this.scenarioService.applyTo({
+        journeys: current.journeys,
+        processes: current.processes,
+        capabilities: current.capabilities,
+        apiCalls: current.apiCalls,
+        data: current.data,
+        applications: current.applications,
+        roles: current.roles
+      }, scenario);
+
+      const realised = this.scenarioService.asRealised(scenario);
+      const payload = {
+        ...target,
+        roles: current.roles || [],
+        // everything that is not part of the model itself has to travel along,
+        // otherwise applying the plan would wipe it
+        landscapeViews: current.landscapeViews || [],
+        scenarios: (current.scenarios || []).map((item: Scenario) => item.id === realised.id ? realised : item)
+      };
+
+      this.repoService.uploadJsonContent(payload).pipe(first()).subscribe(() => {
+        this.scenarioService.activate(null);
+        this.scenario = null;
+        this.landscapeService.planningMode = false;
+        this.scenarios = this.scenarios.map(item => item.id === realised.id ? realised : item);
+        this.toastr.success(`"${realised.name}" is the model of today now`);
+        this.refresh();
+      }, () => {
+        this.loading = false;
+        this.toastr.error('The target picture could not be adopted');
+      });
+    }, () => {
+      this.loading = false;
+      this.toastr.error('The model of today could not be read');
+    });
   }
 
   deleteScenario(): void {
@@ -488,9 +603,12 @@ export class LandscapeEditorComponent implements OnInit, OnDestroy {
     });
   }
 
-  /** true whenever the canvas paints change states: a review or a target picture */
+  /**
+   * True whenever the canvas paints change states. An adopted target picture is
+   * reality by now, so it is drawn like any other model instead of as a plan.
+   */
   get showChangeStates(): boolean {
-    return !!this.review || !!this.scenario;
+    return !!this.review || (!!this.scenario && !this.isRealised);
   }
 
   get reviewCounts(): { added: number; removed: number; modified: number; conflicts: number } | null {

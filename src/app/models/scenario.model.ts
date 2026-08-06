@@ -26,6 +26,8 @@ export interface Scenario {
   /** when the target picture should be reality, free text like "Q3 2027" */
   targetDate: string;
   status: ScenarioStatus;
+  /** when the plan became reality, set once it was adopted */
+  realisedAt?: number;
   /** planned changes keyed by landscape node id */
   changes: { [nodeId: string]: PlannedChange };
   createdAt: number;
@@ -34,13 +36,22 @@ export interface Scenario {
 
 export enum ScenarioStatus {
   Draft = 0,
-  Agreed = 1
+  Agreed = 1,
+  /** the plan was adopted, the model of today looks like this now */
+  Realised = 2
 }
 
 export const SCENARIO_STATUS_LABELS: { [key in ScenarioStatus]: string } = {
   [ScenarioStatus.Draft]: 'Draft',
-  [ScenarioStatus.Agreed]: 'Agreed'
+  [ScenarioStatus.Agreed]: 'Agreed',
+  [ScenarioStatus.Realised]: 'Realised'
 };
+
+export const SCENARIO_STATUSES: ScenarioStatus[] = [
+  ScenarioStatus.Draft,
+  ScenarioStatus.Agreed,
+  ScenarioStatus.Realised
+];
 
 /** Counts of what a target picture changes, for the summary line */
 export interface ScenarioSummary {
