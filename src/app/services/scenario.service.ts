@@ -239,6 +239,24 @@ export class ScenarioService {
     return this.update({ ...scenario, changes });
   }
 
+  /**
+   * Moves an element out of today into the plan: what somebody modelled as
+   * reality turns out to be an intention, so the target picture carries it as
+   * something that is planned to come. Taking it out of today is up to the
+   * caller, the plan only records the element as it was.
+   */
+  planAsFuture(scenario: Scenario, nodeId: string, entity: any): Observable<Scenario> {
+    const changes = { ...scenario.changes };
+    changes[nodeId] = { state: 'added', entity: this.clone(entity), note: changes[nodeId]?.note };
+    return this.update({ ...scenario, changes });
+  }
+
+  /** True for elements a target picture can carry as a planned change of its own */
+  canPlan(nodeId: string): boolean {
+    const parsed = parseLandscapeNodeId(nodeId);
+    return !!parsed && !!SECTION_OF_LAYER[parsed.layer];
+  }
+
   /** Drops a single planned change, bringing the element back to today's state */
   revert(scenario: Scenario, nodeId: string): Observable<Scenario> {
     const changes = { ...scenario.changes };

@@ -325,6 +325,14 @@ export class LandscapeEditorComponent implements OnInit, OnDestroy {
     });
   }
 
+  /**
+   * Saving a plan hands out a new object for it. Without this the picker would
+   * rebuild its options and fall back to "Today" while the plan is still open.
+   */
+  trackScenario(_index: number, scenario: Scenario): string {
+    return scenario.id;
+  }
+
   statusLabel(scenario: Scenario | null): string {
     return scenario ? SCENARIO_STATUS_LABELS[scenario.status] : '';
   }
@@ -435,6 +443,69 @@ export class LandscapeEditorComponent implements OnInit, OnDestroy {
       this.source = this.applyScenario(this.today!, updated);
       this.rebuild();
     });
+  }
+
+  /**
+   * True while an element could be moved out of today into the open target
+   * picture. Elements that the plan invented itself are not part of today, and
+   * an adopted plan is reality by now, so neither can be planned for later.
+   */
+  canPlanFuture(node: LandscapeNode | null): boolean {
+    if (!node || !this.scenario || this.review || this.isRealised) return false;
+    if (this.plannedStateOf(node) === 'added') return false;
+    return this.scenarioService.canPlan(node.id);
+  }
+
+  /**
+   * The element is not reality yet: it leaves the model of today and lives on
+   * in the open target picture as something that is planned to come.
+   */
+  planInFuture(node: LandscapeNode): void {
+    if (!this.canPlanFuture(node) || !this.today) return;
+    const scenario = this.scenario!;
+    const entity = this.entitiesOf(this.today, node.layer).find(item => item.id === node.entityId);
+    if (!entity) {
+      this.toastr.info(`"${node.label}" is not part of the model of today`);
+      return;
+    }
+
+    const ref = this.modalService.show(ConfirmationDialogComponent, {
+      initialState: {
+        title: 'Plan this element for later',
+        message: `"${node.label}" leaves the model of today and becomes part of "${scenario.name}", planned `
+          + `as new. Unlike every other planning step this one changes reality, so the element is gone from `
+          + `today until the target picture is adopted.`,
+        btnYesText: 'Yes, plan it for later',
+        btnNoText: 'Cancel'
+      }
+    });
+
+    const content: any = ref.content;
+    if (!content?.onClose) return;
+    content.onClose.pipe(first()).subscribe((confirmed: boolean) => {
+      if (confirmed) {
+        this.moveIntoPlan(scenario, node, entity);
+      }
+    });
+  }
+
+  /**
+   * The plan is written first: if taking the element out of today fails, the
+   * plan is rolled back, so the element is never lost between the two.
+   */
+  private moveIntoPlan(scenario: Scenario, node: LandscapeNode, entity: any): void {
+    this.scenarioService.planAsFuture(scenario, node.id, entity).pipe(first()).subscribe(planned => {
+      this.landscapeService.deleteElement(this.today!, node).pipe(first()).subscribe(() => {
+        this.scenario = planned;
+        this.scenarios = this.scenarios.map(item => item.id === planned.id ? planned : item);
+        this.source = this.applyScenario(this.today!, planned);
+        this.rebuild();
+        this.toastr.success(`"${node.label}" is planned for later now`);
+      }, () => {
+        this.scenarioService.revert(planned, node.id).pipe(first()).subscribe(reverted => this.scenario = reverted);
+        this.toastr.error('The element could not be taken out of the model of today');
+      });
+    }, () => this.toastr.error('The target picture could not be saved'));
   }
 
   /** Drops the plan for one element, bringing it back to today's state */
