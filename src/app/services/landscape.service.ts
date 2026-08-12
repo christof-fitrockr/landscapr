@@ -655,6 +655,7 @@ export class LandscapeService {
           journey.description = values.description ?? journey.description;
           journey.status = values.status ?? journey.status;
           journey.tags = values.tags ?? journey.tags;
+          journey.jiraTicket = values.jiraTicket ?? journey.jiraTicket;
         });
       case 'process':
         return this.updateProcess(source, node.entityId, process => {
@@ -662,6 +663,7 @@ export class LandscapeService {
           process.description = values.description ?? process.description;
           process.status = (values.status ?? process.status) as Status;
           process.tags = values.tags ?? process.tags;
+          process.jiraTicket = values.jiraTicket ?? process.jiraTicket;
         });
       case 'capability':
         return this.updateCapability(source, node.entityId, capability => {
@@ -669,6 +671,7 @@ export class LandscapeService {
           capability.description = values.description ?? capability.description;
           capability.status = values.status ?? capability.status;
           capability.tags = values.tags ?? capability.tags;
+          capability.jiraTicket = values.jiraTicket ?? capability.jiraTicket;
         });
       case 'api':
         return this.updateApiCall(source, node.entityId, api => {
@@ -676,6 +679,7 @@ export class LandscapeService {
           api.description = values.description ?? api.description;
           api.status = values.status ?? api.status;
           api.tags = values.tags ?? api.tags;
+          api.jiraTicket = values.jiraTicket ?? api.jiraTicket;
         });
       case 'data':
         return this.updateData(source, node.entityId, data => {
@@ -683,6 +687,7 @@ export class LandscapeService {
           data.description = values.description ?? data.description;
           data.state = values.status ?? data.state;
           data.group = values.group ?? data.group;
+          data.jiraTicket = values.jiraTicket ?? data.jiraTicket;
         });
       case 'system':
         return this.updateApplication(source, node.entityId, system => {
@@ -690,11 +695,56 @@ export class LandscapeService {
           system.description = values.description ?? system.description;
           system.status = values.status ?? system.status;
           system.tags = values.tags ?? system.tags;
+          system.jiraTicket = values.jiraTicket ?? system.jiraTicket;
         });
       case 'experience':
         return this.updateExpectation(source, node.entityId, values);
       default:
         return throwError(new Error('This element cannot be edited here'));
+    }
+  }
+
+  /**
+   * Takes an element out of the model of today and out of the snapshot.
+   *
+   * This is the one planning step that touches reality on purpose: an element
+   * that was modelled as if it existed turns out to be an intention, so it
+   * leaves today and lives on in the target picture that carries it. The
+   * planning mode is therefore not consulted here.
+   */
+  deleteElement(source: LandscapeSource, node: LandscapeNode): Observable<void> {
+    // the stored state is read back afterwards, because deleting can reach
+    // further than the element itself: a capability re-parents its children, a
+    // data object takes its sub objects with it
+    const refresh = <T>(collection: T[], reload: Observable<T[]>): Observable<void> => reload.pipe(
+      take(1),
+      map(items => {
+        collection.splice(0, collection.length, ...(items || []));
+        return undefined;
+      })
+    );
+
+    switch (node.layer) {
+      case 'journey':
+        return this.journeyService.delete(node.entityId)
+          .pipe(switchMap(() => refresh(source.journeys, this.journeyService.all())));
+      case 'process':
+        return this.processService.delete(node.entityId)
+          .pipe(switchMap(() => refresh(source.processes, this.processService.all())));
+      case 'capability':
+        return this.capabilityService.delete(node.entityId)
+          .pipe(switchMap(() => refresh(source.capabilities, this.capabilityService.all(null as any))));
+      case 'api':
+        return this.apiCallService.delete(node.entityId)
+          .pipe(switchMap(() => refresh(source.apiCalls, this.apiCallService.all())));
+      case 'data':
+        return this.dataService.delete(node.entityId)
+          .pipe(switchMap(() => refresh(source.data, this.dataService.all())));
+      case 'system':
+        return this.applicationService.delete(node.entityId)
+          .pipe(switchMap(() => refresh(source.applications, this.applicationService.all(null as any))));
+      default:
+        return throwError(new Error('Elements of this layer only exist inside the element they belong to'));
     }
   }
 
@@ -812,7 +862,12 @@ export class LandscapeService {
     }
     return this.updateJourney(source, journey.id, updated => {
       updated.layout!.expectations = (updated.layout!.expectations || []).map(exp => exp.id === expectationId
-        ? { ...exp, title: (values.name || '').trim() || exp.title, expectation: values.description ?? exp.expectation }
+        ? {
+            ...exp,
+            title: (values.name || '').trim() || exp.title,
+            expectation: values.description ?? exp.expectation,
+            jiraTicket: values.jiraTicket ?? exp.jiraTicket
+          }
         : exp);
     });
   }
@@ -880,4 +935,6 @@ export interface LandscapeElementValues {
   status?: number;
   tags?: string[];
   group?: string;
+  /** Jira issues the work on this element is tracked in */
+  jiraTicket?: string;
 }

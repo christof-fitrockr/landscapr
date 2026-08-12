@@ -21,6 +21,10 @@
           <label class="small text-uppercase text-muted font-weight-bold">Description</label>
           <p>{{apiCall?.description || 'No description available.'}}</p>
         </div>
+        <div class="col-md-6" *ngIf="apiCall?.jiraTicket">
+          <label class="small text-uppercase text-muted font-weight-bold">Jira</label>
+          <p><app-jira-link [ticket]="apiCall.jiraTicket" [compact]="true"></app-jira-link></p>
+        </div>
       </div>
 
       <div class="row mt-3" *ngIf="apiCall?.inputData?.length > 0">

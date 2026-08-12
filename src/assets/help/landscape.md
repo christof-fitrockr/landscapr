@@ -51,7 +51,8 @@ A target picture is not a second model. It is stored as the planned difference t
 new, which fall away, which change. That has two consequences worth knowing:
 
 - **Planning cannot damage reality.** While a target picture is open, nothing you do touches the model of
-  today. Every edit - renaming, connecting, creating - lands in the plan.
+  today. Every edit - renaming, connecting, creating - lands in the plan. The one exception is
+  **Planned in Future**, which exists to move an element out of today and asks before it does.
 - **The plan follows reality.** If a colleague changes something today that the plan does not touch, the
   target picture shows that change too. Only what is planned deviates.
 
@@ -63,6 +64,10 @@ Working with one:
   for planned to change, dashed red with `−` for planned to fall away.
 - **Plan to drop this element** in the inspector marks an element to disappear; it stays visible on purpose,
   because a target picture has to show what goes away. `Delete` on a selected element does the same.
+- **Planned in Future** is the counterpart for something that was modelled as if it existed although it is
+  still an intention: the element leaves the model of today and becomes part of the target picture, planned
+  as new. This is the one planning step that changes reality, so LandscapR asks first. Once the plan is
+  adopted the element is back in today.
 - **Back to today** on a single element drops the plan for it and brings it back to today's state.
 - **Compare with today** puts both states side by side in the review view, with the change summary and the
   attribute diffs.

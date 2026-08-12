@@ -159,6 +159,45 @@ describe('ScenarioService', () => {
       expect(reverted.changes[nodeId]).toBeUndefined();
     });
 
+    it('plans an element for later instead of keeping it in today', async () => {
+      const created = await service.create('Target').toPromise();
+      const nodeId = landscapeNodeId('system', 's1');
+      const model = today();
+      const system = model.applications![0];
+
+      const planned = await service.planAsFuture(created, nodeId, system).toPromise();
+
+      expect(planned.changes[nodeId].state).toBe('added');
+      expect(planned.changes[nodeId].entity.name).toBe('Old CRM');
+      // the plan holds a copy, so editing the plan cannot reach today's element
+      expect(planned.changes[nodeId].entity).not.toBe(system);
+
+      // the element has left today, the plan is what keeps it alive
+      model.applications = [];
+      const target = service.applyTo(model, planned);
+
+      expect(target.applications!.length).toBe(1);
+      expect(service.deltaFrom(model, target)[nodeId].state).toBe('added');
+    });
+
+    it('replaces an earlier plan for the same element', async () => {
+      const created = await service.create('Target').toPromise();
+      const nodeId = landscapeNodeId('system', 's1');
+
+      const dropped = await service.toggleRemoval(created, nodeId).toPromise();
+      const planned = await service.planAsFuture(dropped, nodeId, today().applications![0]).toPromise();
+
+      expect(planned.changes[nodeId].state).toBe('added');
+      expect(Object.keys(planned.changes).length).toBe(1);
+    });
+
+    it('knows which elements a target picture can carry', () => {
+      expect(service.canPlan(landscapeNodeId('process', 'p1'))).toBeTrue();
+      expect(service.canPlan(landscapeNodeId('system', 's1'))).toBeTrue();
+      // an expectation lives inside its journey, it is no element of its own
+      expect(service.canPlan(landscapeNodeId('experience', 'x1'))).toBeFalse();
+    });
+
     it('counts what a target picture changes', () => {
       const plan = scenario({
         a: { state: 'added', entity: {} },

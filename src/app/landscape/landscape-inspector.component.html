@@ -94,8 +94,19 @@
       <i class="fas fa-ban mr-1"></i>
       {{plannedState === 'removed' ? 'Keep it after all' : 'Plan to drop this element'}}
     </button>
+
+    <!-- Not reality yet: the element leaves today and belongs to the plan -->
+    <button type="button" class="btn btn-sm btn-block btn-outline-success mt-2" *ngIf="canPlanFuture"
+            title="Take this element out of the model of today and plan it as new in the target picture"
+            (click)="plannedForFuture.emit()">
+      <i class="fas fa-forward mr-1"></i>
+      Planned in Future
+    </button>
+
     <div class="text-muted small font-italic mt-2">
-      Every change you make here belongs to the target picture. The model of today stays untouched.
+      Every change you make here belongs to the target picture. The model of today stays untouched<ng-container
+        *ngIf="canPlanFuture"> - except for "Planned in Future", which takes the element out of today because
+        it is an intention, not reality</ng-container>.
     </div>
   </div>
 
@@ -132,6 +143,13 @@
       <label for="inspectorTags" class="small text-muted">Tags <span class="text-muted">(comma separated)</span></label>
       <input id="inspectorTags" type="text" class="form-control form-control-sm"
              [(ngModel)]="tagsText" (change)="onTagsChange()" />
+    </div>
+
+    <div class="form-group">
+      <label for="inspectorJira" class="small text-muted">Jira Ticket</label>
+      <input id="inspectorJira" type="text" class="form-control form-control-sm"
+             placeholder="e.g. ABC-123, ABC-124" [(ngModel)]="values.jiraTicket" />
+      <app-jira-link class="d-block mt-1" [ticket]="values.jiraTicket" [compact]="true"></app-jira-link>
     </div>
 
     <div class="d-flex">

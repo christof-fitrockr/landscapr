@@ -65,11 +65,24 @@ possible.
 - **Views and export.** Capability maps, process flows, swimlanes, ER diagrams and journey diagrams are
   generated from the model, and journeys can be exported to PowerPoint for stakeholder communication.
 
+## Linking to Jira
+
+Every element of the model — journey, process, capability, function, data object, system and customer
+expectation — carries a **Jira Ticket** attribute. Put one or more issue keys in it (`ABC-123, ABC-124`)
+and Landscapr shows them wherever the element appears: in its editor, in the lists, in the description
+popup and in the landscape inspector.
+
+The model itself only holds the keys. **Settings → Jira** holds the address of your Jira
+(`https://your-company.atlassian.net`), and that setting turns the keys into links to
+`…/browse/ABC-123`. The address is a preference of the person in front of the screen, so the same model
+can be opened against different Jira instances; an element may also hold a whole issue url, which is then
+used as it is.
+
 ## What Landscapr Is Not
 
 - It is **not a runtime or an integration platform** — it describes the landscape, it does not operate it.
 - It is **not a ticketing or project tool** — it holds the target picture and the current state, not the
-  work items to get there.
+  work items to get there; it only references the Jira issues in which that work is tracked.
 - It is **not an API gateway or a code generator** — API definitions here are catalogue entries used for
   architecture reasoning, not deployable specifications.
 

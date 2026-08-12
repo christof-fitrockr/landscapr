@@ -113,6 +113,8 @@ import {LandscapeInspectorComponent} from './landscape/landscape-inspector.compo
 import {ScenarioEditModalComponent} from './landscape/scenario-edit-modal.component';
 import {GapOverviewComponent} from './gaps/gap-overview.component';
 import {GapIconComponent} from './gaps/gap-icon.component';
+import {JiraSettingsComponent} from './settings/jira-settings/jira-settings.component';
+import {JiraLinkComponent} from './components/jira-link.component';
 
 
 @NgModule({
@@ -125,6 +127,8 @@ import {GapIconComponent} from './gaps/gap-icon.component';
     SettingsComponent,
     RoleListComponent,
     RoleEditComponent,
+    JiraSettingsComponent,
+    JiraLinkComponent,
     ExportModalComponent,
     CommentsPanelComponent,
     HelpComponent,

@@ -31,6 +31,7 @@ export class DataEditBaseComponent implements OnInit, OnDestroy {
       group: [''],
       state: [0],
       link: [''],
+      jiraTicket: [''],
       items: this.formBuilder.array([])
     });
 

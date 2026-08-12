@@ -40,6 +40,7 @@ export class ProcessEditBaseComponent implements OnInit, OnDestroy {
       tags: [],
       role: [''],
       implementedBy: [],
+      jiraTicket: [''],
     });
 
 

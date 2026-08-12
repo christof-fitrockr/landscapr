@@ -1,0 +1,37 @@
+<div class="container-fluid mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="d-flex align-items-center">
+      <a routerLink="/settings" class="btn btn-link mr-2"><i class="fas fa-arrow-left"></i></a>
+      <h2 class="m-0 font-weight-bold text-uppercase text-gray-400">Jira</h2>
+    </div>
+  </div>
+
+  <div class="card shadow-sm border-0">
+    <div class="card-body">
+      <p class="text-muted">
+        Every element of the model - journey, process, capability, function, data object, system and
+        customer expectation - carries a <strong>Jira Ticket</strong> attribute. Name the address of your
+        Jira here and those issue keys turn into links.
+      </p>
+
+      <div class="form-group row">
+        <label for="jiraBaseUrl" class="col-sm-2 col-form-label">Jira Address</label>
+        <div class="col-sm-10">
+          <input type="url" class="form-control" id="jiraBaseUrl" [(ngModel)]="baseUrl"
+                 placeholder="https://your-company.atlassian.net">
+          <small class="form-text text-muted">
+            An issue named <code>ABC-123</code> is then opened as <code>{{example}}</code>.
+            An element may also hold a whole issue url, which is used as it is.
+          </small>
+        </div>
+      </div>
+
+      <div class="d-flex">
+        <button type="button" class="btn btn-primary mr-2" (click)="save()">
+          <i class="fas fa-save mr-1"></i> Save
+        </button>
+        <button type="button" class="btn btn-outline-secondary" (click)="clear()">Remove</button>
+      </div>
+    </div>
+  </div>
+</div>

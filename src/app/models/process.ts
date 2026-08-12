@@ -16,6 +16,8 @@ export class Process {
   apiCallIds: string[];
   favorite: boolean;
   implementedBy: string[];
+  /** Jira issues that carry the work on this process, e.g. 'ABC-12, ABC-13' */
+  jiraTicket?: string;
   comments?: Comment[];
   /** what is meant to happen about the missing support, see ProcessSupportPlan */
   supportPlan?: ProcessSupportPlan;

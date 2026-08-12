@@ -48,6 +48,8 @@ export class LandscapeInspectorComponent implements OnChanges {
   /** while a target picture is open: what is planned for this element */
   @Input() plannedState: string | null = null;
   @Input() planning = false;
+  /** whether this element could leave today and become part of the open plan */
+  @Input() canPlanFuture = false;
 
   @Output() saved = new EventEmitter<LandscapeElementValues>();
   @Output() unlinked = new EventEmitter<LandscapeEdge>();
@@ -57,6 +59,7 @@ export class LandscapeInspectorComponent implements OnChanges {
   @Output() impactRequested = new EventEmitter<LandscapeNode>();
   @Output() conflictResolved = new EventEmitter<ConflictChoice>();
   @Output() plannedRemovalToggled = new EventEmitter<void>();
+  @Output() plannedForFuture = new EventEmitter<void>();
   @Output() plannedReverted = new EventEmitter<void>();
 
   values: LandscapeElementValues = {};
@@ -141,7 +144,8 @@ export class LandscapeInspectorComponent implements OnChanges {
       description: this.entityValue('description') ?? '',
       status: this.entityStatus(),
       group: this.entityValue('group') ?? '',
-      tags: this.entityValue('tags') || []
+      tags: this.entityValue('tags') || [],
+      jiraTicket: this.entityValue('jiraTicket') ?? ''
     };
     this.tagsText = (this.values.tags || []).join(', ');
     this.relations = this.buildRelations(this.node);

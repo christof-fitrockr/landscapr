@@ -42,6 +42,7 @@
           <a *ngIf="!selectMode" class="font-weight-bold" routerLink="/apiCall/edit/{{apiCall?.id}}">{{apiCall.name}}</a>
           <span *ngIf="selectMode" class="font-weight-bold">{{apiCall.name}}</span>
           <i *ngIf="orphanIds.includes(apiCall.id)" class="ml-2 text-warning fas fa-unlink" title="Orphan: Not referenced by any Process"></i>
+          <app-jira-link class="ml-2" [ticket]="apiCall.jiraTicket" [compact]="true"></app-jira-link>
         </td>
 
         <!-- 3. Type -->

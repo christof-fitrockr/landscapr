@@ -7,6 +7,8 @@ export class Data {
   group: string;
   state: DataStatus;
   link: string;
+  /** Jira issues that carry the work on this data object, e.g. 'ABC-12, ABC-13' */
+  jiraTicket?: string;
   items: DataItem[];
   isSubObject?: boolean;
   parentId?: string;

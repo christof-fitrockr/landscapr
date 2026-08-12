@@ -22,7 +22,7 @@
                 (ngModelChange)="switchScenarioById($event)"
                 [ngModelOptions]="{standalone: true}">
           <option value="">Today</option>
-          <option *ngFor="let item of scenarios" [value]="item.id">{{item.name}}</option>
+          <option *ngFor="let item of scenarios; trackBy: trackScenario" [value]="item.id">{{item.name}}</option>
         </select>
         <div class="input-group-append">
           <button class="btn btn-outline-secondary" (click)="createScenario()" title="New target picture">
@@ -293,7 +293,9 @@
                                  [review]="review"
                                  [plannedState]="plannedStateOf(selectedNode)"
                                  [planning]="!!scenario && !review"
+                                 [canPlanFuture]="canPlanFuture(selectedNode)"
                                  (plannedRemovalToggled)="togglePlannedRemoval(selectedNode)"
+                                 (plannedForFuture)="planInFuture(selectedNode)"
                                  (plannedReverted)="revertPlanned(selectedNode)"
                                  (conflictResolved)="resolveConflict(selectedNode.id, $event)"
                                  (impactRequested)="showImpact($event)"

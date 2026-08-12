@@ -26,6 +26,7 @@ export class SystemEditBaseComponent implements OnInit {
       contact: [''],
       url: [''],
       tags: [],
+      jiraTicket: [''],
       systemCluster: ['']
     });
     this.refresh();

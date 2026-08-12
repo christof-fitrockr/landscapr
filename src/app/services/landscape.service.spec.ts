@@ -25,6 +25,14 @@ describe('LandscapeService', () => {
     return of(value);
   };
 
+  /** a delete that behaves like the stored model: the element is gone afterwards */
+  const drop = (collection: () => any[]) => (id: string) => {
+    const items = collection();
+    const index = items.findIndex(item => item.id === id);
+    if (index >= 0) items.splice(index, 1);
+    return of(undefined);
+  };
+
   beforeEach(() => {
     updated = {};
 
@@ -61,12 +69,12 @@ describe('LandscapeService', () => {
       providers: [
         LandscapeService,
         { provide: LandscaprDb, useValue: { landscapeViews: { get: () => Promise.resolve(undefined), put: () => Promise.resolve('id') } } },
-        { provide: JourneyService, useValue: { all: () => of(source.journeys), update: record('journey'), create: (j: any) => of({ ...j, id: 'new-j' }) } },
-        { provide: ProcessService, useValue: { all: () => of(source.processes), update: record('process'), create: (p: any) => of({ ...p, id: 'new-p' }) } },
-        { provide: CapabilityService, useValue: { all: () => of(source.capabilities), update: record('capability'), create: (c: any) => of({ ...c, id: 'new-c' }) } },
-        { provide: ApiCallService, useValue: { all: () => of(source.apiCalls), update: record('apiCall'), create: (a: any) => of({ ...a, id: 'new-a' }) } },
-        { provide: DataService, useValue: { all: () => of(source.data), update: record('data'), create: (d: any) => of({ ...d, id: 'new-d' }) } },
-        { provide: ApplicationService, useValue: { all: () => of(source.applications), update: record('application'), create: (s: any) => of({ ...s, id: 'new-s' }) } },
+        { provide: JourneyService, useValue: { all: () => of(source.journeys), update: record('journey'), create: (j: any) => of({ ...j, id: 'new-j' }), delete: drop(() => source.journeys) } },
+        { provide: ProcessService, useValue: { all: () => of(source.processes), update: record('process'), create: (p: any) => of({ ...p, id: 'new-p' }), delete: drop(() => source.processes) } },
+        { provide: CapabilityService, useValue: { all: () => of(source.capabilities), update: record('capability'), create: (c: any) => of({ ...c, id: 'new-c' }), delete: drop(() => source.capabilities) } },
+        { provide: ApiCallService, useValue: { all: () => of(source.apiCalls), update: record('apiCall'), create: (a: any) => of({ ...a, id: 'new-a' }), delete: drop(() => source.apiCalls) } },
+        { provide: DataService, useValue: { all: () => of(source.data), update: record('data'), create: (d: any) => of({ ...d, id: 'new-d' }), delete: drop(() => source.data) } },
+        { provide: ApplicationService, useValue: { all: () => of(source.applications), update: record('application'), create: (s: any) => of({ ...s, id: 'new-s' }), delete: drop(() => source.applications) } },
         { provide: RoleService, useValue: { getAll: () => of(source.roles) } }
       ]
     });
@@ -229,6 +237,49 @@ describe('LandscapeService', () => {
       expect(service.isEditableKind('process-function')).toBeTrue();
       expect(service.isEditableKind('expectation-of-journey')).toBeFalse();
       expect(service.isEditableKind('data-reference')).toBeFalse();
+    });
+  });
+
+  describe('taking an element out of today', () => {
+    it('removes the element from the stored model and from the snapshot', () => {
+      const graph = service.buildGraph(source);
+      const system = graph.nodes.find(n => n.id === landscapeNodeId('system', 's1'))!;
+
+      service.deleteElement(source, system).subscribe();
+
+      expect(source.applications.length).toBe(0);
+      expect(service.buildGraph(source).nodes.some(n => n.layer === 'system')).toBeFalse();
+    });
+
+    it('leaves no relation pointing at the element that is gone', () => {
+      const graph = service.buildGraph(source);
+      const api = graph.nodes.find(n => n.id === landscapeNodeId('api', 'a1'))!;
+
+      service.deleteElement(source, api).subscribe();
+      const edges = service.buildGraph(source).edges;
+
+      expect(source.apiCalls.length).toBe(0);
+      expect(edges.some(edge => edge.to === api.id || edge.from === api.id)).toBeFalse();
+    });
+
+    it('does it even while a target picture is being planned', () => {
+      // planning normally never touches today - this step does so on purpose
+      service.planningMode = true;
+      const process = service.buildGraph(source).nodes.find(n => n.id === landscapeNodeId('process', 'p2'))!;
+
+      service.deleteElement(source, process).subscribe();
+
+      expect(source.processes.some(p => p.id === 'p2')).toBeFalse();
+    });
+
+    it('refuses elements that only exist inside another element', () => {
+      const expectation = service.buildGraph(source).nodes.find(n => n.layer === 'experience')!;
+      let error: Error | null = null;
+
+      service.deleteElement(source, expectation).subscribe({ error: err => error = err });
+
+      expect(error).toBeTruthy();
+      expect(source.journeys[0].layout!.expectations!.length).toBe(1);
     });
   });
 
