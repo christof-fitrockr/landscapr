@@ -13,6 +13,7 @@ answered from any single one of them:
 - Which processes does a customer touch on a given journey?
 - Which systems and APIs are affected if we retire this application?
 - Which capability has no system support — and which one has four?
+- Which processes still run without any functional support, and what do we have to build to change that?
 - Where does the promise we make to the customer differ from what they actually get?
 
 Landscapr answers those questions by holding the layers in one model with explicit links between them,
@@ -24,9 +25,11 @@ Its goals are:
 2. **Impact analysis in both directions** — each object shows what it uses and where it is used.
 3. **Experience management** — the experience layer on a journey records what the customer expects, what
    they actually get, and the measured gap between the two.
-4. **Governed change** — you edit on your own branch and submit a pull request; nothing is overwritten by
+4. **Gap management** — the gap view shows which processes are carried by people because no function
+   supports them, and turns that into a roadmap of the functions still to build.
+5. **Governed change** — you edit on your own branch and submit a pull request; nothing is overwritten by
    accident.
-5. **A shared language for business and IT** — both edit the same model from their own perspective.
+6. **A shared language for business and IT** — both edit the same model from their own perspective.
 
 ## The Model
 

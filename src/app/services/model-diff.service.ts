@@ -86,7 +86,8 @@ const FIELD_LABELS: { [field: string]: string } = {
   layout: 'Diagram',
   steps: 'Process steps',
   items: 'Contents',
-  expectations: 'Customer expectations'
+  expectations: 'Customer expectations',
+  supportPlan: 'Support plan'
 };
 
 @Injectable({ providedIn: 'root' })

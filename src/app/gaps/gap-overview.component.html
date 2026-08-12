@@ -1,0 +1,430 @@
+<div class="container-xl mt-4 gap-view">
+
+  <!-- Head -->
+  <div class="d-flex justify-content-between align-items-end flex-wrap mb-3">
+    <div>
+      <div class="eyebrow">Management view</div>
+      <h2 class="m-0 font-weight-bold">Process gaps</h2>
+      <p class="lede mb-0">
+        Where the customer journey is carried by people instead of functions &mdash; and which functions we
+        have to build to make it seamless.
+      </p>
+    </div>
+    <div class="btn-group mt-2">
+      <button type="button" class="btn btn-outline-secondary" title="Reload the model" (click)="refresh()">
+        <i class="fas fa-sync"></i>
+      </button>
+      <button type="button" class="btn btn-outline-secondary" (click)="togglePresenting()">
+        <i class="fas fa-expand mr-1" *ngIf="!presenting"></i>
+        <i class="fas fa-compress mr-1" *ngIf="presenting"></i>
+        {{ presenting ? 'Leave presentation mode' : 'Presentation mode' }}
+      </button>
+    </div>
+  </div>
+
+  <div class="fa-3x text-center p-5" *ngIf="loading">
+    <i class="fas fa-spinner fa-pulse"></i>
+  </div>
+
+  <ng-container *ngIf="!loading && report">
+
+    <!-- Filters -->
+    <div class="card shadow-sm mb-4 filters">
+      <div class="card-body py-2 px-3 d-flex flex-wrap align-items-center">
+
+        <span class="flabel">Journey</span>
+        <button type="button" class="chip" [class.on]="journeyFilter === 'all'" (click)="filterByJourney('all')">
+          All journeys <span class="n">{{ report.processes.length }}</span>
+        </button>
+        <button type="button" class="chip" *ngFor="let j of report.journeys"
+                [class.on]="journeyFilter === j.journeyId" (click)="filterByJourney(j.journeyId)">
+          {{ j.journeyName }} <span class="n">{{ j.processIds.length }}</span>
+        </button>
+
+        <span class="sep"></span>
+
+        <span class="flabel">Support</span>
+        <button type="button" class="chip" [class.on]="bandFilter === 'all'" (click)="filterByBand('all')">
+          Everything
+        </button>
+        <button type="button" class="chip" *ngFor="let band of bands"
+                [class.on]="bandFilter === band" (click)="filterByBand(band)">
+          <span class="dot" [style.background]="colorOf(band)"></span>
+          {{ bandLabels[band] }} <span class="n">{{ bandCounts[band] }}</span>
+        </button>
+
+        <span class="sep"></span>
+
+        <span class="flabel">Role</span>
+        <select class="custom-select custom-select-sm role-select"
+                [ngModel]="roleFilter" (ngModelChange)="onRoleFilter($event)">
+          <option value="all">Every role</option>
+          <option *ngFor="let role of roles" [value]="role">{{ role }}</option>
+        </select>
+
+        <span class="sep"></span>
+
+        <button type="button" class="btn btn-sm" [ngClass]="comparing ? 'btn-primary' : 'btn-outline-secondary'"
+                (click)="toggleComparison()">
+          <i class="fas fa-drafting-compass mr-1"></i> Compare with target picture
+        </button>
+
+        <button type="button" class="btn btn-sm btn-link ml-auto" *ngIf="filtered" (click)="clearFilters()">
+          Clear filters
+        </button>
+      </div>
+    </div>
+
+    <!-- Headline -->
+    <div class="row headline">
+      <div class="col-lg-4 mb-4">
+        <div class="card shadow-sm h-100">
+          <div class="card-body">
+            <div class="eyebrow">Seamless today</div>
+            <div class="hero">
+              <b [style.color]="coverageColor(totals.coverage)">{{ percent(totals.coverage) }}</b>
+              <span>of process steps run on a function that is live</span>
+            </div>
+
+            <p class="hero-note mt-3 mb-0" *ngIf="totals.activities > 0">
+              {{ totals.open }} of {{ totals.activities }} steps still need a person to bridge them.
+              Closing them is <strong>{{ totals.openItems }} function{{ totals.openItems === 1 ? '' : 's' }}</strong> of work.
+            </p>
+            <p class="hero-note mt-3 mb-0" *ngIf="totals.activities === 0">
+              Nothing in view is counted &mdash; every process here is manual by design.
+            </p>
+
+            <div class="compare mt-3 pt-3" *ngIf="!comparing && totals.activities > 0">
+              <div class="compare-row">
+                <span class="k">Once built</span>
+                <span class="meter"><i [style.width.%]="totals.plannedCoverage * 100"
+                                       [style.background]="colorOf('planned')"></i></span>
+                <span class="v">{{ percent(totals.plannedCoverage) }}</span>
+              </div>
+              <p class="hero-note mb-0 mt-2">
+                That is where the journey lands once every function that is already planned is live.
+              </p>
+            </div>
+
+            <div class="compare mt-3 pt-3" *ngIf="comparing">
+              <select class="custom-select custom-select-sm mb-2"
+                      [ngModel]="compareScenarioId" (ngModelChange)="onCompareScenario($event)">
+                <option value="">Functions that are already planned</option>
+                <option *ngFor="let s of scenarios" [value]="s.id">{{ s.name }}</option>
+              </select>
+
+              <div class="compare-row">
+                <span class="k">Today</span>
+                <span class="meter"><i [style.width.%]="totals.coverage * 100"
+                                       [style.background]="colorOf('gap')"></i></span>
+                <span class="v">{{ percent(totals.coverage) }}</span>
+              </div>
+              <div class="compare-row">
+                <span class="k">{{ targetLabel }}</span>
+                <span class="meter"><i [style.width.%]="targetCoverage * 100"
+                                       [style.background]="colorOf('planned')"></i></span>
+                <span class="v">{{ percent(targetCoverage) }}</span>
+              </div>
+              <p class="hero-note mb-0 mt-2">
+                The remaining {{ percent(1 - targetCoverage) }} is not planned anywhere yet.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-8 mb-4">
+        <div class="row">
+          <div class="col-6 col-xl-3 mb-3">
+            <div class="card shadow-sm h-100 tile">
+              <div class="card-body">
+                <span class="k">Processes with a gap</span>
+                <span class="v" [style.color]="colorOf('gap')">{{ totals.processesWithGap }}</span>
+                <span class="d">of {{ totals.processes }} in view</span>
+              </div>
+            </div>
+          </div>
+          <div class="col-6 col-xl-3 mb-3">
+            <div class="card shadow-sm h-100 tile">
+              <div class="card-body">
+                <span class="k">Functions to build</span>
+                <span class="v">{{ totals.openItems }}</span>
+                <span class="d">distinct pieces of work</span>
+              </div>
+            </div>
+          </div>
+          <div class="col-6 col-xl-3 mb-3">
+            <div class="card shadow-sm h-100 tile">
+              <div class="card-body">
+                <span class="k">Journeys affected</span>
+                <span class="v">{{ totals.journeysAffected }}</span>
+                <span class="d">of {{ totals.journeys }} journeys</span>
+              </div>
+            </div>
+          </div>
+          <div class="col-6 col-xl-3 mb-3">
+            <div class="card shadow-sm h-100 tile">
+              <div class="card-body">
+                <span class="k">Manual by design</span>
+                <span class="v text-muted">{{ totals.processesManual }}</span>
+                <span class="d">counted out of the score</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card shadow-sm">
+          <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+            <h5 class="mb-0 fw-bold">Support mix across all process steps</h5>
+            <span class="hint">Manual by design is counted out</span>
+          </div>
+          <div class="card-body">
+            <div class="mixbar" *ngIf="totals.activities > 0">
+              <i *ngIf="totals.live" [style.flex]="totals.live" [style.background]="colorOf('seamless')"
+                 [title]="'Seamless: ' + totals.live + ' of ' + totals.activities + ' steps'"></i>
+              <i *ngIf="totals.planned" [style.flex]="totals.planned" [style.background]="colorOf('planned')"
+                 [title]="'Planned: ' + totals.planned + ' of ' + totals.activities + ' steps'"></i>
+              <i *ngIf="totals.open" [style.flex]="totals.open" [style.background]="colorOf('gap')"
+                 [title]="'Gap: ' + totals.open + ' of ' + totals.activities + ' steps'"></i>
+            </div>
+            <div class="legend mt-2">
+              <span *ngIf="totals.live"><span class="dot" [style.background]="colorOf('seamless')"></span>
+                Seamless &middot; {{ totals.live }} steps &middot; {{ percent(totals.live / totals.activities) }}</span>
+              <span *ngIf="totals.planned"><span class="dot" [style.background]="colorOf('planned')"></span>
+                Planned &middot; {{ totals.planned }} steps &middot; {{ percent(totals.planned / totals.activities) }}</span>
+              <span *ngIf="totals.open"><span class="dot" [style.background]="colorOf('gap')"></span>
+                Gap &middot; {{ totals.open }} steps &middot; {{ percent(totals.open / totals.activities) }}</span>
+              <span *ngIf="totals.manual"><span class="dot" [style.background]="colorOf('manual')"></span>
+                Manual by design &middot; {{ totals.manual }} steps &middot; not counted</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <!-- Coverage board and roadmap -->
+      <div class="col-xl-8">
+
+        <div class="card shadow-sm mb-4">
+          <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+            <h5 class="mb-0 fw-bold"><i class="fas fa-th mr-2"></i> Coverage board</h5>
+            <span class="hint">One tile per process &middot; click a tile to see its steps</span>
+          </div>
+          <div class="card-body">
+            <div *ngIf="groups.length === 0" class="small font-italic text-muted">
+              Nothing matches these filters.
+            </div>
+
+            <div class="jrow" *ngFor="let group of groups; trackBy: trackByGroup">
+              <div class="jhead">
+                <span class="name">{{ group.journey.journeyName }}</span>
+                <span class="count">{{ group.processes.length }} process{{ group.processes.length === 1 ? '' : 'es' }}</span>
+                <span class="flex-fill"></span>
+                <span class="meter jmeter">
+                  <i [style.width.%]="group.coverage * 100" [style.background]="coverageColor(group.coverage)"></i>
+                </span>
+                <span class="jpct">{{ percent(group.coverage) }}</span>
+              </div>
+
+              <div class="ptiles">
+                <button type="button" class="ptile" *ngFor="let p of group.processes; trackBy: trackByProcess"
+                        [class.on]="p.processId === selectedId"
+                        [style.borderLeftColor]="colorOf(p.band)"
+                        (click)="select(p.processId)">
+                  <span class="pname">{{ p.processName }}</span>
+                  <span class="prole">{{ p.roleName }}</span>
+                  <span class="meter">
+                    <i [style.width.%]="p.coverage * 100" [style.background]="meterColor(p)"></i>
+                  </span>
+                  <span class="pfoot">
+                    <span class="badge-band" [style.color]="colorOf(p.band)">
+                      <app-gap-icon [band]="p.band" class="mr-1"></app-gap-icon>{{ bandLabels[p.band] }}
+                    </span>
+                    <span class="pcov" *ngIf="p.band !== 'manual'">{{ p.live }}/{{ p.counted }} steps</span>
+                    <span class="pcov" *ngIf="p.band === 'manual'">not counted</span>
+                  </span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card shadow-sm mb-4 roadmap">
+          <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+            <h5 class="mb-0 fw-bold"><i class="fas fa-tools mr-2"></i> Functions we have to build</h5>
+            <span class="hint">{{ openItems.length }} function{{ openItems.length === 1 ? '' : 's' }} &middot; sorted by priority</span>
+          </div>
+          <div class="card-body p-0">
+            <div *ngIf="openItems.length === 0" class="small font-italic text-muted p-3">
+              Nothing is open here &mdash; every step in view runs on a function or is manual by design.
+            </div>
+            <div class="table-responsive" *ngIf="openItems.length > 0">
+              <table class="table table-sm mb-0 roadmap-table">
+                <thead>
+                  <tr>
+                    <th>Function</th>
+                    <th>Closes the gap in</th>
+                    <th>Journey</th>
+                    <th>Role</th>
+                    <th>Priority</th>
+                    <th>Horizon</th>
+                    <th>In the model</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let item of openItems; trackBy: trackByItem">
+                    <td class="fn">
+                      <ng-container *ngIf="item.modelled">{{ item.name }}</ng-container>
+                      <span class="unnamed" *ngIf="!item.modelled">not named yet</span>
+                    </td>
+                    <td>
+                      {{ item.places[0].processName }}
+                      <span class="sub">
+                        {{ item.places[0].activityLabel }}<ng-container *ngIf="item.places.length > 1">
+                          &middot; and {{ item.places.length - 1 }} more place{{ item.places.length > 2 ? 's' : '' }}</ng-container>
+                      </span>
+                    </td>
+                    <td>
+                      <ng-container *ngIf="item.journeyNames.length">{{ item.journeyNames[0] }}</ng-container>
+                      <ng-container *ngIf="!item.journeyNames.length"><span class="text-muted">&mdash;</span></ng-container>
+                      <span class="sub" *ngIf="item.journeyNames.length > 1">+{{ item.journeyNames.length - 1 }} more</span>
+                    </td>
+                    <td>{{ item.roleNames.join(', ') }}</td>
+                    <td>
+                      <span class="prio" [style.color]="item.priority === 'high' ? colorOf('gap') : (item.priority === 'medium' ? colorOf('planned') : colorOf('manual'))">
+                        <i class="bullet" [style.background]="item.priority === 'high' ? colorOf('gap') : (item.priority === 'medium' ? colorOf('planned') : colorOf('manual'))"></i>
+                        {{ priorityLabels[item.priority] }}
+                      </span>
+                    </td>
+                    <td class="num">{{ item.horizon || '—' }}</td>
+                    <td>
+                      <span class="badge-band" *ngIf="item.modelled" [style.color]="colorOf('gap')">
+                        <app-gap-icon state="declared" class="mr-1"></app-gap-icon> Declared gap
+                      </span>
+                      <span class="badge-band text-muted" *ngIf="!item.modelled">
+                        <app-gap-icon state="missing" class="mr-1"></app-gap-icon> Not modelled
+                      </span>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- The selected process -->
+      <div class="col-xl-4">
+        <div class="card shadow-sm mb-4 panel" *ngIf="selected">
+          <div class="card-header bg-white py-3">
+            <div class="eyebrow">Process</div>
+            <h5 class="mb-0 fw-bold">{{ selected.processName }}</h5>
+            <div class="meta mt-2">
+              <span class="badge-band" [style.color]="colorOf(selected.band)">
+                <app-gap-icon [band]="selected.band" class="mr-1"></app-gap-icon>{{ bandLabels[selected.band] }}
+              </span>
+              <span>{{ selected.roleName }}</span>
+              <span>&middot;</span>
+              <span>{{ selected.live }} of {{ selected.counted }} steps live</span>
+            </div>
+          </div>
+
+          <ul class="steps list-unstyled mb-0">
+            <li *ngFor="let a of selected.activities; trackBy: trackByActivity">
+              <app-gap-icon class="icon" [state]="a.state" [size]="16" [style.color]="colorOfState(a.state)"></app-gap-icon>
+              <span class="body">
+                <span class="sname">{{ a.label }}</span>
+
+                <span class="sfn" *ngIf="a.apiCallName">{{ a.apiCallName }}</span>
+                <span class="sfn" *ngIf="a.subprocessName">
+                  <i class="fas fa-cube mr-1"></i>{{ a.subprocessName }}
+                </span>
+
+                <span class="stag" *ngIf="a.state === 'live'">
+                  Live in {{ a.systemNames.join(', ') }}
+                </span>
+                <span class="stag" *ngIf="a.state !== 'live'">{{ reasonText[a.reason] }}</span>
+
+                <span class="actions" *ngIf="(a.state === 'declared' || a.state === 'missing') && !a.subprocessId">
+                  <button type="button" class="btn btn-sm btn-outline-primary"
+                          *ngIf="a.apiCallId" [disabled]="saving" (click)="markPlanned(a)">
+                    Mark as planned
+                  </button>
+                  <button type="button" class="btn btn-sm btn-outline-primary"
+                          *ngIf="!a.apiCallId && planningKey !== a.key" [disabled]="saving" (click)="startPlanning(a)">
+                    Plan a function
+                  </button>
+
+                  <span class="planning" *ngIf="planningKey === a.key">
+                    <input class="form-control form-control-sm" placeholder="Name of the function"
+                           [(ngModel)]="planningName" (keyup.enter)="planFunction(a)" autofocus>
+                    <button type="button" class="btn btn-sm btn-primary" [disabled]="saving || !planningName.trim()"
+                            (click)="planFunction(a)">Add</button>
+                    <button type="button" class="btn btn-sm btn-link" (click)="cancelPlanning()">Cancel</button>
+                  </span>
+                </span>
+              </span>
+            </li>
+          </ul>
+
+          <div class="card-body panel-foot">
+            <p class="plan-note" *ngIf="openActivities.length && !isManualByDesign">
+              To make this process seamless we need
+              <strong>{{ openActivities.length }} function{{ openActivities.length === 1 ? '' : 's' }}</strong>.
+              Adding them as planned functions puts them on the roadmap and into the target picture.
+            </p>
+            <p class="plan-note" *ngIf="!openActivities.length && !isManualByDesign">
+              Every step of this process runs on a function. Nothing to build.
+            </p>
+            <p class="plan-note" *ngIf="isManualByDesign">
+              A person does this on purpose, so it is counted out of the score.
+            </p>
+
+            <p class="plan-note quoted" *ngIf="selected.note">&ldquo;{{ selected.note }}&rdquo;</p>
+
+            <div class="d-flex flex-wrap gap-btns">
+              <button type="button" class="btn btn-sm btn-outline-secondary" [disabled]="saving" (click)="toggleManual()">
+                <i class="fas fa-hand-paper mr-1"></i>
+                {{ isManualByDesign ? 'Count it again' : 'Manual by design' }}
+              </button>
+              <button type="button" class="btn btn-sm btn-outline-secondary" (click)="planOpen = !planOpen">
+                <i class="fas fa-flag mr-1"></i> Priority and horizon
+              </button>
+              <a class="btn btn-sm btn-outline-secondary" [routerLink]="['/process/view', selected.processId]">
+                <i class="fas fa-external-link-alt mr-1"></i> Open process
+              </a>
+            </div>
+
+            <div class="plan-form mt-3" *ngIf="planOpen">
+              <div class="form-group mb-2">
+                <label class="small mb-1">Priority</label>
+                <select class="custom-select custom-select-sm" [(ngModel)]="planPriority">
+                  <option value="">Not set</option>
+                  <option *ngFor="let p of priorities" [value]="p">{{ priorityLabels[p] }}</option>
+                </select>
+              </div>
+              <div class="form-group mb-2">
+                <label class="small mb-1">Horizon</label>
+                <input class="form-control form-control-sm" placeholder="Q3 2027" [(ngModel)]="planHorizon">
+              </div>
+              <div class="form-group mb-2">
+                <label class="small mb-1">Owner</label>
+                <input class="form-control form-control-sm" placeholder="Who drives it" [(ngModel)]="planOwner">
+              </div>
+              <div class="form-group mb-2">
+                <label class="small mb-1">Note</label>
+                <textarea class="form-control form-control-sm" rows="2"
+                          placeholder="What is missing and why it matters" [(ngModel)]="planNote"></textarea>
+              </div>
+              <button type="button" class="btn btn-sm btn-primary" [disabled]="saving" (click)="savePlanForm()">
+                Save plan
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </ng-container>
+</div>
