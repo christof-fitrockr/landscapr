@@ -64,6 +64,13 @@
       <input id="expActual" type="text" class="form-control" [(ngModel)]="model.actual" placeholder="e.g. 6 min" />
     </div>
   </div>
+
+  <div class="form-group">
+    <label for="expJira" class="small text-muted">Jira Ticket</label>
+    <input id="expJira" type="text" class="form-control" [(ngModel)]="model.jiraTicket"
+           placeholder="e.g. ABC-123, ABC-124" />
+    <app-jira-link class="d-block mt-1" [ticket]="model.jiraTicket" [compact]="true"></app-jira-link>
+  </div>
 </div>
 <div class="modal-footer justify-content-between">
   <button class="btn btn-outline-danger" *ngIf="isEdit" (click)="remove()">

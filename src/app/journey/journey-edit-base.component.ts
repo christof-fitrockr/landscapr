@@ -25,7 +25,8 @@ export class JourneyEditBaseComponent implements OnInit, OnDestroy {
       name: ['', Validators.required],
       description: [''],
       status: [0],
-      tags: ['']
+      tags: [''],
+      jiraTicket: ['']
     });
 
     // subscribe to parent route id (for edit)

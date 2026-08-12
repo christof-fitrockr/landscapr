@@ -111,6 +111,8 @@ import {RoleEditComponent} from './settings/role-edit/role-edit.component';
 import {LandscapeEditorComponent} from './landscape/landscape-editor.component';
 import {LandscapeInspectorComponent} from './landscape/landscape-inspector.component';
 import {ScenarioEditModalComponent} from './landscape/scenario-edit-modal.component';
+import {JiraSettingsComponent} from './settings/jira-settings/jira-settings.component';
+import {JiraLinkComponent} from './components/jira-link.component';
 
 
 @NgModule({
@@ -121,6 +123,8 @@ import {ScenarioEditModalComponent} from './landscape/scenario-edit-modal.compon
     SettingsComponent,
     RoleListComponent,
     RoleEditComponent,
+    JiraSettingsComponent,
+    JiraLinkComponent,
     ExportModalComponent,
     CommentsPanelComponent,
     HelpComponent,

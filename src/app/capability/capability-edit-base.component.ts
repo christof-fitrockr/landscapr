@@ -33,7 +33,8 @@ export class CapabilityEditBaseComponent implements OnInit, OnDestroy {
       status: [0],
       description: [''],
       tags: [],
-      parentId: [null]
+      parentId: [null],
+      jiraTicket: ['']
     });
 
     this.subscription = this.route.parent.paramMap.subscribe(obs => {

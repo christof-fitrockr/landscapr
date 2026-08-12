@@ -14,6 +14,7 @@
   <td>
     <a class="font-weight-bold" routerLink="/capability/edit/{{capability?.id}}">{{capability.name}}</a>
     <i *ngIf="orphanIds.includes(capability.id)" class="ml-2 text-warning fas fa-unlink" title="Orphan: No systems and no functions assigned"></i>
+    <app-jira-link class="ml-2" [ticket]="capability.jiraTicket" [compact]="true"></app-jira-link>
   </td>
   <td class="text-right text-muted small" style="width: 100px">
     {{capability.recursiveSystemCount}}

@@ -7,6 +7,8 @@ export class Application {
   url: string;
   systemCluster: string;
   tags: string[];
+  /** Jira issues that carry the work on this system, e.g. 'ABC-12, ABC-13' */
+  jiraTicket?: string;
 
   status: DataStatus
 }

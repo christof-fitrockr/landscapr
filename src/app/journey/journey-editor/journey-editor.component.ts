@@ -932,7 +932,8 @@ export class JourneyEditorComponent implements OnInit, OnChanges {
       persona: (draft.persona || '').trim() || undefined,
       metric: (draft.metric || '').trim() || undefined,
       target: (draft.target || '').trim() || undefined,
-      actual: (draft.actual || '').trim() || undefined
+      actual: (draft.actual || '').trim() || undefined,
+      jiraTicket: (draft.jiraTicket || '').trim() || undefined
     };
 
     if (existing) {

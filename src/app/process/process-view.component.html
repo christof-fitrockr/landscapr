@@ -57,6 +57,13 @@
       <div class="p-2 bg-light rounded border">{{ selectedApi.output || 'No output data defined' }}</div>
     </div>
 
+    <div class="mb-3" *ngIf="selectedApi.jiraTicket">
+      <label class="font-weight-bold small text-uppercase text-gray-500">Jira</label>
+      <div class="p-2 bg-light rounded border">
+        <app-jira-link [ticket]="selectedApi.jiraTicket" [compact]="true"></app-jira-link>
+      </div>
+    </div>
+
     <div class="mb-3" *ngIf="selectedApiSystemName">
       <label class="font-weight-bold small text-uppercase text-gray-500">Implemented By</label>
       <div class="p-2 bg-light rounded border cursor-pointer hover-highlight" (click)="onSystemClick(selectedApi.implementedBy[0])" title="Click to view System details">
@@ -79,6 +86,12 @@
        <div class="p-2 bg-light rounded border">
          <a *ngIf="selectedSystem.url" [href]="selectedSystem.url" target="_blank">{{ selectedSystem.url }}</a>
          <span *ngIf="!selectedSystem.url">No URL</span>
+       </div>
+    </div>
+    <div class="mb-3" *ngIf="selectedSystem.jiraTicket">
+       <label class="font-weight-bold small text-uppercase text-gray-500">Jira</label>
+       <div class="p-2 bg-light rounded border">
+         <app-jira-link [ticket]="selectedSystem.jiraTicket" [compact]="true"></app-jira-link>
        </div>
     </div>
   </div>

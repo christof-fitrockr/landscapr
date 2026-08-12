@@ -7,6 +7,7 @@
 <div class="modal-body">
   <p *ngIf="system?.description" style="white-space: pre-wrap;">{{system?.description}}</p>
   <p *ngIf="!system?.description" class="text-muted font-italic">No description available.</p>
+  <app-jira-link class="d-block mt-2" [ticket]="system?.jiraTicket"></app-jira-link>
 </div>
 <div class="modal-footer">
   <button type="button" class="btn btn-secondary" (click)="bsModalRef.hide()">Close</button>

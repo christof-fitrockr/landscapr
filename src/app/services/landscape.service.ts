@@ -655,6 +655,7 @@ export class LandscapeService {
           journey.description = values.description ?? journey.description;
           journey.status = values.status ?? journey.status;
           journey.tags = values.tags ?? journey.tags;
+          journey.jiraTicket = values.jiraTicket ?? journey.jiraTicket;
         });
       case 'process':
         return this.updateProcess(source, node.entityId, process => {
@@ -662,6 +663,7 @@ export class LandscapeService {
           process.description = values.description ?? process.description;
           process.status = (values.status ?? process.status) as Status;
           process.tags = values.tags ?? process.tags;
+          process.jiraTicket = values.jiraTicket ?? process.jiraTicket;
         });
       case 'capability':
         return this.updateCapability(source, node.entityId, capability => {
@@ -669,6 +671,7 @@ export class LandscapeService {
           capability.description = values.description ?? capability.description;
           capability.status = values.status ?? capability.status;
           capability.tags = values.tags ?? capability.tags;
+          capability.jiraTicket = values.jiraTicket ?? capability.jiraTicket;
         });
       case 'api':
         return this.updateApiCall(source, node.entityId, api => {
@@ -676,6 +679,7 @@ export class LandscapeService {
           api.description = values.description ?? api.description;
           api.status = values.status ?? api.status;
           api.tags = values.tags ?? api.tags;
+          api.jiraTicket = values.jiraTicket ?? api.jiraTicket;
         });
       case 'data':
         return this.updateData(source, node.entityId, data => {
@@ -683,6 +687,7 @@ export class LandscapeService {
           data.description = values.description ?? data.description;
           data.state = values.status ?? data.state;
           data.group = values.group ?? data.group;
+          data.jiraTicket = values.jiraTicket ?? data.jiraTicket;
         });
       case 'system':
         return this.updateApplication(source, node.entityId, system => {
@@ -690,6 +695,7 @@ export class LandscapeService {
           system.description = values.description ?? system.description;
           system.status = values.status ?? system.status;
           system.tags = values.tags ?? system.tags;
+          system.jiraTicket = values.jiraTicket ?? system.jiraTicket;
         });
       case 'experience':
         return this.updateExpectation(source, node.entityId, values);
@@ -812,7 +818,12 @@ export class LandscapeService {
     }
     return this.updateJourney(source, journey.id, updated => {
       updated.layout!.expectations = (updated.layout!.expectations || []).map(exp => exp.id === expectationId
-        ? { ...exp, title: (values.name || '').trim() || exp.title, expectation: values.description ?? exp.expectation }
+        ? {
+            ...exp,
+            title: (values.name || '').trim() || exp.title,
+            expectation: values.description ?? exp.expectation,
+            jiraTicket: values.jiraTicket ?? exp.jiraTicket
+          }
         : exp);
     });
   }
@@ -880,4 +891,6 @@ export interface LandscapeElementValues {
   status?: number;
   tags?: string[];
   group?: string;
+  /** Jira issues the work on this element is tracked in */
+  jiraTicket?: string;
 }

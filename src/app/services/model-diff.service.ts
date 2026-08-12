@@ -82,6 +82,7 @@ const FIELD_LABELS: { [field: string]: string } = {
   systemCluster: 'System cluster',
   url: 'URL',
   contact: 'Contact',
+  jiraTicket: 'Jira ticket',
   link: 'Link',
   layout: 'Diagram',
   steps: 'Process steps',

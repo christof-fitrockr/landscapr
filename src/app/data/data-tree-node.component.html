@@ -34,6 +34,7 @@
         <td>
           <a class="font-weight-bold text-dark" [routerLink]="['../edit', data.id]">{{data.name}}</a>
           <i *ngIf="data.link" class="fas fa-link ml-2 text-muted small" title="External Link"></i>
+          <app-jira-link class="ml-2" [ticket]="data.jiraTicket" [compact]="true"></app-jira-link>
         </td>
 
         <!-- 3. Description -->
