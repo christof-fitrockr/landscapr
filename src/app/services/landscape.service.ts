@@ -698,6 +698,50 @@ export class LandscapeService {
     }
   }
 
+  /**
+   * Takes an element out of the model of today and out of the snapshot.
+   *
+   * This is the one planning step that touches reality on purpose: an element
+   * that was modelled as if it existed turns out to be an intention, so it
+   * leaves today and lives on in the target picture that carries it. The
+   * planning mode is therefore not consulted here.
+   */
+  deleteElement(source: LandscapeSource, node: LandscapeNode): Observable<void> {
+    // the stored state is read back afterwards, because deleting can reach
+    // further than the element itself: a capability re-parents its children, a
+    // data object takes its sub objects with it
+    const refresh = <T>(collection: T[], reload: Observable<T[]>): Observable<void> => reload.pipe(
+      take(1),
+      map(items => {
+        collection.splice(0, collection.length, ...(items || []));
+        return undefined;
+      })
+    );
+
+    switch (node.layer) {
+      case 'journey':
+        return this.journeyService.delete(node.entityId)
+          .pipe(switchMap(() => refresh(source.journeys, this.journeyService.all())));
+      case 'process':
+        return this.processService.delete(node.entityId)
+          .pipe(switchMap(() => refresh(source.processes, this.processService.all())));
+      case 'capability':
+        return this.capabilityService.delete(node.entityId)
+          .pipe(switchMap(() => refresh(source.capabilities, this.capabilityService.all(null as any))));
+      case 'api':
+        return this.apiCallService.delete(node.entityId)
+          .pipe(switchMap(() => refresh(source.apiCalls, this.apiCallService.all())));
+      case 'data':
+        return this.dataService.delete(node.entityId)
+          .pipe(switchMap(() => refresh(source.data, this.dataService.all())));
+      case 'system':
+        return this.applicationService.delete(node.entityId)
+          .pipe(switchMap(() => refresh(source.applications, this.applicationService.all(null as any))));
+      default:
+        return throwError(new Error('Elements of this layer only exist inside the element they belong to'));
+    }
+  }
+
   // ---------------------------------------------------------------------------
   // View persistence
   // ---------------------------------------------------------------------------
