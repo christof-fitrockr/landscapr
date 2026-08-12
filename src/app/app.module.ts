@@ -111,12 +111,16 @@ import {RoleEditComponent} from './settings/role-edit/role-edit.component';
 import {LandscapeEditorComponent} from './landscape/landscape-editor.component';
 import {LandscapeInspectorComponent} from './landscape/landscape-inspector.component';
 import {ScenarioEditModalComponent} from './landscape/scenario-edit-modal.component';
+import {GapOverviewComponent} from './gaps/gap-overview.component';
+import {GapIconComponent} from './gaps/gap-icon.component';
 import {JiraSettingsComponent} from './settings/jira-settings/jira-settings.component';
 import {JiraLinkComponent} from './components/jira-link.component';
 
 
 @NgModule({
   declarations: [
+    GapOverviewComponent,
+    GapIconComponent,
     LandscapeEditorComponent,
     LandscapeInspectorComponent,
     ScenarioEditModalComponent,

@@ -25,6 +25,7 @@ export class HelpComponent implements OnInit {
     { id: 'landscape', title: 'Landscape', file: 'assets/help/landscape.md', content: '' },
     { id: 'journeys', title: 'Journeys', file: 'assets/help/journeys.md', content: '' },
     { id: 'process', title: 'Process', file: 'assets/help/process.md', content: '' },
+    { id: 'gaps', title: 'Process Gaps', file: 'assets/help/gaps.md', content: '' },
     { id: 'api-call', title: 'Api Call', file: 'assets/help/api-call.md', content: '' },
     { id: 'capability', title: 'Capability', file: 'assets/help/capability.md', content: '' },
     { id: 'system', title: 'System', file: 'assets/help/system.md', content: '' },

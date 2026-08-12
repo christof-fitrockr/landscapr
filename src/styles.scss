@@ -7,6 +7,16 @@
 :root {
   --navbar-height: 56px;
   --submenu-height: 56px;
+
+  // How well a process is supported by functions. Three colours carry the
+  // message - green works, blue is planned, red is open - chosen so that no
+  // two of them collapse into one for a colour-blind reader on a white
+  // surface. A declared gap and one nobody wrote down share the red; the icon
+  // and the word tell them apart, never the colour on its own.
+  --gap-seamless: #059669;
+  --gap-planned: #0284c7;
+  --gap-open: #dc2626;
+  --gap-manual: #94a3b8;
 }
 
 // 1. Configuration and Variables

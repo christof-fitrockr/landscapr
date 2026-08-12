@@ -1,5 +1,6 @@
 import { Comment } from './comment';
 import {ApiCall} from './api-call';
+import {GapPriority} from './gap.model';
 
 export class Process {
   id: string;
@@ -18,7 +19,27 @@ export class Process {
   /** Jira issues that carry the work on this process, e.g. 'ABC-12, ABC-13' */
   jiraTicket?: string;
   comments?: Comment[];
+  /** what is meant to happen about the missing support, see ProcessSupportPlan */
+  supportPlan?: ProcessSupportPlan;
 }
+
+/**
+ * What the organisation intends to do about a process that runs without
+ * functional support. It turns a finding into a statement someone stands
+ * behind, which is what a management view has to show.
+ */
+export interface ProcessSupportPlan {
+  /** 'manualByDesign' takes the process out of the gap count on purpose */
+  intent: SupportIntent;
+  /** what is missing and why it matters, in business words */
+  note?: string;
+  priority?: GapPriority;
+  /** when it should be closed, free text like 'Q3 2027' */
+  horizon?: string;
+  owner?: string;
+}
+
+export type SupportIntent = 'automate' | 'manualByDesign';
 
 export enum Role {
   Customer = 0,
