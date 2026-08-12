@@ -12,6 +12,8 @@ export class ApiCall {
   apiGroup?: string;
   // New: documentation link for the API
   documentation?: string;
+  /** Jira issues that carry the work on this function, e.g. 'ABC-12, ABC-13' */
+  jiraTicket?: string;
 
   implementedBy: string[];
 

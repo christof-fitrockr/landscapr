@@ -11,6 +11,8 @@ export class Capability {
   childrenIds?: string[]; // optional denormalized children list for convenience
   status: DataStatus;
   tags:string[];
+  /** Jira issues that carry the work on this capability, e.g. 'ABC-12, ABC-13' */
+  jiraTicket?: string;
 }
 
 

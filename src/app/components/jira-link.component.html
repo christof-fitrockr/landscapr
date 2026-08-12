@@ -1,0 +1,14 @@
+<span class="jira-links" *ngIf="links.length > 0">
+  <span class="text-muted small mr-1" *ngIf="label && !compact">{{label}}</span>
+  <ng-container *ngFor="let link of links">
+    <a class="badge badge-light jira-ticket mr-1" *ngIf="link.url"
+       [href]="link.url" target="_blank" rel="noopener noreferrer"
+       [title]="'Open ' + link.key + ' in Jira'">
+      <i class="fab fa-jira mr-1"></i>{{link.key}}
+    </a>
+    <span class="badge badge-light jira-ticket mr-1 text-muted" *ngIf="!link.url"
+          title="Set the Jira address under Settings to turn this into a link">
+      <i class="fab fa-jira mr-1"></i>{{link.key}}
+    </span>
+  </ng-container>
+</span>

@@ -45,6 +45,7 @@ export interface ExperienceExpectation {
   metric?: string; // name of the measure used to verify the outcome
   target?: string; // target value of the measure
   actual?: string; // measured value of the measure
+  jiraTicket?: string; // Jira issues that carry the work on this expectation
 }
 
 export interface JourneyLayout {
@@ -67,6 +68,8 @@ export interface Journey {
   comments?: Comment[];
   status: DataStatus;
   tags: string[];
+  /** Jira issues that carry the work on this journey, e.g. 'ABC-12, ABC-13' */
+  jiraTicket?: string;
 }
 
 export enum DataStatus {

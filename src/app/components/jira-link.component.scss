@@ -1,0 +1,18 @@
+.jira-ticket {
+  border: 1px solid #dee2e6;
+  font-weight: 500;
+  white-space: nowrap;
+
+  &:hover {
+    text-decoration: none;
+  }
+}
+
+a.jira-ticket {
+  color: #0052cc;
+
+  &:hover {
+    background-color: #e7f0ff;
+    border-color: #0052cc;
+  }
+}

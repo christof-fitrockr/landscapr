@@ -41,6 +41,7 @@ import {SettingsComponent} from './settings/settings.component';
 import {LandscapeEditorComponent} from './landscape/landscape-editor.component';
 import {RoleListComponent} from './settings/role-list/role-list.component';
 import {RoleEditComponent} from './settings/role-edit/role-edit.component';
+import {JiraSettingsComponent} from './settings/jira-settings/jira-settings.component';
 
 const routes: Routes = [
 
@@ -130,6 +131,7 @@ const routes: Routes = [
       { path: '', component: SettingsComponent, canActivate: [AuthGuard] },
       { path: 'roles', component: RoleListComponent, canActivate: [AuthGuard] },
       { path: 'roles/edit/:id', component: RoleEditComponent, canActivate: [AuthGuard] },
+      { path: 'jira', component: JiraSettingsComponent, canActivate: [AuthGuard] },
   ] },
   { path: 'privacyPolicy', component: PrivacyPolicyComponent},
   { path: 'disclaimer', component: DisclaimerComponent},

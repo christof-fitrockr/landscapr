@@ -11,6 +11,7 @@ export interface ExperienceExpectationDraft {
   metric: string;
   target: string;
   actual: string;
+  jiraTicket: string;
 }
 
 @Component({
@@ -33,7 +34,8 @@ export class ExperienceExpectationModalComponent {
     persona: '',
     metric: '',
     target: '',
-    actual: ''
+    actual: '',
+    jiraTicket: ''
   };
 
   fulfilments: { key: ExperienceFulfilment; label: string; hint: string }[] = [
@@ -59,7 +61,8 @@ export class ExperienceExpectationModalComponent {
       persona: expectation.persona || '',
       metric: expectation.metric || '',
       target: expectation.target || '',
-      actual: expectation.actual || ''
+      actual: expectation.actual || '',
+      jiraTicket: expectation.jiraTicket || ''
     };
   }
 

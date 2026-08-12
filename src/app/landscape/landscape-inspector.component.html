@@ -145,6 +145,13 @@
              [(ngModel)]="tagsText" (change)="onTagsChange()" />
     </div>
 
+    <div class="form-group">
+      <label for="inspectorJira" class="small text-muted">Jira Ticket</label>
+      <input id="inspectorJira" type="text" class="form-control form-control-sm"
+             placeholder="e.g. ABC-123, ABC-124" [(ngModel)]="values.jiraTicket" />
+      <app-jira-link class="d-block mt-1" [ticket]="values.jiraTicket" [compact]="true"></app-jira-link>
+    </div>
+
     <div class="d-flex">
       <button type="button" class="btn btn-primary btn-sm mr-2" (click)="save()">
         <i class="fas fa-save mr-1"></i> Save

@@ -144,7 +144,8 @@ export class LandscapeInspectorComponent implements OnChanges {
       description: this.entityValue('description') ?? '',
       status: this.entityStatus(),
       group: this.entityValue('group') ?? '',
-      tags: this.entityValue('tags') || []
+      tags: this.entityValue('tags') || [],
+      jiraTicket: this.entityValue('jiraTicket') ?? ''
     };
     this.tagsText = (this.values.tags || []).join(', ');
     this.relations = this.buildRelations(this.node);
