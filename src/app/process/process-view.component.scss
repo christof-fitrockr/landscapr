@@ -31,3 +31,49 @@
   flex-direction: column;
   min-height: calc(100vh - var(--navbar-height) - var(--submenu-height));
 }
+
+/* One step up out of a process, into what uses it */
+.up-control {
+  position: relative;
+}
+
+.up-control .up-name {
+  display: inline-block;
+  max-width: 16rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  vertical-align: bottom;
+}
+
+.up-menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  z-index: 1030;
+  min-width: 16rem;
+  max-width: 26rem;
+  background: #fff;
+  border: 1px solid #dee2e6;
+  border-radius: 4px;
+  padding: 4px 0;
+}
+
+.up-menu-item {
+  display: block;
+  width: 100%;
+  border: 0;
+  background: transparent;
+  text-align: left;
+  padding: 6px 12px;
+  font-size: 0.875rem;
+  color: #495057;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+}
+
+.up-menu-item:hover {
+  background: #f1f3f5;
+}

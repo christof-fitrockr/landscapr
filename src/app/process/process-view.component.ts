@@ -1,5 +1,6 @@
 import {Component, Input, OnChanges, OnInit, SimpleChanges, ViewChild, OnDestroy} from '@angular/core';
 import {ProcessService} from '../services/process.service';
+import {JourneyService} from '../services/journey.service';
 import {Process} from '../models/process';
 import {FormBuilder} from '@angular/forms';
 import {ActivatedRoute, Router} from '@angular/router';
@@ -25,6 +26,10 @@ export class ProcessViewComponent implements OnInit, OnChanges, OnDestroy {
   process: Process;
   loading: boolean = false;
   parents: Process[];
+  /** where this process is used, so there is always a way back up */
+  upTargets: { kind: 'process' | 'journey'; id: string; name: string }[] = [];
+  showUpMenu = false;
+  private journeysContaining: any[] = [];
   selectedProcess: Process;
   selectedSubprocesses: Process[];
   selectedFunctions: ApiCall[];
@@ -53,7 +58,8 @@ export class ProcessViewComponent implements OnInit, OnChanges, OnDestroy {
       private toastr: ToastrService,
       private flowViewService: FlowViewService,
       private applicationService: ApplicationService,
-      private modalService: BsModalService
+      private modalService: BsModalService,
+      private journeyService: JourneyService
   ) {
       this.selectionSubscription = this.flowViewService.selection$.subscribe(selection => {
           if (selection.type === 'api') {
@@ -114,8 +120,40 @@ export class ProcessViewComponent implements OnInit, OnChanges, OnDestroy {
       });
 
     this.processService.allParents(this.processId).pipe(first()).subscribe( result => {
-      this.parents = result
+      this.parents = result;
+      this.buildUpTargets();
     });
+
+    this.journeyService.all().pipe(first()).subscribe(journeys => {
+      this.journeysContaining = (journeys || []).filter(journey =>
+        ((journey.layout && journey.layout.nodes) || []).some(node => node.processId === this.processId));
+      this.buildUpTargets();
+    });
+  }
+
+  /**
+   * Everything this process sits inside: the processes that call it as a step,
+   * and the journeys that walk through it. Drilling down was always possible -
+   * this is what makes the way back up possible too.
+   */
+  private buildUpTargets(): void {
+    const fromProcesses = (this.parents || []).map(parent =>
+      ({ kind: 'process' as const, id: parent.id, name: parent.name || '(unnamed process)' }));
+    const fromJourneys = (this.journeysContaining || []).map(journey =>
+      ({ kind: 'journey' as const, id: journey.id, name: journey.name || '(unnamed journey)' }));
+    this.upTargets = [...fromProcesses, ...fromJourneys];
+  }
+
+  /** One step up: into the process that calls this one, or onto the journey it is on */
+  goUp(target?: { kind: 'process' | 'journey'; id: string }): void {
+    const step = target || this.upTargets[0];
+    this.showUpMenu = false;
+    if (!step) return;
+    if (step.kind === 'process') {
+      this.showProcess(step.id);
+    } else {
+      this.router.navigate(['/journeys/editor', step.id]);
+    }
   }
 
   processNodeClicked(processId: string) {

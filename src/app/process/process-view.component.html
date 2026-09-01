@@ -2,6 +2,25 @@
 
   <div class="d-flex justify-content-between align-items-center mb-4">
     <div class="btn-toolbar" role="toolbar">
+      <!-- One step up: into what calls this process, or onto the journey it is on -->
+      <div class="btn-group shadow-sm mr-2 up-control" *ngIf="upTargets.length > 0">
+        <button type="button" class="btn btn-outline-secondary" (click)="goUp()"
+                [title]="'Up to ' + upTargets[0].name">
+          <i class="fas fa-level-up-alt"></i>
+          <span class="d-none d-lg-inline ml-1 up-name">{{ upTargets[0].name }}</span>
+        </button>
+        <button type="button" class="btn btn-outline-secondary px-2" *ngIf="upTargets.length > 1"
+                (click)="showUpMenu = !showUpMenu" title="Everywhere this process is used">
+          <i class="fas fa-caret-down"></i>
+        </button>
+        <div class="up-menu shadow" *ngIf="showUpMenu">
+          <button type="button" class="up-menu-item" *ngFor="let target of upTargets" (click)="goUp(target)">
+            <i class="fas mr-2" [ngClass]="target.kind === 'journey' ? 'fa-map-signs' : 'fa-project-diagram'"></i>
+            {{ target.name }}
+          </button>
+        </div>
+      </div>
+
       <app-process-edit-nav [processId]="processId"></app-process-edit-nav>
       <div class="btn-group shadow-sm mr-2">
         <button type="button" class="btn btn-outline-secondary" title="Download as PDF" (click)="downloadPdf()"><i class="fas fa-file-pdf"></i></button>
