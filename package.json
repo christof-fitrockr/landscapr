@@ -11,7 +11,10 @@
     "e2e": "ng e2e",
     "buildDev": "node set-version.js && ng build",
     "buildWatch": "node set-version.js && ng build --watch=true",
-    "generate-licenses": "license-checker --json --out src/assets/licenses.json"
+    "generate-licenses": "license-checker --json --out src/assets/licenses.json",
+    "mcp": "node mcp/src/index.js",
+    "mcp:install": "npm --prefix mcp install",
+    "mcp:test": "npm --prefix mcp test"
   },
   "private": true,
   "dependencies": {

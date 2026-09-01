@@ -29,7 +29,8 @@ export class HelpComponent implements OnInit {
     { id: 'api-call', title: 'Api Call', file: 'assets/help/api-call.md', content: '' },
     { id: 'capability', title: 'Capability', file: 'assets/help/capability.md', content: '' },
     { id: 'system', title: 'System', file: 'assets/help/system.md', content: '' },
-    { id: 'repositories', title: 'Repositories', file: 'assets/help/repositories.md', content: '' }
+    { id: 'repositories', title: 'Repositories', file: 'assets/help/repositories.md', content: '' },
+    { id: 'ai-modelling', title: 'AI Modelling (MCP)', file: 'assets/help/ai-modelling.md', content: '' }
   ];
 
   filteredTopics: HelpTopic[] = [];

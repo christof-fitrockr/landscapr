@@ -252,6 +252,53 @@
       </div>
   </div>
 
+  <!-- Model with an AI assistant -->
+  <div class="card mb-3 shadow-sm" *ngIf="selectedRepo">
+    <div class="card-header bg-white d-flex justify-content-between align-items-center" (click)="isMcpCollapsed = !isMcpCollapsed" style="cursor: pointer">
+      <h5 class="mb-0 text-secondary">
+        <i class="fas mr-2" [ngClass]="isMcpCollapsed ? 'fa-chevron-right' : 'fa-chevron-down'"></i>
+        <i class="fas fa-robot mr-2"></i> Model with an AI assistant
+      </h5>
+      <span class="small text-muted">MCP server</span>
+    </div>
+    <div class="card-body" *ngIf="!isMcpCollapsed">
+      <p class="text-muted small mb-3">
+        LandscapR ships an MCP server, so an assistant such as Claude can model journeys, processes,
+        capabilities, functions, data objects and systems in this very model - and answer what breaks if
+        something is retired. It works on the same file you load here and commits its changes the same way,
+        so they reach the published model through a review. See <strong>Help &rarr; AI Modelling (MCP)</strong>
+        for the whole story.
+      </p>
+
+      <div class="mb-3">
+        <div class="d-flex justify-content-between align-items-center mb-1">
+          <span class="text-muted small text-uppercase fw-bold">Configuration for this model</span>
+          <button class="btn btn-sm btn-outline-secondary" (click)="copyToClipboard(mcpConfig, 'Configuration')">
+            <i class="far fa-copy"></i> Copy
+          </button>
+        </div>
+        <pre class="bg-light border rounded p-2 small mb-0" style="max-height: 260px; overflow: auto;"><code>{{ mcpConfig }}</code></pre>
+      </div>
+
+      <div class="mb-3">
+        <div class="d-flex justify-content-between align-items-center mb-1">
+          <span class="text-muted small text-uppercase fw-bold">Or on the command line</span>
+          <button class="btn btn-sm btn-outline-secondary" (click)="copyToClipboard(mcpCommandLine, 'Command')">
+            <i class="far fa-copy"></i> Copy
+          </button>
+        </div>
+        <pre class="bg-light border rounded p-2 small mb-0" style="overflow: auto;"><code>{{ mcpCommandLine }}</code></pre>
+      </div>
+
+      <div class="small text-muted">
+        <i class="fas fa-info-circle me-1"></i>
+        Run <code>npm install</code> in the <code>mcp</code> folder once, put the path to your checkout into the
+        snippet and use a personal access token that may read and write the repository - the same kind of token
+        you connected with. The token stays in your assistant's configuration; LandscapR never sends it anywhere.
+      </div>
+    </div>
+  </div>
+
   <!-- Local Data Actions (Secondary) -->
   <div class="card mb-3" *ngIf="selectedRepo">
       <div class="card-body py-2 d-flex justify-content-between align-items-center bg-light">
