@@ -25,6 +25,9 @@
 !.vscode/launch.json
 !.vscode/extensions.json
 
+# the model a local MCP session works on by default
+/landscape.json
+
 # misc
 /.sass-cache
 /connect.lock

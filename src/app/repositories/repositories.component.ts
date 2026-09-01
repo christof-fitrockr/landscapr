@@ -478,7 +478,8 @@ export class RepositoriesComponent implements OnInit, OnDestroy {
     const repo = this.selectedRepo?.name || 'your-model-repo';
     const path = this.selectedFilePath || 'model.json';
 
-    return `claude mcp add landscapr -e LANDSCAPR_GITHUB_TOKEN=your-personal-access-token ` +
+    // the server name must not follow -e directly, so -t stdio sits between them
+    return `claude mcp add -e LANDSCAPR_GITHUB_TOKEN=your-personal-access-token -t stdio landscapr ` +
       `-- node /path/to/landscapr/mcp/src/index.js --repo ${owner}/${repo} --path ${path} --branch ${this.currentBranch}`;
   }
 

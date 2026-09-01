@@ -112,10 +112,13 @@ upload it again.
 The **Repositories** page shows the ready-made snippet for the repository, file and branch you have selected,
 so you can copy it straight into your assistant's configuration.
 
+`mcp/CONNECT.md` in the repository walks through the whole setup step by step - including Claude Desktop and
+Cursor, how to check that the server answers, and what to do when it does not.
+
 For Claude Code the same thing in one line:
 
 ```bash
-claude mcp add landscapr -- node /path/to/landscapr/mcp/src/index.js --file /path/to/landscape.json
+claude mcp add -t stdio landscapr -- node /path/to/landscapr/mcp/src/index.js --file /path/to/landscape.json
 ```
 
 ## Nothing is overwritten by accident

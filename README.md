@@ -83,6 +83,11 @@ With a repository the assistant commits on a branch and opens a pull request, so
 published model through the same review as everybody else's. `--read-only` starts a server that answers
 questions and refuses changes.
 
+**[mcp/CONNECT.md](mcp/CONNECT.md) is the setup guide** — install, point the server at a file or a repository,
+register it with Claude Code, Claude Desktop or Cursor, and check that it answers. A checkout of this
+repository already carries a project-scoped `.mcp.json`, so Claude Code offers the server without any
+registration; set `LANDSCAPR_MODEL_FILE` to the model you want it to work on.
+
 The **Repositories** page prints the ready-made configuration for the repository and file you have selected,
 and `mcp/README.md` plus the in-app chapter *Help → AI Modelling (MCP)* describe the tools in full.
 

@@ -62,6 +62,9 @@ export class GithubBackend {
         `/repos/${this.owner}/${this.repo}/contents/${encodeURI(this.path)}?ref=${encodeURIComponent(this.branch)}`);
     } catch (error) {
       if (String(error.message).includes('(404)')) {
+        // GitHub answers 404 for "not there" and for "not yours to see" alike, so
+        // say which of the two it is instead of handing back an empty model
+        await this.assertReachable();
         this.sha = null;
         return { payload: null, revision: null };
       }
@@ -77,6 +80,26 @@ export class GithubBackend {
       return { payload: JSON.parse(raw), revision: file.sha };
     } catch (error) {
       throw new Error(`${this.path} in ${this.owner}/${this.repo} is not valid JSON: ${error.message}`);
+    }
+  }
+
+  /**
+   * Checks that the repository and the branch are really there before an empty
+   * answer is taken for an empty model.
+   */
+  async assertReachable() {
+    try {
+      await this.request('GET', `/repos/${this.owner}/${this.repo}`);
+    } catch (error) {
+      if (String(error.message).includes('(404)')) {
+        throw new Error(`${this.owner}/${this.repo} is not there, or the token cannot see it. ` +
+          'Check --repo and that the token may read this repository.');
+      }
+      throw error;
+    }
+
+    if (!(await this.branchExists(this.branch))) {
+      throw new Error(`${this.owner}/${this.repo} has no branch "${this.branch}". Check --branch.`);
     }
   }
 
