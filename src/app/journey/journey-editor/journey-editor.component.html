@@ -97,7 +97,7 @@
   <div class="card shadow-sm border-0 mb-4 h-100 flex-column-fill" [class.shadow-none]="isHeadless">
     <div class="card-body p-0 flex-column-fill">
       <div class="journey-editor">
-        <div class="canvas-wrapper" (contextmenu)="$event.preventDefault()">
+        <div class="canvas-wrapper" [class.is-panning]="isPanning" (contextmenu)="$event.preventDefault()">
           <svg #svgEl class="canvas" tabindex="0"
                (mousedown)="onCanvasMouseDown($event)"
                (mousemove)="onCanvasMouseMove($event)"
@@ -296,6 +296,21 @@
               </g>
             </g>
           </svg>
+
+          <div class="view-controls shadow-sm" role="group" aria-label="View">
+            <button type="button" (click)="fitToScreen()" title="Fit the whole journey into the view (0)">
+              <i class="fas fa-expand"></i>
+            </button>
+            <button type="button" (click)="zoomOut()" title="Zoom out (-)">
+              <i class="fas fa-minus"></i>
+            </button>
+            <button type="button" class="view-zoom" (click)="resetZoom()" title="Back to actual size">{{ zoomPercent }}%</button>
+            <button type="button" (click)="zoomIn()" title="Zoom in (+)">
+              <i class="fas fa-plus"></i>
+            </button>
+          </div>
+
+          <div class="view-hint" *ngIf="!isHeadless">Drag the background to move · scroll to zoom</div>
         </div>
 
         <div class="swimlane-overlay" *ngIf="selectedProcessIdForSwimlane">

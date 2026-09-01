@@ -176,9 +176,12 @@ export class JourneyEditorComponent implements OnInit, OnChanges {
   zoom = 1; // scale
   panX = 0;
   panY = 0;
-  private isPanning = false;
+  /** true while the view is being dragged, so the canvas can show the closed hand */
+  isPanning = false;
   private lastPanX = 0;
   private lastPanY = 0;
+  /** what the canvas looked like before a drag - only kept once something moves */
+  private pendingHistory: JourneyLayout | null = null;
 
   // Keyboard state
   private spacePressed = false;
@@ -431,6 +434,111 @@ export class JourneyEditorComponent implements OnInit, OnChanges {
     return this.redoStack.length > 0;
   }
 
+  /** Remembers the canvas before a drag; nothing is recorded until it moves */
+  private beginHistory(): void {
+    this.pendingHistory = this.buildLayout();
+  }
+
+  private commitHistory(): void {
+    if (!this.pendingHistory) return;
+    if (this.undoStack.length > 50) {
+      this.undoStack.shift();
+    }
+    this.undoStack.push(this.pendingHistory);
+    this.redoStack = [];
+    this.pendingHistory = null;
+  }
+
+  // ---------------------------------------------------------------------------
+  // Moving and sizing the view
+  // ---------------------------------------------------------------------------
+
+  /** The zoom as it is written on the button */
+  get zoomPercent(): number {
+    return Math.round(this.zoom * 100);
+  }
+
+  zoomIn(): void {
+    this.setZoom(this.zoom * 1.2);
+  }
+
+  zoomOut(): void {
+    this.setZoom(this.zoom / 1.2);
+  }
+
+  /** Back to actual size, with the middle of the view kept where it is */
+  resetZoom(): void {
+    this.setZoom(1);
+  }
+
+  /**
+   * Brings the whole journey into view - the one control that answers
+   * "where am I and what does this journey look like".
+   */
+  fitToScreen(): void {
+    const view = this.viewportSize();
+    const content = this.contentBounds();
+    if (!view || !content) return;
+
+    const margin = 48;
+    const scale = Math.min(
+      (view.width - 2 * margin) / content.width,
+      (view.height - 2 * margin) / content.height
+    );
+
+    this.zoom = Math.max(0.2, Math.min(2, scale));
+    this.panX = (view.width - content.width * this.zoom) / 2 - content.x * this.zoom;
+    this.panY = (view.height - content.height * this.zoom) / 2 - content.y * this.zoom;
+    this.scheduleSave();
+  }
+
+  /** Zooms about the middle of the view, so what is being looked at stays there */
+  private setZoom(next: number): void {
+    const clamped = Math.max(0.2, Math.min(4, next));
+    if (clamped === this.zoom) return;
+
+    const view = this.viewportSize();
+    const centerX = view ? view.width / 2 : 0;
+    const centerY = view ? view.height / 2 : 0;
+    const worldX = (centerX - this.panX) / this.zoom;
+    const worldY = (centerY - this.panY) / this.zoom;
+
+    this.zoom = clamped;
+    this.panX = centerX - worldX * this.zoom;
+    this.panY = centerY - worldY * this.zoom;
+    this.scheduleSave();
+  }
+
+  private viewportSize(): { width: number; height: number } | null {
+    const svg = this.svgEl && this.svgEl.nativeElement;
+    if (!svg || typeof svg.getBoundingClientRect !== 'function') return null;
+    const rect = svg.getBoundingClientRect();
+    return (rect.width && rect.height) ? { width: rect.width, height: rect.height } : null;
+  }
+
+  /** Everything that is drawn, the experience layer included */
+  private contentBounds(): { x: number; y: number; width: number; height: number } | null {
+    const boxes: { x: number; y: number; width: number; height: number }[] = this.nodes.map(n => ({
+      x: n.x, y: n.y, width: n.width, height: n.height
+    }));
+    if (this.showExperienceLayer && this.experienceBand) {
+      boxes.push({
+        x: this.experienceBand.x,
+        y: this.experienceBand.y,
+        width: this.experienceBand.width,
+        height: this.experienceBand.height
+      });
+    }
+    if (!boxes.length) return null;
+
+    const left = Math.min(...boxes.map(b => b.x));
+    const top = Math.min(...boxes.map(b => b.y));
+    const right = Math.max(...boxes.map(b => b.x + b.width));
+    const bottom = Math.max(...boxes.map(b => b.y + b.height));
+
+    return { x: left, y: top, width: Math.max(1, right - left), height: Math.max(1, bottom - top) };
+  }
+
   // ---------------------------------------------------------------------------
   // Arranging the canvas
   // ---------------------------------------------------------------------------
@@ -517,17 +625,24 @@ export class JourneyEditorComponent implements OnInit, OnChanges {
     switch (this.activeTool) {
       case 'select': {
         const hit = this.handleSelectDown(pt.x, pt.y);
-        // Start dragging selected nodes with left mouse button when clicking on a selected node
-        if (event.button === 0 && hit && hit.selected) {
-          this.pushStateToHistory();
-          this.isDraggingNodes = true;
-          this.dragStartMouseX = pt.x;
-          this.dragStartMouseY = pt.y;
-          this.dragStartPositions.clear();
-          this.nodes.filter(n => n.selected).forEach(n => {
-            this.dragStartPositions.set(n.id, { x: n.x, y: n.y });
-          });
+        if (event.button !== 0) {
+          break;
         }
+        if (!hit) {
+          // nothing under the pointer: dragging moves the view, which is what
+          // somebody looking at a journey reaches for first
+          this.startPan(event);
+          break;
+        }
+        // on a step: dragging moves the step, from the first press rather than the second
+        this.beginHistory();
+        this.isDraggingNodes = true;
+        this.dragStartMouseX = pt.x;
+        this.dragStartMouseY = pt.y;
+        this.dragStartPositions.clear();
+        this.nodes.filter(n => n.selected).forEach(n => {
+          this.dragStartPositions.set(n.id, { x: n.x, y: n.y });
+        });
         break;
       }
       case 'process':
@@ -633,6 +748,9 @@ export class JourneyEditorComponent implements OnInit, OnChanges {
       const pt = this.getSvgPoint(event);
       const dx = pt.x - this.dragStartMouseX;
       const dy = pt.y - this.dragStartMouseY;
+      if (dx || dy) {
+        this.commitHistory();
+      }
       this.dragStartPositions.forEach((pos, id) => {
         const n = this.nodes.find(nn => nn.id === id);
         if (n) {
@@ -1147,6 +1265,20 @@ export class JourneyEditorComponent implements OnInit, OnChanges {
         if (this.activeTool === 'select') {
           ev.preventDefault(); // avoid page scroll while holding space to pan
         }
+      }
+    }
+
+    // Fitting and zooming from the keyboard, next to the mouse
+    if (!typing && !ev.ctrlKey && !ev.metaKey && !ev.altKey) {
+      if (ev.key === '0') {
+        ev.preventDefault();
+        this.fitToScreen();
+      } else if (ev.key === '+' || ev.key === '=') {
+        ev.preventDefault();
+        this.zoomIn();
+      } else if (ev.key === '-') {
+        ev.preventDefault();
+        this.zoomOut();
       }
     }
 

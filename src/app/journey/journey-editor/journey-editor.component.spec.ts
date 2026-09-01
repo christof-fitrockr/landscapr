@@ -137,3 +137,149 @@ describe('JourneyEditorComponent experience layer', () => {
     expect(built.showExperienceLayer).toBeTrue();
   });
 });
+
+describe('JourneyEditorComponent moving and sizing the view', () => {
+  let component: JourneyEditorComponent;
+  let fixture: ComponentFixture<JourneyEditorComponent>;
+  let journey: Journey;
+
+  /** A press or a move of the mouse, as far as the editor is concerned */
+  const mouse = (clientX: number, clientY: number, button = 0): MouseEvent =>
+    ({ clientX, clientY, button, shiftKey: false, preventDefault: () => {}, stopPropagation: () => {} } as any);
+
+  beforeEach(async () => {
+    journey = {
+      id: 'j1', name: 'Journey', description: '', items: [], connections: [], status: 1, tags: [],
+      layout: {
+        panX: 0, panY: 0, zoom: 1,
+        nodes: [
+          { id: 'n1', type: 'process', label: 'Step 1', x: 100, y: 100, width: 120, height: 60, processId: 'p1' },
+          { id: 'n2', type: 'process', label: 'Step 2', x: 900, y: 400, width: 120, height: 60, processId: 'p2' }
+        ],
+        edges: [], expectations: [], showExperienceLayer: false
+      }
+    };
+
+    await TestBed.configureTestingModule({
+      imports: [HttpClientTestingModule, RouterTestingModule, FormsModule, NgSelectModule, ModalModule.forRoot()],
+      declarations: [JourneyEditorComponent],
+      providers: [
+        { provide: JourneyService, useValue: { byId: () => of(journey), update: (_id: string, u: Journey) => of(u) } },
+        { provide: ProcessService, useValue: { all: () => of([]) } },
+        { provide: RoleService, useValue: { getRoleColor: () => '#ffffff' } }
+      ],
+      schemas: [NO_ERRORS_SCHEMA]
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(JourneyEditorComponent);
+    component = fixture.componentInstance;
+    component.journeyId = 'j1';
+    fixture.detectChanges();
+
+    // a view of a known size, so fitting can be reasoned about
+    component['svgEl'].nativeElement.getBoundingClientRect = () =>
+      ({ width: 800, height: 600, x: 0, y: 0, top: 0, left: 0, right: 800, bottom: 600, toJSON: () => ({}) } as DOMRect);
+  });
+
+  it('moves the view when the background is dragged', () => {
+    component['getSvgPoint'] = () => ({ x: 5000, y: 5000 }); // nowhere near a step
+
+    component.onCanvasMouseDown(mouse(300, 300));
+    component.onCanvasMouseMove(mouse(340, 320));
+
+    expect(component.panX).toBe(40);
+    expect(component.panY).toBe(20);
+    expect(component.nodes.map(n => n.x)).toEqual([100, 900]);
+  });
+
+  it('shows the closed hand while the view is being dragged, and lets go afterwards', () => {
+    component['getSvgPoint'] = () => ({ x: 5000, y: 5000 });
+
+    component.onCanvasMouseDown(mouse(300, 300));
+    expect(component.isPanning).toBeTrue();
+
+    component.onCanvasMouseUp(mouse(300, 300));
+    expect(component.isPanning).toBeFalse();
+  });
+
+  it('moves the step when a step is dragged, and leaves the view where it is', () => {
+    let point = { x: 150, y: 130 }; // inside the first step
+    component['getSvgPoint'] = () => point;
+
+    component.onCanvasMouseDown(mouse(150, 130));
+    point = { x: 200, y: 160 };
+    component.onCanvasMouseMove(mouse(200, 160));
+
+    expect(component.nodes[0].x).toBe(150);
+    expect(component.nodes[0].y).toBe(130);
+    expect(component.panX).toBe(0);
+    expect(component.panY).toBe(0);
+  });
+
+  it('does not record a step that was only clicked as something to undo', () => {
+    component['getSvgPoint'] = () => ({ x: 150, y: 130 });
+
+    component.onCanvasMouseDown(mouse(150, 130));
+    component.onCanvasMouseUp(mouse(150, 130));
+
+    expect(component.nodes[0].selected).toBeTrue();
+    expect(component.canUndo()).toBeFalse();
+  });
+
+  it('records a step that was actually moved', () => {
+    let point = { x: 150, y: 130 };
+    component['getSvgPoint'] = () => point;
+
+    component.onCanvasMouseDown(mouse(150, 130));
+    point = { x: 220, y: 130 };
+    component.onCanvasMouseMove(mouse(220, 130));
+
+    expect(component.canUndo()).toBeTrue();
+  });
+
+  it('brings the whole journey into view when it is asked to fit', () => {
+    component.fitToScreen();
+
+    const corners = component.nodes.map(n => ({
+      left: n.x * component.zoom + component.panX,
+      top: n.y * component.zoom + component.panY,
+      right: (n.x + n.width) * component.zoom + component.panX,
+      bottom: (n.y + n.height) * component.zoom + component.panY
+    }));
+
+    corners.forEach(corner => {
+      expect(corner.left).toBeGreaterThanOrEqual(0);
+      expect(corner.top).toBeGreaterThanOrEqual(0);
+      expect(corner.right).toBeLessThanOrEqual(800);
+      expect(corner.bottom).toBeLessThanOrEqual(600);
+    });
+  });
+
+  it('keeps the middle of the view in place while zooming', () => {
+    const worldBefore = {
+      x: (400 - component.panX) / component.zoom,
+      y: (300 - component.panY) / component.zoom
+    };
+
+    component.zoomIn();
+
+    expect(component.zoom).toBeGreaterThan(1);
+    expect((400 - component.panX) / component.zoom).toBeCloseTo(worldBefore.x, 6);
+    expect((300 - component.panY) / component.zoom).toBeCloseTo(worldBefore.y, 6);
+  });
+
+  it('does not zoom further out than the canvas allows', () => {
+    for (let step = 0; step < 30; step++) {
+      component.zoomOut();
+    }
+    expect(component.zoom).toBe(0.2);
+    expect(component.zoomPercent).toBe(20);
+  });
+
+  it('goes back to actual size', () => {
+    component.zoomIn();
+    component.resetZoom();
+    expect(component.zoom).toBe(1);
+    expect(component.zoomPercent).toBe(100);
+  });
+});
