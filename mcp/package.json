@@ -1,0 +1,22 @@
+{
+  "name": "landscapr-mcp",
+  "version": "1.0.0",
+  "description": "MCP server for the Landscapr model - lets an AI assistant read and model journeys, processes, capabilities, functions, data, systems, roles and target pictures",
+  "license": "MIT",
+  "private": true,
+  "type": "module",
+  "bin": {
+    "landscapr-mcp": "src/index.js"
+  },
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "test": "node --test test/*.test.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.30.0"
+  }
+}

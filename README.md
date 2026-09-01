@@ -59,6 +59,33 @@ the PowerPoint export.
 
 In-app documentation lives under **Help** (`src/assets/help/*.md`); start with the *Overview* chapter.
 
+## Modelling With an AI Assistant
+
+Everything the app can model can also be modelled by asking for it. `mcp/` holds an **MCP server** that puts
+the model in front of an AI assistant (Claude, Claude Code, Cursor, anything that speaks the Model Context
+Protocol). It works on the same JSON file — journeys, processes, capabilities, functions, data objects,
+systems, roles and target pictures — and it can answer the questions the model is kept for: what breaks if we
+retire this system, which processes run without functional support, what still has to be built.
+
+```bash
+npm run mcp:install                              # once
+node mcp/src/index.js --file ./landscape.json    # a downloaded model
+LANDSCAPR_GITHUB_TOKEN=ghp_... \
+  node mcp/src/index.js --repo owner/name --path model.json --branch main
+```
+
+You can also just describe how something works — a paragraph, a list of steps, a meeting note — and let the
+assistant turn that reading into processes with their steps, journeys with their steps and the functions
+behind them. What the description says nobody has built yet becomes a **declared gap**, which is exactly what
+the gap view is for. Nothing is modelled twice and nothing you wrote by hand is overwritten.
+
+With a repository the assistant commits on a branch and opens a pull request, so its changes reach the
+published model through the same review as everybody else's. `--read-only` starts a server that answers
+questions and refuses changes.
+
+The **Repositories** page prints the ready-made configuration for the repository and file you have selected,
+and `mcp/README.md` plus the in-app chapter *Help → AI Modelling (MCP)* describe the tools in full.
+
 ## Development
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli).
@@ -72,6 +99,8 @@ This project was generated with [Angular CLI](https://github.com/angular/angular
 | `npm run lint` | TSLint |
 | `npm run e2e` | End-to-end tests via Protractor |
 | `npm run generate-licenses` | Regenerate `src/assets/licenses.json` |
+| `npm run mcp:install` | Install the dependencies of the MCP server in `mcp/` |
+| `npm run mcp:test` | Tests of the MCP server |
 
 `set-version.js` runs before start and build and writes the build timestamp into
 `src/environments/version.ts`.

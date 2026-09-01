@@ -46,6 +46,7 @@ export class RepositoriesComponent implements OnInit, OnDestroy {
   submitting = false;
   startingEditMode = false;
   reviewingChanges = false;
+  isMcpCollapsed: boolean = true;
 
   stats: { journeys: number, processes: number, apis: number, capabilities: number, systems: number, data: number } | null = null;
   private dataSubscription: Subscription;
@@ -441,6 +442,56 @@ export class RepositoriesComponent implements OnInit, OnDestroy {
         this.toastr.error('Failed to prepare save');
         this.saving = false;
     });
+  }
+
+  /**
+   * The configuration an AI assistant needs to work on this very model.
+   *
+   * The MCP server reads and writes the same file the app does, so an assistant
+   * can model journeys, processes, functions and the rest, and the result comes
+   * back through the same review as any other change.
+   */
+  get mcpConfig(): string {
+    const owner = this.selectedRepo?.owner?.login || 'your-org';
+    const repo = this.selectedRepo?.name || 'your-model-repo';
+    const path = this.selectedFilePath || 'model.json';
+
+    return JSON.stringify({
+      mcpServers: {
+        landscapr: {
+          command: 'node',
+          args: [
+            '/path/to/landscapr/mcp/src/index.js',
+            '--repo', `${owner}/${repo}`,
+            '--path', path,
+            '--branch', this.currentBranch
+          ],
+          env: { LANDSCAPR_GITHUB_TOKEN: 'your-personal-access-token' }
+        }
+      }
+    }, null, 2);
+  }
+
+  /** The same thing for Claude Code, which takes it on the command line */
+  get mcpCommandLine(): string {
+    const owner = this.selectedRepo?.owner?.login || 'your-org';
+    const repo = this.selectedRepo?.name || 'your-model-repo';
+    const path = this.selectedFilePath || 'model.json';
+
+    return `claude mcp add landscapr -e LANDSCAPR_GITHUB_TOKEN=your-personal-access-token ` +
+      `-- node /path/to/landscapr/mcp/src/index.js --repo ${owner}/${repo} --path ${path} --branch ${this.currentBranch}`;
+  }
+
+  copyToClipboard(text: string, what: string): void {
+    const clipboard = (navigator as any)?.clipboard;
+    if (clipboard && clipboard.writeText) {
+      clipboard.writeText(text).then(
+        () => this.toastr.success(`${what} copied`),
+        () => this.toastr.error(`${what} could not be copied`)
+      );
+      return;
+    }
+    this.toastr.info('Copying is not available in this browser. Select the text and copy it by hand.');
   }
 
   download(): void {

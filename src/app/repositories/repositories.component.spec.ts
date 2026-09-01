@@ -73,6 +73,24 @@ describe('RepositoriesComponent', () => {
     expect(githubServiceSpy.getPullRequests).toHaveBeenCalledWith('other-owner', 'my-repo');
   });
 
+  it('offers an MCP configuration for the repository, file and workspace in front of the user', () => {
+    component.selectedRepo = { name: 'my-repo', owner: { login: 'other-owner' } };
+    component.selectedFilePath = 'models/landscape.json';
+    component.currentBranch = 'draft-christof';
+
+    const config = JSON.parse(component.mcpConfig);
+    const args = config.mcpServers.landscapr.args;
+
+    expect(args).toContain('other-owner/my-repo');
+    expect(args).toContain('models/landscape.json');
+    expect(args).toContain('draft-christof');
+    // a placeholder - the token the user connected with is never handed out
+    expect(config.mcpServers.landscapr.env.LANDSCAPR_GITHUB_TOKEN).toBe('your-personal-access-token');
+
+    expect(component.mcpCommandLine).toContain('--repo other-owner/my-repo');
+    expect(component.mcpCommandLine).toContain('--branch draft-christof');
+  });
+
   it('should use repo owner when loading file from github', () => {
     const repo = { name: 'my-repo', owner: { login: 'other-owner' } };
     component.selectedRepo = repo;
