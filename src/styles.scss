@@ -17,6 +17,19 @@
   --gap-planned: #0284c7;
   --gap-open: #dc2626;
   --gap-manual: #94a3b8;
+
+  // Who carries a process. The colour is a mark of identity, not a background:
+  // views tint it far towards white and keep the label dark, so a lane stays
+  // readable whichever of these a role is given. Muted on purpose - a swimlane
+  // full of saturated bars is a swimlane nobody reads.
+  --role-customer: #2f6fb8;
+  --role-vehicle: #3f7d6a;
+  --role-service-with-customer: #7a5ea8;
+  --role-service: #2b8a8f;
+  --role-workshop: #b5762c;
+  --role-parts: #a34f6d;
+  --role-processing: #5a6b7c;
+  --role-unassigned: #8c98a4;
 }
 
 // 1. Configuration and Variables

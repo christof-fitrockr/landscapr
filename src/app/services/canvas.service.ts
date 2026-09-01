@@ -1,5 +1,6 @@
 import {Injectable} from '@angular/core';
 import {ProcessStep, Role} from '../models/process';
+import {Surface, readableTextOn, surfaceFor} from './color';
 
 // Modern Color Palette & Styles
 const PALETTE = {
@@ -7,10 +8,12 @@ const PALETTE = {
   swimlaneOdd: '#ffffff',    // White
   swimlaneEven: '#f9fafb',   // Gray 50
   swimlaneBorder: '#e5e7eb', // Gray 200
-  processFill: '#dbeafe',    // Blue 100
-  processBorder: '#93c5fd',  // Blue 300
-  functionFill: '#fef3c7',   // Amber 100
-  functionBorder: '#fde68a', // Amber 200
+  processFill: '#eef4fd',    // a pale wash, so the label carries the box
+  processBorder: '#9db8e0',
+  processAccent: '#4c7fd4',
+  functionFill: '#fdf6e3',
+  functionBorder: '#e3cf9a',
+  functionAccent: '#c99a2e',
   shadow: 'rgba(0, 0, 0, 0.1)',
   arrow: '#4b5563'           // Gray 600
 };
@@ -35,13 +38,28 @@ export class CanvasService {
         return PALETTE;
     }
 
-    private resolveColor(color: string): string {
-        if (color && color.startsWith('var(')) {
-            const varName = color.substring(4, color.length - 1);
-            const value = getComputedStyle(document.body).getPropertyValue(varName).trim();
-            return value || color;
+    /**
+     * A colour as a canvas can use it. A CSS variable is looked up; one that is
+     * not defined returns nothing rather than its own name, because a canvas
+     * silently keeps painting in the previous colour when it is handed something
+     * it cannot read.
+     */
+    private resolveColor(color: string): string | null {
+        if (!color) return null;
+        if (color.startsWith('var(')) {
+            const varName = color.substring(4, color.length - 1).split(',')[0].trim();
+            const value = typeof getComputedStyle === 'function'
+                ? getComputedStyle(document.body).getPropertyValue(varName).trim()
+                : '';
+            return value || null;
         }
         return color;
+    }
+
+    /** The surface of a box that belongs to a role, or the default one */
+    private surfaceOf(color: string, fallback: Surface): Surface {
+        const resolved = this.resolveColor(color);
+        return resolved ? surfaceFor(resolved, fallback) : fallback;
     }
 
     calcFunctionWidth(cx: CanvasRenderingContext2D, x: number, functionName: string, systemName: string): number {
@@ -83,14 +101,16 @@ export class CanvasService {
 
         // Use Function Fill from Palette if generic color passed, or use passed color if specific (though we generally override)
         // Check if color is the default white/yellow from old code, if so replace with new palette
-        let fillStyle = color;
-        if (color === '#ffffff' || color === '#e0e050') {
-             fillStyle = this.palette.functionFill;
-        } else {
-             fillStyle = this.resolveColor(color); // Keep specific overrides if any
-        }
-        cx.fillStyle = fillStyle;
-        cx.strokeStyle = this.palette.functionBorder;
+        const fallback: Surface = {
+            fill: this.palette.functionFill,
+            border: this.palette.functionBorder,
+            accent: this.palette.functionAccent,
+            text: this.palette.text
+        };
+        const surface = (color === '#ffffff' || color === '#e0e050') ? fallback : this.surfaceOf(color, fallback);
+
+        cx.fillStyle = surface.fill;
+        cx.strokeStyle = surface.border;
 
         // Function Box - Rounded Rect
         cx.beginPath();
@@ -105,7 +125,7 @@ export class CanvasService {
         cx.shadowOffsetX = 0;
         cx.shadowOffsetY = 0;
 
-        cx.fillStyle = this.palette.text;
+        cx.fillStyle = surface.text;
         cx.font = FUN_FONT;
         cx.fillText(functionName, x + w / 2, y + h / 3);
         cx.font = SYS_FONT;
@@ -126,16 +146,17 @@ export class CanvasService {
 
         cx.font = FUN_FONT;
 
-        // Modernize Color
-        let fillStyle = color;
-        if (color === '#ffffff') {
-            fillStyle = this.palette.processFill;
-        } else {
-            fillStyle = this.resolveColor(color);
-        }
+        // The colour of a role says which lane this belongs to. Used as the
+        // surface it swallows the label, so it becomes a wash plus an edge.
+        const surface = this.surfaceOf(color, {
+            fill: this.palette.processFill,
+            border: this.palette.processBorder,
+            accent: this.palette.processAccent,
+            text: this.palette.text
+        });
 
-        cx.fillStyle = fillStyle;
-        cx.strokeStyle = this.palette.processBorder;
+        cx.fillStyle = surface.fill;
+        cx.strokeStyle = surface.border;
 
         if (isDraft) {
             cx.setLineDash([5, 5]);
@@ -163,7 +184,19 @@ export class CanvasService {
         cx.shadowOffsetX = 0;
         cx.shadowOffsetY = 0;
 
-        cx.fillStyle = this.palette.text;
+        // the role reads from the edge, where it cannot get in the way of the label
+        cx.save();
+        this.roundRect(cx, x, y, w, h, CORNER_RADIUS);
+        cx.clip();
+        cx.fillStyle = surface.accent;
+        cx.fillRect(x, y, 4, h);
+        cx.restore();
+
+        cx.shadowBlur = 0;
+        cx.shadowOffsetX = 0;
+        cx.shadowOffsetY = 0;
+
+        cx.fillStyle = surface.text;
         cx.font = FUN_FONT;
         // Adjust text position slightly if needed
         cx.fillText(processStepName, x + w / 2, y + h / 2);
@@ -204,11 +237,9 @@ export class CanvasService {
         cx.save();
 
         // Background color: Use provided color, or default to zebra striping
-        if (color) {
-            cx.fillStyle = this.resolveColor(color);
-        } else {
-            cx.fillStyle = (index % 2 === 0) ? this.palette.swimlaneEven : this.palette.swimlaneOdd;
-        }
+        const given = color ? this.resolveColor(color) : null;
+        const background = given || ((index % 2 === 0) ? this.palette.swimlaneEven : this.palette.swimlaneOdd);
+        cx.fillStyle = background;
         cx.fillRect(x, y, w, h);
 
         cx.strokeStyle = this.palette.swimlaneBorder;
@@ -218,7 +249,8 @@ export class CanvasService {
         cx.lineTo(x + w, y + h);
         cx.stroke();
 
-        cx.fillStyle = this.palette.text; // Modern text color
+        // a lane that was given a colour of its own decides its own text colour
+        cx.fillStyle = given ? readableTextOn(background, this.palette.text) : this.palette.text;
         cx.font = FUN_FONT;
         // Adjust text position
         cx.fillText(description, x + 10, y + h - 15);
