@@ -74,6 +74,11 @@ LANDSCAPR_GITHUB_TOKEN=ghp_... \
   node mcp/src/index.js --repo owner/name --path model.json --branch main
 ```
 
+You can also just describe how something works — a paragraph, a list of steps, a meeting note — and let the
+assistant turn that reading into processes with their steps, journeys with their steps and the functions
+behind them. What the description says nobody has built yet becomes a **declared gap**, which is exactly what
+the gap view is for. Nothing is modelled twice and nothing you wrote by hand is overwritten.
+
 With a repository the assistant commits on a branch and opens a pull request, so its changes reach the
 published model through the same review as everybody else's. `--read-only` starts a server that answers
 questions and refuses changes.

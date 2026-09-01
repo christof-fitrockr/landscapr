@@ -4,6 +4,7 @@
  * layer of a journey, and the attributes of a data object.
  */
 import { ENUMS } from '../schema.js';
+import { ensure } from '../factory.js';
 import { localId, result } from '../tool-helpers.js';
 import { attachToParent, detachFromParent, removeJourneyNodes } from './elements.js';
 
@@ -467,30 +468,16 @@ function relationOf(relation) {
   return spec;
 }
 
+/** The function a step calls, created as a declared gap when it is new */
 function functionId(store, reference, createMissing, created) {
   const existing = store.find('function', reference, { required: false });
   if (existing) return existing.id;
   if (!createMissing) {
     throw new Error(`No function "${reference}" in the model. Create it first, or set createMissingFunctions.`);
   }
-  const fn = {
-    id: store.newId(),
-    name: String(reference).trim(),
-    description: '',
-    implementationStatus: ENUMS.implementationStatus.Gap,
-    apiType: ENUMS.apiType.System,
-    capabilityId: '',
-    implementedBy: [],
-    input: '',
-    output: '',
-    inputData: [],
-    outputData: [],
-    tags: [],
-    status: ENUMS.dataStatus.Draft
-  };
-  store.add('function', fn);
-  created.push(fn.name);
-  return fn.id;
+  const { element } = ensure(store, 'function', reference, { implementationStatus: 'Gap' });
+  created.push(element.name);
+  return element.id;
 }
 
 function processFor(store, reference, createMissing, created) {
@@ -499,23 +486,9 @@ function processFor(store, reference, createMissing, created) {
   if (!createMissing) {
     throw new Error(`No process "${reference}" in the model. Create it first, or set createMissingProcesses.`);
   }
-  const process = {
-    id: store.newId(),
-    name: String(reference).trim(),
-    description: '',
-    status: ENUMS.processStatus.Draft,
-    input: '',
-    output: '',
-    tags: [],
-    role: '',
-    steps: [],
-    apiCallIds: [],
-    favorite: false,
-    implementedBy: []
-  };
-  store.add('process', process);
-  created.push(process.name);
-  return process;
+  const { element } = ensure(store, 'process', reference);
+  created.push(element.name);
+  return element;
 }
 
 function nodeFor(byReference, reference) {

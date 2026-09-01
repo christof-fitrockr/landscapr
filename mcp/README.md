@@ -79,12 +79,53 @@ The **Repositories** page in the app prints the snippet for the repository, file
 | `landscapr_set_journey_flow` | the steps of a journey and how they follow each other |
 | `landscapr_set_experience` | what the customer expects at a step, what they get, how well it matches |
 | `landscapr_set_data_items` | the attributes of a data object |
+| `landscapr_draft` | a whole reading of a description at once: processes with their steps, journeys with their steps, functions, systems, capabilities, data - created, linked and reused rather than duplicated |
 | `landscapr_impact` | what would be affected if an element changed or was retired |
 | `landscapr_gaps` | which processes run without functional support, and what has to be built |
 | `landscapr_validate` | links into nothing, names used twice, functions nobody provides |
 | `landscapr_reload`, `landscapr_save` | read the model again, write it back as a commit and a pull request |
 
 Resources: `landscapr://model` for the whole document, and one per kind of element, e.g. `landscapr://processes`.
+
+Prompts - in Claude Code they show up as slash commands:
+
+| Prompt | For |
+|---|---|
+| `model_from_description` | describe how something works and get processes, process steps, journeys and functions out of it |
+| `extend_from_description` | work a change into the model that already exists, without overwriting it |
+
+## From a description to a model
+
+The reading is the assistant's job, the model is this server's. You describe how something works - a
+paragraph, a list of steps, a meeting note - the assistant decides what the elements are, and hands the whole
+reading over in one `landscapr_draft` call:
+
+> *A customer reports a complaint in the portal. Service checks it against the contract; if it is covered a
+> credit note is raised in SAP, otherwise the customer is told why not. We have nothing for the check yet -
+> somebody reads the contract by hand.*
+
+becomes a process with its steps, the journey the customer walks, the functions behind the steps, the systems
+that provide them - and `checkAgainstContract` as a **declared gap**, because the description says it does not
+exist yet. The answer says what was created, what was reused, and how well supported what you just modelled is:
+
+```json
+{
+  "created": { "system": ["Service Portal", "SAP"], "function": ["submitComplaint", "checkAgainstContract"],
+               "process": ["Settle a complaint"], "journey": ["Complaint"] },
+  "wrote": ["Process \"Settle a complaint\": 2 steps", "Journey \"Complaint\": 2 steps"],
+  "declaredAsGap": ["checkAgainstContract"],
+  "support": { "processes": 1, "coverage": "50%", "open": 1, "withGap": ["Settle a complaint"] }
+}
+```
+
+Three rules keep this safe on a model that already exists:
+
+- **Nothing is modelled twice.** An element of that name is reused; anything named in passing - the system
+  behind a function, the role that carries a process - is created rather than turned into an error.
+- **Nothing you wrote is overwritten.** A draft fills blanks and grows lists; where the model already says
+  something else it keeps it and reports what it left alone. A flow that exists is only rewritten when asked
+  for with `replaceFlows`.
+- **`dryRun` shows what a draft would do** before it does it.
 
 ## How it behaves
 

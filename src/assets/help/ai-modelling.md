@@ -12,10 +12,41 @@ that the app reads and writes. So you can say
 
 and the result is a model you open in LandscapR like any other.
 
+## Model it by describing it
+
+The shortest way in is to describe how something works and let the assistant model it. A paragraph, a list of
+steps, the notes from a workshop - the assistant reads it, decides what the elements are, and writes them in
+one go:
+
+> *"Der Kunde meldet eine Reklamation im Portal. Der Service prueft sie gegen den Vertrag; ist sie gedeckt,
+> wird in SAP eine Gutschrift erzeugt, sonst bekommt der Kunde eine Begruendung. Fuer die Pruefung haben wir
+> noch nichts - das liest heute jemand von Hand im Vertrag nach."*
+
+Out of that come the process **Reklamation bearbeiten** with its steps, the journey the customer walks, the
+functions behind the steps, the systems `Service Portal` and `SAP` - and `vertragPruefen` as a **declared
+gap**, because the description says it does not exist yet. It shows up in the gap view and on the roadmap
+straight away.
+
+In Claude Code the two ready-made instructions are slash commands:
+
+| Command | For |
+|---|---|
+| `/landscapr:model_from_description` | describe how something works and get processes, process steps, journeys and functions out of it |
+| `/landscapr:extend_from_description` | work a change into what is already modelled |
+
+Or simply say it: *"Lies diese Beschreibung und modelliere den Prozess und die Journey daraus."*
+
+**It cannot run over what you built.** An element that exists is reused, not modelled a second time under a
+slightly different name. A draft fills in blanks and adds to lists, but where you have written something else
+it keeps yours and says so. Steps that a process already has are kept unless the assistant is explicitly asked
+to replace them. And you can always ask for the preview first - the assistant then reports what it *would*
+create before anything is written.
+
 ## What the assistant can do
 
 | Ask for | The assistant uses |
 |---|---|
+| Model a description in one go | `landscapr_draft` |
 | See what is already modelled | `landscapr_overview`, `landscapr_list`, `landscapr_search`, `landscapr_get` |
 | Learn the rules of the model | `landscapr_describe_types` |
 | Add journeys, processes, capabilities, functions, data objects, systems, roles, target pictures | `landscapr_create`, `landscapr_update`, `landscapr_delete` |
@@ -28,6 +59,10 @@ and the result is a model you open in LandscapR like any other.
 | Answer "where is the business carried by people?" | `landscapr_gaps` |
 | Check that the model still holds together | `landscapr_validate` |
 | Save the work | `landscapr_save`, `landscapr_reload` |
+
+What the description leaves open stays open: a step whose function nobody has built yet is named anyway and
+becomes a declared gap, and where a person does the work on purpose the process is marked as manual by design,
+so it is not counted against you.
 
 Elements are named, not numbered: the assistant says `implementedBy: ["CRM"]`, and the server turns it into
 the id the model stores. A status is a word - `Ready`, `Planned`, `Gap` - not a number. If a name does not

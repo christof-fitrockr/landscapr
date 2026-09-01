@@ -14,6 +14,8 @@ import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import {
   CallToolRequestSchema,
+  GetPromptRequestSchema,
+  ListPromptsRequestSchema,
   ListResourcesRequestSchema,
   ListToolsRequestSchema,
   ReadResourceRequestSchema
@@ -22,6 +24,8 @@ import {
 import { buildConfig } from './config.js';
 import { ModelStore } from './store.js';
 import { TYPES, TYPE_NAMES } from './schema.js';
+import { getPrompt, listPrompts } from './prompts.js';
+import { draftTools } from './tools/draft.js';
 import { elementTools } from './tools/elements.js';
 import { structureTools } from './tools/structure.js';
 import { analysisTools } from './tools/analysis.js';
@@ -36,6 +40,10 @@ capabilities.
 Working with it:
 - Start with landscapr_overview to see what is already there, and landscapr_describe_types
   before you write a kind of element for the first time.
+- When somebody describes how something works and wants it modelled, read the description
+  yourself, decide what the elements are, and hand the whole reading over in one
+  landscapr_draft call - it creates what is missing, reuses what exists and never overwrites
+  what somebody wrote by hand. The model_from_description prompt carries the long form.
 - Elements are referred to by name or by id, so you can say "CRM" instead of a uuid.
 - Create the elements first, then link them - a model earns its keep through its links.
 - landscapr_gaps and landscapr_impact read the model rather than change it; use them to
@@ -49,7 +57,8 @@ export function buildTools(store) {
     ...repoTools(store),
     ...analysisTools(store),
     ...elementTools(store),
-    ...structureTools(store)
+    ...structureTools(store),
+    ...draftTools(store)
   ];
 }
 
@@ -59,7 +68,7 @@ export async function createServer(store) {
 
   const server = new Server(
     { name: 'landscapr', version: '1.0.0' },
-    { capabilities: { tools: {}, resources: {} }, instructions: INSTRUCTIONS }
+    { capabilities: { tools: {}, resources: {}, prompts: {} }, instructions: INSTRUCTIONS }
   );
 
   server.setRequestHandler(ListToolsRequestSchema, async () => ({
@@ -82,6 +91,11 @@ export async function createServer(store) {
       };
     }
   });
+
+  server.setRequestHandler(ListPromptsRequestSchema, async () => ({ prompts: listPrompts() }));
+
+  server.setRequestHandler(GetPromptRequestSchema, async request =>
+    getPrompt(request.params.name, request.params.arguments || {}));
 
   server.setRequestHandler(ListResourcesRequestSchema, async () => ({
     resources: [

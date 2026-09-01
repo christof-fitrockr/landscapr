@@ -2,7 +2,8 @@
  * Reading and writing the elements of the model - the plain modelling verbs:
  * describe, list, get, create, update, delete.
  */
-import { ENUMS, TYPES, TYPE_NAMES, describeType, resolveTypeName } from '../schema.js';
+import { TYPES, TYPE_NAMES, describeType, resolveTypeName } from '../schema.js';
+import { newElement } from '../factory.js';
 import { neighboursOf } from '../relations.js';
 import { result, typeProperty, TYPE_ENUM } from '../tool-helpers.js';
 
@@ -194,8 +195,7 @@ export function elementTools(store) {
         const created = [];
 
         for (const properties of elements) {
-          const coerced = store.coerce(typeName, properties, { creating: true });
-          const element = { id: store.newId(), ...defaultsOf(typeName), ...coerced };
+          const element = newElement(store, typeName, properties);
 
           const clash = store.elements(typeName)
             .find(other => (other.name || '').toLowerCase() === (element.name || '').toLowerCase());
@@ -304,24 +304,6 @@ export function elementTools(store) {
 // -----------------------------------------------------------------------------
 // Helpers
 // -----------------------------------------------------------------------------
-
-function defaultsOf(typeName) {
-  const type = TYPES[typeName];
-  const resolved = {};
-
-  for (const [key, value] of Object.entries(type.defaults || {})) {
-    resolved[key] = typeof value === 'function' ? value() : (Array.isArray(value) ? [...value] : value);
-  }
-
-  for (const field of type.fields) {
-    if (field.default === undefined || resolved[field.name] !== undefined) continue;
-    resolved[field.name] = field.kind === 'enum'
-      ? ENUMS[field.enumName][field.default]
-      : (Array.isArray(field.default) ? [...field.default] : field.default);
-  }
-
-  return resolved;
-}
 
 export function nameOf(store, typeName, id) {
   const element = store.byId(typeName, id);
