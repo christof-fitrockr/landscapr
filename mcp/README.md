@@ -61,10 +61,14 @@ Claude Desktop, Cursor and anything else that reads an `mcpServers` block:
 Claude Code:
 
 ```bash
-claude mcp add landscapr -- node /path/to/landscapr/mcp/src/index.js --file /path/to/landscape.json
+claude mcp add -t stdio landscapr -- node /path/to/landscapr/mcp/src/index.js --file /path/to/landscape.json
 ```
 
 The **Repositories** page in the app prints the snippet for the repository, file and branch you have selected.
+
+**[CONNECT.md](CONNECT.md) walks through the whole setup** - installing, pointing the server at a file or at a
+repository, registering it with Claude Code, Claude Desktop or Cursor, checking that it answers, and what the
+error messages mean.
 
 ## The tools
 

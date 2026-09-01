@@ -22,6 +22,7 @@ import {
   ExperienceExpectationDraft,
   ExperienceExpectationModalComponent
 } from './experience-expectation-modal.component';
+import { LABEL, arrangeJourney, estimateTextWidth, wrapLabel } from './auto-arrange';
 
 // Basic types for nodes and edges
 export type ToolType = 'select' | 'process' | 'decision' | 'group' | 'connector' | 'experience';
@@ -205,6 +206,11 @@ export class JourneyEditorComponent implements OnInit, OnChanges {
   private pendingEdgeSourceId: string | null = null;
 
   private saveTimer: any;
+
+  /** line height of a wrapped step label, read by the template */
+  readonly labelLineHeight = LABEL.lineHeight;
+  /** wrapped labels, keyed by what they were wrapped for */
+  private labelLines_ = new Map<string, string[]>();
 
   openNewProcessModal(): void {
     const ref = this.modalService.show(NewProcessModalComponent, { class: 'modal-sm', initialState: {} });
@@ -423,6 +429,78 @@ export class JourneyEditorComponent implements OnInit, OnChanges {
 
   canRedo(): boolean {
     return this.redoStack.length > 0;
+  }
+
+  // ---------------------------------------------------------------------------
+  // Arranging the canvas
+  // ---------------------------------------------------------------------------
+
+  /**
+   * Lays the journey out so it can be read: every box as wide as its name needs,
+   * every column as wide as its widest box, and the steps in the order the
+   * arrows put them in. Undo brings the hand-made arrangement back.
+   */
+  autoArrange(): void {
+    if (!this.nodes.length) return;
+
+    this.pushStateToHistory();
+    const geometry = arrangeJourney(this.nodes, this.edges, this.measureText);
+
+    this.nodes.forEach(node => {
+      const box = geometry.get(node.id);
+      if (!box) return;
+      node.x = box.x;
+      node.y = box.y;
+      node.width = box.width;
+      node.height = box.height;
+    });
+
+    this.labelLines_.clear();
+    this.recalcExperienceLayer();
+    this.scheduleSave();
+  }
+
+  /** The lines a step label is drawn on inside its box */
+  labelLines(node: CanvasNode): string[] {
+    const label = node.label || '';
+    const key = node.id + '|' + node.width + '|' + label;
+    const known = this.labelLines_.get(key);
+    if (known) return known;
+
+    const lines = wrapLabel(label, Math.max(20, node.width - 2 * LABEL.paddingX), this.measureText);
+    if (this.labelLines_.size > 500) {
+      this.labelLines_.clear();
+    }
+    this.labelLines_.set(key, lines);
+    return lines;
+  }
+
+  /** Where the first of several lines starts, so the block sits in the middle */
+  labelFirstLineOffset(node: CanvasNode): number {
+    return -((this.labelLines(node).length - 1) * LABEL.lineHeight) / 2;
+  }
+
+  /**
+   * How wide a text really is on this canvas. Falls back to an estimate wherever
+   * the browser cannot measure - in a test, or before the canvas is drawn.
+   */
+  private measureText = (text: string, fontSize: number): number => {
+    const svg = this.svgEl && this.svgEl.nativeElement;
+    if (!svg || !text) {
+      return estimateTextWidth(text, fontSize);
+    }
+    try {
+      const probe = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      probe.setAttribute('font-size', String(fontSize));
+      probe.setAttribute('visibility', 'hidden');
+      probe.textContent = text;
+      svg.appendChild(probe);
+      const width = probe.getComputedTextLength();
+      svg.removeChild(probe);
+      return width > 0 ? width : estimateTextWidth(text, fontSize);
+    } catch (e) {
+      return estimateTextWidth(text, fontSize);
+    }
   }
 
   // Mouse interactions on canvas

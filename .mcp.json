@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "landscapr": {
+      "command": "node",
+      "args": ["mcp/src/index.js", "--file", "${LANDSCAPR_MODEL_FILE:-./landscape.json}"]
+    }
+  }
+}

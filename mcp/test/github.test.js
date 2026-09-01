@@ -46,11 +46,29 @@ describe('the repository behind the model', () => {
     assert.equal(github.describe().fileSha, 'abc');
   });
 
-  it('treats a repository without the file as an empty model', async () => {
-    fakeGithub({});
+  it('treats a file that is not there yet as an empty model', async () => {
+    fakeGithub({
+      'contents/model.json': { status: 404, body: { message: 'Not Found' } },
+      'git/ref/heads/main': { body: { object: { sha: 'headsha' } } },
+      '/repos/acme/landscape': { body: { full_name: 'acme/landscape' } }
+    });
     const store = new ModelStore(backend());
     await store.load();
-    assert.deepEqual(store.counts().process, 0);
+    assert.equal(store.counts().process, 0);
+  });
+
+  it('says so when the repository is not there, instead of handing back an empty model', async () => {
+    fakeGithub({});
+    await assert.rejects(() => backend().read(), /not there, or the token cannot see it/);
+  });
+
+  it('says so when the branch does not exist', async () => {
+    fakeGithub({
+      'contents/model.json': { status: 404, body: { message: 'Not Found' } },
+      'git/ref/heads/main': { status: 404, body: { message: 'Not Found' } },
+      '/repos/acme/landscape': { body: { full_name: 'acme/landscape' } }
+    });
+    await assert.rejects(() => backend().read(), /has no branch "main"/);
   });
 
   it('commits on a branch it creates and opens a pull request', async () => {

@@ -100,6 +100,12 @@ svg defs marker#arrowhead {
   margin-top: 6px;
 }
 
+/* Step label inside a process box - wrapped into lines by the editor */
+svg .node-label {
+  font-size: 12px;
+  fill: var(--node-text);
+}
+
 /* Decision label below diamond */
 svg .decision-label {
   font-size: 11px;
